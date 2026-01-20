@@ -15,13 +15,9 @@ import { ImpactGallery } from "@/components/home/ImpactGallery";
 import legalAwarenessHover from "@/assets/legal-awareness-hover.jpg";
 import holisticWellbeingHover from "@/assets/holistic-wellbeing-hover.jpg";
 import publicSensitizationHover from "@/assets/public-sensitization-hover.jpg";
-import corporateCareHover from "@/assets/corporate-care-hover.jpg";
-import corporateCareIllustration from "@/assets/corporate-care-illustration.jpg";
-
-import { useState } from "react";
+import corporateHandshake from "@/assets/corporate-handshake.png";
 
 export default function Home() {
-  const [isCorporateHovered, setIsCorporateHovered] = useState(false);
 
   return (
     <Layout>
@@ -149,65 +145,52 @@ export default function Home() {
       {/* Corporate Care CTA */}
       <section className="py-16 lg:py-24 bg-background">
         <div className="container">
-          <div 
-            className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/10 to-accent p-8 lg:p-12 cursor-pointer"
-            onMouseEnter={() => setIsCorporateHovered(true)}
-            onMouseLeave={() => setIsCorporateHovered(false)}
-          >
-            {/* Background image overlay with crossfade */}
-            <div 
-              className="absolute inset-0 bg-cover bg-center transition-opacity duration-500 ease-in-out z-0"
-              style={{ 
-                backgroundImage: `url(${corporateCareHover})`,
-                opacity: isCorporateHovered ? 1 : 0
-              }}
-            />
-            {/* Dark overlay for text readability */}
-            <div 
-              className="absolute inset-0 bg-foreground/50 transition-opacity duration-500 ease-in-out z-[5]"
-              style={{ opacity: isCorporateHovered ? 1 : 0 }}
-            />
-            {/* Gradient overlay from bottom */}
-            <div 
-              className="absolute inset-0 bg-gradient-to-t from-primary via-primary/70 to-transparent transition-opacity duration-500 ease-in-out z-10"
-              style={{ opacity: isCorporateHovered ? 1 : 0 }}
-            />
-            
-            {/* Card content */}
-            <div className="relative z-20 flex flex-col lg:flex-row items-center gap-8">
-              <div className="flex-1 space-y-4">
-                <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium transition-colors duration-300 ${
-                  isCorporateHovered ? 'bg-background/20 text-white' : 'bg-primary/20 text-primary'
-                }`}>
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-accent via-accent/80 to-primary/10">
+            {/* Content wrapper */}
+            <div className="relative z-10 flex flex-col lg:flex-row items-center">
+              {/* Text content - left side */}
+              <div className="flex-1 p-8 lg:p-12 lg:pr-0 space-y-5">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-foreground/10 text-foreground text-sm font-medium">
                   <Building2 className="h-4 w-4" />
                   For Businesses
                 </div>
-                <h2 className={`font-serif text-2xl lg:text-3xl font-bold transition-colors duration-300 ${
-                  isCorporateHovered ? 'text-white' : 'text-foreground'
-                }`}>
-                  Corporate Parental Care Program
+                
+                <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground leading-tight">
+                  Corporate Parental<br />Care Program
                 </h2>
-                <p className={`max-w-xl transition-colors duration-300 ${
-                  isCorporateHovered ? 'text-white/90' : 'text-muted-foreground'
-                }`}>
-                  Partner with Shraddha to support the parents of your employees. We provide mental health support,
-                  companionship, and engagement programs for the senior family members of your workforce.
+                
+                <p className="text-muted-foreground max-w-md leading-relaxed">
+                  Partner with Shraddha to support the parents of your employees. We provide mental health support, companionship, and engagement programs for the senior family members of your workforce.
                 </p>
-                <Button asChild size="lg" variant={isCorporateHovered ? "secondary" : "default"}>
+                
+                <Button asChild size="lg" className="group bg-foreground hover:bg-foreground/90 text-background">
                   <Link to="/corporate-care">
-                    Learn More <ArrowRight className="ml-2 h-4 w-4" />
+                    Learn More
+                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </Button>
               </div>
-              <div className="flex-shrink-0">
-                <div className="w-32 h-32 lg:w-48 lg:h-48 rounded-full overflow-hidden border-4 border-background/20 shadow-lg">
-                  <img 
-                    src={corporateCareIllustration} 
-                    alt="Caring for elderly" 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+              
+              {/* Illustration - right side */}
+              <div className="flex-shrink-0 w-full lg:w-1/2 flex justify-center lg:justify-end">
+                <img 
+                  src={corporateHandshake} 
+                  alt="Corporate partnership illustration" 
+                  className="w-full max-w-lg lg:max-w-none lg:w-full h-auto object-contain"
+                />
               </div>
+            </div>
+            
+            {/* Decorative sparkle elements */}
+            <div className="absolute top-8 right-8 text-primary/30">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5L8 0Z"/>
+              </svg>
+            </div>
+            <div className="absolute bottom-8 left-8 text-primary/20">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5L8 0Z"/>
+              </svg>
             </div>
           </div>
         </div>
