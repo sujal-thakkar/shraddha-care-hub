@@ -14,6 +14,7 @@ import ServiceCard from "@/components/home/ServiceCard";
 import elderAbuseAwareness from "@/assets/elder-abuse-awareness.png";
 import clothDistribution from "@/assets/cloth-distribution.png";
 import legalAwarenessHover from "@/assets/legal-awareness-hover.jpg";
+import holisticWellbeingHover from "@/assets/holistic-wellbeing-hover.jpg";
 
 export default function Home() {
   return (
@@ -104,22 +105,14 @@ export default function Home() {
               hoverImage={legalAwarenessHover}
             />
 
-            <Card className="border-border hover:border-primary/50 transition-colors">
-              <CardHeader>
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <HandHeart className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle className="font-serif">Holistic Well-being</CardTitle>
-                <CardDescription>
-                  Mental health support, companionship programs, and wellness activities for seniors.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Link to="/about" className="text-primary text-sm font-medium hover:underline inline-flex items-center">
-                  Explore programs <ArrowRight className="ml-1 h-3 w-3" />
-                </Link>
-              </CardContent>
-            </Card>
+            <ServiceCard
+              icon={<HandHeart className="h-6 w-6" />}
+              title="Holistic Well-being"
+              description="Mental health support, companionship programs, and wellness activities for seniors."
+              linkTo="/about"
+              linkText="Explore programs"
+              hoverImage={holisticWellbeingHover}
+            />
 
             <Card className="border-border hover:border-primary/50 transition-colors">
               <CardHeader>
