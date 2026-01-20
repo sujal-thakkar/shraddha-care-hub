@@ -6,7 +6,7 @@ const words = [
   { text: "Parents", color: "hsl(45, 100%, 50%)" },
   { text: "Grandparents", color: "hsl(280, 60%, 55%)" },
   { text: "Community Pillars", color: "hsl(15, 78%, 53%)" },
-  { text: "Experienced Minds", color: "hsl(330, 100%, 64%)" },
+  { text: "The Silver Generation", color: "hsl(330, 100%, 64%)" },
 ];
 
 export const AnimatedHeroText = () => {

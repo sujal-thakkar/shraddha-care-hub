@@ -2,27 +2,18 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Scale, Users, Megaphone, Building2, ArrowRight, Shield, HandHeart, Heart } from "lucide-react";
+import { Scale, Users, Megaphone, Building2, ArrowRight, Shield, HandHeart, ChevronDown, Heart } from "lucide-react";
 import hoslaLogo from "@/assets/hosla-logo.png";
 import knowMoreBubble from "@/assets/know-more-bubble.jpg";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { FloatingElements } from "@/components/home/FloatingElements";
 import { AnimatedHeroText } from "@/components/home/AnimatedHeroText";
-import ServiceCard from "@/components/home/ServiceCard";
-import { ImpactGallery } from "@/components/home/ImpactGallery";
 
-// Import hover images
-import legalAwarenessHover from "@/assets/legal-awareness-hover.jpg";
-import holisticWellbeingHover from "@/assets/holistic-wellbeing-hover.jpg";
-import publicSensitizationHover from "@/assets/public-sensitization-hover.jpg";
-import corporateCareHover from "@/assets/corporate-care-hover.jpg";
-import corporateCareIllustration from "@/assets/corporate-care-illustration.jpg";
-
-import { useState } from "react";
+// Import real images
+import elderAbuseAwareness from "@/assets/elder-abuse-awareness.png";
+import clothDistribution from "@/assets/cloth-distribution.png";
 
 export default function Home() {
-  const [isCorporateHovered, setIsCorporateHovered] = useState(false);
-
   return (
     <Layout>
       {/* Hero Section */}
@@ -48,14 +39,15 @@ export default function Home() {
                   href="https://hosla.in"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="absolute -right-28 -top-10 w-24 h-auto transition-all duration-300 hover:scale-110 hover:brightness-110 drop-shadow-lg"
+                  className="absolute -right-28 -top-10 w-24 h-auto transition-all duration-300 hover:scale-110 hover:brightness-110 animate-wiggle drop-shadow-lg"
                 >
                   <img src={knowMoreBubble} alt="Click to Know More" className="w-40 h-auto animate-float-bounce" />
                 </a>
               </div>
 
               <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
-                Dignity and Protection for <br className="hidden sm:inline lg:hidden" /><AnimatedHeroText />
+                Dignity and Protection for{" "}
+                <AnimatedHeroText />
               </h1>
 
               <p className="text-lg lg:text-xl text-muted-foreground max-w-lg">
@@ -88,6 +80,12 @@ export default function Home() {
               <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-accent rounded-full blur-2xl" />
             </div>
           </div>
+
+        {/* Scroll indicator */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 animate-bounce hidden lg:flex flex-col items-center gap-2">
+          <span className="text-xs text-muted-foreground">Scroll to explore</span>
+          <ChevronDown className="h-5 w-5 text-primary" />
+        </div>
         </div>
       </section>
 
@@ -102,32 +100,60 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <ServiceCard
-              icon={<Scale className="h-6 w-6" />}
-              title="Legal Awareness"
-              description="Educating seniors about their legal rights and protections under Indian law."
-              linkTo="/legal-resources"
-              linkText="Learn about your rights"
-              hoverImage={legalAwarenessHover}
-            />
+            <Card className="border-border hover:border-primary/50 transition-colors">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                  <Scale className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle className="font-serif">Legal Awareness</CardTitle>
+                <CardDescription>
+                  Educating seniors about their legal rights and protections under Indian law.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Link
+                  to="/legal-resources"
+                  className="text-primary text-sm font-medium hover:underline inline-flex items-center"
+                >
+                  Learn about your rights <ArrowRight className="ml-1 h-3 w-3" />
+                </Link>
+              </CardContent>
+            </Card>
 
-            <ServiceCard
-              icon={<HandHeart className="h-6 w-6" />}
-              title="Holistic Well-being"
-              description="Mental health support, companionship programs, and wellness activities for seniors."
-              linkTo="/about"
-              linkText="Explore programs"
-              hoverImage={holisticWellbeingHover}
-            />
+            <Card className="border-border hover:border-primary/50 transition-colors">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                  <HandHeart className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle className="font-serif">Holistic Well-being</CardTitle>
+                <CardDescription>
+                  Mental health support, companionship programs, and wellness activities for seniors.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Link to="/about" className="text-primary text-sm font-medium hover:underline inline-flex items-center">
+                  Explore programs <ArrowRight className="ml-1 h-3 w-3" />
+                </Link>
+              </CardContent>
+            </Card>
 
-            <ServiceCard
-              icon={<Megaphone className="h-6 w-6" />}
-              title="Public Sensitization"
-              description="Campaigns and awareness programs against elder abuse in communities."
-              linkTo="/volunteer"
-              linkText="Join the movement"
-              hoverImage={publicSensitizationHover}
-            />
+            <Card className="border-border hover:border-primary/50 transition-colors">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                  <Megaphone className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle className="font-serif">Public Sensitization</CardTitle>
+                <CardDescription>Campaigns and awareness programs against elder abuse in communities.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Link
+                  to="/volunteer"
+                  className="text-primary text-sm font-medium hover:underline inline-flex items-center"
+                >
+                  Join the movement <ArrowRight className="ml-1 h-3 w-3" />
+                </Link>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
@@ -142,70 +168,43 @@ export default function Home() {
             </p>
           </div>
 
-          <ImpactGallery />
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div className="overflow-hidden rounded-2xl shadow-lg">
+              <img src={elderAbuseAwareness} alt="World Elder Abuse Awareness Day 2024" className="w-full h-auto" />
+            </div>
+            <div className="overflow-hidden rounded-2xl shadow-lg">
+              <img src={clothDistribution} alt="Cloth distribution to seniors by Shraddha" className="w-full h-auto" />
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Corporate Care CTA */}
       <section className="py-16 lg:py-24 bg-background">
         <div className="container">
-          <div 
-            className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/10 to-accent p-8 lg:p-12 cursor-pointer"
-            onMouseEnter={() => setIsCorporateHovered(true)}
-            onMouseLeave={() => setIsCorporateHovered(false)}
-          >
-            {/* Background image overlay with crossfade */}
-            <div 
-              className="absolute inset-0 bg-cover bg-center transition-opacity duration-500 ease-in-out z-0"
-              style={{ 
-                backgroundImage: `url(${corporateCareHover})`,
-                opacity: isCorporateHovered ? 1 : 0
-              }}
-            />
-            {/* Dark overlay for text readability */}
-            <div 
-              className="absolute inset-0 bg-foreground/50 transition-opacity duration-500 ease-in-out z-[5]"
-              style={{ opacity: isCorporateHovered ? 1 : 0 }}
-            />
-            {/* Gradient overlay from bottom */}
-            <div 
-              className="absolute inset-0 bg-gradient-to-t from-primary via-primary/70 to-transparent transition-opacity duration-500 ease-in-out z-10"
-              style={{ opacity: isCorporateHovered ? 1 : 0 }}
-            />
-            
-            {/* Card content */}
-            <div className="relative z-20 flex flex-col lg:flex-row items-center gap-8">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/10 to-accent p-8 lg:p-12">
+            <div className="flex flex-col lg:flex-row items-center gap-8">
               <div className="flex-1 space-y-4">
-                <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium transition-colors duration-300 ${
-                  isCorporateHovered ? 'bg-background/20 text-white' : 'bg-primary/20 text-primary'
-                }`}>
+                <div className="inline-flex items-center gap-2 bg-primary/20 text-primary px-3 py-1 rounded-full text-sm font-medium">
                   <Building2 className="h-4 w-4" />
                   For Businesses
                 </div>
-                <h2 className={`font-serif text-2xl lg:text-3xl font-bold transition-colors duration-300 ${
-                  isCorporateHovered ? 'text-white' : 'text-foreground'
-                }`}>
+                <h2 className="font-serif text-2xl lg:text-3xl font-bold text-foreground">
                   Corporate Parental Care Program
                 </h2>
-                <p className={`max-w-xl transition-colors duration-300 ${
-                  isCorporateHovered ? 'text-white/90' : 'text-muted-foreground'
-                }`}>
+                <p className="text-muted-foreground max-w-xl">
                   Partner with Shraddha to support the parents of your employees. We provide mental health support,
                   companionship, and engagement programs for the senior family members of your workforce.
                 </p>
-                <Button asChild size="lg" variant={isCorporateHovered ? "secondary" : "default"}>
+                <Button asChild size="lg">
                   <Link to="/corporate-care">
                     Learn More <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               </div>
               <div className="flex-shrink-0">
-                <div className="w-32 h-32 lg:w-48 lg:h-48 rounded-full overflow-hidden border-4 border-background/20 shadow-lg">
-                  <img 
-                    src={corporateCareIllustration} 
-                    alt="Caring for elderly" 
-                    className="w-full h-full object-cover"
-                  />
+                <div className="w-32 h-32 lg:w-48 lg:h-48 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Users className="h-16 w-16 lg:h-24 lg:w-24 text-primary" />
                 </div>
               </div>
             </div>
