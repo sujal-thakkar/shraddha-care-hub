@@ -14,6 +14,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { ImageUpload } from "@/components/ui/image-upload";
+import { useImageUpload } from "@/hooks/use-image-upload";
 import type { Database } from "@/integrations/supabase/types";
 
 type TeamCategory = Database["public"]["Enums"]["team_category"];
@@ -68,6 +70,11 @@ export default function TeamManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
   const [formData, setFormData] = useState(defaultFormData);
+  
+  const { upload: uploadImage, isUploading: isImageUploading } = useImageUpload({
+    bucket: "team-photos",
+    folder: "members",
+  });
 
   const { data: teamMembers, isLoading } = useQuery({
     queryKey: ["admin-team-members"],
@@ -298,13 +305,12 @@ export default function TeamManagement() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="photo_url">Photo URL</Label>
-                <Input
-                  id="photo_url"
-                  type="url"
+                <Label>Photo</Label>
+                <ImageUpload
                   value={formData.photo_url}
-                  onChange={(e) => setFormData({ ...formData, photo_url: e.target.value })}
-                  placeholder="https://example.com/photo.jpg"
+                  onChange={(url) => setFormData({ ...formData, photo_url: url })}
+                  onUpload={uploadImage}
+                  isUploading={isImageUploading}
                 />
               </div>
 
