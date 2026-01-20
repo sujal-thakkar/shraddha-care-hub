@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Scale, Users, Megaphone, Building2, ArrowRight, Shield, HandHeart, Heart } from "lucide-react";
+import { Scale, Users, Megaphone, Building2, ArrowRight, HandHeart, Heart, UserCheck, MapPin } from "lucide-react";
 import hoslaLogo from "@/assets/hosla-logo.png";
 import knowMoreBubble from "@/assets/know-more-bubble.jpg";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
@@ -10,13 +10,19 @@ import { FloatingElements } from "@/components/home/FloatingElements";
 import { AnimatedHeroText } from "@/components/home/AnimatedHeroText";
 import ServiceCard from "@/components/home/ServiceCard";
 import { ImpactGallery } from "@/components/home/ImpactGallery";
+import { StatCard } from "@/components/home/StatCard";
 
 // Import hover images
 import legalAwarenessHover from "@/assets/legal-awareness-hover.jpg";
 import holisticWellbeingHover from "@/assets/holistic-wellbeing-hover.jpg";
 import publicSensitizationHover from "@/assets/public-sensitization-hover.jpg";
+import corporateCareIllustration from "@/assets/corporate-care-illustration.png";
+import corporateCareHover from "@/assets/corporate-care-hover.jpg";
+import { useState } from "react";
 
 export default function Home() {
+  const [isCorporateHovered, setIsCorporateHovered] = useState(false);
+
   return (
     <Layout>
       {/* Hero Section */}
@@ -49,7 +55,7 @@ export default function Home() {
               </div>
 
               <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
-                Dignity and Protection for <AnimatedHeroText />
+                Dignity and Protection for <br className="hidden sm:inline lg:hidden" /><AnimatedHeroText />
               </h1>
 
               <p className="text-lg lg:text-xl text-muted-foreground max-w-lg">
@@ -143,65 +149,154 @@ export default function Home() {
       {/* Corporate Care CTA */}
       <section className="py-16 lg:py-24 bg-background">
         <div className="container">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/10 to-accent p-8 lg:p-12">
-            <div className="flex flex-col lg:flex-row items-center gap-8">
-              <div className="flex-1 space-y-4">
-                <div className="inline-flex items-center gap-2 bg-primary/20 text-primary px-3 py-1 rounded-full text-sm font-medium">
+          <div 
+            className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-accent via-accent/80 to-primary/10 cursor-pointer"
+            onMouseEnter={() => setIsCorporateHovered(true)}
+            onMouseLeave={() => setIsCorporateHovered(false)}
+          >
+            {/* Hover overlay - background image */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center transition-opacity duration-500 ease-in-out z-0"
+              style={{ 
+                backgroundImage: `url(${corporateCareHover})`,
+                opacity: isCorporateHovered ? 1 : 0
+              }}
+            />
+            {/* Hover overlay - dark layer for text readability */}
+            <div 
+              className="absolute inset-0 bg-foreground/40 transition-opacity duration-500 ease-in-out z-[5]"
+              style={{ opacity: isCorporateHovered ? 1 : 0 }}
+            />
+            {/* Hover overlay - horizontal blue to green gradient */}
+            <div 
+              className="absolute inset-0 transition-opacity duration-500 ease-in-out z-10"
+              style={{ 
+                background: 'linear-gradient(90deg, hsl(200 80% 40% / 0.7) 0%, hsl(161 93% 30% / 0.8) 100%)',
+                opacity: isCorporateHovered ? 1 : 0
+              }}
+            />
+            
+            {/* Content wrapper */}
+            <div className="relative z-20 flex flex-col lg:flex-row items-center">
+              {/* Text content - left side */}
+              <div className="flex-1 p-8 lg:p-12 lg:pr-0 space-y-5">
+                <div 
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors duration-300 ${
+                    isCorporateHovered 
+                      ? 'bg-background/20 text-white' 
+                      : 'bg-foreground/10 text-foreground'
+                  }`}
+                >
                   <Building2 className="h-4 w-4" />
                   For Businesses
                 </div>
-                <h2 className="font-serif text-2xl lg:text-3xl font-bold text-foreground">
-                  Corporate Parental Care Program
+                
+                <h2 
+                  className={`font-serif text-3xl lg:text-4xl font-bold leading-tight transition-colors duration-300 ${
+                    isCorporateHovered ? 'text-white' : 'text-foreground'
+                  }`}
+                >
+                  Corporate Parental<br />Care Program
                 </h2>
-                <p className="text-muted-foreground max-w-xl">
-                  Partner with Shraddha to support the parents of your employees. We provide mental health support,
-                  companionship, and engagement programs for the senior family members of your workforce.
+                
+                <p 
+                  className={`max-w-md leading-relaxed transition-colors duration-300 ${
+                    isCorporateHovered ? 'text-white/90' : 'text-muted-foreground'
+                  }`}
+                >
+                  Partner with Shraddha to support the parents of your employees. We provide mental health support, companionship, and engagement programs for the senior family members of your workforce.
                 </p>
-                <Button asChild size="lg">
+                
+                <Button 
+                  asChild 
+                  size="lg" 
+                  className={`group transition-colors duration-300 ${
+                    isCorporateHovered 
+                      ? 'bg-white hover:bg-white/90 text-foreground' 
+                      : 'bg-foreground hover:bg-foreground/90 text-background'
+                  }`}
+                >
                   <Link to="/corporate-care">
-                    Learn More <ArrowRight className="ml-2 h-4 w-4" />
+                    Learn More
+                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </Button>
               </div>
-              <div className="flex-shrink-0">
-                <div className="w-32 h-32 lg:w-48 lg:h-48 rounded-full bg-primary/20 flex items-center justify-center">
-                  <Users className="h-16 w-16 lg:h-24 lg:w-24 text-primary" />
+              
+              {/* Illustration - right side with gradient overlay */}
+              <div 
+                className={`flex-shrink-0 w-full lg:w-1/2 flex justify-center lg:justify-end relative transition-opacity duration-500 ${
+                  isCorporateHovered ? 'opacity-0' : 'opacity-100'
+                }`}
+              >
+                <div className="relative w-full max-w-lg lg:max-w-none lg:w-full">
+                  <img 
+                    src={corporateCareIllustration} 
+                    alt="Corporate partnership illustration" 
+                    className="w-full h-auto object-contain relative z-10"
+                  />
+                  {/* Gradient overlay effect */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary/20 via-transparent to-transparent rounded-2xl pointer-events-none" />
+                  <div className="absolute -inset-4 bg-gradient-to-br from-primary/10 via-accent/20 to-transparent rounded-full blur-2xl -z-10" />
                 </div>
               </div>
+            </div>
+            
+            {/* Decorative sparkle elements */}
+            <div className={`absolute top-8 right-8 transition-colors duration-300 ${isCorporateHovered ? 'text-white/30' : 'text-primary/30'}`}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5L8 0Z"/>
+              </svg>
+            </div>
+            <div className={`absolute bottom-8 left-8 transition-colors duration-300 ${isCorporateHovered ? 'text-white/20' : 'text-primary/20'}`}>
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5L8 0Z"/>
+              </svg>
             </div>
           </div>
         </div>
       </section>
 
       {/* Mission Statement */}
-      <section className="py-16 lg:py-24 bg-card">
-        <div className="container">
-          <div className="max-w-4xl mx-auto text-center space-y-8">
-            <Shield className="h-16 w-16 text-primary mx-auto" />
-            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground">Our Mission</h2>
-            <p className="text-xl text-muted-foreground leading-relaxed">
-              "To create a society where every senior citizen lives with dignity, free from abuse, neglect, and
-              isolation. We believe in building an extended family that cares, protects, and empowers our elders."
-            </p>
+      <section className="py-16 lg:py-24 bg-card relative overflow-hidden">
+        {/* Decorative background elements */}
+        <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent/30 rounded-full blur-3xl translate-x-1/3 translate-y-1/3" />
+        
+        <div className="container relative z-10">
+          <div className="max-w-5xl mx-auto">
+            {/* Header with decorative lines */}
+            <div className="text-center mb-12 animate-fade-in">
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <div className="h-px w-12 bg-gradient-to-r from-transparent to-primary/50" />
+                <span className="text-primary font-medium uppercase tracking-widest text-sm">What Drives Us</span>
+                <div className="h-px w-12 bg-gradient-to-l from-transparent to-primary/50" />
+              </div>
+              <h2 className="font-serif text-3xl lg:text-5xl font-bold text-foreground mb-6">Our Mission</h2>
+              <p className="text-xl lg:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto italic">
+                "To create a society where every senior citizen lives with dignity, free from abuse, neglect, and
+                isolation. We believe in building an extended family that cares, protects, and empowers our elders."
+              </p>
+            </div>
 
-            {/* Impact Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8">
-              <div className="text-center">
-                <div className="text-3xl lg:text-4xl font-bold text-primary">500+</div>
-                <div className="text-sm text-muted-foreground">Seniors Supported</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl lg:text-4xl font-bold text-primary">50+</div>
-                <div className="text-sm text-muted-foreground">Legal Awareness Camps</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl lg:text-4xl font-bold text-primary">100+</div>
-                <div className="text-sm text-muted-foreground">Active Volunteers</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl lg:text-4xl font-bold text-primary">10+</div>
-                <div className="text-sm text-muted-foreground">Cities Reached</div>
-              </div>
+            {/* Impact Stats with enhanced cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6 pt-8">
+              <StatCard value={500} label="Seniors Supported" Icon={Users} index={0} />
+              <StatCard value={50} label="Legal Awareness Camps" Icon={Scale} index={1} />
+              <StatCard value={100} label="Active Volunteers" Icon={UserCheck} index={2} />
+              <StatCard value={10} label="Cities Reached" Icon={MapPin} index={3} />
+            </div>
+
+            {/* Decorative sparkles */}
+            <div className="absolute top-20 right-20 text-primary/20 animate-pulse hidden lg:block">
+              <svg width="24" height="24" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5L8 0Z"/>
+              </svg>
+            </div>
+            <div className="absolute bottom-32 left-16 text-accent animate-pulse hidden lg:block" style={{ animationDelay: '1s' }}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5L8 0Z"/>
+              </svg>
             </div>
           </div>
         </div>

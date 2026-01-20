@@ -10,8 +10,8 @@ import orgCollage from "@/assets/org-collage.png";
 import heroIllustration1 from "@/assets/hero-illustration-1.jpg";
 
 const heroImages = [
-  { src: heroIllustration1, alt: "Family caring for seniors illustration" },
   { src: awarenessBanner, alt: "Stop Domestic Abuse of Elderly" },
+  { src: heroIllustration1, alt: "Family caring for seniors illustration" },
   { src: elderAbuseAwareness, alt: "World Elder Abuse Awareness Day" },
   { src: clothDistribution, alt: "Cloth distribution to seniors" },
   { src: teamEvent, alt: "Team event" },

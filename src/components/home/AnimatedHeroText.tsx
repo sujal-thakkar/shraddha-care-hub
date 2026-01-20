@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 const words = [
   { text: "Seniors", color: "hsl(var(--primary))" },
@@ -15,9 +15,15 @@ export const AnimatedHeroText = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [currentColor, setCurrentColor] = useState(words[0].color);
 
+  // Find the longest word to set a fixed width
+  const longestWord = useMemo(() => {
+    return words.reduce((longest, word) => 
+      word.text.length > longest.length ? word.text : longest
+    , "");
+  }, []);
+
   useEffect(() => {
     const currentWord = words[currentIndex].text;
-    const targetColor = words[currentIndex].color;
 
     let timeout: NodeJS.Timeout;
 
@@ -47,17 +53,35 @@ export const AnimatedHeroText = () => {
     return () => clearTimeout(timeout);
   }, [displayText, isDeleting, currentIndex]);
 
+  // Calculate underline width percentage based on current text vs longest word
+  const underlineWidth = useMemo(() => {
+    return (displayText.length / longestWord.length) * 100;
+  }, [displayText, longestWord]);
+
   return (
-    <span className="relative inline-block">
-      <span className="transition-colors duration-500" style={{ color: currentColor }}>
+    <span className="relative inline-block align-bottom">
+      {/* Invisible text to maintain consistent width */}
+      <span className="invisible whitespace-nowrap" aria-hidden="true">
+        {longestWord}
+      </span>
+      {/* Visible animated text positioned on top */}
+      <span 
+        className="absolute left-0 top-0 transition-colors duration-500 whitespace-nowrap" 
+        style={{ color: currentColor }}
+      >
         {displayText}
         <span className="animate-pulse">|</span>
       </span>
+      {/* Animated underline that follows text width */}
       <svg
-        className="absolute -bottom-2 left-0 w-full h-3 transition-colors duration-500"
+        className="absolute -bottom-2 left-0 h-3 transition-all duration-100"
+        style={{ 
+          width: `${underlineWidth}%`,
+          color: currentColor, 
+          opacity: displayText.length > 0 ? 0.3 : 0 
+        }}
         viewBox="0 0 200 12"
         preserveAspectRatio="none"
-        style={{ color: currentColor, opacity: 0.3 }}
       >
         <path d="M0 9c50-5 100-5 200 0" stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round" />
       </svg>
