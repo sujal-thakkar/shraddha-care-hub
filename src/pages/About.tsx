@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, Target, Users, Award, Quote, Star } from "lucide-react";
@@ -14,13 +13,6 @@ import teamEvent from "@/assets/team-event.png";
 import hoslaBooth from "@/assets/hosla-booth.png";
 
 export default function About() {
-  const [scrollY, setScrollY] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
   const { data: successStories } = useQuery({
     queryKey: ["success-stories"],
     queryFn: async () => {
@@ -41,14 +33,11 @@ export default function About() {
       {/* Hero */}
       <section className="relative py-20 lg:py-32 overflow-hidden">
         {/* Background Image with Overlay */}
-        <div 
-          className="absolute inset-0"
-          style={{ transform: `translateY(${scrollY * 0.4}px)` }}
-        >
+        <div className="absolute inset-0">
           <img 
             src={teamEvent} 
             alt="" 
-            className="w-full h-[120%] object-cover"
+            className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-primary/85 via-primary/75 to-primary/90" />
         </div>
