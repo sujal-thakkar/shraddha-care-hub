@@ -93,8 +93,8 @@ export function Footer() {
         </div>
 
         <div className="border-t border-border mt-8 pt-8 text-center">
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Shraddha. All rights reserved. | Powered by Hosla
+          <p className="text-sm text-muted-foreground inline-flex items-center justify-center gap-1.5 flex-wrap">
+            © {new Date().getFullYear()} Shraddha. All rights reserved. | Powered by <img src={hoslaLogo} alt="Hosla" className="h-4 inline-block" />
           </p>
         </div>
       </div>
