@@ -278,7 +278,7 @@ export default function Donate() {
                 Email Us
               </a>
             </Button>
-            <Button asChild variant="outline" size="lg" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary">
+            <Button asChild variant="heroOutline" size="lg">
               <a href="tel:7811009309">
                 Call Us
               </a>

@@ -234,7 +234,7 @@ export default function Home() {
                 Become a Volunteer
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary">
+            <Button asChild variant="heroOutline" size="lg">
               <Link to="/donate">
                 Donate Now
               </Link>
