@@ -8,10 +8,12 @@ import knowMoreBubble from "@/assets/know-more-bubble.jpg";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { FloatingElements } from "@/components/home/FloatingElements";
 import { AnimatedHeroText } from "@/components/home/AnimatedHeroText";
+import ServiceCard from "@/components/home/ServiceCard";
 
 // Import real images
 import elderAbuseAwareness from "@/assets/elder-abuse-awareness.png";
 import clothDistribution from "@/assets/cloth-distribution.png";
+import legalAwarenessHover from "@/assets/legal-awareness-hover.jpg";
 
 export default function Home() {
   return (
@@ -93,25 +95,14 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="border-border hover:border-primary/50 transition-colors">
-              <CardHeader>
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <Scale className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle className="font-serif">Legal Awareness</CardTitle>
-                <CardDescription>
-                  Educating seniors about their legal rights and protections under Indian law.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Link
-                  to="/legal-resources"
-                  className="text-primary text-sm font-medium hover:underline inline-flex items-center"
-                >
-                  Learn about your rights <ArrowRight className="ml-1 h-3 w-3" />
-                </Link>
-              </CardContent>
-            </Card>
+            <ServiceCard
+              icon={<Scale className="h-6 w-6" />}
+              title="Legal Awareness"
+              description="Educating seniors about their legal rights and protections under Indian law."
+              linkTo="/legal-resources"
+              linkText="Learn about your rights"
+              hoverImage={legalAwarenessHover}
+            />
 
             <Card className="border-border hover:border-primary/50 transition-colors">
               <CardHeader>
