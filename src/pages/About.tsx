@@ -4,6 +4,14 @@ import { Heart, Target, Users, Award, Quote, Star } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+// Import real images
+import orgCollage from "@/assets/org-collage.png";
+import awarenessCamp from "@/assets/awareness-camp.png";
+import clothDistribution from "@/assets/cloth-distribution.png";
+import eventPurulia from "@/assets/event-purulia.png";
+import teamEvent from "@/assets/team-event.png";
+import hoslaBooth from "@/assets/hosla-booth.png";
+
 export default function About() {
   const { data: successStories } = useQuery({
     queryKey: ["success-stories"],
@@ -61,9 +69,11 @@ export default function About() {
               </p>
             </div>
             <div className="relative">
-              <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary/20 to-accent flex items-center justify-center">
-                <Heart className="h-32 w-32 text-primary" />
-              </div>
+              <img 
+                src={orgCollage} 
+                alt="Shraddha Welfare Association activities and team" 
+                className="rounded-2xl shadow-lg w-full object-cover"
+              />
             </div>
           </div>
         </div>
@@ -103,8 +113,60 @@ export default function About() {
         </div>
       </section>
 
-      {/* Success Stories */}
+      {/* Photo Gallery */}
       <section className="py-16 lg:py-24 bg-background">
+        <div className="container">
+          <div className="text-center mb-12">
+            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">
+              Our Work in Action
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Glimpses from our awareness camps, events, and community programs.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="aspect-video overflow-hidden rounded-xl shadow-md">
+              <img 
+                src={awarenessCamp} 
+                alt="Awareness camp conducted by Shraddha" 
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            <div className="aspect-video overflow-hidden rounded-xl shadow-md">
+              <img 
+                src={clothDistribution} 
+                alt="Cloth distribution to seniors" 
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            <div className="aspect-video overflow-hidden rounded-xl shadow-md">
+              <img 
+                src={eventPurulia} 
+                alt="Senior citizen event in Purulia" 
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            <div className="aspect-video overflow-hidden rounded-xl shadow-md lg:col-span-2">
+              <img 
+                src={teamEvent} 
+                alt="Shraddha team members" 
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            <div className="aspect-video overflow-hidden rounded-xl shadow-md">
+              <img 
+                src={hoslaBooth} 
+                alt="Hosla community booth" 
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Success Stories */}
+      <section className="py-16 lg:py-24 bg-card">
         <div className="container">
           <div className="text-center mb-12">
             <Star className="h-12 w-12 text-primary mx-auto mb-4" />
@@ -150,30 +212,37 @@ export default function About() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Placeholder stories */}
+              {/* Placeholder stories with real images */}
               {[
                 {
                   title: "A New Beginning for Mr. Sharma",
                   content: "After losing his wife, Mr. Sharma felt completely alone. Through our companionship program, he found a new community and purpose. Today, he volunteers to help other seniors.",
                   author: "The Sharma Family",
-                  role: "Kolkata"
+                  role: "Kolkata",
+                  image: awarenessCamp
                 },
                 {
                   title: "Justice for Mrs. Devi",
                   content: "When her children tried to take her property illegally, our legal awareness team helped Mrs. Devi understand her rights and fight back. She now lives peacefully in her own home.",
                   author: "Mrs. Kamala Devi",
-                  role: "Senior Citizen"
+                  role: "Senior Citizen",
+                  image: hoslaBooth
                 },
                 {
-                  title: "Corporate Care Success",
-                  content: "Our partnership with a leading IT company transformed how they support employees' parents. Regular check-ins and wellness programs have improved family bonds.",
-                  author: "HR Director",
-                  role: "IT Company, Bangalore"
+                  title: "Community Support Program",
+                  content: "Our partnership with local communities has transformed how they support senior citizens. Regular check-ins and wellness programs have improved family bonds.",
+                  author: "Community Leader",
+                  role: "Bishnupur, Bankura",
+                  image: clothDistribution
                 }
               ].map((story, index) => (
                 <Card key={index} className="border-border hover:border-primary/50 transition-colors">
-                  <div className="aspect-video overflow-hidden rounded-t-lg bg-gradient-to-br from-primary/10 to-accent flex items-center justify-center">
-                    <Heart className="h-12 w-12 text-primary/40" />
+                  <div className="aspect-video overflow-hidden rounded-t-lg">
+                    <img 
+                      src={story.image} 
+                      alt={story.title}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <CardContent className="p-6 space-y-4">
                     <h3 className="font-serif text-lg font-semibold text-foreground">
@@ -195,7 +264,7 @@ export default function About() {
       </section>
 
       {/* Achievements */}
-      <section className="py-16 lg:py-24 bg-card">
+      <section className="py-16 lg:py-24 bg-background">
         <div className="container">
           <div className="text-center mb-12">
             <Award className="h-12 w-12 text-primary mx-auto mb-4" />
@@ -227,7 +296,7 @@ export default function About() {
       </section>
 
       {/* Team Section */}
-      <section className="py-16 lg:py-24 bg-background">
+      <section className="py-16 lg:py-24 bg-card">
         <div className="container">
           <div className="text-center mb-12">
             <Users className="h-12 w-12 text-primary mx-auto mb-4" />
@@ -237,6 +306,14 @@ export default function About() {
             <p className="text-muted-foreground max-w-2xl mx-auto">
               The dedicated individuals driving our mission forward.
             </p>
+          </div>
+
+          <div className="mb-12">
+            <img 
+              src={teamEvent} 
+              alt="Shraddha Welfare Association Team" 
+              className="w-full max-w-4xl mx-auto rounded-2xl shadow-lg"
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
