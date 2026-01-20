@@ -2,7 +2,8 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Heart, Scale, Users, Megaphone, Building2, ArrowRight, Shield, HandHeart, ChevronDown } from "lucide-react";
+import { Scale, Users, Megaphone, Building2, ArrowRight, Shield, HandHeart, ChevronDown, Heart } from "lucide-react";
+import hoslaLogo from "@/assets/hosla-logo.png";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { FloatingElements } from "@/components/home/FloatingElements";
 
@@ -22,9 +23,9 @@ export default function Home() {
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Text content with animations */}
             <div className="space-y-6 animate-fade-in">
-              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium border border-primary/20">
-                <Heart className="h-4 w-4 animate-pulse" />
-                Backed by Hosla
+              <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full text-sm font-medium border border-primary/20">
+                <span className="text-muted-foreground">Backed by</span>
+                <img src={hoslaLogo} alt="Hosla" className="h-5 w-auto" />
               </div>
               
               <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
