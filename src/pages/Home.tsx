@@ -81,11 +81,11 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Scroll indicator */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce hidden lg:flex flex-col items-center gap-2">
-            <span className="text-xs text-muted-foreground">Scroll to explore</span>
-            <ChevronDown className="h-5 w-5 text-primary" />
-          </div>
+        {/* Scroll indicator */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 animate-bounce hidden lg:flex flex-col items-center gap-2">
+          <span className="text-xs text-muted-foreground">Scroll to explore</span>
+          <ChevronDown className="h-5 w-5 text-primary" />
+        </div>
         </div>
       </section>
 
