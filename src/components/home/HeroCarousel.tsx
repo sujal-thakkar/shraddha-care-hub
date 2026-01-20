@@ -7,8 +7,10 @@ import elderAbuseAwareness from "@/assets/elder-abuse-awareness.png";
 import clothDistribution from "@/assets/cloth-distribution.png";
 import teamEvent from "@/assets/team-event.png";
 import orgCollage from "@/assets/org-collage.png";
+import heroIllustration1 from "@/assets/hero-illustration-1.jpg";
 
 const heroImages = [
+  { src: heroIllustration1, alt: "Family caring for seniors illustration" },
   { src: awarenessBanner, alt: "Stop Domestic Abuse of Elderly" },
   { src: elderAbuseAwareness, alt: "World Elder Abuse Awareness Day" },
   { src: clothDistribution, alt: "Cloth distribution to seniors" },
