@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 const words = [
   { text: "Seniors", color: "hsl(var(--primary))" },
@@ -15,9 +15,15 @@ export const AnimatedHeroText = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [currentColor, setCurrentColor] = useState(words[0].color);
 
+  // Find the longest word to set a fixed width
+  const longestWord = useMemo(() => {
+    return words.reduce((longest, word) => 
+      word.text.length > longest.length ? word.text : longest
+    , "");
+  }, []);
+
   useEffect(() => {
     const currentWord = words[currentIndex].text;
-    const targetColor = words[currentIndex].color;
 
     let timeout: NodeJS.Timeout;
 
@@ -49,7 +55,15 @@ export const AnimatedHeroText = () => {
 
   return (
     <span className="relative inline-block">
-      <span className="transition-colors duration-500" style={{ color: currentColor }}>
+      {/* Invisible text to maintain consistent width */}
+      <span className="invisible" aria-hidden="true">
+        {longestWord}
+      </span>
+      {/* Visible animated text positioned on top */}
+      <span 
+        className="absolute left-0 top-0 transition-colors duration-500 whitespace-nowrap" 
+        style={{ color: currentColor }}
+      >
         {displayText}
         <span className="animate-pulse">|</span>
       </span>
