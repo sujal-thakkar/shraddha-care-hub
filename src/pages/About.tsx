@@ -1,0 +1,263 @@
+import { Layout } from "@/components/layout/Layout";
+import { Card, CardContent } from "@/components/ui/card";
+import { Heart, Target, Users, Award, Quote, Star } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+
+export default function About() {
+  const { data: successStories } = useQuery({
+    queryKey: ["success-stories"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("success_stories")
+        .select("*")
+        .eq("is_published", true)
+        .order("created_at", { ascending: false })
+        .limit(6);
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  return (
+    <Layout>
+      {/* Hero */}
+      <section className="py-16 lg:py-24 bg-gradient-to-b from-accent to-background">
+        <div className="container">
+          <div className="max-w-3xl mx-auto text-center space-y-6">
+            <h1 className="font-serif text-4xl lg:text-5xl font-bold text-foreground">
+              About Shraddha
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              Our journey, our mission, and the impact we're creating together.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Origin Story */}
+      <section className="py-16 lg:py-24 bg-background">
+        <div className="container">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">
+                <Heart className="h-4 w-4" />
+                Our Story
+              </div>
+              <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground">
+                Born from Compassion, Backed by Hosla
+              </h2>
+              <p className="text-muted-foreground leading-relaxed">
+                Shraddha was founded with a simple yet powerful vision: to ensure that every 
+                senior citizen in India lives with dignity and respect. Backed by Hosla, 
+                we draw inspiration from the timeless values championed by leaders like Ratan Tata - 
+                compassion, integrity, and an unwavering commitment to serving others.
+              </p>
+              <p className="text-muted-foreground leading-relaxed">
+                Our name "Shraddha" means devotion and respect - the very foundation upon which 
+                our organization stands. We believe that caring for our elders is not just a duty, 
+                but a privilege.
+              </p>
+            </div>
+            <div className="relative">
+              <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary/20 to-accent flex items-center justify-center">
+                <Heart className="h-32 w-32 text-primary" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* The Why */}
+      <section className="py-16 lg:py-24 bg-card">
+        <div className="container">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <Target className="h-12 w-12 text-primary mx-auto mb-4" />
+              <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">
+                The "Why" Behind Our Mission
+              </h2>
+            </div>
+            
+            <Card className="border-primary/20">
+              <CardContent className="p-8 space-y-6">
+                <div className="flex gap-4">
+                  <Quote className="h-8 w-8 text-primary flex-shrink-0" />
+                  <p className="text-lg text-muted-foreground italic leading-relaxed">
+                    "The pandemic showed us how isolated our seniors truly are. Locked away from 
+                    their families, many faced not just physical challenges, but profound loneliness 
+                    and fear. We realized then that our elders needed more than occasional visits - 
+                    they needed an extended family."
+                  </p>
+                </div>
+                <p className="text-muted-foreground leading-relaxed pl-12">
+                  This realization became the driving force behind Shraddha. We're not just an 
+                  organization - we're a movement to rebuild the bonds of care, respect, and 
+                  protection that every senior deserves. We stand against elder abuse, fight 
+                  for their rights, and provide the companionship that makes life meaningful.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Success Stories */}
+      <section className="py-16 lg:py-24 bg-background">
+        <div className="container">
+          <div className="text-center mb-12">
+            <Star className="h-12 w-12 text-primary mx-auto mb-4" />
+            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">
+              Success Stories
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Real stories of impact from the seniors and families we've had the privilege to support.
+            </p>
+          </div>
+
+          {successStories && successStories.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {successStories.map((story) => (
+                <Card key={story.id} className="border-border hover:border-primary/50 transition-colors">
+                  {story.image_url && (
+                    <div className="aspect-video overflow-hidden rounded-t-lg">
+                      <img 
+                        src={story.image_url} 
+                        alt={story.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <CardContent className="p-6 space-y-4">
+                    <h3 className="font-serif text-lg font-semibold text-foreground">
+                      {story.title}
+                    </h3>
+                    <p className="text-muted-foreground text-sm line-clamp-4">
+                      {story.content}
+                    </p>
+                    {story.author_name && (
+                      <div className="pt-4 border-t border-border">
+                        <p className="text-sm font-medium text-foreground">{story.author_name}</p>
+                        {story.author_role && (
+                          <p className="text-xs text-muted-foreground">{story.author_role}</p>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Placeholder stories */}
+              {[
+                {
+                  title: "A New Beginning for Mr. Sharma",
+                  content: "After losing his wife, Mr. Sharma felt completely alone. Through our companionship program, he found a new community and purpose. Today, he volunteers to help other seniors.",
+                  author: "The Sharma Family",
+                  role: "Kolkata"
+                },
+                {
+                  title: "Justice for Mrs. Devi",
+                  content: "When her children tried to take her property illegally, our legal awareness team helped Mrs. Devi understand her rights and fight back. She now lives peacefully in her own home.",
+                  author: "Mrs. Kamala Devi",
+                  role: "Senior Citizen"
+                },
+                {
+                  title: "Corporate Care Success",
+                  content: "Our partnership with a leading IT company transformed how they support employees' parents. Regular check-ins and wellness programs have improved family bonds.",
+                  author: "HR Director",
+                  role: "IT Company, Bangalore"
+                }
+              ].map((story, index) => (
+                <Card key={index} className="border-border hover:border-primary/50 transition-colors">
+                  <div className="aspect-video overflow-hidden rounded-t-lg bg-gradient-to-br from-primary/10 to-accent flex items-center justify-center">
+                    <Heart className="h-12 w-12 text-primary/40" />
+                  </div>
+                  <CardContent className="p-6 space-y-4">
+                    <h3 className="font-serif text-lg font-semibold text-foreground">
+                      {story.title}
+                    </h3>
+                    <p className="text-muted-foreground text-sm">
+                      {story.content}
+                    </p>
+                    <div className="pt-4 border-t border-border">
+                      <p className="text-sm font-medium text-foreground">{story.author}</p>
+                      <p className="text-xs text-muted-foreground">{story.role}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Achievements */}
+      <section className="py-16 lg:py-24 bg-card">
+        <div className="container">
+          <div className="text-center mb-12">
+            <Award className="h-12 w-12 text-primary mx-auto mb-4" />
+            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">
+              Our Achievements
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Milestones we've reached together with our community.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { number: "500+", label: "Seniors Supported", description: "Direct care and support" },
+              { number: "50+", label: "Legal Awareness Camps", description: "Educating communities" },
+              { number: "100+", label: "Active Volunteers", description: "Dedicated team members" },
+              { number: "10+", label: "Cities Reached", description: "Expanding our presence" },
+            ].map((stat, index) => (
+              <Card key={index} className="text-center border-border">
+                <CardContent className="p-6 space-y-2">
+                  <div className="text-4xl font-bold text-primary">{stat.number}</div>
+                  <div className="font-semibold text-foreground">{stat.label}</div>
+                  <div className="text-sm text-muted-foreground">{stat.description}</div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Team Section */}
+      <section className="py-16 lg:py-24 bg-background">
+        <div className="container">
+          <div className="text-center mb-12">
+            <Users className="h-12 w-12 text-primary mx-auto mb-4" />
+            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">
+              Our Team
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              The dedicated individuals driving our mission forward.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            {[
+              { name: "Founder", role: "Vision & Strategy", placeholder: "F" },
+              { name: "Program Director", role: "Operations & Outreach", placeholder: "P" },
+              { name: "Legal Advisor", role: "Rights & Advocacy", placeholder: "L" },
+            ].map((member, index) => (
+              <div key={index} className="text-center space-y-4">
+                <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                  <span className="text-2xl font-bold text-primary">{member.placeholder}</span>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground">{member.name}</h3>
+                  <p className="text-sm text-muted-foreground">{member.role}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </Layout>
+  );
+}
