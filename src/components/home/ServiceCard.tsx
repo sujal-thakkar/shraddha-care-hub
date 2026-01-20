@@ -31,9 +31,14 @@ const ServiceCard = ({ icon, title, description, linkTo, linkText, hoverImage }:
               opacity: isHovered ? 1 : 0
             }}
           />
+          {/* Dark overlay for text readability */}
+          <div 
+            className="absolute inset-0 bg-foreground/50 transition-opacity duration-500 ease-in-out z-[5]"
+            style={{ opacity: isHovered ? 1 : 0 }}
+          />
           {/* Gradient overlay from bottom */}
           <div 
-            className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/60 to-transparent transition-opacity duration-500 ease-in-out z-10"
+            className="absolute inset-0 bg-gradient-to-t from-primary via-primary/70 to-transparent transition-opacity duration-500 ease-in-out z-10"
             style={{ opacity: isHovered ? 1 : 0 }}
           />
         </>
