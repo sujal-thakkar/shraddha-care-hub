@@ -6,7 +6,7 @@ const words = [
   { text: "Parents", color: "hsl(45, 100%, 50%)" },
   { text: "Grandparents", color: "hsl(280, 60%, 55%)" },
   { text: "Community Pillars", color: "hsl(15, 78%, 53%)" },
-  { text: "The Silver Generation", color: "hsl(330, 100%, 64%)" },
+  { text: "The Silver Generation", color: "hsl(330, 100%, 64%)", isLong: true },
 ];
 
 export const AnimatedHeroText = () => {
@@ -14,8 +14,12 @@ export const AnimatedHeroText = () => {
   const [displayText, setDisplayText] = useState(words[0].text);
   const [isDeleting, setIsDeleting] = useState(false);
   const [currentColor, setCurrentColor] = useState(words[0].color);
+  const [isLongWord, setIsLongWord] = useState(words[0].isLong || false);
 
-  // Find the longest word to set a fixed width
+  // Use "Grandparents" as width reference (longest single-line word)
+  const widthReference = "Grandparents";
+
+  // Find the longest word for underline calculation
   const longestWord = useMemo(() => {
     return words.reduce((longest, word) => 
       word.text.length > longest.length ? word.text : longest
@@ -37,6 +41,7 @@ export const AnimatedHeroText = () => {
         const nextIndex = (currentIndex + 1) % words.length;
         setCurrentIndex(nextIndex);
         setCurrentColor(words[nextIndex].color);
+        setIsLongWord(words[nextIndex].isLong || false);
       }
     } else {
       if (displayText.length < currentWord.length) {
@@ -53,20 +58,21 @@ export const AnimatedHeroText = () => {
     return () => clearTimeout(timeout);
   }, [displayText, isDeleting, currentIndex]);
 
-  // Calculate underline width percentage based on current text vs longest word
+  // Calculate underline width percentage based on current text
   const underlineWidth = useMemo(() => {
-    return (displayText.length / longestWord.length) * 100;
-  }, [displayText, longestWord]);
+    const referenceLength = isLongWord ? longestWord.length : widthReference.length;
+    return Math.min((displayText.length / referenceLength) * 100, 100);
+  }, [displayText, longestWord, isLongWord]);
 
   return (
     <span className="relative inline-block align-bottom">
-      {/* Invisible text to maintain consistent width */}
+      {/* Invisible text to maintain consistent width - use shorter reference */}
       <span className="invisible whitespace-nowrap" aria-hidden="true">
-        {longestWord}
+        {widthReference}
       </span>
       {/* Visible animated text positioned on top */}
       <span 
-        className="absolute left-0 top-0 transition-colors duration-500 whitespace-nowrap" 
+        className={`absolute left-0 top-0 transition-colors duration-500 ${isLongWord ? 'whitespace-normal' : 'whitespace-nowrap'}`}
         style={{ color: currentColor }}
       >
         {displayText}
