@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { TeamMemberCard } from "./TeamMemberCard";
 import type { Database } from "@/integrations/supabase/types";
 import teamHeaderBg from "@/assets/team-header-bg.png";
+import hoslaLogo from "@/assets/hosla-logo.png";
+import shraddhaLogo from "@/assets/logo-shraddha.png";
 
 type TeamCategory = Database["public"]["Enums"]["team_category"];
 
@@ -132,8 +134,11 @@ export function TeamSection() {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full mb-6 transition-transform duration-300 group-hover:scale-110">
               <Users className="h-8 w-8 text-white" />
             </div>
-            <h2 className="font-serif text-3xl lg:text-5xl font-bold text-white mb-4 drop-shadow-lg transition-transform duration-300 group-hover:scale-105">
-              Our Team
+            <h2 className="font-serif text-2xl lg:text-4xl font-bold text-white mb-4 drop-shadow-lg transition-transform duration-300 group-hover:scale-105 flex flex-wrap items-center justify-center gap-2 lg:gap-3">
+              <span>Our Team of</span>
+              <img src={hoslaLogo} alt="Hosla" className="h-8 lg:h-12 inline-block drop-shadow-lg bg-white/90 rounded-md px-2 py-1" />
+              <span className="text-white/80">|</span>
+              <img src={shraddhaLogo} alt="Shraddha" className="h-8 lg:h-12 inline-block drop-shadow-lg bg-white/90 rounded-md px-2 py-1" />
             </h2>
             <p className="text-white/90 max-w-2xl mx-auto text-lg">
               The dedicated individuals driving our mission forward.
