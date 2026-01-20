@@ -15,8 +15,13 @@ import { ImpactGallery } from "@/components/home/ImpactGallery";
 import legalAwarenessHover from "@/assets/legal-awareness-hover.jpg";
 import holisticWellbeingHover from "@/assets/holistic-wellbeing-hover.jpg";
 import publicSensitizationHover from "@/assets/public-sensitization-hover.jpg";
+import corporateCareHover from "@/assets/corporate-care-hover.jpg";
+
+import { useState } from "react";
 
 export default function Home() {
+  const [isCorporateHovered, setIsCorporateHovered] = useState(false);
+
   return (
     <Layout>
       {/* Hero Section */}
@@ -143,29 +148,63 @@ export default function Home() {
       {/* Corporate Care CTA */}
       <section className="py-16 lg:py-24 bg-background">
         <div className="container">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/10 to-accent p-8 lg:p-12">
-            <div className="flex flex-col lg:flex-row items-center gap-8">
+          <div 
+            className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/10 to-accent p-8 lg:p-12 cursor-pointer"
+            onMouseEnter={() => setIsCorporateHovered(true)}
+            onMouseLeave={() => setIsCorporateHovered(false)}
+          >
+            {/* Background image overlay with crossfade */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center transition-opacity duration-500 ease-in-out z-0"
+              style={{ 
+                backgroundImage: `url(${corporateCareHover})`,
+                opacity: isCorporateHovered ? 1 : 0
+              }}
+            />
+            {/* Dark overlay for text readability */}
+            <div 
+              className="absolute inset-0 bg-foreground/50 transition-opacity duration-500 ease-in-out z-[5]"
+              style={{ opacity: isCorporateHovered ? 1 : 0 }}
+            />
+            {/* Gradient overlay from bottom */}
+            <div 
+              className="absolute inset-0 bg-gradient-to-t from-primary via-primary/70 to-transparent transition-opacity duration-500 ease-in-out z-10"
+              style={{ opacity: isCorporateHovered ? 1 : 0 }}
+            />
+            
+            {/* Card content */}
+            <div className="relative z-20 flex flex-col lg:flex-row items-center gap-8">
               <div className="flex-1 space-y-4">
-                <div className="inline-flex items-center gap-2 bg-primary/20 text-primary px-3 py-1 rounded-full text-sm font-medium">
+                <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium transition-colors duration-300 ${
+                  isCorporateHovered ? 'bg-background/20 text-white' : 'bg-primary/20 text-primary'
+                }`}>
                   <Building2 className="h-4 w-4" />
                   For Businesses
                 </div>
-                <h2 className="font-serif text-2xl lg:text-3xl font-bold text-foreground">
+                <h2 className={`font-serif text-2xl lg:text-3xl font-bold transition-colors duration-300 ${
+                  isCorporateHovered ? 'text-white' : 'text-foreground'
+                }`}>
                   Corporate Parental Care Program
                 </h2>
-                <p className="text-muted-foreground max-w-xl">
+                <p className={`max-w-xl transition-colors duration-300 ${
+                  isCorporateHovered ? 'text-white/90' : 'text-muted-foreground'
+                }`}>
                   Partner with Shraddha to support the parents of your employees. We provide mental health support,
                   companionship, and engagement programs for the senior family members of your workforce.
                 </p>
-                <Button asChild size="lg">
+                <Button asChild size="lg" variant={isCorporateHovered ? "secondary" : "default"}>
                   <Link to="/corporate-care">
                     Learn More <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               </div>
               <div className="flex-shrink-0">
-                <div className="w-32 h-32 lg:w-48 lg:h-48 rounded-full bg-primary/20 flex items-center justify-center">
-                  <Users className="h-16 w-16 lg:h-24 lg:w-24 text-primary" />
+                <div className={`w-32 h-32 lg:w-48 lg:h-48 rounded-full flex items-center justify-center transition-colors duration-300 ${
+                  isCorporateHovered ? 'bg-background/20' : 'bg-primary/20'
+                }`}>
+                  <Users className={`h-16 w-16 lg:h-24 lg:w-24 transition-colors duration-300 ${
+                    isCorporateHovered ? 'text-white' : 'text-primary'
+                  }`} />
                 </div>
               </div>
             </div>
