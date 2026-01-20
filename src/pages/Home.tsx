@@ -16,6 +16,7 @@ import legalAwarenessHover from "@/assets/legal-awareness-hover.jpg";
 import holisticWellbeingHover from "@/assets/holistic-wellbeing-hover.jpg";
 import publicSensitizationHover from "@/assets/public-sensitization-hover.jpg";
 import corporateCareHover from "@/assets/corporate-care-hover.jpg";
+import corporateCareIllustration from "@/assets/corporate-care-illustration.jpg";
 
 import { useState } from "react";
 
@@ -199,12 +200,12 @@ export default function Home() {
                 </Button>
               </div>
               <div className="flex-shrink-0">
-                <div className={`w-32 h-32 lg:w-48 lg:h-48 rounded-full flex items-center justify-center transition-colors duration-300 ${
-                  isCorporateHovered ? 'bg-background/20' : 'bg-primary/20'
-                }`}>
-                  <Users className={`h-16 w-16 lg:h-24 lg:w-24 transition-colors duration-300 ${
-                    isCorporateHovered ? 'text-white' : 'text-primary'
-                  }`} />
+                <div className="w-32 h-32 lg:w-48 lg:h-48 rounded-full overflow-hidden border-4 border-background/20 shadow-lg">
+                  <img 
+                    src={corporateCareIllustration} 
+                    alt="Caring for elderly" 
+                    className="w-full h-full object-cover"
+                  />
                 </div>
               </div>
             </div>
