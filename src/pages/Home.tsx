@@ -2,10 +2,11 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Heart, Scale, Users, Megaphone, Building2, ArrowRight, Shield, HandHeart } from "lucide-react";
+import { Heart, Scale, Users, Megaphone, Building2, ArrowRight, Shield, HandHeart, ChevronDown } from "lucide-react";
+import { HeroCarousel } from "@/components/home/HeroCarousel";
+import { FloatingElements } from "@/components/home/FloatingElements";
 
 // Import real images
-import awarenessBanner from "@/assets/awareness-banner.png";
 import elderAbuseAwareness from "@/assets/elder-abuse-awareness.png";
 import clothDistribution from "@/assets/cloth-distribution.png";
 
@@ -13,38 +14,82 @@ export default function Home() {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-b from-accent to-background py-20 lg:py-32">
-        <div className="container">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
-              <h1 className="font-serif text-4xl lg:text-6xl font-bold text-foreground leading-tight">
-                Dignity and Protection for <span className="text-primary">Seniors</span>
+      <section className="relative min-h-[calc(100vh-4rem)] bg-gradient-to-br from-accent via-background to-accent/50 py-16 lg:py-24 overflow-hidden">
+        {/* Animated background elements */}
+        <FloatingElements />
+
+        <div className="container relative z-10">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* Text content with animations */}
+            <div className="space-y-6 animate-fade-in">
+              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium border border-primary/20">
+                <Heart className="h-4 w-4 animate-pulse" />
+                Backed by Hosla
+              </div>
+              
+              <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
+                Dignity and Protection for{" "}
+                <span className="text-primary relative">
+                  Seniors
+                  <svg className="absolute -bottom-2 left-0 w-full h-3 text-primary/30" viewBox="0 0 200 12" preserveAspectRatio="none">
+                    <path d="M0 9c50-5 100-5 200 0" stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round"/>
+                  </svg>
+                </span>
               </h1>
-              <p className="text-lg text-muted-foreground">
-                Shraddha, backed by Hosla, is dedicated to protecting, supporting, and empowering 
+              
+              <p className="text-lg lg:text-xl text-muted-foreground max-w-lg">
+                Shraddha is dedicated to protecting, supporting, and empowering 
                 senior citizens across India. Together, we're building an extended family for those who need it most.
               </p>
+              
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <Button asChild size="lg">
+                <Button asChild size="lg" className="group">
                   <Link to="/about">
-                    Learn More <ArrowRight className="ml-2 h-4 w-4" />
+                    Learn More 
+                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </Button>
-                <Button asChild variant="outline" size="lg">
+                <Button asChild variant="outline" size="lg" className="group">
                   <Link to="/donate">
-                    <Heart className="mr-2 h-4 w-4" />
+                    <Heart className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
                     Support Our Cause
                   </Link>
                 </Button>
               </div>
+
+              {/* Trust indicators */}
+              <div className="flex items-center gap-6 pt-6 border-t border-border/50">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary">500+</div>
+                  <div className="text-xs text-muted-foreground">Seniors Helped</div>
+                </div>
+                <div className="w-px h-10 bg-border" />
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary">10+</div>
+                  <div className="text-xs text-muted-foreground">Cities</div>
+                </div>
+                <div className="w-px h-10 bg-border" />
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary">100+</div>
+                  <div className="text-xs text-muted-foreground">Volunteers</div>
+                </div>
+              </div>
             </div>
-            <div className="relative">
-              <img 
-                src={awarenessBanner} 
-                alt="Shraddha Welfare Association - Stop Domestic Abuse of Elderly" 
-                className="rounded-2xl shadow-xl w-full"
-              />
+
+            {/* Carousel */}
+            <div className="relative animate-scale-in">
+              <HeroCarousel />
+              
+              {/* Decorative elements around carousel */}
+              <div className="absolute -top-4 -right-4 w-24 h-24 bg-primary/10 rounded-full blur-xl" />
+              <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-accent rounded-full blur-2xl" />
             </div>
+          </div>
+
+          {/* Scroll indicator */}
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce hidden lg:flex flex-col items-center gap-2">
+            <span className="text-xs text-muted-foreground">Scroll to explore</span>
+            <ChevronDown className="h-5 w-5 text-primary" />
           </div>
         </div>
       </section>
