@@ -7,6 +7,7 @@ import hoslaLogo from "@/assets/hosla-logo.png";
 import knowMoreBubble from "@/assets/know-more-bubble.jpg";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { FloatingElements } from "@/components/home/FloatingElements";
+import { AnimatedHeroText } from "@/components/home/AnimatedHeroText";
 
 // Import real images
 import elderAbuseAwareness from "@/assets/elder-abuse-awareness.png";
@@ -46,22 +47,7 @@ export default function Home() {
 
               <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
                 Dignity and Protection for{" "}
-                <span className="text-primary relative">
-                  Seniors
-                  <svg
-                    className="absolute -bottom-2 left-0 w-full h-3 text-primary/30"
-                    viewBox="0 0 200 12"
-                    preserveAspectRatio="none"
-                  >
-                    <path
-                      d="M0 9c50-5 100-5 200 0"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      fill="none"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </span>
+                <AnimatedHeroText />
               </h1>
 
               <p className="text-lg lg:text-xl text-muted-foreground max-w-lg">
