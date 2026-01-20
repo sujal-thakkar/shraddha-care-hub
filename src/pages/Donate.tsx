@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Heart, Shield, Facebook, CreditCard, Building, Smartphone, ExternalLink } from "lucide-react";
 import { useState } from "react";
+import upiQrCode from "@/assets/upi-qr-code.png";
 
 export default function Donate() {
   const [formData, setFormData] = useState({
@@ -192,14 +193,21 @@ export default function Donate() {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="aspect-square max-w-[200px] mx-auto bg-muted rounded-lg flex items-center justify-center">
-                      <p className="text-muted-foreground text-sm text-center p-4">
-                        QR Code will be displayed here
+                    <div className="max-w-[250px] mx-auto rounded-lg overflow-hidden">
+                      <img 
+                        src={upiQrCode} 
+                        alt="UPI QR Code for Shraddha Welfare Association" 
+                        className="w-full h-auto"
+                      />
+                    </div>
+                    <div className="text-center space-y-1">
+                      <p className="text-sm text-muted-foreground">
+                        Scan to pay via any UPI app
+                      </p>
+                      <p className="text-sm font-medium text-foreground">
+                        UPI ID: <span className="text-primary">shraddhango@ucobank</span>
                       </p>
                     </div>
-                    <p className="text-sm text-center text-muted-foreground">
-                      Scan to pay via any UPI app
-                    </p>
                   </CardContent>
                 </Card>
 
@@ -214,19 +222,19 @@ export default function Donate() {
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Account Name:</span>
-                        <span className="font-medium text-foreground">Shraddha Foundation</span>
+                        <span className="font-medium text-foreground">SHRADDHA WELFARE ASSOCIATION</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Account Number:</span>
-                        <span className="font-medium text-foreground">XXXXXXXXXXXX</span>
+                        <span className="font-medium text-foreground">—</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">IFSC Code:</span>
-                        <span className="font-medium text-foreground">XXXXX0001234</span>
+                        <span className="font-medium text-foreground">—</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Bank:</span>
-                        <span className="font-medium text-foreground">Bank Name</span>
+                        <span className="font-medium text-foreground">UCO Bank</span>
                       </div>
                     </div>
                   </CardContent>
