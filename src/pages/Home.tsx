@@ -15,6 +15,7 @@ import elderAbuseAwareness from "@/assets/elder-abuse-awareness.png";
 import clothDistribution from "@/assets/cloth-distribution.png";
 import legalAwarenessHover from "@/assets/legal-awareness-hover.jpg";
 import holisticWellbeingHover from "@/assets/holistic-wellbeing-hover.jpg";
+import publicSensitizationHover from "@/assets/public-sensitization-hover.jpg";
 
 export default function Home() {
   return (
@@ -114,23 +115,14 @@ export default function Home() {
               hoverImage={holisticWellbeingHover}
             />
 
-            <Card className="border-border hover:border-primary/50 transition-colors">
-              <CardHeader>
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <Megaphone className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle className="font-serif">Public Sensitization</CardTitle>
-                <CardDescription>Campaigns and awareness programs against elder abuse in communities.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Link
-                  to="/volunteer"
-                  className="text-primary text-sm font-medium hover:underline inline-flex items-center"
-                >
-                  Join the movement <ArrowRight className="ml-1 h-3 w-3" />
-                </Link>
-              </CardContent>
-            </Card>
+            <ServiceCard
+              icon={<Megaphone className="h-6 w-6" />}
+              title="Public Sensitization"
+              description="Campaigns and awareness programs against elder abuse in communities."
+              linkTo="/volunteer"
+              linkText="Join the movement"
+              hoverImage={publicSensitizationHover}
+            />
           </div>
         </div>
       </section>
