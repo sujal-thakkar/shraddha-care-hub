@@ -1,8 +1,9 @@
 import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart, Target, Users, Award, Quote, Star } from "lucide-react";
+import { Heart, Target, Award, Quote, Star } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { TeamSection } from "@/components/team/TeamSection";
 
 // Import real images
 import orgCollage from "@/assets/org-collage.png";
@@ -319,45 +320,7 @@ export default function About() {
       </section>
 
       {/* Team Section */}
-      <section className="py-16 lg:py-24 bg-card">
-        <div className="container">
-          <div className="text-center mb-12">
-            <Users className="h-12 w-12 text-primary mx-auto mb-4" />
-            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">
-              Our Team
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              The dedicated individuals driving our mission forward.
-            </p>
-          </div>
-
-          <div className="mb-12">
-            <img 
-              src={teamEvent} 
-              alt="Shraddha Welfare Association Team" 
-              className="w-full max-w-4xl mx-auto rounded-2xl shadow-lg"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            {[
-              { name: "Founder", role: "Vision & Strategy", placeholder: "F" },
-              { name: "Program Director", role: "Operations & Outreach", placeholder: "P" },
-              { name: "Legal Advisor", role: "Rights & Advocacy", placeholder: "L" },
-            ].map((member, index) => (
-              <div key={index} className="text-center space-y-4">
-                <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                  <span className="text-2xl font-bold text-primary">{member.placeholder}</span>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-foreground">{member.name}</h3>
-                  <p className="text-sm text-muted-foreground">{member.role}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <TeamSection />
     </Layout>
   );
 }
