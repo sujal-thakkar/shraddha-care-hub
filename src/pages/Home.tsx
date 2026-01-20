@@ -32,9 +32,12 @@ export default function Home() {
 
         <div className="container relative z-10">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            {/* Text content with animations */}
-            <div className="space-y-6 animate-fade-in">
-              <div className="relative inline-flex items-center">
+            {/* Text content with staggered animations */}
+            <div className="space-y-6">
+              <div 
+                className="relative inline-flex items-center opacity-0 animate-fade-in"
+                style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}
+              >
                 <a
                   href="https://hosla.in"
                   target="_blank"
@@ -54,16 +57,25 @@ export default function Home() {
                 </a>
               </div>
 
-              <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
+              <h1 
+                className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight opacity-0 animate-fade-in"
+                style={{ animationDelay: '250ms', animationFillMode: 'forwards' }}
+              >
                 Dignity and Protection for <br className="hidden sm:inline lg:hidden" /><AnimatedHeroText />
               </h1>
 
-              <p className="text-lg lg:text-xl text-muted-foreground max-w-lg">
+              <p 
+                className="text-lg lg:text-xl text-muted-foreground max-w-lg opacity-0 animate-fade-in"
+                style={{ animationDelay: '400ms', animationFillMode: 'forwards' }}
+              >
                 Shraddha is dedicated to protecting, supporting, and empowering senior citizens across India. Together,
                 we're building an extended family for those who need it most.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              <div 
+                className="flex flex-col sm:flex-row gap-4 pt-4 opacity-0 animate-fade-in"
+                style={{ animationDelay: '550ms', animationFillMode: 'forwards' }}
+              >
                 <Button asChild size="lg" className="group">
                   <Link to="/about">
                     Learn More
@@ -79,8 +91,11 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Carousel */}
-            <div className="relative animate-scale-in">
+            {/* Carousel with fade-in */}
+            <div 
+              className="relative opacity-0 animate-scale-in"
+              style={{ animationDelay: '300ms', animationFillMode: 'forwards' }}
+            >
               <HeroCarousel />
 
               {/* Decorative elements around carousel */}
