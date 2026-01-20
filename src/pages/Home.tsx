@@ -38,7 +38,7 @@ export default function Home() {
                   href="https://hosla.in"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="absolute -right-24 -top-8 w-20 h-auto transition-transform duration-300 hover:scale-110"
+                  className="absolute -right-24 -top-8 w-20 h-auto transition-transform duration-300 hover:scale-110 animate-wiggle"
                 >
                   <img src={knowMoreBubble} alt="Click to Know More" className="w-full h-auto" />
                 </a>
