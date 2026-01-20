@@ -39,15 +39,14 @@ export default function Home() {
                   href="https://hosla.in"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="absolute -right-28 -top-10 w-24 h-auto transition-all duration-300 hover:scale-110 hover:brightness-110 animate-wiggle drop-shadow-lg"
+                  className="absolute -right-28 -top-10 w-24 h-auto transition-all duration-300 hover:scale-110 hover:brightness-110 drop-shadow-lg"
                 >
                   <img src={knowMoreBubble} alt="Click to Know More" className="w-40 h-auto animate-float-bounce" />
                 </a>
               </div>
 
               <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
-                Dignity and Protection for{" "}
-                <AnimatedHeroText />
+                Dignity and Protection for <AnimatedHeroText />
               </h1>
 
               <p className="text-lg lg:text-xl text-muted-foreground max-w-lg">
@@ -80,8 +79,7 @@ export default function Home() {
               <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-accent rounded-full blur-2xl" />
             </div>
           </div>
-
-      </div>
+        </div>
       </section>
 
       {/* Services Overview */}
