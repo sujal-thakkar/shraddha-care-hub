@@ -25,9 +25,9 @@ export default function Home() {
             {/* Text content with animations */}
             <div className="space-y-6 animate-fade-in">
               <div className="relative inline-flex items-center">
-                <a 
-                  href="https://hosla.in" 
-                  target="_blank" 
+                <a
+                  href="https://hosla.in"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full text-sm font-medium border border-primary/20 transition-all duration-300 hover:bg-primary/20 hover:border-primary/40 hover:scale-105 hover:shadow-md cursor-pointer"
                 >
@@ -40,29 +40,39 @@ export default function Home() {
                   rel="noopener noreferrer"
                   className="absolute -right-28 -top-10 w-24 h-auto transition-all duration-300 hover:scale-110 hover:brightness-110 animate-wiggle drop-shadow-lg"
                 >
-                  <img src={knowMoreBubble} alt="Click to Know More" className="w-full h-auto animate-float-bounce" />
+                  <img src={knowMoreBubble} alt="Click to Know More" className="w-8 h-auto animate-float-bounce" />
                 </a>
               </div>
-              
+
               <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
                 Dignity and Protection for{" "}
                 <span className="text-primary relative">
                   Seniors
-                  <svg className="absolute -bottom-2 left-0 w-full h-3 text-primary/30" viewBox="0 0 200 12" preserveAspectRatio="none">
-                    <path d="M0 9c50-5 100-5 200 0" stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round"/>
+                  <svg
+                    className="absolute -bottom-2 left-0 w-full h-3 text-primary/30"
+                    viewBox="0 0 200 12"
+                    preserveAspectRatio="none"
+                  >
+                    <path
+                      d="M0 9c50-5 100-5 200 0"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      fill="none"
+                      strokeLinecap="round"
+                    />
                   </svg>
                 </span>
               </h1>
-              
+
               <p className="text-lg lg:text-xl text-muted-foreground max-w-lg">
-                Shraddha is dedicated to protecting, supporting, and empowering 
-                senior citizens across India. Together, we're building an extended family for those who need it most.
+                Shraddha is dedicated to protecting, supporting, and empowering senior citizens across India. Together,
+                we're building an extended family for those who need it most.
               </p>
-              
+
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Button asChild size="lg" className="group">
                   <Link to="/about">
-                    Learn More 
+                    Learn More
                     <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </Button>
@@ -78,7 +88,7 @@ export default function Home() {
             {/* Carousel */}
             <div className="relative animate-scale-in">
               <HeroCarousel />
-              
+
               {/* Decorative elements around carousel */}
               <div className="absolute -top-4 -right-4 w-24 h-24 bg-primary/10 rounded-full blur-xl" />
               <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-accent rounded-full blur-2xl" />
@@ -97,9 +107,7 @@ export default function Home() {
       <section className="py-16 lg:py-24 bg-background">
         <div className="container">
           <div className="text-center mb-12">
-            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">
-              Our Services
-            </h2>
+            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">Our Services</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Comprehensive support for seniors through awareness, care, and advocacy.
             </p>
@@ -117,7 +125,10 @@ export default function Home() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Link to="/legal-resources" className="text-primary text-sm font-medium hover:underline inline-flex items-center">
+                <Link
+                  to="/legal-resources"
+                  className="text-primary text-sm font-medium hover:underline inline-flex items-center"
+                >
                   Learn about your rights <ArrowRight className="ml-1 h-3 w-3" />
                 </Link>
               </CardContent>
@@ -146,12 +157,13 @@ export default function Home() {
                   <Megaphone className="h-6 w-6 text-primary" />
                 </div>
                 <CardTitle className="font-serif">Public Sensitization</CardTitle>
-                <CardDescription>
-                  Campaigns and awareness programs against elder abuse in communities.
-                </CardDescription>
+                <CardDescription>Campaigns and awareness programs against elder abuse in communities.</CardDescription>
               </CardHeader>
               <CardContent>
-                <Link to="/volunteer" className="text-primary text-sm font-medium hover:underline inline-flex items-center">
+                <Link
+                  to="/volunteer"
+                  className="text-primary text-sm font-medium hover:underline inline-flex items-center"
+                >
                   Join the movement <ArrowRight className="ml-1 h-3 w-3" />
                 </Link>
               </CardContent>
@@ -164,9 +176,7 @@ export default function Home() {
       <section className="py-16 lg:py-24 bg-card">
         <div className="container">
           <div className="text-center mb-12">
-            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">
-              Our Impact
-            </h2>
+            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">Our Impact</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Making a difference in the lives of seniors across communities.
             </p>
@@ -174,18 +184,10 @@ export default function Home() {
 
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div className="overflow-hidden rounded-2xl shadow-lg">
-              <img 
-                src={elderAbuseAwareness} 
-                alt="World Elder Abuse Awareness Day 2024" 
-                className="w-full h-auto"
-              />
+              <img src={elderAbuseAwareness} alt="World Elder Abuse Awareness Day 2024" className="w-full h-auto" />
             </div>
             <div className="overflow-hidden rounded-2xl shadow-lg">
-              <img 
-                src={clothDistribution} 
-                alt="Cloth distribution to seniors by Shraddha" 
-                className="w-full h-auto"
-              />
+              <img src={clothDistribution} alt="Cloth distribution to seniors by Shraddha" className="w-full h-auto" />
             </div>
           </div>
         </div>
@@ -205,9 +207,8 @@ export default function Home() {
                   Corporate Parental Care Program
                 </h2>
                 <p className="text-muted-foreground max-w-xl">
-                  Partner with Shraddha to support the parents of your employees. 
-                  We provide mental health support, companionship, and engagement programs 
-                  for the senior family members of your workforce.
+                  Partner with Shraddha to support the parents of your employees. We provide mental health support,
+                  companionship, and engagement programs for the senior family members of your workforce.
                 </p>
                 <Button asChild size="lg">
                   <Link to="/corporate-care">
@@ -230,15 +231,12 @@ export default function Home() {
         <div className="container">
           <div className="max-w-4xl mx-auto text-center space-y-8">
             <Shield className="h-16 w-16 text-primary mx-auto" />
-            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground">
-              Our Mission
-            </h2>
+            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground">Our Mission</h2>
             <p className="text-xl text-muted-foreground leading-relaxed">
-              "To create a society where every senior citizen lives with dignity, 
-              free from abuse, neglect, and isolation. We believe in building an 
-              extended family that cares, protects, and empowers our elders."
+              "To create a society where every senior citizen lives with dignity, free from abuse, neglect, and
+              isolation. We believe in building an extended family that cares, protects, and empowers our elders."
             </p>
-            
+
             {/* Impact Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8">
               <div className="text-center">
@@ -265,23 +263,17 @@ export default function Home() {
       {/* CTA Section */}
       <section className="py-16 lg:py-24 bg-primary text-primary-foreground">
         <div className="container text-center space-y-6">
-          <h2 className="font-serif text-3xl lg:text-4xl font-bold">
-            Ready to Make a Difference?
-          </h2>
+          <h2 className="font-serif text-3xl lg:text-4xl font-bold">Ready to Make a Difference?</h2>
           <p className="text-primary-foreground/80 max-w-2xl mx-auto">
-            Join our mission to protect and support senior citizens. 
-            Whether you volunteer, donate, or partner with us, every contribution matters.
+            Join our mission to protect and support senior citizens. Whether you volunteer, donate, or partner with us,
+            every contribution matters.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
             <Button asChild variant="secondary" size="lg">
-              <Link to="/volunteer">
-                Become a Volunteer
-              </Link>
+              <Link to="/volunteer">Become a Volunteer</Link>
             </Button>
             <Button asChild variant="heroOutline" size="lg">
-              <Link to="/donate">
-                Donate Now
-              </Link>
+              <Link to="/donate">Donate Now</Link>
             </Button>
           </div>
         </div>
