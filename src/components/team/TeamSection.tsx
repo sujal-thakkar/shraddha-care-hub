@@ -101,17 +101,49 @@ export function TeamSection() {
   }
 
   return (
-    <section className="py-16 lg:py-24 bg-card">
-      <div className="container">
-        <div className="text-center mb-16">
-          <Users className="h-12 w-12 text-primary mx-auto mb-4" />
-          <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">
-            Our Team
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            The dedicated individuals driving our mission forward.
-          </p>
+    <section className="py-0 bg-card">
+      {/* Animated Gradient Header */}
+      <div className="group relative overflow-hidden py-16 lg:py-24">
+        {/* Animated Gradient Background */}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-teal-500 to-green-500 transition-all duration-700 group-hover:from-green-500 group-hover:via-teal-500 group-hover:to-blue-600" />
+        
+        {/* Animated Overlay Pattern */}
+        <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,white_1px,transparent_1px)] bg-[length:20px_20px] animate-pulse" />
         </div>
+        
+        {/* Floating Decorative Elements */}
+        <div className="absolute top-6 left-10 w-16 h-16 border-2 border-white/20 rounded-full transition-transform duration-500 group-hover:scale-125 group-hover:rotate-45" />
+        <div className="absolute bottom-8 right-12 w-24 h-24 border-2 border-white/15 rounded-full transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-12" />
+        <div className="absolute top-1/2 right-1/4 w-8 h-8 bg-white/10 rounded-full transition-all duration-500 group-hover:bg-white/20 group-hover:scale-150" />
+        <div className="absolute bottom-1/3 left-1/4 w-6 h-6 bg-white/15 rounded-full transition-all duration-500 group-hover:translate-y-2" />
+        <div className="absolute top-10 right-10 w-12 h-12 border border-white/10 rotate-45 transition-transform duration-500 group-hover:rotate-90" />
+        
+        {/* Content */}
+        <div className="container relative z-10">
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full mb-6 transition-transform duration-300 group-hover:scale-110">
+              <Users className="h-8 w-8 text-white" />
+            </div>
+            <h2 className="font-serif text-3xl lg:text-5xl font-bold text-white mb-4 drop-shadow-lg transition-transform duration-300 group-hover:scale-105">
+              Our Team
+            </h2>
+            <p className="text-white/90 max-w-2xl mx-auto text-lg">
+              The dedicated individuals driving our mission forward.
+            </p>
+          </div>
+        </div>
+        
+        {/* Bottom Wave */}
+        <div className="absolute bottom-0 left-0 right-0">
+          <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
+            <path d="M0 80L60 70C120 60 240 40 360 35C480 30 600 40 720 45C840 50 960 50 1080 45C1200 40 1320 30 1380 25L1440 20V80H1380C1320 80 1200 80 1080 80C960 80 840 80 720 80C600 80 480 80 360 80C240 80 120 80 60 80H0Z" fill="hsl(var(--card))"/>
+          </svg>
+        </div>
+      </div>
+
+      {/* Team Content */}
+      <div className="container py-8 lg:py-12">
 
         <div className="space-y-16">
           {sortedCategories.map((category) => (
