@@ -15,7 +15,7 @@ import { ImpactGallery } from "@/components/home/ImpactGallery";
 import legalAwarenessHover from "@/assets/legal-awareness-hover.jpg";
 import holisticWellbeingHover from "@/assets/holistic-wellbeing-hover.jpg";
 import publicSensitizationHover from "@/assets/public-sensitization-hover.jpg";
-import corporateHandshake from "@/assets/corporate-handshake.png";
+import corporateCareIllustration from "@/assets/corporate-care-illustration.png";
 
 export default function Home() {
 
@@ -171,13 +171,18 @@ export default function Home() {
                 </Button>
               </div>
               
-              {/* Illustration - right side */}
-              <div className="flex-shrink-0 w-full lg:w-1/2 flex justify-center lg:justify-end">
-                <img 
-                  src={corporateHandshake} 
-                  alt="Corporate partnership illustration" 
-                  className="w-full max-w-lg lg:max-w-none lg:w-full h-auto object-contain"
-                />
+              {/* Illustration - right side with gradient overlay */}
+              <div className="flex-shrink-0 w-full lg:w-1/2 flex justify-center lg:justify-end relative">
+                <div className="relative w-full max-w-lg lg:max-w-none lg:w-full">
+                  <img 
+                    src={corporateCareIllustration} 
+                    alt="Corporate partnership illustration" 
+                    className="w-full h-auto object-contain relative z-10"
+                  />
+                  {/* Gradient overlay effect */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary/20 via-transparent to-transparent rounded-2xl pointer-events-none" />
+                  <div className="absolute -inset-4 bg-gradient-to-br from-primary/10 via-accent/20 to-transparent rounded-full blur-2xl -z-10" />
+                </div>
               </div>
             </div>
             
