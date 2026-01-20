@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 const words = [
   { text: "Seniors", color: "hsl(var(--primary))" },
   { text: "Elders", color: "hsl(142, 60%, 45%)" },
-  { text: "Parents", color: "hsl(200, 70%, 50%)" },
+  { text: "Parents", color: "hsl(45%, 100%, 50%)" },
   { text: "Grandparents", color: "hsl(280, 60%, 55%)" },
   { text: "Community Pillars", color: "hsl(15, 78%, 53%)" },
   { text: "The Silver Generation", color: "hsl(330, 100%, 64%)" },
