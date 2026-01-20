@@ -9,10 +9,9 @@ import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { FloatingElements } from "@/components/home/FloatingElements";
 import { AnimatedHeroText } from "@/components/home/AnimatedHeroText";
 import ServiceCard from "@/components/home/ServiceCard";
+import { ImpactGallery } from "@/components/home/ImpactGallery";
 
-// Import real images
-import elderAbuseAwareness from "@/assets/elder-abuse-awareness.png";
-import clothDistribution from "@/assets/cloth-distribution.png";
+// Import hover images
 import legalAwarenessHover from "@/assets/legal-awareness-hover.jpg";
 import holisticWellbeingHover from "@/assets/holistic-wellbeing-hover.jpg";
 import publicSensitizationHover from "@/assets/public-sensitization-hover.jpg";
@@ -137,14 +136,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 items-center">
-            <div className="overflow-hidden rounded-2xl shadow-lg">
-              <img src={elderAbuseAwareness} alt="World Elder Abuse Awareness Day 2024" className="w-full h-auto" />
-            </div>
-            <div className="overflow-hidden rounded-2xl shadow-lg">
-              <img src={clothDistribution} alt="Cloth distribution to seniors by Shraddha" className="w-full h-auto" />
-            </div>
-          </div>
+          <ImpactGallery />
         </div>
       </section>
 
