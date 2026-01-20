@@ -3,6 +3,7 @@ import { Users, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TeamMemberCard } from "./TeamMemberCard";
 import type { Database } from "@/integrations/supabase/types";
+import teamHeaderBg from "@/assets/team-header-bg.png";
 
 type TeamCategory = Database["public"]["Enums"]["team_category"];
 
@@ -104,11 +105,17 @@ export function TeamSection() {
     <section className="py-0 bg-card">
       {/* Animated Gradient Header */}
       <div className="group relative overflow-hidden py-16 lg:py-24">
-        {/* Animated Gradient Background */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-teal-500 to-green-500 transition-all duration-700 group-hover:from-green-500 group-hover:via-teal-500 group-hover:to-blue-600" />
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+          style={{ backgroundImage: `url(${teamHeaderBg})` }}
+        />
+        
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/85 via-teal-500/80 to-green-500/85" />
         
         {/* Animated Overlay Pattern */}
-        <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500">
+        <div className="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity duration-500">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,white_1px,transparent_1px)] bg-[length:20px_20px] animate-pulse" />
         </div>
         
