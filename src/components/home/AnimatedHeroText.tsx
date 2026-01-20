@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 const words = [
   { text: "Seniors", color: "hsl(var(--primary))" },
   { text: "Elders", color: "hsl(142, 60%, 45%)" },
-  { text: "Parents", color: "hsl(45%, 100%, 50%)" },
+  { text: "Parents", color: "hsl(45, 100%, 50%)" },
   { text: "Grandparents", color: "hsl(280, 60%, 55%)" },
   { text: "Community Pillars", color: "hsl(15, 78%, 53%)" },
   { text: "The Silver Generation", color: "hsl(330, 100%, 64%)" },
@@ -49,10 +49,7 @@ export const AnimatedHeroText = () => {
 
   return (
     <span className="relative inline-block">
-      <span
-        className="transition-colors duration-500"
-        style={{ color: currentColor }}
-      >
+      <span className="transition-colors duration-500" style={{ color: currentColor }}>
         {displayText}
         <span className="animate-pulse">|</span>
       </span>
@@ -62,13 +59,7 @@ export const AnimatedHeroText = () => {
         preserveAspectRatio="none"
         style={{ color: currentColor, opacity: 0.3 }}
       >
-        <path
-          d="M0 9c50-5 100-5 200 0"
-          stroke="currentColor"
-          strokeWidth="3"
-          fill="none"
-          strokeLinecap="round"
-        />
+        <path d="M0 9c50-5 100-5 200 0" stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round" />
       </svg>
     </span>
   );
