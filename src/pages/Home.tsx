@@ -55,7 +55,7 @@ export default function Home() {
               </div>
 
               <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
-                Dignity and Protection for <AnimatedHeroText />
+                Dignity and Protection for <br className="hidden sm:inline lg:hidden" /><AnimatedHeroText />
               </h1>
 
               <p className="text-lg lg:text-xl text-muted-foreground max-w-lg">
