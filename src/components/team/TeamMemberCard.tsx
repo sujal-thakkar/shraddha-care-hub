@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { Facebook, Instagram, Linkedin, Github } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 interface TeamMemberCardProps {
@@ -106,7 +112,21 @@ export function TeamMemberCard({
 
         {/* Info Section */}
         <div className="p-4 text-center">
-          <h3 className="font-semibold text-foreground truncate">{name}</h3>
+          <TooltipProvider delayDuration={300}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <h3 className="font-semibold text-foreground truncate cursor-default">
+                  {name}
+                </h3>
+              </TooltipTrigger>
+              <TooltipContent 
+                side="top" 
+                className="bg-primary text-primary-foreground font-medium px-3 py-1.5 shadow-lg"
+              >
+                {name}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <p className="text-sm text-muted-foreground truncate">{role}</p>
         </div>
       </div>
