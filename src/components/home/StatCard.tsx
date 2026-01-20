@@ -10,7 +10,7 @@ interface StatCardProps {
 }
 
 export function StatCard({ value, suffix = "+", label, Icon, index }: StatCardProps) {
-  const { count, ref } = useCountUp({ end: value, duration: 2000 });
+  const { count, ref, isComplete } = useCountUp({ end: value, duration: 2000 });
 
   return (
     <div 
@@ -23,10 +23,10 @@ export function StatCard({ value, suffix = "+", label, Icon, index }: StatCardPr
       
       <div className="relative z-10 text-center">
         {/* Icon with animated container */}
-        <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-primary/10 flex items-center justify-center transition-all duration-300 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-3">
+        <div className={`w-12 h-12 mx-auto mb-3 rounded-xl bg-primary/10 flex items-center justify-center transition-all duration-300 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-3 ${isComplete ? 'animate-bounce-once' : ''}`}>
           <Icon className="h-6 w-6 text-primary transition-colors duration-300 group-hover:text-primary-foreground" />
         </div>
-        <div className="text-3xl lg:text-4xl font-bold text-primary mb-1 transition-transform duration-300 group-hover:scale-105 tabular-nums">
+        <div className={`text-3xl lg:text-4xl font-bold text-primary mb-1 transition-transform duration-300 group-hover:scale-105 tabular-nums ${isComplete ? 'animate-bounce-once' : ''}`}>
           {count}{suffix}
         </div>
         <div className="text-sm text-muted-foreground">{label}</div>

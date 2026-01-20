@@ -9,6 +9,7 @@ interface UseCountUpOptions {
 export function useCountUp({ end, duration = 2000, startOnView = true }: UseCountUpOptions) {
   const [count, setCount] = useState(0);
   const [hasStarted, setHasStarted] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -52,6 +53,8 @@ export function useCountUp({ end, duration = 2000, startOnView = true }: UseCoun
 
       if (progress < 1) {
         animationFrame = requestAnimationFrame(animate);
+      } else {
+        setIsComplete(true);
       }
     };
 
@@ -60,5 +63,5 @@ export function useCountUp({ end, duration = 2000, startOnView = true }: UseCoun
     return () => cancelAnimationFrame(animationFrame);
   }, [hasStarted, end, duration]);
 
-  return { count, ref };
+  return { count, ref, isComplete };
 }
