@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Scale, Users, Megaphone, Building2, ArrowRight, Shield, HandHeart, Heart } from "lucide-react";
+import { Scale, Users, Megaphone, Building2, ArrowRight, HandHeart, Heart } from "lucide-react";
 import hoslaLogo from "@/assets/hosla-logo.png";
 import knowMoreBubble from "@/assets/know-more-bubble.jpg";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
@@ -257,34 +257,69 @@ export default function Home() {
       </section>
 
       {/* Mission Statement */}
-      <section className="py-16 lg:py-24 bg-card">
-        <div className="container">
-          <div className="max-w-4xl mx-auto text-center space-y-8">
-            <Shield className="h-16 w-16 text-primary mx-auto" />
-            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground">Our Mission</h2>
-            <p className="text-xl text-muted-foreground leading-relaxed">
-              "To create a society where every senior citizen lives with dignity, free from abuse, neglect, and
-              isolation. We believe in building an extended family that cares, protects, and empowers our elders."
-            </p>
+      <section className="py-16 lg:py-24 bg-card relative overflow-hidden">
+        {/* Decorative background elements */}
+        <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent/30 rounded-full blur-3xl translate-x-1/3 translate-y-1/3" />
+        
+        <div className="container relative z-10">
+          <div className="max-w-5xl mx-auto">
+            {/* Header with decorative lines */}
+            <div className="text-center mb-12 animate-fade-in">
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <div className="h-px w-12 bg-gradient-to-r from-transparent to-primary/50" />
+                <span className="text-primary font-medium uppercase tracking-widest text-sm">What Drives Us</span>
+                <div className="h-px w-12 bg-gradient-to-l from-transparent to-primary/50" />
+              </div>
+              <h2 className="font-serif text-3xl lg:text-5xl font-bold text-foreground mb-6">Our Mission</h2>
+              <p className="text-xl lg:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto italic">
+                "To create a society where every senior citizen lives with dignity, free from abuse, neglect, and
+                isolation. We believe in building an extended family that cares, protects, and empowers our elders."
+              </p>
+            </div>
 
-            {/* Impact Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8">
-              <div className="text-center">
-                <div className="text-3xl lg:text-4xl font-bold text-primary">500+</div>
-                <div className="text-sm text-muted-foreground">Seniors Supported</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl lg:text-4xl font-bold text-primary">50+</div>
-                <div className="text-sm text-muted-foreground">Legal Awareness Camps</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl lg:text-4xl font-bold text-primary">100+</div>
-                <div className="text-sm text-muted-foreground">Active Volunteers</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl lg:text-4xl font-bold text-primary">10+</div>
-                <div className="text-sm text-muted-foreground">Cities Reached</div>
-              </div>
+            {/* Impact Stats with enhanced cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6 pt-8">
+              {[
+                { value: "500+", label: "Seniors Supported", icon: "👴" },
+                { value: "50+", label: "Legal Awareness Camps", icon: "⚖️" },
+                { value: "100+", label: "Active Volunteers", icon: "🤝" },
+                { value: "10+", label: "Cities Reached", icon: "🏙️" },
+              ].map((stat, index) => (
+                <div 
+                  key={index}
+                  className="group relative bg-background rounded-2xl p-6 shadow-sm border border-border/50 transition-all duration-300 hover:shadow-lg hover:border-primary/30 hover:-translate-y-1 cursor-default"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  {/* Hover glow effect */}
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  
+                  <div className="relative z-10 text-center">
+                    <span className="text-2xl mb-2 block group-hover:animate-wiggle">{stat.icon}</span>
+                    <div className="text-3xl lg:text-4xl font-bold text-primary mb-1 group-hover:scale-110 transition-transform duration-300">
+                      {stat.value}
+                    </div>
+                    <div className="text-sm text-muted-foreground">{stat.label}</div>
+                  </div>
+                  
+                  {/* Corner accent */}
+                  <div className="absolute top-0 right-0 w-8 h-8 overflow-hidden">
+                    <div className="absolute -top-4 -right-4 w-8 h-8 bg-primary/10 rotate-45 group-hover:bg-primary/20 transition-colors duration-300" />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Decorative sparkles */}
+            <div className="absolute top-20 right-20 text-primary/20 animate-pulse hidden lg:block">
+              <svg width="24" height="24" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5L8 0Z"/>
+              </svg>
+            </div>
+            <div className="absolute bottom-32 left-16 text-accent animate-pulse hidden lg:block" style={{ animationDelay: '1s' }}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5L8 0Z"/>
+              </svg>
             </div>
           </div>
         </div>
