@@ -16,6 +16,7 @@ import legalAwarenessHover from "@/assets/legal-awareness-hover.jpg";
 import holisticWellbeingHover from "@/assets/holistic-wellbeing-hover.jpg";
 import publicSensitizationHover from "@/assets/public-sensitization-hover.jpg";
 import corporateCareHover from "@/assets/corporate-care-hover.jpg";
+import missionIllustration from "@/assets/mission-illustration.jpg";
 
 import { useState } from "react";
 
@@ -216,7 +217,9 @@ export default function Home() {
       <section className="py-16 lg:py-24 bg-card">
         <div className="container">
           <div className="max-w-4xl mx-auto text-center space-y-8">
-            <Shield className="h-16 w-16 text-primary mx-auto" />
+            <div className="w-32 h-32 lg:w-40 lg:h-40 mx-auto rounded-full overflow-hidden shadow-lg border-4 border-primary/20">
+              <img src={missionIllustration} alt="Caring for seniors" className="w-full h-full object-cover" />
+            </div>
             <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground">Our Mission</h2>
             <p className="text-xl text-muted-foreground leading-relaxed">
               "To create a society where every senior citizen lives with dignity, free from abuse, neglect, and
