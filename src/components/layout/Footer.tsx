@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Phone, Mail, MapPin, Facebook, ExternalLink } from "lucide-react";
 import logoShraddha from "@/assets/logo-shraddha.png";
+import hoslaLogo from "@/assets/hosla-logo.png";
 
 export function Footer() {
   return (
@@ -20,9 +21,9 @@ export function Footer() {
               href="https://www.hosla.in" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+              className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
             >
-              Visit Hosla <ExternalLink className="h-3 w-3" />
+              Visit <img src={hoslaLogo} alt="Hosla" className="h-4 inline-block" /> <ExternalLink className="h-3 w-3" />
             </a>
           </div>
 
