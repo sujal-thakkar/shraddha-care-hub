@@ -40,7 +40,7 @@ export default function Home() {
                   rel="noopener noreferrer"
                   className="absolute -right-28 -top-10 w-24 h-auto transition-all duration-300 hover:scale-110 hover:brightness-110 animate-wiggle drop-shadow-lg"
                 >
-                  <img src={knowMoreBubble} alt="Click to Know More" className="w-full h-auto animate-pulse" />
+                  <img src={knowMoreBubble} alt="Click to Know More" className="w-full h-auto animate-float-bounce" />
                 </a>
               </div>
               
