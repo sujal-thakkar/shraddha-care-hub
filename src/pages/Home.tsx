@@ -56,24 +56,6 @@ export default function Home() {
                   </Link>
                 </Button>
               </div>
-
-              {/* Trust indicators */}
-              <div className="flex items-center gap-6 pt-6 border-t border-border/50">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">500+</div>
-                  <div className="text-xs text-muted-foreground">Seniors Helped</div>
-                </div>
-                <div className="w-px h-10 bg-border" />
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">10+</div>
-                  <div className="text-xs text-muted-foreground">Cities</div>
-                </div>
-                <div className="w-px h-10 bg-border" />
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">100+</div>
-                  <div className="text-xs text-muted-foreground">Volunteers</div>
-                </div>
-              </div>
             </div>
 
             {/* Carousel */}
