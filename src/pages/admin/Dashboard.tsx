@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link, Outlet, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Heart, LayoutDashboard, FileText, Users, Settings, LogOut, Loader2, Menu, X } from "lucide-react";
+import { LayoutDashboard, FileText, Users, Settings, LogOut, Loader2, Menu, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import logoShraddha from "@/assets/logo-shraddha.png";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -78,9 +79,8 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-background">
       {/* Mobile Header */}
       <div className="lg:hidden sticky top-0 z-50 bg-card border-b border-border px-4 py-3 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <Heart className="h-6 w-6 text-primary" />
-          <span className="font-serif font-bold text-foreground">Shraddha Admin</span>
+        <Link to="/" className="flex items-center">
+          <img src={logoShraddha} alt="Shraddha" className="h-8" />
         </Link>
         <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
           {isSidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -95,9 +95,8 @@ export default function AdminDashboard() {
         )}>
           <div className="flex flex-col h-full">
             {/* Logo */}
-            <div className="hidden lg:flex items-center gap-2 p-6 border-b border-border">
-              <Heart className="h-8 w-8 text-primary" />
-              <span className="font-serif text-xl font-bold text-foreground">Shraddha</span>
+            <div className="hidden lg:flex items-center p-6 border-b border-border">
+              <img src={logoShraddha} alt="Shraddha" className="h-10" />
             </div>
 
             {/* Navigation */}

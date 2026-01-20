@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Heart, Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import logoShraddha from "@/assets/logo-shraddha.png";
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -88,7 +89,7 @@ export default function AdminLogin() {
       <Card className="w-full max-w-md border-border">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <Heart className="h-12 w-12 text-primary" />
+            <img src={logoShraddha} alt="Shraddha" className="h-14" />
           </div>
           <CardTitle className="font-serif text-2xl">Admin Login</CardTitle>
           <CardDescription>

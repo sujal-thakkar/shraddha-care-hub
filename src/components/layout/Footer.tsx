@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Heart, Phone, Mail, MapPin, Facebook, ExternalLink } from "lucide-react";
+import { Phone, Mail, MapPin, Facebook, ExternalLink } from "lucide-react";
+import logoShraddha from "@/assets/logo-shraddha.png";
 
 export function Footer() {
   return (
@@ -8,9 +9,8 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="space-y-4">
-            <Link to="/" className="flex items-center gap-2">
-              <Heart className="h-8 w-8 text-primary" />
-              <span className="font-serif text-xl font-bold text-foreground">Shraddha</span>
+            <Link to="/" className="flex items-center">
+              <img src={logoShraddha} alt="Shraddha" className="h-10" />
             </Link>
             <p className="text-sm text-muted-foreground">
               Providing dignity, protection, and care for our beloved seniors. 
