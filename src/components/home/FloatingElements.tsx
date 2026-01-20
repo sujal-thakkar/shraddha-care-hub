@@ -1,4 +1,4 @@
-import { Heart, Star, Shield, Users, HandHeart } from "lucide-react";
+import { Star } from "lucide-react";
 
 export function FloatingElements() {
   return (
@@ -12,31 +12,6 @@ export function FloatingElements() {
       <div className="absolute top-20 right-20 lg:right-[15%] w-32 h-32 lg:w-48 lg:h-48">
         <div className="w-full h-full border-2 border-dashed border-primary/20 rounded-full animate-[spin_20s_linear_infinite]" />
         <div className="absolute inset-4 border border-primary/10 rounded-full animate-[spin_15s_linear_infinite_reverse]" />
-      </div>
-
-      {/* Floating icons */}
-      <div className="hidden lg:block absolute top-[15%] left-[8%] animate-bounce delay-100">
-        <div className="p-3 bg-card/80 backdrop-blur-sm rounded-xl shadow-lg border border-border">
-          <Heart className="h-6 w-6 text-primary" />
-        </div>
-      </div>
-
-      <div className="hidden lg:block absolute top-[25%] right-[5%] animate-bounce delay-300">
-        <div className="p-3 bg-card/80 backdrop-blur-sm rounded-xl shadow-lg border border-border">
-          <Shield className="h-6 w-6 text-primary" />
-        </div>
-      </div>
-
-      <div className="hidden lg:block absolute bottom-[30%] left-[5%] animate-bounce delay-500">
-        <div className="p-3 bg-card/80 backdrop-blur-sm rounded-xl shadow-lg border border-border">
-          <Users className="h-6 w-6 text-primary" />
-        </div>
-      </div>
-
-      <div className="hidden lg:block absolute bottom-[15%] right-[12%] animate-bounce delay-700">
-        <div className="p-3 bg-card/80 backdrop-blur-sm rounded-xl shadow-lg border border-border">
-          <HandHeart className="h-6 w-6 text-primary" />
-        </div>
       </div>
 
       {/* Small stars */}
