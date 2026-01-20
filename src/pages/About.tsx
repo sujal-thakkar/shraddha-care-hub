@@ -177,13 +177,6 @@ export default function About() {
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
               />
             </div>
-            <div className="aspect-video overflow-hidden rounded-xl shadow-md lg:col-span-2">
-              <img 
-                src={teamEvent} 
-                alt="Shraddha team members" 
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-              />
-            </div>
             <div className="aspect-video overflow-hidden rounded-xl shadow-md">
               <img 
                 src={hoslaBooth} 
