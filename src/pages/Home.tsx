@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Scale, Users, Megaphone, Building2, ArrowRight, Shield, HandHeart, ChevronDown, Heart } from "lucide-react";
 import hoslaLogo from "@/assets/hosla-logo.png";
+import knowMoreBubble from "@/assets/know-more-bubble.jpg";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { FloatingElements } from "@/components/home/FloatingElements";
 
@@ -23,9 +24,24 @@ export default function Home() {
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Text content with animations */}
             <div className="space-y-6 animate-fade-in">
-              <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full text-sm font-medium border border-primary/20">
-                <span className="text-muted-foreground">Backed by</span>
-                <img src={hoslaLogo} alt="Hosla" className="h-5 w-auto" />
+              <div className="relative inline-flex items-center">
+                <a 
+                  href="https://hosla.in" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full text-sm font-medium border border-primary/20 transition-all duration-300 hover:bg-primary/20 hover:border-primary/40 hover:scale-105 hover:shadow-md cursor-pointer"
+                >
+                  <span className="text-muted-foreground">Backed by</span>
+                  <img src={hoslaLogo} alt="Hosla" className="h-5 w-auto" />
+                </a>
+                <a
+                  href="https://hosla.in"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="absolute -right-24 -top-8 w-20 h-auto transition-transform duration-300 hover:scale-110"
+                >
+                  <img src={knowMoreBubble} alt="Click to Know More" className="w-full h-auto" />
+                </a>
               </div>
               
               <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
