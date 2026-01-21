@@ -50,7 +50,7 @@ export default function CorporateCare() {
             alt="" 
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[hsl(250_70%_45%)]/85 via-[hsl(220_70%_50%)]/75 to-[hsl(250_70%_45%)]/90" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[hsl(250_70%_45%)]/70 via-[hsl(220_70%_50%)]/60 to-[hsl(250_70%_45%)]/80" />
         </div>
         
         {/* Decorative Elements */}
