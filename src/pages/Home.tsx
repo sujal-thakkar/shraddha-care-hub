@@ -18,6 +18,8 @@ import holisticWellbeingHover from "@/assets/holistic-wellbeing-hover.jpg";
 import publicSensitizationHover from "@/assets/public-sensitization-hover.jpg";
 import corporateCareIllustration from "@/assets/corporate-care-illustration.png";
 import corporateCareHover from "@/assets/corporate-care-hover.jpg";
+import volunteerElderlyCare from "@/assets/volunteer-elderly-care.jpg";
+import missionWatercolorBg from "@/assets/mission-watercolor-bg.png";
 import { useState } from "react";
 
 export default function Home() {
@@ -92,11 +94,51 @@ export default function Home() {
       </section>
 
       {/* Services Overview */}
-      <section className="py-16 lg:py-24 bg-background">
-        <div className="container">
+      <section className="relative py-16 lg:py-24 overflow-hidden">
+        {/* Parallax Background */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-fixed"
+          style={{ backgroundImage: `url(${volunteerElderlyCare})` }}
+        />
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-foreground/40 via-foreground/30 to-foreground/50" />
+        
+        {/* Top Wave */}
+        <div className="absolute top-0 left-0 right-0 -mt-px">
+          <svg 
+            viewBox="0 0 1440 80" 
+            fill="none" 
+            xmlns="http://www.w3.org/2000/svg" 
+            className="w-full h-auto block"
+            preserveAspectRatio="none"
+          >
+            <path 
+              d="M0 0H1440V40C1200 80 960 0 720 20C480 40 240 80 0 40V0Z" 
+              className="fill-background"
+            />
+          </svg>
+        </div>
+        
+        {/* Bottom Wave */}
+        <div className="absolute bottom-0 left-0 right-0 -mb-px">
+          <svg 
+            viewBox="0 0 1440 80" 
+            fill="none" 
+            xmlns="http://www.w3.org/2000/svg" 
+            className="w-full h-auto block"
+            preserveAspectRatio="none"
+          >
+            <path 
+              d="M0 40C240 0 480 80 720 60C960 40 1200 0 1440 40V80H0V40Z" 
+              className="fill-card"
+            />
+          </svg>
+        </div>
+        
+        <div className="container relative z-10">
           <div className="text-center mb-12">
-            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">Our Services</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
+            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-white mb-4 drop-shadow-lg">Our Services</h2>
+            <p className="text-white/90 max-w-2xl mx-auto drop-shadow-md">
               Comprehensive support for seniors through awareness, care, and advocacy.
             </p>
           </div>
@@ -258,7 +300,47 @@ export default function Home() {
       </section>
 
       {/* Mission Statement */}
-      <section className="py-16 lg:py-24 bg-card relative overflow-hidden">
+      <section className="py-16 lg:py-24 relative overflow-hidden">
+        {/* Parallax Background */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-fixed"
+          style={{ backgroundImage: `url(${missionWatercolorBg})` }}
+        />
+        {/* Overlay for text readability */}
+        <div className="absolute inset-0 bg-card/70" />
+        
+        {/* Top Wave */}
+        <div className="absolute top-0 left-0 right-0 -mt-px">
+          <svg 
+            viewBox="0 0 1440 80" 
+            fill="none" 
+            xmlns="http://www.w3.org/2000/svg" 
+            className="w-full h-auto block"
+            preserveAspectRatio="none"
+          >
+            <path 
+              d="M0 0H1440V40C1200 80 960 0 720 20C480 40 240 80 0 40V0Z" 
+              className="fill-card"
+            />
+          </svg>
+        </div>
+        
+        {/* Bottom Wave */}
+        <div className="absolute bottom-0 left-0 right-0 -mb-px">
+          <svg 
+            viewBox="0 0 1440 80" 
+            fill="none" 
+            xmlns="http://www.w3.org/2000/svg" 
+            className="w-full h-auto block"
+            preserveAspectRatio="none"
+          >
+            <path 
+              d="M0 40C240 0 480 80 720 60C960 40 1200 0 1440 40V80H0V40Z" 
+              fill="hsl(161, 93%, 30%)"
+            />
+          </svg>
+        </div>
+        
         {/* Decorative background elements */}
         <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent/30 rounded-full blur-3xl translate-x-1/3 translate-y-1/3" />

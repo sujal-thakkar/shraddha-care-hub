@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Phone, Mail, MapPin, Facebook, ExternalLink } from "lucide-react";
+import { Phone, Mail, MapPin, Facebook, ExternalLink, Youtube, Linkedin } from "lucide-react";
 import logoShraddha from "@/assets/logo-shraddha.png";
 import hoslaLogo from "@/assets/hosla-logo.png";
 
@@ -83,15 +83,46 @@ export function Footer() {
           {/* Social */}
           <div className="space-y-4">
             <h3 className="font-semibold text-foreground">Follow Us</h3>
-            <a
-              href="https://facebook.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
-            >
-              <Facebook className="h-5 w-5" />
-              Facebook
-            </a>
+            <div className="flex flex-col gap-2">
+              <a
+                href="https://facebook.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                <Facebook className="h-5 w-5" />
+                Facebook
+              </a>
+              <a
+                href="https://www.youtube.com/@hoslaextendedfamily"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                <Youtube className="h-5 w-5" />
+                YouTube
+              </a>
+              <a
+                href="https://x.com/FamilyHosla"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
+                X (Twitter)
+              </a>
+              <a
+                href="https://www.linkedin.com/in/hosla-extendedfamily-507155229/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                <Linkedin className="h-5 w-5" />
+                LinkedIn
+              </a>
+            </div>
             <p className="text-sm text-muted-foreground">Follow us for updates on our work and impact stories.</p>
           </div>
         </div>

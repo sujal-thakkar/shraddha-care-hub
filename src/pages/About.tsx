@@ -4,14 +4,14 @@ import { Heart, Target, Award, Quote, Star } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TeamSection } from "@/components/team/TeamSection";
+import { WorkGallery } from "@/components/about/WorkGallery";
 
 // Import real images
 import orgCollage from "@/assets/org-collage.png";
 import awarenessCamp from "@/assets/awareness-camp.png";
 import clothDistribution from "@/assets/cloth-distribution.png";
-import eventPurulia from "@/assets/event-purulia.png";
-import teamEvent from "@/assets/team-event.png";
 import hoslaBooth from "@/assets/hosla-booth.png";
+import teamEvent from "@/assets/team-event.png";
 
 export default function About() {
   const { data: successStories } = useQuery({
@@ -145,49 +145,7 @@ export default function About() {
       </section>
 
       {/* Photo Gallery */}
-      <section className="py-16 lg:py-24 bg-background">
-        <div className="container">
-          <div className="text-center mb-12">
-            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">
-              Our Work in Action
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Glimpses from our awareness camps, events, and community programs.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="aspect-video overflow-hidden rounded-xl shadow-md">
-              <img 
-                src={awarenessCamp} 
-                alt="Awareness camp conducted by Shraddha" 
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-              />
-            </div>
-            <div className="aspect-video overflow-hidden rounded-xl shadow-md">
-              <img 
-                src={clothDistribution} 
-                alt="Cloth distribution to seniors" 
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-              />
-            </div>
-            <div className="aspect-video overflow-hidden rounded-xl shadow-md">
-              <img 
-                src={eventPurulia} 
-                alt="Senior citizen event in Purulia" 
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-              />
-            </div>
-            <div className="aspect-video overflow-hidden rounded-xl shadow-md">
-              <img 
-                src={hoslaBooth} 
-                alt="Hosla community booth" 
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
+      <WorkGallery />
 
       {/* Success Stories */}
       <section className="py-16 lg:py-24 bg-card">
