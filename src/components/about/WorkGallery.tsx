@@ -41,8 +41,8 @@ const galleryImages: GalleryImage[] = [
   },
   {
     src: shraddhaWork,
-    alt: "Hosla awareness rally",
-    caption: "Awareness Rally",
+    alt: "Community outreach program",
+    caption: "Community Outreach Program",
   },
   {
     src: hoslaBooth,
@@ -51,8 +51,8 @@ const galleryImages: GalleryImage[] = [
   },
   {
     src: shraddhaWork2,
-    alt: "Community outreach program",
-    caption: "Community Outreach Program",
+    alt: "Hosla awareness rally",
+    caption: "Awareness Rally",
     tall: true,
   },
   {
