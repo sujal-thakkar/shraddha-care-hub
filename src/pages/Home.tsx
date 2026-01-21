@@ -103,7 +103,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-primary/85 via-primary/75 to-primary/90" />
         
         {/* Top Wave */}
-        <div className="absolute top-0 left-0 right-0 -mb-px">
+        <div className="absolute top-0 left-0 right-0 -mt-px">
           <svg 
             viewBox="0 0 1440 80" 
             fill="none" 
@@ -112,7 +112,7 @@ export default function Home() {
             preserveAspectRatio="none"
           >
             <path 
-              d="M0 80V40C240 80 480 0 720 20C960 40 1200 80 1440 40V80H0Z" 
+              d="M0 0H1440V40C1200 80 960 0 720 20C480 40 240 80 0 40V0Z" 
               className="fill-background"
             />
           </svg>
@@ -128,7 +128,7 @@ export default function Home() {
             preserveAspectRatio="none"
           >
             <path 
-              d="M0 0V40C240 0 480 80 720 60C960 40 1200 0 1440 40V0H0Z" 
+              d="M0 40C240 0 480 80 720 60C960 40 1200 0 1440 40V80H0V40Z" 
               className="fill-card"
             />
           </svg>
