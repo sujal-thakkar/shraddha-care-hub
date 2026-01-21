@@ -293,14 +293,14 @@ export default function Contact() {
               <Card className="border-border overflow-hidden">
                 <CardContent className="p-0">
                   <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3671.4!2d87.3172!3d23.0741!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39f7a3c3c3c3c3c3%3A0x0!2s387C%2BC9%20Bishnupur%2C%20West%20Bengal!5e0!3m2!1sen!2sin!4v1234567890"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d917.7285522239911!2d87.32033586954546!3d23.06360663260785!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39f79338f0cb31ff%3A0x84a8fe05e09a8fb0!2sHosla%20Senior%20Citizen%20Care%20Organization!5e0!3m2!1sen!2sin!4v1769021265056!5m2!1sen!2sin"
                     width="100%"
                     height="400"
                     style={{ border: 0 }}
                     allowFullScreen
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
-                    title="Shraddha Office Location - Bishnupur, West Bengal"
+                    title="Hosla Senior Citizen Care Organization - Bishnupur, West Bengal"
                     className="w-full"
                   />
                 </CardContent>
