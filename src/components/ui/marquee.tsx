@@ -8,55 +8,63 @@ interface MarqueeProps extends React.HTMLAttributes<HTMLDivElement> {
   direction?: "left" | "right";
 }
 
-export function Marquee({
-  children,
-  pauseOnHover = true,
-  speed = "normal",
-  direction = "left",
-  className,
-  ...props
-}: MarqueeProps) {
-  const speedMap = {
-    slow: "40s",
-    normal: "25s",
-    fast: "15s",
-  };
+const Marquee = React.forwardRef<HTMLDivElement, MarqueeProps>(
+  (
+    {
+      children,
+      pauseOnHover = true,
+      speed = "normal",
+      direction = "left",
+      className,
+      ...props
+    },
+    ref
+  ) => {
+    const speedMap = {
+      slow: "40s",
+      normal: "25s",
+      fast: "15s",
+    };
 
-  return (
-    <div
-      className={cn(
-        "group flex overflow-hidden [--gap:2rem]",
-        className
-      )}
-      {...props}
-    >
+    return (
       <div
+        ref={ref}
         className={cn(
-          "flex min-w-full shrink-0 items-center justify-around gap-[--gap]",
-          "motion-safe:animate-marquee",
-          pauseOnHover && "group-hover:[animation-play-state:paused]",
-          direction === "right" && "[animation-direction:reverse]"
+          "group flex overflow-hidden [--gap:2rem]",
+          className
         )}
-        style={{
-          animationDuration: speedMap[speed],
-        }}
+        {...props}
       >
-        {children}
+        <div
+          className={cn(
+            "flex min-w-full shrink-0 items-center justify-around gap-[--gap] animate-marquee",
+            pauseOnHover && "group-hover:[animation-play-state:paused]",
+            direction === "right" && "[animation-direction:reverse]"
+          )}
+          style={{
+            animationDuration: speedMap[speed],
+          }}
+        >
+          {children}
+        </div>
+        <div
+          aria-hidden="true"
+          className={cn(
+            "flex min-w-full shrink-0 items-center justify-around gap-[--gap] animate-marquee",
+            pauseOnHover && "group-hover:[animation-play-state:paused]",
+            direction === "right" && "[animation-direction:reverse]"
+          )}
+          style={{
+            animationDuration: speedMap[speed],
+          }}
+        >
+          {children}
+        </div>
       </div>
-      <div
-        aria-hidden="true"
-        className={cn(
-          "flex min-w-full shrink-0 items-center justify-around gap-[--gap]",
-          "motion-safe:animate-marquee",
-          pauseOnHover && "group-hover:[animation-play-state:paused]",
-          direction === "right" && "[animation-direction:reverse]"
-        )}
-        style={{
-          animationDuration: speedMap[speed],
-        }}
-      >
-        {children}
-      </div>
-    </div>
-  );
-}
+    );
+  }
+);
+
+Marquee.displayName = "Marquee";
+
+export { Marquee };
