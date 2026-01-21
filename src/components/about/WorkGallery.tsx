@@ -12,6 +12,8 @@ import hoslaBooth from "@/assets/hosla-booth.png";
 import shraddhaWork from "@/assets/shraddha-care-work.jpg";
 import shraddhaWork2 from "@/assets/shraddha-care-work2.jpg";
 import shraddhaWork3 from "@/assets/shraddha-care-work3.jpg";
+import shraddhaWork4 from "@/assets/shraddha-care-work4.jpg";
+import shraddhaWork5 from "@/assets/shraddha-care-work5.jpg";
 
 interface GalleryImage {
   src: string;
@@ -58,6 +60,17 @@ const galleryImages: GalleryImage[] = [
     src: shraddhaWork3,
     alt: "Interview at Pride India Awards",
     caption: "Pride India Awards 2024",
+  },
+  {
+    src: shraddhaWork4,
+    alt: "Legal Awareness Workshop poster",
+    caption: "Legal Awareness Workshop",
+    tall: true,
+  },
+  {
+    src: shraddhaWork5,
+    alt: "Relief materials distribution",
+    caption: "Relief Materials Distribution",
   },
 ];
 
