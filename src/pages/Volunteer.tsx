@@ -285,7 +285,7 @@ export default function Volunteer() {
         <div className="absolute top-1/2 left-1/4 w-40 h-40 bg-accent/10 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '2s' }} />
         
         {/* Rotating Hand Image on Axis */}
-        <div className="absolute bottom-40 right-4 w-24 h-24 sm:w-32 sm:h-32 md:bottom-36 md:right-8 md:w-40 md:h-40 lg:bottom-32 lg:right-12 lg:w-56 lg:h-56 rounded-full overflow-hidden shadow-2xl opacity-50 sm:opacity-60 hover:opacity-90 transition-opacity duration-500 border-2 sm:border-4 border-primary/20"
+        <div className="absolute top-32 right-4 w-20 h-20 sm:w-28 sm:h-28 md:top-36 md:right-8 md:w-36 md:h-36 lg:top-40 lg:right-16 lg:w-48 lg:h-48 rounded-full overflow-hidden shadow-2xl opacity-50 sm:opacity-60 hover:opacity-90 transition-opacity duration-500 border-2 sm:border-4 border-primary/20"
           style={{
             animation: 'spin-slow 20s linear infinite',
           }}
