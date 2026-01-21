@@ -16,7 +16,7 @@ import legalAwarenessImg from "@/assets/volunteer-legal-awareness.jpg";
 import wellnessImg from "@/assets/volunteer-wellness.jpg";
 import volunteerPatternHearts from "@/assets/volunteer-pattern-hearts.jpg";
 import volunteerHandsWatercolor from "@/assets/volunteer-hands-watercolor.jpg";
-import volunteerElderlyCare from "@/assets/volunteer-elderly-care.jpg";
+
 import volunteerJourneyPath from "@/assets/volunteer-journey-path.jpg";
 
 export default function Volunteer() {
@@ -285,19 +285,13 @@ export default function Volunteer() {
         <div className="absolute top-1/2 left-1/4 w-40 h-40 bg-accent/10 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '2s' }} />
         
         {/* Rotating Hand Image on Axis */}
-        <div className="hidden lg:block absolute bottom-32 right-12 w-40 h-40 rounded-full overflow-hidden shadow-2xl opacity-60 hover:opacity-90 transition-opacity duration-500 border-4 border-primary/20"
+        <div className="hidden lg:block absolute bottom-32 right-12 w-56 h-56 rounded-full overflow-hidden shadow-2xl opacity-60 hover:opacity-90 transition-opacity duration-500 border-4 border-primary/20"
           style={{
             animation: 'spin-slow 20s linear infinite',
           }}
         >
           <img src={volunteerHandsWatercolor} alt="" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-br from-transparent to-primary/30" />
-        </div>
-        
-        {/* Elderly Care Floating Image */}
-        <div className="hidden xl:block absolute top-1/2 right-8 w-36 h-36 rounded-xl overflow-hidden shadow-xl opacity-40 hover:opacity-70 transition-opacity duration-500 animate-pulse border-2 border-primary/15" style={{ animationDelay: '1.2s' }}>
-          <img src={volunteerElderlyCare} alt="" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-primary/50 to-transparent" />
         </div>
         
         {/* CSS for slow spin on axis */}
