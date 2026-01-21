@@ -40,9 +40,10 @@ const galleryImages: GalleryImage[] = [
     caption: "Community Event in Purulia",
   },
   {
-    src: shraddhaWork2,
-    alt: "Hosla awareness rally",
-    caption: "Awareness Rally",
+    src: shraddhaWork,
+    alt: "Community outreach program",
+    caption: "Community Outreach Program",
+    tall: true,
   },
   {
     src: hoslaBooth,
@@ -50,9 +51,9 @@ const galleryImages: GalleryImage[] = [
     caption: "Hosla Community Booth",
   },
   {
-    src: shraddhaWork,
-    alt: "Community outreach program",
-    caption: "Community Outreach Program",
+    src: shraddhaWork2,
+    alt: "Hosla awareness rally",
+    caption: "Awareness Rally",
     tall: true,
   },
   {
@@ -98,9 +99,7 @@ export function WorkGallery() {
     <section className="py-16 lg:py-24 bg-background">
       <div className="container">
         <div className="text-center mb-12">
-          <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">
-            Our Work in Action
-          </h2>
+          <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">Our Work in Action</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Glimpses from our awareness camps, events, and community programs.
           </p>
@@ -125,9 +124,7 @@ export function WorkGallery() {
               <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               {/* Caption */}
               <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                <p className="text-primary-foreground font-medium text-sm">
-                  {image.caption}
-                </p>
+                <p className="text-primary-foreground font-medium text-sm">{image.caption}</p>
               </div>
               {/* Zoom Icon */}
               <div className="absolute top-3 right-3 bg-background/80 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -139,7 +136,7 @@ export function WorkGallery() {
 
         {/* Lightbox Dialog */}
         <Dialog open={selectedImage !== null} onOpenChange={() => setSelectedImage(null)}>
-          <DialogContent 
+          <DialogContent
             className="max-w-[95vw] max-h-[95vh] p-0 bg-foreground/95 border-none overflow-hidden"
             onKeyDown={handleKeyDown}
           >
@@ -148,7 +145,7 @@ export function WorkGallery() {
                 {selectedImage !== null ? galleryImages[selectedImage].caption : "Gallery Image"}
               </DialogTitle>
             </VisuallyHidden>
-            
+
             {selectedImage !== null && (
               <div className="relative flex items-center justify-center min-h-[60vh]">
                 {/* Close Button */}
