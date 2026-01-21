@@ -100,7 +100,7 @@ export default function Home() {
           style={{ backgroundImage: `url(${volunteerElderlyCare})` }}
         />
         {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/85 via-primary/75 to-primary/90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-foreground/40 via-foreground/30 to-foreground/50" />
         
         {/* Top Wave */}
         <div className="absolute top-0 left-0 right-0 -mt-px">
