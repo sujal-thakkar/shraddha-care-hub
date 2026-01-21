@@ -14,6 +14,10 @@ import companionCallsImg from "@/assets/volunteer-companion-calls.png";
 import homeVisitsImg from "@/assets/volunteer-home-visits.jpg";
 import legalAwarenessImg from "@/assets/volunteer-legal-awareness.jpg";
 import wellnessImg from "@/assets/volunteer-wellness.jpg";
+import volunteerPatternHearts from "@/assets/volunteer-pattern-hearts.jpg";
+import volunteerHandsWatercolor from "@/assets/volunteer-hands-watercolor.jpg";
+import volunteerElderlyCare from "@/assets/volunteer-elderly-care.jpg";
+import volunteerJourneyPath from "@/assets/volunteer-journey-path.jpg";
 
 export default function Volunteer() {
   const { toast } = useToast();
@@ -260,18 +264,39 @@ export default function Volunteer() {
 
       {/* Signup Form */}
       <section className="relative py-20 lg:py-32 overflow-hidden">
-        {/* Parallax Background */}
+        {/* Parallax Background - Journey Path Image */}
         <div 
-          className="absolute inset-0 bg-gradient-to-br from-primary/5 via-secondary/10 to-primary/5"
+          className="absolute inset-0"
           style={{
+            backgroundImage: `url(${volunteerJourneyPath})`,
             backgroundAttachment: 'fixed',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: 'cover',
           }}
         />
+        
+        {/* Dark Overlay with Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-background/85 to-background/90" />
         
         {/* Animated Gradient Orbs */}
         <div className="absolute top-20 left-10 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-20 right-10 w-80 h-80 bg-secondary/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
         <div className="absolute top-1/2 left-1/4 w-40 h-40 bg-accent/10 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '2s' }} />
+        
+        {/* Floating Image Overlays */}
+        <div className="hidden lg:block absolute top-24 left-8 w-48 h-48 rounded-2xl overflow-hidden shadow-2xl opacity-60 hover:opacity-90 transition-opacity duration-500 animate-float-bounce border-4 border-primary/20">
+          <img src={volunteerPatternHearts} alt="" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent" />
+        </div>
+        <div className="hidden lg:block absolute bottom-32 right-12 w-40 h-40 rounded-full overflow-hidden shadow-2xl opacity-50 hover:opacity-80 transition-opacity duration-500 animate-float-bounce border-4 border-primary/20" style={{ animationDelay: '0.7s' }}>
+          <img src={volunteerHandsWatercolor} alt="" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-br from-transparent to-primary/30" />
+        </div>
+        <div className="hidden xl:block absolute top-1/2 right-8 w-36 h-36 rounded-xl overflow-hidden shadow-xl opacity-40 hover:opacity-70 transition-opacity duration-500 animate-pulse border-2 border-primary/15" style={{ animationDelay: '1.2s' }}>
+          <img src={volunteerElderlyCare} alt="" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-primary/50 to-transparent" />
+        </div>
         
         {/* Floating Decorative Elements */}
         <div className="absolute top-16 right-20 w-16 h-16 border-2 border-primary/20 rounded-full animate-float-bounce" />
