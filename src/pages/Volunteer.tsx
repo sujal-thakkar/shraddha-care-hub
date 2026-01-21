@@ -9,6 +9,7 @@ import { Heart, Users, Clock, MapPin, CheckCircle, Loader2, HandHeart, Phone, Bo
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import volunteerHeroBg from "@/assets/volunteer-hero-bg.jpg";
+import elderCareAnimation from "@/assets/elder-care-animation.gif";
 
 export default function Volunteer() {
   const { toast } = useToast();
@@ -152,9 +153,16 @@ export default function Volunteer() {
               <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">
                 Why Volunteer with Shraddha?
               </h2>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground mb-8">
                 Your time and compassion can transform the life of a senior citizen.
               </p>
+              <div className="flex justify-center">
+                <img 
+                  src={elderCareAnimation} 
+                  alt="Elder care illustration" 
+                  className="w-64 h-64 lg:w-80 lg:h-80 object-contain rounded-2xl shadow-lg border border-border"
+                />
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
