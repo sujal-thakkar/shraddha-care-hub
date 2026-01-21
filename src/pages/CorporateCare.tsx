@@ -50,7 +50,13 @@ export default function CorporateCare() {
             alt="" 
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[hsl(250_70%_45%)]/70 via-[hsl(220_70%_50%)]/60 to-[hsl(250_70%_45%)]/80" />
+          {/* Purple/Blue gradient overlay */}
+          <div 
+            className="absolute inset-0" 
+            style={{ 
+              background: 'linear-gradient(to bottom, rgba(88, 55, 163, 0.85), rgba(55, 100, 180, 0.75), rgba(88, 55, 163, 0.90))' 
+            }} 
+          />
         </div>
         
         {/* Decorative Elements */}
