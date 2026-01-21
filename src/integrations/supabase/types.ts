@@ -92,6 +92,48 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_inquiries: {
+        Row: {
+          admin_notes: string | null
+          company_name: string
+          contact_name: string
+          created_at: string
+          email: string
+          employee_count: string | null
+          id: string
+          message: string
+          phone: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          company_name: string
+          contact_name: string
+          created_at?: string
+          email: string
+          employee_count?: string | null
+          id?: string
+          message: string
+          phone: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          company_name?: string
+          contact_name?: string
+          created_at?: string
+          email?: string
+          employee_count?: string | null
+          id?: string
+          message?: string
+          phone?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -196,6 +238,57 @@ export type Database = {
         }
         Relationships: []
       }
+      team_members: {
+        Row: {
+          bio: string | null
+          category: Database["public"]["Enums"]["team_category"]
+          created_at: string
+          display_order: number
+          facebook_url: string | null
+          github_url: string | null
+          id: string
+          instagram_url: string | null
+          is_active: boolean
+          linkedin_url: string | null
+          name: string
+          photo_url: string | null
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          bio?: string | null
+          category: Database["public"]["Enums"]["team_category"]
+          created_at?: string
+          display_order?: number
+          facebook_url?: string | null
+          github_url?: string | null
+          id?: string
+          instagram_url?: string | null
+          is_active?: boolean
+          linkedin_url?: string | null
+          name: string
+          photo_url?: string | null
+          role: string
+          updated_at?: string
+        }
+        Update: {
+          bio?: string | null
+          category?: Database["public"]["Enums"]["team_category"]
+          created_at?: string
+          display_order?: number
+          facebook_url?: string | null
+          github_url?: string | null
+          id?: string
+          instagram_url?: string | null
+          is_active?: boolean
+          linkedin_url?: string | null
+          name?: string
+          photo_url?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -274,6 +367,18 @@ export type Database = {
       abuse_type: "physical" | "emotional" | "financial" | "neglect" | "other"
       app_role: "admin" | "moderator" | "user"
       report_status: "new" | "investigating" | "resolved" | "archived"
+      team_category:
+        | "president"
+        | "core"
+        | "senior_members"
+        | "advocates"
+        | "counsellors"
+        | "volunteers_technical"
+        | "volunteers_hr"
+        | "volunteers_marketing"
+        | "volunteers_social_media"
+        | "volunteers_design"
+        | "interns"
       volunteer_status: "pending" | "contacted" | "accepted" | "rejected"
     }
     CompositeTypes: {
@@ -405,6 +510,19 @@ export const Constants = {
       abuse_type: ["physical", "emotional", "financial", "neglect", "other"],
       app_role: ["admin", "moderator", "user"],
       report_status: ["new", "investigating", "resolved", "archived"],
+      team_category: [
+        "president",
+        "core",
+        "senior_members",
+        "advocates",
+        "counsellors",
+        "volunteers_technical",
+        "volunteers_hr",
+        "volunteers_marketing",
+        "volunteers_social_media",
+        "volunteers_design",
+        "interns",
+      ],
       volunteer_status: ["pending", "contacted", "accepted", "rejected"],
     },
   },

@@ -16,7 +16,9 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import AdminOverview from "./pages/admin/Overview";
 import AdminReports from "./pages/admin/Reports";
 import AdminVolunteers from "./pages/admin/Volunteers";
+import AdminPartners from "./pages/admin/Partners";
 import AdminSettings from "./pages/admin/Settings";
+import AdminTeamManagement from "./pages/admin/TeamManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +43,8 @@ const App = () => (
             <Route index element={<AdminOverview />} />
             <Route path="reports" element={<AdminReports />} />
             <Route path="volunteers" element={<AdminVolunteers />} />
+            <Route path="partners" element={<AdminPartners />} />
+            <Route path="team" element={<AdminTeamManagement />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>
           <Route path="*" element={<NotFound />} />

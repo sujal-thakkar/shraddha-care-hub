@@ -1,8 +1,9 @@
 import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart, Target, Users, Award, Quote, Star } from "lucide-react";
+import { Heart, Target, Award, Quote, Star } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { TeamSection } from "@/components/team/TeamSection";
 
 // Import real images
 import orgCollage from "@/assets/org-collage.png";
@@ -31,16 +32,46 @@ export default function About() {
   return (
     <Layout>
       {/* Hero */}
-      <section className="py-16 lg:py-24 bg-gradient-to-b from-accent to-background">
-        <div className="container">
+      <section className="relative py-20 lg:py-32 overflow-hidden">
+        {/* Background Image with Overlay */}
+        <div className="absolute inset-0">
+          <img 
+            src={teamEvent} 
+            alt="" 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/85 via-primary/75 to-primary/90" />
+        </div>
+        
+        {/* Decorative Elements */}
+        <div className="absolute top-10 left-10 w-20 h-20 border-2 border-primary-foreground/20 rounded-full animate-float-bounce" />
+        <div className="absolute bottom-16 right-16 w-32 h-32 border-2 border-primary-foreground/10 rounded-full" />
+        <div className="absolute top-1/4 right-10 w-4 h-4 bg-primary-foreground/30 rounded-full animate-pulse" />
+        <div className="absolute bottom-1/3 left-16 w-6 h-6 bg-primary-foreground/20 rounded-full animate-pulse" />
+        <div className="absolute top-20 right-1/4 w-16 h-16 border border-primary-foreground/15 rotate-45" />
+        <div className="absolute bottom-10 left-1/4 w-12 h-12 border border-primary-foreground/10 rotate-12 rounded-lg" />
+        
+        {/* Content */}
+        <div className="container relative z-10">
           <div className="max-w-3xl mx-auto text-center space-y-6">
-            <h1 className="font-serif text-4xl lg:text-5xl font-bold text-foreground">
+            <div className="inline-flex items-center gap-2 bg-primary-foreground/10 backdrop-blur-sm text-primary-foreground px-4 py-2 rounded-full text-sm font-medium border border-primary-foreground/20">
+              <Heart className="h-4 w-4" />
+              Serving Seniors Since 2020
+            </div>
+            <h1 className="font-serif text-4xl lg:text-6xl font-bold text-primary-foreground drop-shadow-lg">
               About Shraddha
             </h1>
-            <p className="text-lg text-muted-foreground">
-              Our journey, our mission, and the impact we're creating together.
+            <p className="text-lg lg:text-xl text-primary-foreground/90 max-w-2xl mx-auto">
+              Our journey, our mission, and the impact we're creating together for elderly welfare across India.
             </p>
           </div>
+        </div>
+        
+        {/* Bottom Wave */}
+        <div className="absolute bottom-0 left-0 right-0">
+          <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
+            <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="hsl(var(--background))"/>
+          </svg>
         </div>
       </section>
 
@@ -144,13 +175,6 @@ export default function About() {
               <img 
                 src={eventPurulia} 
                 alt="Senior citizen event in Purulia" 
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-              />
-            </div>
-            <div className="aspect-video overflow-hidden rounded-xl shadow-md lg:col-span-2">
-              <img 
-                src={teamEvent} 
-                alt="Shraddha team members" 
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
               />
             </div>
@@ -296,45 +320,7 @@ export default function About() {
       </section>
 
       {/* Team Section */}
-      <section className="py-16 lg:py-24 bg-card">
-        <div className="container">
-          <div className="text-center mb-12">
-            <Users className="h-12 w-12 text-primary mx-auto mb-4" />
-            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">
-              Our Team
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              The dedicated individuals driving our mission forward.
-            </p>
-          </div>
-
-          <div className="mb-12">
-            <img 
-              src={teamEvent} 
-              alt="Shraddha Welfare Association Team" 
-              className="w-full max-w-4xl mx-auto rounded-2xl shadow-lg"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            {[
-              { name: "Founder", role: "Vision & Strategy", placeholder: "F" },
-              { name: "Program Director", role: "Operations & Outreach", placeholder: "P" },
-              { name: "Legal Advisor", role: "Rights & Advocacy", placeholder: "L" },
-            ].map((member, index) => (
-              <div key={index} className="text-center space-y-4">
-                <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                  <span className="text-2xl font-bold text-primary">{member.placeholder}</span>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-foreground">{member.name}</h3>
-                  <p className="text-sm text-muted-foreground">{member.role}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <TeamSection />
     </Layout>
   );
 }
