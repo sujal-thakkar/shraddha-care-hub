@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Heart, Users, Clock, MapPin, CheckCircle, Loader2, HandHeart, Phone, BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import elderCareIllustration from "@/assets/elder-care-illustration.jpg";
+import volunteerHeroBg from "@/assets/volunteer-hero-bg.jpg";
 
 export default function Volunteer() {
   const { toast } = useToast();
@@ -99,16 +99,18 @@ export default function Volunteer() {
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative py-20 lg:py-32 overflow-hidden">
-        {/* Background Image with Overlay */}
-        <div className="absolute inset-0">
-          <img 
-            src={elderCareIllustration} 
-            alt="" 
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/85 via-primary/75 to-primary/90" />
-        </div>
+      <section 
+        className="relative py-20 lg:py-32 overflow-hidden"
+        style={{
+          backgroundImage: `url(${volunteerHeroBg})`,
+          backgroundAttachment: 'fixed',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'cover',
+        }}
+      >
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/85 via-primary/75 to-primary/90" />
         
         {/* Decorative Elements */}
         <div className="absolute top-10 left-10 w-20 h-20 border-2 border-primary-foreground/20 rounded-full animate-float-bounce" />
