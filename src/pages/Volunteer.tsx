@@ -5,11 +5,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Heart, Users, Clock, MapPin, CheckCircle, Loader2, HandHeart, Phone, BookOpen } from "lucide-react";
+import { Heart, Users, Clock, MapPin, CheckCircle, Loader2, HandHeart, Phone, BookOpen, LucideIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import volunteerHeroBg from "@/assets/volunteer-hero-bg.jpg";
 import elderCareAnimation from "@/assets/elder-care-animation.gif";
+import companionCallsImg from "@/assets/volunteer-companion-calls.png";
+import homeVisitsImg from "@/assets/volunteer-home-visits.jpg";
+import legalAwarenessImg from "@/assets/volunteer-legal-awareness.jpg";
+import wellnessImg from "@/assets/volunteer-wellness.jpg";
 
 export default function Volunteer() {
   const { toast } = useToast();
@@ -74,26 +78,30 @@ export default function Volunteer() {
     }
   };
 
-  const activities = [
+  const activities: { icon: LucideIcon; title: string; description: string; hoverImage: string }[] = [
     {
       icon: Phone,
       title: "Companion Calls",
-      description: "Regular phone calls to seniors to combat loneliness and provide emotional support."
+      description: "Regular phone calls to seniors to combat loneliness and provide emotional support.",
+      hoverImage: companionCallsImg
     },
     {
       icon: Users,
       title: "Home Visits",
-      description: "In-person visits to seniors in your area, bringing companionship and checking on their well-being."
+      description: "In-person visits to seniors in your area, bringing companionship and checking on their well-being.",
+      hoverImage: homeVisitsImg
     },
     {
       icon: BookOpen,
       title: "Legal Awareness Camps",
-      description: "Help organize and conduct camps to educate seniors about their legal rights."
+      description: "Help organize and conduct camps to educate seniors about their legal rights.",
+      hoverImage: legalAwarenessImg
     },
     {
       icon: HandHeart,
       title: "Wellness Programs",
-      description: "Assist with organizing health camps, yoga sessions, and recreational activities."
+      description: "Assist with organizing health camps, yoga sessions, and recreational activities.",
+      hoverImage: wellnessImg
     }
   ];
 
@@ -215,13 +223,33 @@ export default function Volunteer() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {activities.map((activity, index) => (
-                <Card key={index} className="border-border hover:border-primary/50 transition-colors">
-                  <CardHeader>
-                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                      <activity.icon className="h-6 w-6 text-primary" />
+                <Card 
+                  key={index} 
+                  className="group relative overflow-hidden border-border hover:border-primary/50 transition-all duration-300 cursor-pointer"
+                >
+                  {/* Background Image with Hover Effect */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                    <img 
+                      src={activity.hoverImage} 
+                      alt={activity.title}
+                      className="w-full h-full object-cover"
+                    />
+                    {/* Dark overlay */}
+                    <div className="absolute inset-0 bg-foreground/60" />
+                    {/* Gradient overlay from bottom */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-transparent" />
+                  </div>
+                  
+                  <CardHeader className="relative z-10">
+                    <div className="w-12 h-12 rounded-lg bg-primary/10 group-hover:bg-primary-foreground/20 flex items-center justify-center mb-4 transition-colors duration-300">
+                      <activity.icon className="h-6 w-6 text-primary group-hover:text-primary-foreground transition-colors duration-300" />
                     </div>
-                    <CardTitle className="font-serif">{activity.title}</CardTitle>
-                    <CardDescription>{activity.description}</CardDescription>
+                    <CardTitle className="font-serif group-hover:text-primary-foreground transition-colors duration-300">
+                      {activity.title}
+                    </CardTitle>
+                    <CardDescription className="group-hover:text-primary-foreground/90 transition-colors duration-300">
+                      {activity.description}
+                    </CardDescription>
                   </CardHeader>
                 </Card>
               ))}
