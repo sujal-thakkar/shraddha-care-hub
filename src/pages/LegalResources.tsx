@@ -11,6 +11,7 @@ import { Scale, Shield, FileText, AlertTriangle, Upload, CheckCircle, Loader2 } 
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import legalAwarenessHover from "@/assets/legal-awareness-hover.jpg";
+import elderCareIllustration from "@/assets/elder-care-illustration.jpg";
 
 export default function LegalResources() {
   const { toast } = useToast();
@@ -240,17 +241,34 @@ export default function LegalResources() {
 
       {/* Report Form */}
       <section className="py-16 lg:py-24 bg-card">
+        {/* Parallax Header */}
+        <div 
+          className="relative h-64 md:h-80 lg:h-96 mb-12 overflow-hidden"
+          style={{
+            backgroundImage: `url(${elderCareIllustration})`,
+            backgroundAttachment: 'fixed',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: 'cover',
+          }}
+        >
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/40 to-card" />
+          
+          {/* Content */}
+          <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4">
+            <AlertTriangle className="h-12 w-12 text-primary-foreground mx-auto mb-4 drop-shadow-lg" />
+            <h2 className="font-serif text-3xl lg:text-5xl font-bold text-primary-foreground drop-shadow-lg mb-4">
+              Report Elder Abuse
+            </h2>
+            <p className="text-primary-foreground/90 max-w-xl mx-auto text-lg">
+              All reports are treated confidentially. You can also report anonymously.
+            </p>
+          </div>
+        </div>
+
         <div className="container">
           <div className="max-w-2xl mx-auto">
-            <div className="text-center mb-12">
-              <AlertTriangle className="h-12 w-12 text-primary mx-auto mb-4" />
-              <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">
-                Report Elder Abuse
-              </h2>
-              <p className="text-muted-foreground">
-                All reports are treated confidentially. You can also report anonymously.
-              </p>
-            </div>
 
             {submitted ? (
               <Card className="border-primary">
