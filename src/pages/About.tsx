@@ -12,6 +12,9 @@ import clothDistribution from "@/assets/cloth-distribution.png";
 import eventPurulia from "@/assets/event-purulia.png";
 import teamEvent from "@/assets/team-event.png";
 import hoslaBooth from "@/assets/hosla-booth.png";
+import shraddhaWork from "@/assets/shraddha-care-work.jpg";
+import shraddhaWork2 from "@/assets/shraddha-care-work2.jpg";
+import shraddhaWork3 from "@/assets/shraddha-care-work3.jpg";
 
 export default function About() {
   const { data: successStories } = useQuery({
@@ -182,6 +185,27 @@ export default function About() {
               <img 
                 src={hoslaBooth} 
                 alt="Hosla community booth" 
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            <div className="aspect-video overflow-hidden rounded-xl shadow-md">
+              <img 
+                src={shraddhaWork} 
+                alt="Community outreach program" 
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            <div className="aspect-video overflow-hidden rounded-xl shadow-md">
+              <img 
+                src={shraddhaWork2} 
+                alt="Hosla awareness rally" 
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            <div className="aspect-video overflow-hidden rounded-xl shadow-md">
+              <img 
+                src={shraddhaWork3} 
+                alt="Interview at Pride India Awards" 
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
               />
             </div>
