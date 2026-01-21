@@ -3,13 +3,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Heart, Facebook, CreditCard, Building, Smartphone, ExternalLink } from "lucide-react";
+import { Heart, Facebook, CreditCard, Building, Smartphone, ExternalLink, Copy, Check } from "lucide-react";
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import upiQrCode from "@/assets/upi-qr-code.png";
 import volunteerJourneyPath from "@/assets/volunteer-journey-path.jpg";
 import announcementIcon from "@/assets/announcement-icon.svg";
 
 export default function Donate() {
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -18,11 +23,57 @@ export default function Donate() {
     amount: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const copyToClipboard = async (text: string, field: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedField(field);
+      toast({
+        title: "Copied!",
+        description: `${field} copied to clipboard`,
+      });
+      setTimeout(() => setCopiedField(null), 2000);
+    } catch (err) {
+      toast({
+        title: "Failed to copy",
+        description: "Please copy manually",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // For now, just show the payment options
-    // In production, this would integrate with a payment gateway
-    alert("Thank you for your interest in donating! Please use UPI or bank transfer details below, or contact us for other payment options.");
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await supabase.functions.invoke('send-donation-confirmation', {
+        body: {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          panCard: formData.panCard || undefined,
+          amount: formData.amount,
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Confirmation Sent!",
+        description: "We've sent donation details to your email. Please complete your payment using UPI or bank transfer.",
+      });
+
+      setFormData({ name: "", email: "", phone: "", panCard: "", amount: "" });
+    } catch (error: any) {
+      console.error("Error sending confirmation:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send confirmation. Please try again or contact us directly.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const impactCards = [
@@ -209,8 +260,8 @@ export default function Donate() {
                       />
                     </div>
 
-                    <Button type="submit" className="w-full">
-                      Proceed to Payment
+                    <Button type="submit" className="w-full" disabled={isSubmitting}>
+                      {isSubmitting ? "Sending..." : "Get Payment Details"}
                     </Button>
                   </form>
                 </CardContent>
@@ -233,13 +284,23 @@ export default function Donate() {
                         className="w-full h-auto"
                       />
                     </div>
-                    <div className="text-center space-y-1">
+                    <div className="text-center space-y-2">
                       <p className="text-sm text-muted-foreground">
                         Scan to pay via any UPI app
                       </p>
-                      <p className="text-sm font-medium text-foreground">
-                        UPI ID: <span className="text-primary">shraddhango@ucobank</span>
-                      </p>
+                      <div className="flex items-center justify-center gap-2">
+                        <p className="text-sm font-medium text-foreground">
+                          UPI ID: <span className="text-primary">shraddhango@ucobank</span>
+                        </p>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={() => copyToClipboard("shraddhango@ucobank", "UPI ID")}
+                        >
+                          {copiedField === "UPI ID" ? <Check className="h-3 w-3 text-primary" /> : <Copy className="h-3 w-3" />}
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -251,21 +312,51 @@ export default function Donate() {
                       <CardTitle className="font-serif">Bank Transfer</CardTitle>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-3">
+                <CardContent className="space-y-3">
                     <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
+                      <div className="flex justify-between items-center">
                         <span className="text-muted-foreground">Account Name:</span>
-                        <span className="font-medium text-foreground">SHRADDHA WELFARE ASSOCIATION</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-foreground">SHRADDHA WELFARE ASSOCIATION</span>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6"
+                            onClick={() => copyToClipboard("SHRADDHA WELFARE ASSOCIATION", "Account Name")}
+                          >
+                            {copiedField === "Account Name" ? <Check className="h-3 w-3 text-primary" /> : <Copy className="h-3 w-3" />}
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex justify-between">
+                      <div className="flex justify-between items-center">
                         <span className="text-muted-foreground">Account Number:</span>
-                        <span className="font-medium text-foreground">22890110076118</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-foreground">22890110076118</span>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6"
+                            onClick={() => copyToClipboard("22890110076118", "Account Number")}
+                          >
+                            {copiedField === "Account Number" ? <Check className="h-3 w-3 text-primary" /> : <Copy className="h-3 w-3" />}
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex justify-between">
+                      <div className="flex justify-between items-center">
                         <span className="text-muted-foreground">IFSC Code:</span>
-                        <span className="font-medium text-foreground">UCBA0002289</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-foreground">UCBA0002289</span>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6"
+                            onClick={() => copyToClipboard("UCBA0002289", "IFSC Code")}
+                          >
+                            {copiedField === "IFSC Code" ? <Check className="h-3 w-3 text-primary" /> : <Copy className="h-3 w-3" />}
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex justify-between">
+                      <div className="flex justify-between items-center">
                         <span className="text-muted-foreground">Bank:</span>
                         <span className="font-medium text-foreground">UCO Bank</span>
                       </div>
