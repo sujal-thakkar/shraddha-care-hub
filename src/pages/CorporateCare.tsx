@@ -88,7 +88,7 @@ export default function CorporateCare() {
                   Partner With Us
                 </a>
               </Button>
-              <Button asChild variant="heroOutline" size="lg">
+              <Button asChild variant="heroOutline" size="lg" className="hover:text-[hsl(250_70%_45%)]">
                 <a href="tel:7811009309">
                   <Phone className="mr-2 h-4 w-4" />
                   Call Us
