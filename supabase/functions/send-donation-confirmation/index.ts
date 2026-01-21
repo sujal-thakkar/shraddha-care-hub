@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -146,7 +147,106 @@ serve(async (req) => {
       );
     }
 
-    console.log("Donation confirmation email sent successfully:", data);
+    console.log("Donation confirmation email sent to donor:", data);
+
+    // Send admin notification
+    try {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+      // Get admin notification emails for donations
+      const { data: adminEmails } = await supabase
+        .from("notification_emails")
+        .select("email")
+        .eq("notification_type", "donations")
+        .eq("is_active", true);
+
+      if (adminEmails && adminEmails.length > 0) {
+        const adminEmailList = adminEmails.map(e => e.email);
+        
+        const adminEmailHtml = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          </head>
+          <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background: linear-gradient(135deg, #4A6741 0%, #6B8E23 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+              <h1 style="color: white; margin: 0; font-size: 24px;">💰 New Donation Intent Received!</h1>
+            </div>
+            
+            <div style="background: #fff; padding: 30px; border: 1px solid #e0e0e0; border-top: none;">
+              <p style="font-size: 16px;">A potential donor has submitted their details on the donation page.</p>
+              
+              <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <h3 style="margin-top: 0; color: #4A6741;">Donor Details</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0;"><strong>Name:</strong></td>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0;">${name}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0;"><strong>Email:</strong></td>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0;"><a href="mailto:${email}">${email}</a></td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0;"><strong>Phone:</strong></td>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0;"><a href="tel:${phone}">${phone}</a></td>
+                  </tr>
+                  ${panCard ? `
+                  <tr>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0;"><strong>PAN Card:</strong></td>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0;">${panCard}</td>
+                  </tr>
+                  ` : ''}
+                  <tr>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0;"><strong>Intended Amount:</strong></td>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0;"><strong style="color: #4A6741; font-size: 18px;">₹${amount}</strong></td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0;"><strong>Date:</strong></td>
+                    <td style="padding: 8px 0;">${currentDate}</td>
+                  </tr>
+                </table>
+              </div>
+              
+              <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 4px solid #2196F3;">
+                <p style="margin: 0; font-size: 14px;"><strong>Next Steps:</strong> Please verify if the donation is received via UPI or bank transfer and follow up with the donor if needed.</p>
+              </div>
+            </div>
+            
+            <div style="background: #f5f5f5; padding: 15px; text-align: center; border-radius: 0 0 10px 10px; font-size: 12px; color: #666;">
+              <p style="margin: 0;">Shraddha Welfare Association - Admin Notification</p>
+            </div>
+          </body>
+          </html>
+        `;
+
+        const adminRes = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${resendApiKey}`,
+          },
+          body: JSON.stringify({
+            from: "Shraddha Welfare Association <notifications@hosla.in>",
+            to: adminEmailList,
+            subject: `💰 New Donation Intent: ₹${amount} from ${name}`,
+            html: adminEmailHtml,
+          }),
+        });
+
+        const adminData = await adminRes.json();
+        console.log("Admin notification sent:", adminData);
+      } else {
+        console.log("No admin emails configured for donations");
+      }
+    } catch (adminError) {
+      console.error("Error sending admin notification:", adminError);
+      // Don't fail the whole request if admin notification fails
+    }
 
     return new Response(JSON.stringify({ success: true, data }), {
       status: 200,
