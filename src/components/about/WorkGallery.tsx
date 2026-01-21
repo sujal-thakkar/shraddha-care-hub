@@ -40,10 +40,9 @@ const galleryImages: GalleryImage[] = [
     caption: "Community Event in Purulia",
   },
   {
-    src: shraddhaWork,
-    alt: "Community outreach program",
-    caption: "Community Outreach Program",
-    tall: true,
+    src: shraddhaWork2,
+    alt: "Hosla awareness rally",
+    caption: "Awareness Rally",
   },
   {
     src: hoslaBooth,
@@ -51,9 +50,9 @@ const galleryImages: GalleryImage[] = [
     caption: "Hosla Community Booth",
   },
   {
-    src: shraddhaWork2,
-    alt: "Hosla awareness rally",
-    caption: "Awareness Rally",
+    src: shraddhaWork,
+    alt: "Community outreach program",
+    caption: "Community Outreach Program",
     tall: true,
   },
   {
