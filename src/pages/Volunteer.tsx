@@ -453,8 +453,23 @@ export default function Volunteer() {
       </section>
 
       {/* What Happens Next */}
-      <section className="py-16 lg:py-24 bg-card">
-        <div className="container">
+      <section className="relative py-16 lg:py-24 overflow-hidden">
+        {/* Parallax Background - Journey Path Image */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `url(${volunteerJourneyPath})`,
+            backgroundAttachment: 'fixed',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: 'cover',
+          }}
+        />
+        
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-background/90" />
+        
+        <div className="container relative z-10">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">
