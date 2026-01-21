@@ -336,7 +336,7 @@ export default function Home() {
           >
             <path 
               d="M0 40C240 0 480 80 720 60C960 40 1200 0 1440 40V80H0V40Z" 
-              className="fill-primary"
+              fill="hsl(161, 93%, 30%)"
             />
           </svg>
         </div>
