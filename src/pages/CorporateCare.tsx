@@ -1,30 +1,33 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, Heart, Users, Brain, Phone, CheckCircle, ArrowRight, Mail } from "lucide-react";
+import { Building2, Phone, CheckCircle, ArrowRight, Mail } from "lucide-react";
 
 import corporateCareHeroBg from "@/assets/corporate-care-hero-bg.jpg";
+import cpcMentalHealth from "@/assets/cpc-mental-health.png";
+import cpcCompanionship from "@/assets/cpc-companionship.png";
+import cpcWellness from "@/assets/cpc-wellness.png";
+import cpcHelpline from "@/assets/cpc-helpline.png";
 
 export default function CorporateCare() {
   const features = [
     {
-      icon: Brain,
+      image: cpcMentalHealth,
       title: "Mental Health Support",
       description: "Regular counseling and emotional support for your employees' parents, helping them navigate life's challenges."
     },
     {
-      icon: Users,
+      image: cpcCompanionship,
       title: "Companionship Programs",
       description: "Trained volunteers provide regular visits and calls, ensuring seniors never feel alone or isolated."
     },
     {
-      icon: Heart,
+      image: cpcWellness,
       title: "Wellness Activities",
       description: "Organized activities, virtual and in-person, that keep seniors engaged, active, and connected."
     },
     {
-      icon: Phone,
+      image: cpcHelpline,
       title: "24/7 Helpline",
       description: "Round-the-clock support for emergencies, ensuring help is always just a call away."
     }
@@ -122,15 +125,35 @@ export default function CorporateCare() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {features.map((feature, index) => (
-              <Card key={index} className="border-border hover:border-primary/50 transition-colors">
-                <CardHeader>
-                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                    <feature.icon className="h-6 w-6 text-primary" />
-                  </div>
-                  <CardTitle className="font-serif">{feature.title}</CardTitle>
-                  <CardDescription>{feature.description}</CardDescription>
-                </CardHeader>
-              </Card>
+              <div 
+                key={index} 
+                className="group relative h-64 md:h-72 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                {/* Background Image */}
+                <img 
+                  src={feature.image} 
+                  alt={feature.title}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                
+                {/* Gradient Overlay */}
+                <div 
+                  className="absolute inset-0 transition-opacity duration-300"
+                  style={{
+                    background: 'linear-gradient(to top, rgba(88, 55, 163, 0.95) 0%, rgba(88, 55, 163, 0.7) 40%, rgba(55, 100, 180, 0.3) 100%)'
+                  }}
+                />
+                
+                {/* Content */}
+                <div className="relative h-full flex flex-col justify-end p-6 text-white">
+                  <h3 className="font-serif text-xl md:text-2xl font-bold mb-2 drop-shadow-lg">
+                    {feature.title}
+                  </h3>
+                  <p className="text-white/90 text-sm md:text-base leading-relaxed drop-shadow">
+                    {feature.description}
+                  </p>
+                </div>
+              </div>
             ))}
           </div>
         </div>
