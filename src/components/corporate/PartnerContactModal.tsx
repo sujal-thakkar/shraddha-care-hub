@@ -1,4 +1,3 @@
-import * as React from "react";
 import { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -22,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Send, Building2, User, Mail, Phone, MessageSquare } from "lucide-react";
 
 const partnerFormSchema = z.object({
@@ -84,8 +84,32 @@ export function PartnerContactModal({ open, onOpenChange }: PartnerContactModalP
     setIsSubmitting(true);
     
     try {
-      // Simulate form submission - in production, this would send to an API
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Save to database
+      const { data: inquiry, error } = await supabase
+        .from("partner_inquiries")
+        .insert({
+          company_name: data.companyName,
+          contact_name: data.contactName,
+          email: data.email,
+          phone: data.phone,
+          employee_count: data.employeeCount || null,
+          message: data.message,
+        })
+        .select("id")
+        .single();
+
+      if (error) throw error;
+
+      // Send notification email
+      await supabase.functions.invoke("send-notification", {
+        body: {
+          type: "partner_inquiry",
+          inquiryId: inquiry.id,
+          companyName: data.companyName,
+          name: data.contactName,
+          email: data.email,
+        },
+      });
       
       toast({
         title: "Partnership inquiry submitted!",
@@ -94,7 +118,8 @@ export function PartnerContactModal({ open, onOpenChange }: PartnerContactModalP
       
       form.reset();
       onOpenChange(false);
-    } catch {
+    } catch (error) {
+      console.error("Error submitting inquiry:", error);
       toast({
         title: "Something went wrong",
         description: "Please try again or contact us directly at hoslacare@gmail.com",

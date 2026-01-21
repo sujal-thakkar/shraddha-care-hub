@@ -12,10 +12,11 @@ serve(async (req) => {
   }
 
   try {
-    const { type, reportId, applicationId, email, name } = await req.json();
+    const { type, reportId, applicationId, inquiryId, email, name, companyName } = await req.json();
     
     // Validate required fields
-    if (!type || (type !== "abuse_report" && type !== "volunteer_application")) {
+    const validTypes = ["abuse_report", "volunteer_application", "partner_inquiry"];
+    if (!type || !validTypes.includes(type)) {
       return new Response(JSON.stringify({ error: "Invalid notification type" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -35,7 +36,7 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Verify the report/application exists and was recently created (within 5 minutes)
+    // Verify the report/application/inquiry exists and was recently created (within 5 minutes)
     // This prevents spam attacks by ensuring the function is only called for real submissions
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
     
@@ -69,18 +70,42 @@ serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+    } else if (type === "partner_inquiry" && inquiryId) {
+      const { data: inquiry, error: inquiryError } = await supabase
+        .from("partner_inquiries")
+        .select("id, created_at")
+        .eq("id", inquiryId)
+        .gte("created_at", fiveMinutesAgo)
+        .single();
+      
+      if (inquiryError || !inquiry) {
+        console.log("Inquiry not found or too old:", inquiryId);
+        return new Response(JSON.stringify({ error: "Invalid or expired inquiry" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     } else {
-      return new Response(JSON.stringify({ error: "Missing report or application ID" }), {
+      return new Response(JSON.stringify({ error: "Missing report, application, or inquiry ID" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Get notification emails
+    // Get notification emails based on type
+    let notificationType = "";
+    if (type === "abuse_report") {
+      notificationType = "abuse_reports";
+    } else if (type === "volunteer_application") {
+      notificationType = "volunteer_applications";
+    } else if (type === "partner_inquiry") {
+      notificationType = "partner_inquiries";
+    }
+
     const { data: emails } = await supabase
       .from("notification_emails")
       .select("email")
-      .eq("notification_type", type === "abuse_report" ? "abuse_reports" : "volunteer_applications")
+      .eq("notification_type", notificationType)
       .eq("is_active", true);
 
     if (!emails || emails.length === 0) {
@@ -113,6 +138,17 @@ serve(async (req) => {
         <p><strong>Email:</strong> ${email || "Not provided"}</p>
         <p>Please log in to the admin dashboard to review the full application.</p>
         <p><a href="https://shraddha.hosla.in/admin/dashboard/volunteers">View Application</a></p>
+      `;
+    } else if (type === "partner_inquiry") {
+      subject = "🏢 New Corporate Partnership Inquiry - Shraddha";
+      html = `
+        <h1>New Corporate Partnership Inquiry</h1>
+        <p>A new corporate partnership inquiry has been received!</p>
+        <p><strong>Company:</strong> ${companyName || "Not provided"}</p>
+        <p><strong>Contact Person:</strong> ${name || "Not provided"}</p>
+        <p><strong>Email:</strong> ${email || "Not provided"}</p>
+        <p>Please log in to the admin dashboard to review the full inquiry and follow up.</p>
+        <p><a href="https://shraddha.hosla.in/admin/dashboard">View Dashboard</a></p>
       `;
     }
 
