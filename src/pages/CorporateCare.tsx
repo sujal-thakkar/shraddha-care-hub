@@ -50,11 +50,11 @@ export default function CorporateCare() {
             alt="" 
             className="w-full h-full object-cover"
           />
-          {/* Purple/Blue gradient overlay */}
+          {/* Blue gradient overlay */}
           <div 
             className="absolute inset-0" 
             style={{ 
-              background: 'linear-gradient(to bottom, rgba(88, 55, 163, 0.85), rgba(55, 100, 180, 0.75), rgba(88, 55, 163, 0.90))' 
+              background: 'linear-gradient(to bottom, rgba(30, 64, 130, 0.88), rgba(45, 90, 160, 0.80), rgba(30, 64, 130, 0.92))' 
             }} 
           />
         </div>
@@ -82,7 +82,7 @@ export default function CorporateCare() {
               Because when their families are supported, your team thrives.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Button asChild size="lg" className="bg-white text-[hsl(250_70%_45%)] hover:bg-white/90">
+              <Button asChild size="lg">
                 <a href="mailto:hoslacare@gmail.com?subject=Corporate Partnership Inquiry">
                   <Mail className="mr-2 h-4 w-4" />
                   Partner With Us
