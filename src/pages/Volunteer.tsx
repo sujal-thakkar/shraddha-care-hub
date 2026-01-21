@@ -27,20 +27,29 @@ export default function Volunteer() {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase.from("volunteer_applications").insert({
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        city: formData.city,
-        motivation: formData.motivation,
-      });
+      const { data: application, error } = await supabase
+        .from("volunteer_applications")
+        .insert({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          city: formData.city,
+          motivation: formData.motivation,
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
       // Trigger email notification
       try {
         await supabase.functions.invoke("send-notification", {
-          body: { type: "volunteer_application", email: formData.email, name: formData.name },
+          body: { 
+            type: "volunteer_application", 
+            applicationId: application.id,
+            email: formData.email, 
+            name: formData.name 
+          },
         });
       } catch (emailError) {
         console.error("Email notification error:", emailError);
