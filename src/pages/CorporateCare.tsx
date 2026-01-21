@@ -110,8 +110,16 @@ export default function CorporateCare() {
       </section>
 
       {/* Value Proposition */}
-      <section className="py-16 lg:py-24 bg-background">
-        <div className="container">
+      <section className="relative py-16 lg:py-24 bg-background overflow-hidden">
+        {/* Subtle purple dot pattern */}
+        <div 
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: `radial-gradient(circle, hsl(250, 70%, 45%) 1px, transparent 1px)`,
+            backgroundSize: '24px 24px'
+          }}
+        />
+        <div className="container relative z-10">
           <div className="max-w-4xl mx-auto text-center mb-12">
             <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">
               Why Corporate Parental Care?
@@ -160,8 +168,16 @@ export default function CorporateCare() {
       </section>
 
       {/* Benefits */}
-      <section className="py-16 lg:py-24 bg-card">
-        <div className="container">
+      <section className="relative py-16 lg:py-24 overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(88, 55, 163, 0.05) 0%, rgba(120, 80, 200, 0.08) 100%)' }}>
+        {/* Subtle diagonal lines pattern */}
+        <div 
+          className="absolute inset-0 opacity-[0.04]"
+          style={{
+            backgroundImage: `repeating-linear-gradient(45deg, hsl(250, 70%, 45%) 0, hsl(250, 70%, 45%) 1px, transparent 0, transparent 50%)`,
+            backgroundSize: '16px 16px'
+          }}
+        />
+        <div className="container relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground">
@@ -193,8 +209,16 @@ export default function CorporateCare() {
       </section>
 
       {/* How It Works */}
-      <section className="py-16 lg:py-24 bg-background">
-        <div className="container">
+      <section className="relative py-16 lg:py-24 bg-background overflow-hidden">
+        {/* Subtle circle pattern */}
+        <div 
+          className="absolute inset-0 opacity-[0.02]"
+          style={{
+            backgroundImage: `radial-gradient(circle at center, hsl(250, 70%, 45%) 0, hsl(250, 70%, 45%) 2px, transparent 2px, transparent 100%)`,
+            backgroundSize: '48px 48px'
+          }}
+        />
+        <div className="container relative z-10">
           <div className="text-center mb-12">
             <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">
               How It Works
