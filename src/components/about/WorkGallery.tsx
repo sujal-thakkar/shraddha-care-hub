@@ -43,6 +43,7 @@ const galleryImages: GalleryImage[] = [
     src: shraddhaWork2,
     alt: "Hosla awareness rally",
     caption: "Awareness Rally",
+    tall: true,
   },
   {
     src: hoslaBooth,
