@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { Building2, Phone, CheckCircle, ArrowRight, Mail } from "lucide-react";
+import { Building2, Phone, CheckCircle, ArrowRight, Mail, Quote } from "lucide-react";
 
 import corporateCareHeroBg from "@/assets/corporate-care-hero-bg.jpg";
 import cpcMentalHealth from "@/assets/cpc-mental-health.png";
@@ -40,6 +40,36 @@ export default function CorporateCare() {
     "Tax benefits under CSR initiatives",
     "Customized programs for your workforce size",
     "Regular impact reports and feedback"
+  ];
+
+  const testimonials = [
+    {
+      quote: "Shraddha's Corporate Parental Care program has been a game-changer for our employees. They now work with peace of mind knowing their parents are well cared for.",
+      author: "Priya Sharma",
+      role: "HR Director",
+      company: "TechVision Solutions"
+    },
+    {
+      quote: "The positive impact on employee morale and productivity has exceeded our expectations. This partnership truly reflects our values as a people-first organization.",
+      author: "Rajesh Kumar",
+      role: "CEO",
+      company: "Innovate Industries"
+    },
+    {
+      quote: "Our team members feel valued and supported. The regular updates and professional care provided by Shraddha have strengthened our employee engagement significantly.",
+      author: "Anita Desai",
+      role: "Head of People Operations",
+      company: "GlobalTech Corp"
+    }
+  ];
+
+  const partnerCompanies = [
+    "TechVision",
+    "Innovate Industries", 
+    "GlobalTech",
+    "Sunrise Corp",
+    "Nexus Systems",
+    "Horizon Group"
   ];
 
   return (
@@ -247,6 +277,93 @@ export default function CorporateCare() {
                 {index < 3 && (
                   <ArrowRight className="h-6 w-6 mx-auto hidden md:block" style={{ color: 'hsl(250, 50%, 60%)' }} />
                 )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Partner Logos Strip */}
+      <section className="py-12 bg-card border-y border-border/50">
+        <div className="container">
+          <p className="text-center text-sm text-muted-foreground mb-8 uppercase tracking-wider font-medium">
+            Trusted by Leading Organizations
+          </p>
+          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
+            {partnerCompanies.map((company, index) => (
+              <div 
+                key={index}
+                className="px-6 py-3 rounded-lg border border-border/50 bg-background/50 hover:border-[hsl(250,70%,45%)]/30 hover:shadow-md transition-all duration-300"
+              >
+                <span 
+                  className="font-semibold text-lg"
+                  style={{ color: 'hsl(250, 50%, 40%)' }}
+                >
+                  {company}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section 
+        className="relative py-16 lg:py-24 overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, rgba(88, 55, 163, 0.08) 0%, rgba(120, 80, 200, 0.12) 100%)' }}
+      >
+        {/* Decorative quote marks */}
+        <div className="absolute top-10 left-10 opacity-5">
+          <Quote className="w-32 h-32" style={{ color: 'hsl(250, 70%, 45%)' }} />
+        </div>
+        <div className="absolute bottom-10 right-10 opacity-5 rotate-180">
+          <Quote className="w-32 h-32" style={{ color: 'hsl(250, 70%, 45%)' }} />
+        </div>
+        
+        <div className="container relative z-10">
+          <div className="text-center mb-12">
+            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">
+              What Our Partners Say
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Hear from organizations that have transformed their employee experience with our program.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {testimonials.map((testimonial, index) => (
+              <div 
+                key={index}
+                className="relative bg-background rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-border/50 group"
+              >
+                {/* Purple accent line */}
+                <div 
+                  className="absolute top-0 left-6 right-6 h-1 rounded-b-full"
+                  style={{ background: 'linear-gradient(90deg, hsl(250, 70%, 45%), hsl(220, 70%, 50%))' }}
+                />
+                
+                <Quote 
+                  className="w-8 h-8 mb-4 opacity-20 group-hover:opacity-40 transition-opacity" 
+                  style={{ color: 'hsl(250, 70%, 45%)' }}
+                />
+                
+                <p className="text-muted-foreground mb-6 leading-relaxed italic">
+                  "{testimonial.quote}"
+                </p>
+                
+                <div className="flex items-center gap-3">
+                  <div 
+                    className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg"
+                    style={{ background: 'linear-gradient(135deg, hsl(250, 70%, 45%), hsl(220, 70%, 50%))' }}
+                  >
+                    {testimonial.author.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground">{testimonial.author}</p>
+                    <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                    <p className="text-sm font-medium" style={{ color: 'hsl(250, 70%, 45%)' }}>{testimonial.company}</p>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
