@@ -259,20 +259,66 @@ export default function Volunteer() {
       </section>
 
       {/* Signup Form */}
-      <section className="py-16 lg:py-24 bg-background">
-        <div className="container">
+      <section className="relative py-20 lg:py-32 overflow-hidden">
+        {/* Parallax Background */}
+        <div 
+          className="absolute inset-0 bg-gradient-to-br from-primary/5 via-secondary/10 to-primary/5"
+          style={{
+            backgroundAttachment: 'fixed',
+          }}
+        />
+        
+        {/* Animated Gradient Orbs */}
+        <div className="absolute top-20 left-10 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-10 w-80 h-80 bg-secondary/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/2 left-1/4 w-40 h-40 bg-accent/10 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '2s' }} />
+        
+        {/* Floating Decorative Elements */}
+        <div className="absolute top-16 right-20 w-16 h-16 border-2 border-primary/20 rounded-full animate-float-bounce" />
+        <div className="absolute bottom-24 left-16 w-20 h-20 border-2 border-primary/15 rotate-45 animate-float-bounce" style={{ animationDelay: '0.5s' }} />
+        <div className="absolute top-1/3 right-1/4 w-4 h-4 bg-primary/30 rounded-full animate-pulse" />
+        <div className="absolute bottom-1/3 left-1/3 w-6 h-6 bg-primary/20 rounded-full animate-pulse" style={{ animationDelay: '1.5s' }} />
+        <div className="absolute top-24 left-1/3 w-12 h-12 border border-primary/10 rounded-lg rotate-12 animate-wiggle" />
+        
+        {/* Hearts floating animation */}
+        <div className="absolute top-1/4 right-16 text-primary/20 animate-float-bounce">
+          <Heart className="h-8 w-8" />
+        </div>
+        <div className="absolute bottom-1/4 left-20 text-primary/15 animate-float-bounce" style={{ animationDelay: '1s' }}>
+          <Heart className="h-6 w-6" />
+        </div>
+        
+        {/* Top Wave */}
+        <div className="absolute top-0 left-0 right-0 rotate-180">
+          <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
+            <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="hsl(var(--card))"/>
+          </svg>
+        </div>
+        
+        {/* Bottom Wave */}
+        <div className="absolute bottom-0 left-0 right-0">
+          <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
+            <path d="M0 60L48 55C96 50 192 40 288 45C384 50 480 70 576 75C672 80 768 70 864 60C960 50 1056 40 1152 45C1248 50 1344 70 1392 80L1440 90V120H1392C1344 120 1248 120 1152 120C1056 120 960 120 864 120C768 120 672 120 576 120C480 120 384 120 288 120C192 120 96 120 48 120H0Z" fill="hsl(var(--card))"/>
+          </svg>
+        </div>
+        
+        <div className="container relative z-10">
           <div className="max-w-xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">
+              <div className="inline-flex items-center gap-2 bg-primary/10 backdrop-blur-sm text-primary px-4 py-2 rounded-full text-sm font-medium border border-primary/20 mb-6">
+                <Heart className="h-4 w-4" />
+                Be Part of the Change
+              </div>
+              <h2 className="font-serif text-3xl lg:text-5xl font-bold text-foreground mb-4">
                 Join Our Team
               </h2>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground text-lg">
                 Fill out the form below and we'll get in touch with next steps.
               </p>
             </div>
 
             {submitted ? (
-              <Card className="border-primary">
+              <Card className="border-primary bg-background/80 backdrop-blur-sm shadow-xl">
                 <CardContent className="p-8 text-center space-y-4">
                   <CheckCircle className="h-16 w-16 text-primary mx-auto" />
                   <h3 className="font-serif text-2xl font-bold text-foreground">
@@ -288,7 +334,7 @@ export default function Volunteer() {
                 </CardContent>
               </Card>
             ) : (
-              <Card className="border-border">
+              <Card className="border-border bg-background/80 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-shadow duration-500">
                 <CardContent className="p-6">
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-2">
