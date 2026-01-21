@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Marquee } from "@/components/ui/marquee";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
+import { PartnerContactModal } from "@/components/corporate/PartnerContactModal";
 import { Building2, Phone, CheckCircle, ArrowRight, Mail, Quote } from "lucide-react";
 
 import corporateCareHeroBg from "@/assets/corporate-care-hero-bg.jpg";
@@ -12,6 +14,7 @@ import cpcWellness from "@/assets/cpc-wellness.png";
 import cpcHelpline from "@/assets/cpc-helpline.png";
 
 export default function CorporateCare() {
+  const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false);
   const features = [
     {
       image: cpcMentalHealth,
@@ -119,11 +122,13 @@ export default function CorporateCare() {
               Because when their families are supported, your team thrives.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Button asChild size="lg" className="bg-white text-[hsl(250_70%_45%)] hover:bg-white/90">
-                <a href="mailto:hoslacare@gmail.com?subject=Corporate Partnership Inquiry">
-                  <Mail className="mr-2 h-4 w-4" />
-                  Partner With Us
-                </a>
+              <Button 
+                size="lg" 
+                className="bg-white text-[hsl(250_70%_45%)] hover:bg-white/90"
+                onClick={() => setIsPartnerModalOpen(true)}
+              >
+                <Mail className="mr-2 h-4 w-4" />
+                Partner With Us
               </Button>
               <Button asChild variant="heroOutline" size="lg" className="hover:text-[hsl(250_70%_45%)]">
                 <a href="tel:7811009309">
@@ -417,10 +422,12 @@ export default function CorporateCare() {
               Let's discuss how we can create a customized program for your team.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Button asChild size="lg" className="bg-white text-[hsl(250_70%_45%)] hover:bg-white/90 hover:text-[hsl(220_70%_50%)]">
-                <a href="mailto:hoslacare@gmail.com?subject=Corporate Partnership Inquiry">
-                  Request a Consultation
-                </a>
+              <Button 
+                size="lg" 
+                className="bg-white text-[hsl(250_70%_45%)] hover:bg-white/90 hover:text-[hsl(220_70%_50%)]"
+                onClick={() => setIsPartnerModalOpen(true)}
+              >
+                Request a Consultation
               </Button>
               <Button asChild variant="heroOutline" size="lg" className="hover:bg-white hover:text-[hsl(250_70%_45%)]">
                 <Link to="/contact">
@@ -431,6 +438,11 @@ export default function CorporateCare() {
           </div>
         </section>
       </ScrollReveal>
+
+      <PartnerContactModal 
+        open={isPartnerModalOpen} 
+        onOpenChange={setIsPartnerModalOpen} 
+      />
     </Layout>
   );
 }
