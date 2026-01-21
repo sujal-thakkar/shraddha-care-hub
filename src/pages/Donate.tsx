@@ -259,11 +259,11 @@ export default function Donate() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Account Number:</span>
-                        <span className="font-medium text-foreground">—</span>
+                        <span className="font-medium text-foreground">22890110076118</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">IFSC Code:</span>
-                        <span className="font-medium text-foreground">—</span>
+                        <span className="font-medium text-foreground">UCBA0002289</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Bank:</span>
