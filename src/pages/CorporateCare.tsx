@@ -82,13 +82,13 @@ export default function CorporateCare() {
               Because when their families are supported, your team thrives.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Button asChild size="lg" className="bg-white text-[hsl(250_70%_45%)] hover:bg-white/90">
+              <Button asChild size="lg" className="bg-white text-[hsl(250_70%_45%)] hover:bg-[hsl(250_70%_45%)] hover:text-white transition-colors">
                 <a href="mailto:hoslacare@gmail.com?subject=Corporate Partnership Inquiry">
                   <Mail className="mr-2 h-4 w-4" />
                   Partner With Us
                 </a>
               </Button>
-              <Button asChild variant="heroOutline" size="lg">
+              <Button asChild size="lg" className="bg-[hsl(250_70%_45%)] text-white hover:bg-[hsl(250_70%_55%)] transition-colors">
                 <a href="tel:7811009309">
                   <Phone className="mr-2 h-4 w-4" />
                   Call Us
