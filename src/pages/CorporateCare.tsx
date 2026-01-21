@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -12,9 +12,22 @@ import cpcMentalHealth from "@/assets/cpc-mental-health.png";
 import cpcCompanionship from "@/assets/cpc-companionship.png";
 import cpcWellness from "@/assets/cpc-wellness.png";
 import cpcHelpline from "@/assets/cpc-helpline.png";
+import cpcBenefits1 from "@/assets/cpc-benefits-1.png";
+import cpcBenefits2 from "@/assets/cpc-benefits-2.png";
+import cpcBenefits3 from "@/assets/cpc-benefits-3.png";
 
 export default function CorporateCare() {
   const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false);
+  const [currentBenefitImage, setCurrentBenefitImage] = useState(0);
+  
+  const benefitImages = [cpcBenefits1, cpcBenefits2, cpcBenefits3];
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentBenefitImage((prev) => (prev + 1) % benefitImages.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [benefitImages.length]);
   const features = [
     {
       image: cpcMentalHealth,
@@ -241,12 +254,31 @@ export default function CorporateCare() {
               </div>
             </ScrollReveal>
             <ScrollReveal direction="right" delay={200}>
-              <div className="relative">
-                <div 
-                  className="aspect-square rounded-2xl flex items-center justify-center"
-                  style={{ background: 'linear-gradient(to bottom right, rgba(88, 55, 163, 0.2), rgba(120, 80, 200, 0.3))' }}
-                >
-                  <Building2 className="h-32 w-32" style={{ color: 'hsl(250, 70%, 45%)' }} />
+              <div className="relative aspect-square rounded-2xl overflow-hidden shadow-xl">
+                {benefitImages.map((image, index) => (
+                  <img
+                    key={index}
+                    src={image}
+                    alt={`Corporate benefits ${index + 1}`}
+                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+                      index === currentBenefitImage ? "opacity-100" : "opacity-0"
+                    }`}
+                  />
+                ))}
+                {/* Progress indicators */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                  {benefitImages.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentBenefitImage(index)}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        index === currentBenefitImage 
+                          ? "bg-white w-6" 
+                          : "bg-white/50 hover:bg-white/75"
+                      }`}
+                      aria-label={`Go to image ${index + 1}`}
+                    />
+                  ))}
                 </div>
               </div>
             </ScrollReveal>
