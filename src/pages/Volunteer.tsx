@@ -284,17 +284,14 @@ export default function Volunteer() {
         <div className="absolute bottom-20 right-10 w-80 h-80 bg-secondary/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
         <div className="absolute top-1/2 left-1/4 w-40 h-40 bg-accent/10 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '2s' }} />
         
-        {/* Circular Orbit Hand Image */}
-        <div className="hidden lg:block absolute bottom-32 right-12 w-40 h-40">
-          <div 
-            className="w-full h-full rounded-full overflow-hidden shadow-2xl opacity-60 hover:opacity-90 transition-opacity duration-500 border-4 border-primary/20"
-            style={{
-              animation: 'orbit 12s linear infinite',
-            }}
-          >
-            <img src={volunteerHandsWatercolor} alt="" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-br from-transparent to-primary/30" />
-          </div>
+        {/* Rotating Hand Image on Axis */}
+        <div className="hidden lg:block absolute bottom-32 right-12 w-40 h-40 rounded-full overflow-hidden shadow-2xl opacity-60 hover:opacity-90 transition-opacity duration-500 border-4 border-primary/20"
+          style={{
+            animation: 'spin-slow 20s linear infinite',
+          }}
+        >
+          <img src={volunteerHandsWatercolor} alt="" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-br from-transparent to-primary/30" />
         </div>
         
         {/* Elderly Care Floating Image */}
@@ -303,14 +300,14 @@ export default function Volunteer() {
           <div className="absolute inset-0 bg-gradient-to-t from-primary/50 to-transparent" />
         </div>
         
-        {/* CSS for circular orbit animation */}
+        {/* CSS for slow spin on axis */}
         <style>{`
-          @keyframes orbit {
+          @keyframes spin-slow {
             0% {
-              transform: rotate(0deg) translateX(30px) rotate(0deg);
+              transform: rotate(0deg);
             }
             100% {
-              transform: rotate(360deg) translateX(30px) rotate(-360deg);
+              transform: rotate(360deg);
             }
           }
         `}</style>
