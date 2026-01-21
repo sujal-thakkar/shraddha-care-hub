@@ -373,7 +373,10 @@ export default function CorporateCare() {
       {/* CTA */}
       <section 
         className="py-16 lg:py-24 text-white"
-        style={{ background: 'linear-gradient(135deg, hsl(250, 70%, 45%), hsl(220, 70%, 50%))' }}
+        style={{
+          background:
+            "radial-gradient(900px circle at 20% 20%, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 45%), radial-gradient(800px circle at 80% 75%, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0) 40%), linear-gradient(135deg, rgba(88, 55, 163, 0.88) 0%, rgba(55, 100, 180, 0.80) 55%, rgba(88, 55, 163, 0.90) 100%)",
+        }}
       >
         <div className="container text-center space-y-6">
           <h2 className="font-serif text-3xl lg:text-4xl font-bold">
