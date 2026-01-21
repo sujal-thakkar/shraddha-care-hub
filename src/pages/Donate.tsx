@@ -3,10 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Heart, Shield, Facebook, CreditCard, Building, Smartphone, ExternalLink } from "lucide-react";
+import { Heart, Facebook, CreditCard, Building, Smartphone, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import upiQrCode from "@/assets/upi-qr-code.png";
 import volunteerJourneyPath from "@/assets/volunteer-journey-path.jpg";
+import announcementIcon from "@/assets/announcement-icon.svg";
 
 export default function Donate() {
   const [formData, setFormData] = useState({
@@ -85,7 +86,7 @@ export default function Donate() {
           <Card className="max-w-4xl mx-auto border-primary/20">
             <CardContent className="p-8">
               <div className="flex flex-col md:flex-row items-center gap-6">
-                <Shield className="h-16 w-16 text-primary flex-shrink-0" />
+                <img src={announcementIcon} alt="Announcement" className="h-16 w-16 flex-shrink-0" />
                 <div className="text-center md:text-left space-y-3">
                   <h2 className="font-serif text-2xl font-bold text-foreground">
                     Our Transparency Pledge
