@@ -174,15 +174,18 @@ export default function CorporateCare() {
               <ul className="space-y-3">
                 {benefits.map((benefit, index) => (
                   <li key={index} className="flex items-start gap-3">
-                    <CheckCircle className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                    <CheckCircle className="h-5 w-5 flex-shrink-0 mt-0.5" style={{ color: 'hsl(250, 70%, 45%)' }} />
                     <span className="text-muted-foreground">{benefit}</span>
                   </li>
                 ))}
               </ul>
             </div>
             <div className="relative">
-              <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary/20 to-accent flex items-center justify-center">
-                <Building2 className="h-32 w-32 text-primary" />
+              <div 
+                className="aspect-square rounded-2xl flex items-center justify-center"
+                style={{ background: 'linear-gradient(to bottom right, rgba(88, 55, 163, 0.2), rgba(120, 80, 200, 0.3))' }}
+              >
+                <Building2 className="h-32 w-32" style={{ color: 'hsl(250, 70%, 45%)' }} />
               </div>
             </div>
           </div>
@@ -209,13 +212,16 @@ export default function CorporateCare() {
               { step: "4", title: "Care", description: "We provide ongoing support and regular reports" },
             ].map((item, index) => (
               <div key={index} className="text-center space-y-4">
-                <div className="w-16 h-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto text-2xl font-bold">
+                <div 
+                  className="w-16 h-16 rounded-full flex items-center justify-center mx-auto text-2xl font-bold text-white"
+                  style={{ background: 'linear-gradient(135deg, hsl(250, 70%, 45%), hsl(220, 70%, 50%))' }}
+                >
                   {item.step}
                 </div>
                 <h3 className="font-semibold text-foreground">{item.title}</h3>
                 <p className="text-sm text-muted-foreground">{item.description}</p>
                 {index < 3 && (
-                  <ArrowRight className="h-6 w-6 text-muted-foreground mx-auto hidden md:block" />
+                  <ArrowRight className="h-6 w-6 mx-auto hidden md:block" style={{ color: 'hsl(250, 50%, 60%)' }} />
                 )}
               </div>
             ))}
@@ -224,22 +230,25 @@ export default function CorporateCare() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 lg:py-24 bg-primary text-primary-foreground">
+      <section 
+        className="py-16 lg:py-24 text-white"
+        style={{ background: 'linear-gradient(135deg, hsl(250, 70%, 45%), hsl(220, 70%, 50%))' }}
+      >
         <div className="container text-center space-y-6">
           <h2 className="font-serif text-3xl lg:text-4xl font-bold">
             Ready to Support Your Team's Families?
           </h2>
-          <p className="text-primary-foreground/80 max-w-2xl mx-auto">
+          <p className="text-white/80 max-w-2xl mx-auto">
             Join leading organizations who trust Shraddha to care for their employees' parents. 
             Let's discuss how we can create a customized program for your team.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-            <Button asChild variant="secondary" size="lg">
+            <Button asChild size="lg" className="bg-white text-[hsl(250_70%_45%)] hover:bg-white/90">
               <a href="mailto:hoslacare@gmail.com?subject=Corporate Partnership Inquiry">
                 Request a Consultation
               </a>
             </Button>
-            <Button asChild variant="heroOutline" size="lg">
+            <Button asChild variant="heroOutline" size="lg" className="hover:text-[hsl(250_70%_45%)]">
               <Link to="/contact">
                 Contact Us
               </Link>
