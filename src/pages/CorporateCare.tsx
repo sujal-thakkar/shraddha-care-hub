@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
+import { Marquee } from "@/components/ui/marquee";
 import { Building2, Phone, CheckCircle, ArrowRight, Mail, Quote } from "lucide-react";
 
 import corporateCareHeroBg from "@/assets/corporate-care-hero-bg.jpg";
@@ -284,27 +285,27 @@ export default function CorporateCare() {
       </section>
 
       {/* Partner Logos Strip */}
-      <section className="py-12 bg-card border-y border-border/50">
+      <section className="py-12 bg-card border-y border-border/50 overflow-hidden">
         <div className="container">
           <p className="text-center text-sm text-muted-foreground mb-8 uppercase tracking-wider font-medium">
             Trusted by Leading Organizations
           </p>
-          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
-            {partnerCompanies.map((company, index) => (
-              <div 
-                key={index}
-                className="px-6 py-3 rounded-lg border border-border/50 bg-background/50 hover:border-[hsl(250,70%,45%)]/30 hover:shadow-md transition-all duration-300"
-              >
-                <span 
-                  className="font-semibold text-lg"
-                  style={{ color: 'hsl(250, 50%, 40%)' }}
-                >
-                  {company}
-                </span>
-              </div>
-            ))}
-          </div>
         </div>
+        <Marquee pauseOnHover speed="slow" className="py-4">
+          {partnerCompanies.map((company, index) => (
+            <div 
+              key={index}
+              className="px-6 py-3 rounded-lg border border-border/50 bg-background/50 hover:border-[hsl(250,70%,45%)]/30 hover:shadow-md transition-all duration-300"
+            >
+              <span 
+                className="font-semibold text-lg whitespace-nowrap"
+                style={{ color: 'hsl(250, 50%, 40%)' }}
+              >
+                {company}
+              </span>
+            </div>
+          ))}
+        </Marquee>
       </section>
 
       {/* Testimonials */}
