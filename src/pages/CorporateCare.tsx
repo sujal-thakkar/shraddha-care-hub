@@ -140,7 +140,7 @@ export default function CorporateCare() {
                 <div 
                   className="absolute inset-0 transition-opacity duration-300"
                   style={{
-                    background: 'linear-gradient(to top, rgba(88, 55, 163, 0.95) 0%, rgba(88, 55, 163, 0.7) 40%, rgba(55, 100, 180, 0.3) 100%)'
+                    background: 'linear-gradient(to top, hsl(161, 93%, 20%, 0.95) 0%, hsl(161, 93%, 30%, 0.7) 40%, hsl(161, 80%, 40%, 0.3) 100%)'
                   }}
                 />
                 
