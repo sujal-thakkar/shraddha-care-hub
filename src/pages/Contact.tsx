@@ -284,6 +284,40 @@ export default function Contact() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Map Section */}
+            <div className="mt-12">
+              <h2 className="font-serif text-2xl font-bold text-foreground mb-6 text-center">
+                Find Us
+              </h2>
+              <Card className="border-border overflow-hidden">
+                <CardContent className="p-0">
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3671.4!2d87.3172!3d23.0741!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39f7a3c3c3c3c3c3%3A0x0!2s387C%2BC9%20Bishnupur%2C%20West%20Bengal!5e0!3m2!1sen!2sin!4v1234567890"
+                    width="100%"
+                    height="400"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Shraddha Office Location - Bishnupur, West Bengal"
+                    className="w-full"
+                  />
+                </CardContent>
+              </Card>
+              <div className="mt-4 text-center">
+                <a
+                  href="https://maps.app.goo.gl/AvHRcYgNFcLRo88FA"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-primary hover:underline"
+                >
+                  <MapPin className="h-4 w-4" />
+                  Open in Google Maps
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </section>
