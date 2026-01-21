@@ -373,7 +373,7 @@ export default function CorporateCare() {
       {/* CTA */}
       <section 
         className="py-16 lg:py-24 text-white"
-        style={{ background: 'linear-gradient(135deg, hsl(250, 70%, 45%), hsl(220, 70%, 50%))' }}
+        style={{ background: 'linear-gradient(135deg, #FF5CFF, #D946EF)' }}
       >
         <div className="container text-center space-y-6">
           <h2 className="font-serif text-3xl lg:text-4xl font-bold">
@@ -384,12 +384,12 @@ export default function CorporateCare() {
             Let's discuss how we can create a customized program for your team.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-            <Button asChild size="lg" className="bg-white text-[hsl(250_70%_45%)] hover:bg-white/90">
+            <Button asChild size="lg" className="bg-white text-[#FF5CFF] hover:bg-white/90 hover:text-[#D946EF]">
               <a href="mailto:hoslacare@gmail.com?subject=Corporate Partnership Inquiry">
                 Request a Consultation
               </a>
             </Button>
-            <Button asChild variant="heroOutline" size="lg" className="hover:text-[hsl(250_70%_45%)]">
+            <Button asChild variant="heroOutline" size="lg" className="hover:bg-white hover:text-[#FF5CFF]">
               <Link to="/contact">
                 Contact Us
               </Link>
