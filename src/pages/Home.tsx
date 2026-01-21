@@ -18,6 +18,7 @@ import holisticWellbeingHover from "@/assets/holistic-wellbeing-hover.jpg";
 import publicSensitizationHover from "@/assets/public-sensitization-hover.jpg";
 import corporateCareIllustration from "@/assets/corporate-care-illustration.png";
 import corporateCareHover from "@/assets/corporate-care-hover.jpg";
+import volunteerElderlyCare from "@/assets/volunteer-elderly-care.jpg";
 import { useState } from "react";
 
 export default function Home() {
@@ -92,11 +93,51 @@ export default function Home() {
       </section>
 
       {/* Services Overview */}
-      <section className="py-16 lg:py-24 bg-background">
-        <div className="container">
+      <section className="relative py-16 lg:py-24 overflow-hidden">
+        {/* Parallax Background */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-fixed"
+          style={{ backgroundImage: `url(${volunteerElderlyCare})` }}
+        />
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/85 via-primary/75 to-primary/90" />
+        
+        {/* Top Wave */}
+        <div className="absolute top-0 left-0 right-0 -mb-px">
+          <svg 
+            viewBox="0 0 1440 80" 
+            fill="none" 
+            xmlns="http://www.w3.org/2000/svg" 
+            className="w-full h-auto block"
+            preserveAspectRatio="none"
+          >
+            <path 
+              d="M0 80V40C240 80 480 0 720 20C960 40 1200 80 1440 40V80H0Z" 
+              className="fill-background"
+            />
+          </svg>
+        </div>
+        
+        {/* Bottom Wave */}
+        <div className="absolute bottom-0 left-0 right-0 -mb-px">
+          <svg 
+            viewBox="0 0 1440 80" 
+            fill="none" 
+            xmlns="http://www.w3.org/2000/svg" 
+            className="w-full h-auto block"
+            preserveAspectRatio="none"
+          >
+            <path 
+              d="M0 0V40C240 0 480 80 720 60C960 40 1200 0 1440 40V0H0Z" 
+              className="fill-card"
+            />
+          </svg>
+        </div>
+        
+        <div className="container relative z-10">
           <div className="text-center mb-12">
-            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">Our Services</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
+            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-white mb-4 drop-shadow-lg">Our Services</h2>
+            <p className="text-white/90 max-w-2xl mx-auto drop-shadow-md">
               Comprehensive support for seniors through awareness, care, and advocacy.
             </p>
           </div>
