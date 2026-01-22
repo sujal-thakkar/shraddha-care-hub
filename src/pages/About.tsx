@@ -204,13 +204,13 @@ export default function About() {
               </h2>
               <p className="text-muted-foreground leading-relaxed">
                 The <strong className="text-foreground">Shraddha Welfare Association</strong> was founded by the core team of 
-                <strong className="text-foreground"> Hosla (Hosla Care)</strong>, a senior care startup established in 2021. 
+                <a href="https://hosla.in" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 font-semibold"> Hosla (Hosla Care)</a>, a senior care startup established in 2021. 
                 The NGO was formed as a strategic pivot in Hosla's mission to address sensitive issues 
                 that a private startup model could not easily scale — specifically, <em>the domestic abuse of the elderly</em>.
               </p>
               <p className="text-muted-foreground leading-relaxed">
                 It began as a <strong className="text-foreground">Public-Private Partnership (PPP)</strong> project between Hosla and the 
-                <strong className="text-foreground"> Bankura District Police</strong> to provide free protection and care for senior citizens facing abuse. 
+                <a href="https://bankurapolice.wb.gov.in/" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 font-semibold"> Bankura District Police</a> to provide free protection and care for senior citizens facing abuse. 
                 Following the success of this model, it was officially converted into the Shraddha Welfare Association.
               </p>
               <p className="text-muted-foreground leading-relaxed">
