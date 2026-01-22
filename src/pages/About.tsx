@@ -203,16 +203,30 @@ export default function About() {
                 Born from Compassion, Backed by Hosla
               </h2>
               <p className="text-muted-foreground leading-relaxed">
-                Shraddha was founded with a simple yet powerful vision: to ensure that every 
-                senior citizen in India lives with dignity and respect. Backed by Hosla, 
-                we draw inspiration from the timeless values championed by leaders like Ratan Tata - 
-                compassion, integrity, and an unwavering commitment to serving others.
+                The <strong className="text-foreground">Shraddha Welfare Association</strong> was founded by the core team of 
+                <strong className="text-foreground"> Hosla (Hosla Care)</strong>, a senior care startup established in 2021. 
+                The NGO was formed as a strategic pivot in Hosla's mission to address sensitive issues 
+                that a private startup model could not easily scale — specifically, <em>the domestic abuse of the elderly</em>.
               </p>
               <p className="text-muted-foreground leading-relaxed">
-                Our name "Shraddha" means devotion and respect - the very foundation upon which 
-                our organization stands. We believe that caring for our elders is not just a duty, 
-                but a privilege.
+                It began as a <strong className="text-foreground">Public-Private Partnership (PPP)</strong> project between Hosla and the 
+                <strong className="text-foreground"> Bankura District Police</strong> to provide free protection and care for senior citizens facing abuse. 
+                Following the success of this model, it was officially converted into the Shraddha Welfare Association.
               </p>
+              <p className="text-muted-foreground leading-relaxed">
+                Today, Hosla and Shraddha operate as two separate but collaborative entities focused on the 
+                protection and well-being of India's senior citizens, with active chapters in <strong className="text-foreground">Bishnupur</strong> and <strong className="text-foreground">Varanasi</strong>.
+              </p>
+              <a 
+                href="https://www.facebook.com/100090887343887/about/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors font-medium"
+              >
+                <Facebook className="h-4 w-4" />
+                Follow us on Facebook
+                <ExternalLink className="h-3 w-3" />
+              </a>
             </div>
             <div className="relative">
               <img 
