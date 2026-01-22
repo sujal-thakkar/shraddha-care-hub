@@ -28,51 +28,52 @@ export default function Home() {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="relative min-h-[calc(100vh-4rem)] bg-gradient-to-br from-accent via-background to-accent/50 py-16 lg:py-24 overflow-hidden">
+      <section className="relative min-h-[calc(100vh-4rem)] bg-gradient-to-br from-accent via-background to-accent/50 py-12 sm:py-16 lg:py-24 overflow-hidden">
         {/* Animated background elements */}
         <FloatingElements />
 
-        <div className="container relative z-10">
+        <div className="container relative z-10 px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Text content with animations */}
-            <div className="space-y-6 animate-fade-in">
+            <div className="space-y-5 sm:space-y-6 animate-fade-in">
               <div className="relative inline-flex items-center">
                 <a
                   href="https://hosla.in"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full text-sm font-medium border border-primary/20 transition-all duration-300 hover:bg-primary/20 hover:border-primary/40 hover:scale-105 hover:shadow-md cursor-pointer"
+                  className="inline-flex items-center gap-2 bg-primary/10 px-3 sm:px-4 py-2 rounded-full text-sm font-medium border border-primary/20 transition-all duration-300 hover:bg-primary/20 hover:border-primary/40 hover:scale-105 hover:shadow-md cursor-pointer"
                 >
                   <span className="text-muted-foreground">Backed by</span>
                   <img src={hoslaLogo} alt="Hosla" className="h-5 w-auto" />
                 </a>
+                {/* Know More bubble - hidden on small screens, repositioned on medium */}
                 <a
                   href="https://hosla.in"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="absolute -right-28 -top-10 w-24 h-auto transition-all duration-300 hover:scale-110 hover:brightness-110 drop-shadow-lg"
+                  className="hidden sm:block absolute -right-24 md:-right-28 -top-8 md:-top-10 w-20 md:w-24 h-auto transition-all duration-300 hover:scale-110 hover:brightness-110 drop-shadow-lg"
                 >
-                  <img src={knowMoreBubble} alt="Click to Know More" className="w-40 h-auto animate-float-bounce" />
+                  <img src={knowMoreBubble} alt="Click to Know More" className="w-32 md:w-40 h-auto animate-float-bounce" />
                 </a>
               </div>
 
-              <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
+              <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
                 Dignity and Protection for <br className="hidden sm:inline lg:hidden" /><AnimatedHeroText />
               </h1>
 
-              <p className="text-lg lg:text-xl text-muted-foreground max-w-lg">
+              <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-lg">
                 Shraddha is dedicated to protecting, supporting, and empowering senior citizens across India. Together,
                 we're building an extended family for those who need it most.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <Button asChild size="lg" className="group">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2 sm:pt-4">
+                <Button asChild size="lg" className="group w-full sm:w-auto">
                   <Link to="/about">
                     Learn More
                     <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="group">
+                <Button asChild variant="outline" size="lg" className="group w-full sm:w-auto">
                   <Link to="/donate">
                     <Heart className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
                     Support Our Cause
@@ -82,12 +83,12 @@ export default function Home() {
             </div>
 
             {/* Carousel */}
-            <div className="relative animate-scale-in">
+            <div className="relative animate-scale-in mt-4 lg:mt-0">
               <HeroCarousel />
 
-              {/* Decorative elements around carousel */}
-              <div className="absolute -top-4 -right-4 w-24 h-24 bg-primary/10 rounded-full blur-xl" />
-              <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-accent rounded-full blur-2xl" />
+              {/* Decorative elements around carousel - hidden on mobile */}
+              <div className="absolute -top-4 -right-4 w-24 h-24 bg-primary/10 rounded-full blur-xl hidden sm:block" />
+              <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-accent rounded-full blur-2xl hidden sm:block" />
             </div>
           </div>
         </div>
