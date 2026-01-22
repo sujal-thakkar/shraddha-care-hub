@@ -438,7 +438,7 @@ export default function CorporateCare() {
 
       {/* CTA */}
       <ScrollReveal>
-        <section className="relative overflow-hidden">
+        <section className="relative overflow-hidden bg-card">
           {/* Background Image - covers entire section including wave area */}
           <div className="absolute inset-0">
             <img 
@@ -455,10 +455,10 @@ export default function CorporateCare() {
             />
           </div>
           
-          {/* Top Wave - sits on top of background */}
+          {/* Top Wave - wavy side up, flat bottom connects to content */}
           <div className="relative z-10 -mb-px">
-            <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto block" preserveAspectRatio="none">
-              <path d="M0 0L60 10C120 20 240 40 360 50C480 60 600 60 720 55C840 50 960 40 1080 35C1200 30 1320 30 1380 30L1440 30V120H0Z" fill="hsl(var(--card))"/>
+            <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-[80px] lg:h-[120px] block" preserveAspectRatio="none">
+              <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V0H0Z" fill="hsl(var(--card))"/>
             </svg>
           </div>
           
