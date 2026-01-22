@@ -70,14 +70,14 @@ export default function CorporateCare() {
       author: "Priya Sharma",
       role: "HR Director",
       company: "Catalog",
-      image: testimonial1
+      image: testimonial2
     },
     {
       quote: "The positive impact on employee morale and productivity has exceeded our expectations. This partnership truly reflects our values as a people-first organization.",
       author: "Rajesh Kumar",
       role: "CEO",
       company: "BuildingBlocks",
-      image: testimonial2
+      image: testimonial1
     },
     {
       quote: "Our team members feel valued and supported. The regular updates and professional care provided by Shraddha have strengthened our employee engagement significantly.",
