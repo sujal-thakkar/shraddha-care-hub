@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Scale, Users, Megaphone, Building2, ArrowRight, HandHeart, Heart, UserCheck, MapPin, Hand } from "lucide-react";
+import { Scale, Users, Megaphone, Building2, ArrowRight, HandHeart, Heart, UserCheck, MapPin } from "lucide-react";
 import hoslaLogo from "@/assets/hosla-logo.png";
 import knowMoreBubble from "@/assets/know-more-bubble.jpg";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
@@ -297,18 +297,6 @@ export default function Home() {
               <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
                 <path d="M8 0L9.5 6.5L16 8L9.5 9.5L8 16L6.5 9.5L0 8L6.5 6.5L8 0Z"/>
               </svg>
-            </div>
-            
-            {/* Mobile tap indicator - only visible on touch devices */}
-            <div 
-              className={`lg:hidden absolute bottom-4 right-4 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-300 ${
-                isCorporateHovered 
-                  ? 'bg-white/20 text-white opacity-0' 
-                  : 'bg-foreground/10 text-muted-foreground animate-pulse'
-              }`}
-            >
-              <Hand className="h-3.5 w-3.5" />
-              <span>Tap to explore</span>
             </div>
           </div>
         </div>
