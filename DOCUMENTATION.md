@@ -4,7 +4,7 @@
 
 **Shraddha** is a comprehensive web platform for an NGO (the welfare arm of Hosla) focused on stopping elder abuse and promoting holistic well-being for senior citizens. The platform serves multiple stakeholders including the general public, volunteers, corporate partners, and administrators.
 
-**Live URL:** https://shraddhango.lovable.app  
+**Live URL:** https://shraddha.hosla.in
 **Organization Email:** shraddhawelfareassociation@gmail.com  
 **Phone:** 7811009309  
 **Location:** Bishnupur
@@ -613,9 +613,9 @@ Returns success/failure response
 
 ## 🚀 Deployment
 
-- **Platform:** Lovable Cloud
+- **Platform:** Lovable Cloud/Vercel
 - **Preview URL:** https://id-preview--3db3c38d-6c59-4fd4-85ef-b45b19989357.lovable.app
-- **Production URL:** https://shraddhango.lovable.app
+- **Production URL:** https://shraddhango.lovable.app/shraddha-care-hub.vercel.app
 - **Custom Domain:** shraddha.hosla.in (configured)
 
 ---
@@ -635,5 +635,5 @@ Returns success/failure response
 
 ---
 
-*Documentation generated for Shraddha Welfare Association Project*  
+*Documentation Created for Shraddha Welfare Association Project*  
 *Last Updated: January 2026*
