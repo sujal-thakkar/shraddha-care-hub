@@ -15,6 +15,7 @@ import Contact from "./pages/Contact";
 import AdminLogin from "./pages/admin/Login";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminOverview from "./pages/admin/Overview";
+import AdminMessages from "./pages/admin/Messages";
 import AdminReports from "./pages/admin/Reports";
 import AdminVolunteers from "./pages/admin/Volunteers";
 import AdminPartners from "./pages/admin/Partners";
@@ -43,6 +44,7 @@ const App = () => (
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />}>
             <Route index element={<AdminOverview />} />
+            <Route path="messages" element={<AdminMessages />} />
             <Route path="reports" element={<AdminReports />} />
             <Route path="volunteers" element={<AdminVolunteers />} />
             <Route path="partners" element={<AdminPartners />} />
