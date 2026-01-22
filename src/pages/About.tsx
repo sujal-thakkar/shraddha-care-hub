@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart, Target, Award, Quote, Star, Facebook, ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Heart, Target, Award, Quote, Star, Facebook, ExternalLink, BookOpen, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TeamSection } from "@/components/team/TeamSection";
@@ -16,7 +19,116 @@ import successStory2a from "@/assets/success-story-2a.jpg";
 import successStory2b from "@/assets/success-story-2b.jpg";
 import successStory3 from "@/assets/success-story-3.jpg";
 
+// Full story content for each impact story
+const impactStories = [
+  {
+    title: "A Stream of Joy Through Service",
+    shortContent: "Through Hosla and Shraddha, we experience the eternal truths of Existence, Consciousness, and Bliss. Those connected to our organization not just by work, but by heart and action, are truly experiencing the blissful nature of the soul.",
+    fullContent: `"আনন্দধারা বহিছে ভুবনে…"
+
+Every object and every human being in this world carries five dimensions. Among them, Existence (Sat), Consciousness (Chit), and Bliss (Ananda) are the eternal truths.
+
+Through Hosla and Shraddha, we—those connected to the organization not just by work, but by heart and action—are truly experiencing this blissful nature of the soul.
+
+For an organization, what greater success can there be than helping people realize inner joy and purpose?
+
+We are truly blessed, by the grace of God.
+
+এই জগতে প্রত্যেক বস্তু ও প্রত্যেক মানুষের মধ্যে পাঁচটি দিক বা স্তর রয়েছে— অস্তিত্ব (Sat), চেতনা বা আলোক (Chit) এবং আনন্দ (Ananda)—এই তিনটিই তার মধ্যে সত্য ও চিরন্তন।
+
+হসলা ও শ্রদ্ধার মাধ্যমে আমরা—যাঁরা সংস্থার কাজের সঙ্গে হৃদয় ও কর্মের মাধ্যমে যুক্ত—সত্যিই আনন্দঘন আত্মার স্বরূপ উপলব্ধি করতে পারছি।
+
+একটি সংস্থার ক্ষেত্রে এর থেকে বড় সাফল্য আর কি-ই বা হতে পারে?
+
+আমরা ধন্য ঈশ্বরের আশীর্বাদে।`,
+    author: "Shraddha Team",
+    role: "Hosla Care Family",
+    images: [successStory1],
+    fbLink: "https://www.facebook.com/share/p/1DjtNL59nX/"
+  },
+  {
+    title: "Spreading Warmth in Tribal Villages",
+    shortContent: "Winter essentials were distributed at Rupur and Jharul villages in Burdwan. The simplicity of the tribal families — and the happiness they felt receiving warm clothes, fruits, and food — reminded us what real humanity looks like.",
+    fullContent: `With grace on our side, Shraddha & Hosla felt that joy once again.
+
+Winter essentials were distributed at Rupur and Jharul villages in Burdwan district.
+
+The simplicity of the tribal families — and the happiness they felt receiving warm clothes, fruits, and food — reminded us what real humanity looks like.
+
+Moments like these widen not just our reach, but our hearts too.
+
+---
+
+ঈশ্বরের কৃপায় শ্রদ্ধা ও হসলা পরিবার আবারও মহানন্দ লাভ করলো।
+
+এবারে শীতবস্ত্র বিতরণ করা হলো বর্ধমান জেলার রূপপুর ও ঝাড়ুল গ্রামে।
+
+আদিবাসী বাসিন্দাদের সরলতা এবং সামান্য শীতবস্ত্র, ফল ও খাদ্যসামগ্রী পেয়ে যে আনন্দ—তা আমাদের আবারও মানবতার শিক্ষা দিলো।
+
+হসলা পরিবারের পরিসর ও হৃদয় বৃদ্ধি পেলো।
+
+Contact: 7811009309`,
+    author: "Shraddha & Hosla Team",
+    role: "Winter Relief Drive, Burdwan",
+    images: [successStory2a, successStory2b],
+    fbLink: "https://www.facebook.com/share/p/17ixHymTaY/"
+  },
+  {
+    title: "Shri Amiya Dasgupta's Testimonial",
+    shortContent: "At 86 years old, when my son and daughter-in-law had to leave for my granddaughter's treatment, I felt anxious being alone. Hosla immediately assured me — 'We're here with you in every way.'",
+    fullContent: `Message from Shri Amiya Dasgupta (Age 86)
+
+"I extend my warm Diwali wishes to all members of the Hosla organization.
+
+On 14th October, my son and daughter-in-law left for Vellore for my granddaughter's treatment, for a few days keeping me and my wife alone at home. Within just a few days, I began to feel physically and mentally vulnerable. I worried — what if I fell sick at night?
+
+So, I informed Hosla about my concern. They immediately assured me — 'We're here with you in every way.'
+
+To ease my anxiety, Hosla arranged for a trusted night caregiver. Talking with the young volunteer before sleep brought me comfort, and I could finally rest peacefully knowing someone was nearby.
+
+Hosla also promised to continue this support till my family returns, and their team calls regularly to check on me morning, evening, and night.
+
+From the very beginning, Hosla's slogan has been 'Serving seniors in their time of need.' They truly live by it. I'm proud to be a member of such an organization.
+
+I feel deeply grateful and blessed that the organizations I'm connected with treat me with care and respect.
+
+Once again, my heartfelt thanks to Hosla. May their noble work grow and spread far and wide. May God always guide and bless them.
+
+Jai Hosla! Zindabad Hosla!"
+
+---
+
+আমি অমিয় দাশগুপ্ত বলছি...
+
+আমার হসলা সংগঠনের সমস্ত সদস্য-সদস্যাকে জানাই শুভ দীপাবলির শুভেচ্ছা।
+
+১৪ অক্টোবর ভেলোরে নাতনির চিকিৎসার জন্য ছেলে-বৌমারা যায়, আর তাই বাড়িতে বুড়ো-বুড়ি আমরা কয়েকদিন একা আছি। আমার বয়স ৮৬ বছর — মানসিক ও শারীরিকভাবে একটু অসহায় বোধ করতে শুরু করি।
+
+আশ্বস্ত করে হসলা — "আমরা আছি সবরকমভাবে আপনার পাশে।"
+
+কাজের মাধ্যমে সেটাই তারা করে যাচ্ছে, আর তাই আমি গর্বিত যে আমি হসলার একজন সদস্য।
+
+জয় হসলা, জিন্দাবাদ হসলা!`,
+    author: "Shri Amiya Dasgupta",
+    role: "Hosla Member, Age 86",
+    images: [successStory3],
+    fbLink: "https://www.facebook.com/share/p/1DonFcT5pS/"
+  }
+];
+
+interface ImpactStory {
+  title: string;
+  shortContent: string;
+  fullContent: string;
+  author: string;
+  role: string;
+  images: string[];
+  fbLink: string;
+}
+
 export default function About() {
+  const [selectedStory, setSelectedStory] = useState<ImpactStory | null>(null);
+  
   const { data: successStories } = useQuery({
     queryKey: ["success-stories"],
     queryFn: async () => {
@@ -197,34 +309,8 @@ export default function About() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Story 1 - Joy Through Service */}
-              {[
-                {
-                  title: "A Stream of Joy Through Service",
-                  content: "Through Hosla and Shraddha, we experience the eternal truths of Existence, Consciousness, and Bliss. Those connected to our organization not just by work, but by heart and action, are truly experiencing the blissful nature of the soul. For an organization, what greater success can there be than helping people realize inner joy and purpose?",
-                  author: "Shraddha Team",
-                  role: "Hosla Care Family",
-                  images: [successStory1],
-                  fbLink: "https://www.facebook.com/share/p/1DjtNL59nX/"
-                },
-                {
-                  title: "Spreading Warmth in Tribal Villages",
-                  content: "Winter essentials were distributed at Rupur and Jharul villages in Burdwan. The simplicity of the tribal families — and the happiness they felt receiving warm clothes, fruits, and food — reminded us what real humanity looks like. Moments like these widen not just our reach, but our hearts too.",
-                  author: "Shraddha & Hosla Team",
-                  role: "Winter Relief Drive, Burdwan",
-                  images: [successStory2a, successStory2b],
-                  fbLink: "https://www.facebook.com/share/p/17ixHymTaY/"
-                },
-                {
-                  title: "Shri Amiya Dasgupta's Testimonial",
-                  content: "At 86 years old, when my son and daughter-in-law had to leave for my granddaughter's treatment, I felt anxious being alone. Hosla immediately assured me — 'We're here with you in every way.' They arranged a trusted night caregiver, and their team calls regularly to check on me. From the beginning, Hosla's slogan has been 'Serving seniors in their time of need' — and they truly live by it.",
-                  author: "Shri Amiya Dasgupta",
-                  role: "Hosla Member, Age 86",
-                  images: [successStory3],
-                  fbLink: "https://www.facebook.com/share/p/1DonFcT5pS/"
-                }
-              ].map((story, index) => (
-                <Card key={index} className="group relative border-border hover:border-primary/50 transition-colors overflow-hidden">
+              {impactStories.map((story, index) => (
+                <Card key={index} className="group relative border-border hover:border-primary/50 transition-colors overflow-hidden cursor-pointer" onClick={() => setSelectedStory(story)}>
                   <div className="relative aspect-video overflow-hidden rounded-t-lg">
                     {story.images.length > 1 ? (
                       <div className="grid grid-cols-2 h-full">
@@ -250,6 +336,7 @@ export default function About() {
                       href={story.fbLink}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
                       className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/70 to-primary/50 flex flex-col items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out translate-y-2 group-hover:translate-y-0"
                     >
                       <div className="flex items-center gap-2 bg-background/20 backdrop-blur-sm px-4 py-2 rounded-full border border-primary-foreground/30">
@@ -264,9 +351,21 @@ export default function About() {
                     <h3 className="font-serif text-lg font-semibold text-foreground">
                       {story.title}
                     </h3>
-                    <p className="text-muted-foreground text-sm line-clamp-4">
-                      {story.content}
+                    <p className="text-muted-foreground text-sm line-clamp-3">
+                      {story.shortContent}
                     </p>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="gap-2 text-primary hover:text-primary/80 p-0 h-auto"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedStory(story);
+                      }}
+                    >
+                      <BookOpen className="h-4 w-4" />
+                      Read Full Story
+                    </Button>
                     <div className="pt-4 border-t border-border">
                       <p className="text-sm font-medium text-foreground">{story.author}</p>
                       <p className="text-xs text-muted-foreground">{story.role}</p>
@@ -278,6 +377,74 @@ export default function About() {
           )}
         </div>
       </section>
+
+      {/* Story Dialog */}
+      <Dialog open={!!selectedStory} onOpenChange={(open) => !open && setSelectedStory(null)}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-2xl text-foreground pr-8">
+              {selectedStory?.title}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedStory && (
+            <div className="space-y-6">
+              {/* Images */}
+              <div className="rounded-lg overflow-hidden">
+                {selectedStory.images.length > 1 ? (
+                  <div className="grid grid-cols-2 gap-2">
+                    {selectedStory.images.map((img, imgIdx) => (
+                      <img 
+                        key={imgIdx}
+                        src={img} 
+                        alt={`${selectedStory.title} - ${imgIdx + 1}`}
+                        className="w-full h-48 object-cover rounded-lg"
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <img 
+                    src={selectedStory.images[0]} 
+                    alt={selectedStory.title}
+                    className="w-full h-64 object-cover rounded-lg"
+                  />
+                )}
+              </div>
+              
+              {/* Full Content */}
+              <div className="prose prose-sm max-w-none">
+                {selectedStory.fullContent.split('\n').map((paragraph, idx) => (
+                  paragraph.trim() ? (
+                    <p key={idx} className="text-muted-foreground leading-relaxed mb-3">
+                      {paragraph}
+                    </p>
+                  ) : (
+                    <br key={idx} />
+                  )
+                ))}
+              </div>
+              
+              {/* Author & Actions */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-border">
+                <div>
+                  <p className="font-semibold text-foreground">{selectedStory.author}</p>
+                  <p className="text-sm text-muted-foreground">{selectedStory.role}</p>
+                </div>
+                <a 
+                  href={selectedStory.fbLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium"
+                >
+                  <Facebook className="h-4 w-4" />
+                  View on Facebook
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Achievements */}
       <section className="py-16 lg:py-24 bg-background">
