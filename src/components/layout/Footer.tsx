@@ -63,11 +63,11 @@ export function Footer() {
                 7811009309
               </a>
               <a
-                href="mailto:hoslacare@gmail.com"
-                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                href="mailto:shraddhawelfareassociation@gmail.com"
+                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors break-all"
               >
                 <Mail className="h-4 w-4" />
-                hoslacare@gmail.com
+                shraddhawelfareassociation@gmail.com
               </a>
               <div className="flex items-start gap-2 text-sm text-muted-foreground">
                 <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />

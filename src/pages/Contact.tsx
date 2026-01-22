@@ -123,7 +123,7 @@ export default function Contact() {
                         </div>
                         <div>
                           <h3 className="font-semibold text-foreground">Email</h3>
-                          <a className="text-muted-foreground hover:text-primary transition-colors" href="mailto:shraddhawelfareassociation@gmail.com">
+                          <a className="text-muted-foreground hover:text-primary transition-colors break-all" href="mailto:shraddhawelfareassociation@gmail.com">
                             shraddhawelfareassociation@gmail.com
                           </a>
                         </div>
