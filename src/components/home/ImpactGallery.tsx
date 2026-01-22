@@ -145,7 +145,7 @@ export const ImpactGallery = () => {
       {/* Lightbox Modal */}
       {selectedImage !== null && (
         <div 
-          className="fixed inset-0 z-50 bg-foreground/90 flex items-center justify-center p-4"
+          className="fixed inset-0 z-[100] bg-foreground/95 flex items-center justify-center p-4"
           onClick={() => setSelectedImage(null)}
         >
           <div 
