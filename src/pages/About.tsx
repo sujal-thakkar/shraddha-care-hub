@@ -11,7 +11,7 @@ import { WorkGallery } from "@/components/about/WorkGallery";
 
 // Import real images
 import orgCollage from "@/assets/org-collage.png";
-import teamEvent from "@/assets/team-event.png";
+import shraddhaBanner from "@/assets/shraddha-care-banner.jpg";
 
 // Import success story images
 import successStory1 from "@/assets/success-story-1.jpg";
@@ -151,7 +151,7 @@ export default function About() {
         {/* Background Image with Overlay */}
         <div className="absolute inset-0">
           <img 
-            src={teamEvent} 
+            src={shraddhaBanner} 
             alt="" 
             className="w-full h-full object-cover"
           />
@@ -171,7 +171,7 @@ export default function About() {
           <div className="max-w-3xl mx-auto text-center space-y-6">
             <div className="inline-flex items-center gap-2 bg-primary-foreground/10 backdrop-blur-sm text-primary-foreground px-4 py-2 rounded-full text-sm font-medium border border-primary-foreground/20">
               <Heart className="h-4 w-4" />
-              Serving Seniors Since 2020
+              Serving Seniors Since 2021
             </div>
             <h1 className="font-serif text-4xl lg:text-6xl font-bold text-primary-foreground drop-shadow-lg">
               About Shraddha
@@ -183,8 +183,8 @@ export default function About() {
         </div>
         
         {/* Bottom Wave */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
+        <div className="absolute bottom-0 left-0 right-0 -mb-px">
+          <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto block">
             <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="hsl(var(--background))"/>
           </svg>
         </div>
