@@ -1,6 +1,6 @@
 import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart, Target, Award, Quote, Star } from "lucide-react";
+import { Heart, Target, Award, Quote, Star, Facebook, ExternalLink } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TeamSection } from "@/components/team/TeamSection";
@@ -8,10 +8,13 @@ import { WorkGallery } from "@/components/about/WorkGallery";
 
 // Import real images
 import orgCollage from "@/assets/org-collage.png";
-import awarenessCamp from "@/assets/awareness-camp.png";
-import clothDistribution from "@/assets/cloth-distribution.png";
-import hoslaBooth from "@/assets/hosla-booth.png";
 import teamEvent from "@/assets/team-event.png";
+
+// Import success story images
+import successStory1 from "@/assets/success-story-1.jpg";
+import successStory2a from "@/assets/success-story-2a.jpg";
+import successStory2b from "@/assets/success-story-2b.jpg";
+import successStory3 from "@/assets/success-story-3.jpg";
 
 export default function About() {
   const { data: successStories } = useQuery({
@@ -194,43 +197,74 @@ export default function About() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Placeholder stories with real images */}
+              {/* Story 1 - Joy Through Service */}
               {[
                 {
-                  title: "A New Beginning for Mr. Sharma",
-                  content: "After losing his wife, Mr. Sharma felt completely alone. Through our companionship program, he found a new community and purpose. Today, he volunteers to help other seniors.",
-                  author: "The Sharma Family",
-                  role: "Kolkata",
-                  image: awarenessCamp
+                  title: "A Stream of Joy Through Service",
+                  content: "Through Hosla and Shraddha, we experience the eternal truths of Existence, Consciousness, and Bliss. Those connected to our organization not just by work, but by heart and action, are truly experiencing the blissful nature of the soul. For an organization, what greater success can there be than helping people realize inner joy and purpose?",
+                  author: "Shraddha Team",
+                  role: "Hosla Care Family",
+                  images: [successStory1],
+                  fbLink: "https://www.facebook.com/share/p/1DjtNL59nX/"
                 },
                 {
-                  title: "Justice for Mrs. Devi",
-                  content: "When her children tried to take her property illegally, our legal awareness team helped Mrs. Devi understand her rights and fight back. She now lives peacefully in her own home.",
-                  author: "Mrs. Kamala Devi",
-                  role: "Senior Citizen",
-                  image: hoslaBooth
+                  title: "Spreading Warmth in Tribal Villages",
+                  content: "Winter essentials were distributed at Rupur and Jharul villages in Burdwan. The simplicity of the tribal families — and the happiness they felt receiving warm clothes, fruits, and food — reminded us what real humanity looks like. Moments like these widen not just our reach, but our hearts too.",
+                  author: "Shraddha & Hosla Team",
+                  role: "Winter Relief Drive, Burdwan",
+                  images: [successStory2a, successStory2b],
+                  fbLink: "https://www.facebook.com/share/p/17ixHymTaY/"
                 },
                 {
-                  title: "Community Support Program",
-                  content: "Our partnership with local communities has transformed how they support senior citizens. Regular check-ins and wellness programs have improved family bonds.",
-                  author: "Community Leader",
-                  role: "Bishnupur, Bankura",
-                  image: clothDistribution
+                  title: "Shri Amiya Dasgupta's Testimonial",
+                  content: "At 86 years old, when my son and daughter-in-law had to leave for my granddaughter's treatment, I felt anxious being alone. Hosla immediately assured me — 'We're here with you in every way.' They arranged a trusted night caregiver, and their team calls regularly to check on me. From the beginning, Hosla's slogan has been 'Serving seniors in their time of need' — and they truly live by it.",
+                  author: "Shri Amiya Dasgupta",
+                  role: "Hosla Member, Age 86",
+                  images: [successStory3],
+                  fbLink: "https://www.facebook.com/share/p/1DonFcT5pS/"
                 }
               ].map((story, index) => (
-                <Card key={index} className="border-border hover:border-primary/50 transition-colors">
-                  <div className="aspect-video overflow-hidden rounded-t-lg">
-                    <img 
-                      src={story.image} 
-                      alt={story.title}
-                      className="w-full h-full object-cover"
-                    />
+                <Card key={index} className="group relative border-border hover:border-primary/50 transition-colors overflow-hidden">
+                  <div className="relative aspect-video overflow-hidden rounded-t-lg">
+                    {story.images.length > 1 ? (
+                      <div className="grid grid-cols-2 h-full">
+                        {story.images.map((img, imgIdx) => (
+                          <img 
+                            key={imgIdx}
+                            src={img} 
+                            alt={`${story.title} - ${imgIdx + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <img 
+                        src={story.images[0]} 
+                        alt={story.title}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                    
+                    {/* Facebook Hover Overlay */}
+                    <a 
+                      href={story.fbLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/70 to-primary/50 flex flex-col items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out translate-y-2 group-hover:translate-y-0"
+                    >
+                      <div className="flex items-center gap-2 bg-background/20 backdrop-blur-sm px-4 py-2 rounded-full border border-primary-foreground/30">
+                        <Facebook className="h-5 w-5 text-primary-foreground" />
+                        <span className="text-primary-foreground font-medium text-sm">View on Facebook</span>
+                        <ExternalLink className="h-4 w-4 text-primary-foreground" />
+                      </div>
+                      <p className="text-primary-foreground/80 text-xs">See proof of our impact</p>
+                    </a>
                   </div>
                   <CardContent className="p-6 space-y-4">
                     <h3 className="font-serif text-lg font-semibold text-foreground">
                       {story.title}
                     </h3>
-                    <p className="text-muted-foreground text-sm">
+                    <p className="text-muted-foreground text-sm line-clamp-4">
                       {story.content}
                     </p>
                     <div className="pt-4 border-t border-border">
