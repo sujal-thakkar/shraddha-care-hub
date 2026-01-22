@@ -196,6 +196,8 @@ export default function Home() {
             className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-accent via-accent/80 to-primary/10 cursor-pointer"
             onMouseEnter={() => setIsCorporateHovered(true)}
             onMouseLeave={() => setIsCorporateHovered(false)}
+            onClick={() => setIsCorporateHovered(prev => !prev)}
+            onTouchStart={() => setIsCorporateHovered(prev => !prev)}
           >
             {/* Hover overlay - background image */}
             <div 
