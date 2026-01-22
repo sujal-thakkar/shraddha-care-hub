@@ -438,17 +438,9 @@ export default function CorporateCare() {
 
       {/* CTA */}
       <ScrollReveal>
-        <section className="relative overflow-hidden -mt-[1px]">
-          {/* Top Wave - positioned to overlap into this section */}
-          <div className="relative z-10 -mb-px bg-card">
-            <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto block" preserveAspectRatio="none">
-              <path d="M0 0L60 10C120 20 240 40 360 50C480 60 600 60 720 55C840 50 960 40 1080 35C1200 30 1320 30 1380 30L1440 30V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="hsl(var(--card))"/>
-              <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" style={{ fill: 'rgba(88, 55, 163, 0.92)' }}/>
-            </svg>
-          </div>
-          
-          {/* Background Image with Overlay */}
-          <div className="absolute inset-0 top-[120px] lg:top-[80px]">
+        <section className="relative overflow-hidden">
+          {/* Background Image - covers entire section including wave area */}
+          <div className="absolute inset-0">
             <img 
               src={corporateCtaBg} 
               alt="" 
@@ -458,40 +450,39 @@ export default function CorporateCare() {
               className="absolute inset-0"
               style={{
                 background:
-                  "radial-gradient(900px circle at 20% 20%, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 45%), radial-gradient(800px circle at 80% 75%, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0) 40%), linear-gradient(135deg, rgba(88, 55, 163, 0.92) 0%, rgba(55, 100, 180, 0.88) 55%, rgba(88, 55, 163, 0.95) 100%)",
+                  "linear-gradient(to bottom, rgba(88, 55, 163, 0.75) 0%, rgba(55, 100, 180, 0.85) 50%, rgba(88, 55, 163, 0.90) 100%)",
               }}
             />
           </div>
           
-          <div 
-            className="relative z-[5] text-center space-y-6 py-16 lg:py-24 text-white"
-            style={{
-              background:
-                "radial-gradient(900px circle at 20% 20%, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 45%), radial-gradient(800px circle at 80% 75%, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0) 40%), linear-gradient(135deg, rgba(88, 55, 163, 0.92) 0%, rgba(55, 100, 180, 0.88) 55%, rgba(88, 55, 163, 0.95) 100%)",
-            }}
-          >
-            <div className="container">
-              <h2 className="font-serif text-3xl lg:text-4xl font-bold">
-                Ready to Support Your Team's Families?
-              </h2>
-              <p className="text-white/80 max-w-2xl mx-auto mt-6">
-                Join leading organizations who trust Shraddha to care for their employees' parents. 
-                Let's discuss how we can create a customized program for your team.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
-                <Button 
-                  size="lg" 
-                  className="bg-white text-[hsl(250_70%_45%)] hover:bg-white/90 hover:text-[hsl(220_70%_50%)]"
-                  onClick={() => setIsPartnerModalOpen(true)}
-                >
-                  Request a Consultation
-                </Button>
-                <Button asChild variant="heroOutline" size="lg" className="hover:bg-white hover:text-[hsl(250_70%_45%)]">
-                  <Link to="/contact">
-                    Contact Us
-                  </Link>
-                </Button>
-              </div>
+          {/* Top Wave - sits on top of background */}
+          <div className="relative z-10 -mb-px">
+            <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto block" preserveAspectRatio="none">
+              <path d="M0 0L60 10C120 20 240 40 360 50C480 60 600 60 720 55C840 50 960 40 1080 35C1200 30 1320 30 1380 30L1440 30V120H0Z" fill="hsl(var(--card))"/>
+            </svg>
+          </div>
+          
+          <div className="container relative z-10 text-center space-y-6 py-16 lg:py-24 text-white">
+            <h2 className="font-serif text-3xl lg:text-4xl font-bold drop-shadow-lg">
+              Ready to Support Your Team's Families?
+            </h2>
+            <p className="text-white/90 max-w-2xl mx-auto drop-shadow">
+              Join leading organizations who trust Shraddha to care for their employees' parents. 
+              Let's discuss how we can create a customized program for your team.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+              <Button 
+                size="lg" 
+                className="bg-white text-[hsl(250_70%_45%)] hover:bg-white/90 hover:text-[hsl(220_70%_50%)]"
+                onClick={() => setIsPartnerModalOpen(true)}
+              >
+                Request a Consultation
+              </Button>
+              <Button asChild variant="heroOutline" size="lg" className="hover:bg-white hover:text-[hsl(250_70%_45%)]">
+                <Link to="/contact">
+                  Contact Us
+                </Link>
+              </Button>
             </div>
           </div>
         </section>
