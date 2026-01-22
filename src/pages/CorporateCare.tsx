@@ -15,6 +15,9 @@ import cpcHelpline from "@/assets/cpc-helpline.png";
 import cpcBenefits1 from "@/assets/cpc-benefits-1.png";
 import cpcBenefits2 from "@/assets/cpc-benefits-2.png";
 import cpcBenefits3 from "@/assets/cpc-benefits-3.png";
+import testimonial1 from "@/assets/testimonial-1.jpg";
+import testimonial2 from "@/assets/testimonial-2.jpg";
+import testimonial3 from "@/assets/testimonial-3.jpg";
 
 export default function CorporateCare() {
   const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false);
@@ -65,19 +68,22 @@ export default function CorporateCare() {
       quote: "Shraddha's Corporate Parental Care program has been a game-changer for our employees. They now work with peace of mind knowing their parents are well cared for.",
       author: "Priya Sharma",
       role: "HR Director",
-      company: "Catalog"
+      company: "Catalog",
+      image: testimonial1
     },
     {
       quote: "The positive impact on employee morale and productivity has exceeded our expectations. This partnership truly reflects our values as a people-first organization.",
       author: "Rajesh Kumar",
       role: "CEO",
-      company: "BuildingBlocks"
+      company: "BuildingBlocks",
+      image: testimonial2
     },
     {
       quote: "Our team members feel valued and supported. The regular updates and professional care provided by Shraddha have strengthened our employee engagement significantly.",
       author: "Anita Desai",
       role: "Head of People Operations",
-      company: "Ikigailabs"
+      company: "Ikigailabs",
+      image: testimonial3
     }
   ];
 
@@ -410,12 +416,12 @@ export default function CorporateCare() {
                   </p>
                   
                   <div className="flex items-center gap-3">
-                    <div 
-                      className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg"
-                      style={{ background: 'linear-gradient(135deg, hsl(250, 70%, 45%), hsl(220, 70%, 50%))' }}
-                    >
-                      {testimonial.author.charAt(0)}
-                    </div>
+                    <img 
+                      src={testimonial.image}
+                      alt={testimonial.author}
+                      className="w-12 h-12 rounded-full object-cover border-2"
+                      style={{ borderColor: 'hsl(250, 70%, 45%)' }}
+                    />
                     <div>
                       <p className="font-semibold text-foreground">{testimonial.author}</p>
                       <p className="text-sm text-muted-foreground">{testimonial.role}</p>
