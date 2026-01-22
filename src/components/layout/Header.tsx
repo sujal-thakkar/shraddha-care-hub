@@ -37,68 +37,70 @@ export function Header() {
   }, [isMenuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link to="/" className="flex items-center">
-          <img src={logoShraddha} alt="Shraddha" className="h-10" />
-        </Link>
+    <>
+      <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+          <Link to="/" className="flex items-center">
+            <img src={logoShraddha} alt="Shraddha" className="h-10" />
+          </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-6">
-          {navItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
-                location.pathname === item.path
-                  ? "text-primary"
-                  : "text-muted-foreground"
-              )}
-            >
-              {item.name}
-            </Link>
-          ))}
-          <Button asChild size="sm">
-            <Link to="/donate">Support Us</Link>
-          </Button>
-        </nav>
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-6">
+            {navItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={cn(
+                  "text-sm font-medium transition-colors hover:text-primary",
+                  location.pathname === item.path
+                    ? "text-primary"
+                    : "text-muted-foreground"
+                )}
+              >
+                {item.name}
+              </Link>
+            ))}
+            <Button asChild size="sm">
+              <Link to="/donate">Support Us</Link>
+            </Button>
+          </nav>
 
-        {/* Mobile Menu Button - Enhanced touch target */}
-        <button
-          className="lg:hidden relative w-12 h-12 flex items-center justify-center rounded-lg transition-colors hover:bg-accent active:bg-accent/80 touch-manipulation"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-          aria-expanded={isMenuOpen}
-        >
-          {/* Animated hamburger icon */}
-          <div className="relative w-6 h-5 flex flex-col justify-between">
-            <span
-              className={cn(
-                "block h-0.5 w-6 bg-foreground rounded-full transition-all duration-300 ease-in-out origin-center",
-                isMenuOpen && "rotate-45 translate-y-[9px]"
-              )}
-            />
-            <span
-              className={cn(
-                "block h-0.5 w-6 bg-foreground rounded-full transition-all duration-300 ease-in-out",
-                isMenuOpen && "opacity-0 scale-x-0"
-              )}
-            />
-            <span
-              className={cn(
-                "block h-0.5 w-6 bg-foreground rounded-full transition-all duration-300 ease-in-out origin-center",
-                isMenuOpen && "-rotate-45 -translate-y-[9px]"
-              )}
-            />
-          </div>
-        </button>
-      </div>
+          {/* Mobile Menu Button - Enhanced touch target */}
+          <button
+            className="lg:hidden relative z-[60] w-12 h-12 flex items-center justify-center rounded-lg transition-colors hover:bg-accent active:bg-accent/80 touch-manipulation"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMenuOpen}
+          >
+            {/* Animated hamburger icon */}
+            <div className="relative w-6 h-5 flex flex-col justify-between">
+              <span
+                className={cn(
+                  "block h-0.5 w-6 bg-foreground rounded-full transition-all duration-300 ease-in-out origin-center",
+                  isMenuOpen && "rotate-45 translate-y-[9px]"
+                )}
+              />
+              <span
+                className={cn(
+                  "block h-0.5 w-6 bg-foreground rounded-full transition-all duration-300 ease-in-out",
+                  isMenuOpen && "opacity-0 scale-x-0"
+                )}
+              />
+              <span
+                className={cn(
+                  "block h-0.5 w-6 bg-foreground rounded-full transition-all duration-300 ease-in-out origin-center",
+                  isMenuOpen && "-rotate-45 -translate-y-[9px]"
+                )}
+              />
+            </div>
+          </button>
+        </div>
+      </header>
 
-      {/* Mobile Navigation - Enhanced with animations */}
+      {/* Mobile Navigation - Moved outside header to fix stacking context */}
       <div
         className={cn(
-          "lg:hidden fixed inset-x-0 top-16 bottom-0 bg-background/98 backdrop-blur-sm border-t border-border transition-all duration-300 ease-in-out z-40",
+          "lg:hidden fixed inset-0 top-16 bg-background z-[55] transition-all duration-300 ease-in-out",
           isMenuOpen
             ? "opacity-100 visible"
             : "opacity-0 invisible pointer-events-none"
@@ -150,6 +152,6 @@ export function Header() {
           </div>
         </nav>
       </div>
-    </header>
+    </>
   );
 }
