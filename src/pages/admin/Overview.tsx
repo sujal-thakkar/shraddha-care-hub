@@ -50,7 +50,8 @@ export default function AdminOverview() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("donations")
-        .select("amount, email");
+        .select("amount, email")
+        .eq("status", "verified");
       
       if (error) throw error;
       
