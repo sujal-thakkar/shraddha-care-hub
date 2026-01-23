@@ -8,11 +8,11 @@ import { Phone, Mail, MapPin, Clock, Facebook, ExternalLink, Loader2, MessageCir
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { checkRateLimit } from "@/lib/rate-limit";
 import volunteerJourneyPath from "@/assets/volunteer-journey-path.jpg";
+
 export default function Contact() {
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -20,11 +20,24 @@ export default function Contact() {
     phone: "",
     message: ""
   });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
+      // Check rate limit
+      const rateLimitResult = await checkRateLimit(formData.email, 'contact_messages');
+      if (!rateLimitResult.allowed) {
+        toast({
+          title: "Too many submissions",
+          description: rateLimitResult.message,
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
       const { error } = await supabase.from("contact_messages").insert({
         name: formData.name.trim(),
         email: formData.email.trim(),
