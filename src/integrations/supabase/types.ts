@@ -429,6 +429,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_consented_donors: {
+        Args: never
+        Returns: {
+          donated_at: string
+          name: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
