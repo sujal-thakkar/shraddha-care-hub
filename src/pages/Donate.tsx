@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Heart, Facebook, CreditCard, Building, Smartphone, ExternalLink, Copy, Check, Info } from "lucide-react";
+import { Heart, Facebook, CreditCard, Building, Smartphone, ExternalLink, Copy, Check, Info, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import upiQrCode from "@/assets/upi-qr-code.png";
 import volunteerJourneyPath from "@/assets/volunteer-journey-path.jpg";
@@ -24,6 +25,16 @@ export default function Donate() {
     phone: "",
     panCard: "",
     amount: "",
+  });
+
+  // Fetch consented donors for Wall of Thanks
+  const { data: consentedDonors } = useQuery({
+    queryKey: ["consented-donors"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("get_consented_donors");
+      if (error) throw error;
+      return data as { name: string; donated_at: string }[];
+    },
   });
 
   const copyToClipboard = async (text: string, field: string) => {
@@ -433,6 +444,43 @@ export default function Donate() {
           </div>
         </div>
       </section>
+
+      {/* Wall of Thanks */}
+      {consentedDonors && consentedDonors.length > 0 && (
+        <section className="py-16 lg:py-24 bg-background">
+          <div className="container">
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-4">
+                <Sparkles className="h-4 w-4" />
+                Our Generous Donors
+              </div>
+              <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">
+                Wall of Thanks
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                We're grateful to these wonderful individuals who have supported our mission 
+                and chosen to be recognized for their generosity.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto">
+              {consentedDonors.map((donor, index) => (
+                <div
+                  key={`${donor.name}-${index}`}
+                  className="inline-flex items-center gap-2 bg-card border border-border px-4 py-2 rounded-full shadow-sm hover:shadow-md hover:border-primary/30 transition-all duration-200"
+                >
+                  <Heart className="h-4 w-4 text-primary fill-primary/20" />
+                  <span className="font-medium text-foreground">{donor.name}</span>
+                </div>
+              ))}
+            </div>
+
+            <p className="text-center text-sm text-muted-foreground mt-8">
+              Want to see your name here? Check the recognition consent box when donating.
+            </p>
+          </div>
+        </section>
+      )}
 
       {/* CTA */}
       <section className="py-16 lg:py-24 bg-primary text-primary-foreground">
