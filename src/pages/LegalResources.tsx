@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Scale, Shield, FileText, AlertTriangle, Upload, CheckCircle, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { checkRateLimit } from "@/lib/rate-limit";
 import legalAwarenessHover from "@/assets/legal-awareness-hover.jpg";
 import elderCareIllustration from "@/assets/elder-care-illustration.jpg";
 
@@ -42,6 +43,20 @@ export default function LegalResources() {
     setIsSubmitting(true);
 
     try {
+      // Check rate limit using reporter contact (skip for anonymous reports)
+      if (!isAnonymous && formData.reporterContact) {
+        const rateCheck = await checkRateLimit(formData.reporterContact, 'abuse_reports');
+        if (!rateCheck.allowed) {
+          toast({
+            title: "Too Many Submissions",
+            description: rateCheck.message || "Please try again later.",
+            variant: "destructive",
+          });
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       // Insert the abuse report
       const { data: report, error: reportError } = await supabase
         .from("abuse_reports")
