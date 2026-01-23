@@ -194,7 +194,31 @@ Stores general contact form submissions.
 
 ---
 
-### 6. `team_members`
+### 6. `donations`
+Stores donation intent records from the donation form.
+
+| Column | Type | Nullable | Description |
+|--------|------|----------|-------------|
+| `id` | UUID | No | Primary key |
+| `name` | text | No | Donor name |
+| `email` | text | No | Donor email |
+| `phone` | text | No | Donor phone |
+| `pan_card` | text | Yes | PAN for 80G receipt |
+| `amount` | text | No | Donation amount |
+| `consent_to_publish` | boolean | No | Public recognition consent |
+| `admin_notes` | text | Yes | Internal notes |
+| `created_at` | timestamp | No | Submission timestamp |
+| `updated_at` | timestamp | No | Last update timestamp |
+
+**RLS Policies:**
+- ✅ Anyone can INSERT (submit donation intent)
+- 🔒 Only admins can SELECT/UPDATE/DELETE
+
+**Note:** This table tracks donation *intents* (form submissions before payment). Since payments are made externally via UPI/bank transfer, admin verification is required.
+
+---
+
+### 7. `team_members`
 Stores organization team member profiles.
 
 | Column | Type | Nullable | Description |

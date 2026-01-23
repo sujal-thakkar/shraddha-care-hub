@@ -104,6 +104,45 @@ export type Database = {
         }
         Relationships: []
       }
+      donations: {
+        Row: {
+          admin_notes: string | null
+          amount: string
+          consent_to_publish: boolean
+          created_at: string
+          email: string
+          id: string
+          name: string
+          pan_card: string | null
+          phone: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount: string
+          consent_to_publish?: boolean
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          pan_card?: string | null
+          phone: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          amount?: string
+          consent_to_publish?: boolean
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          pan_card?: string | null
+          phone?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notification_emails: {
         Row: {
           created_at: string

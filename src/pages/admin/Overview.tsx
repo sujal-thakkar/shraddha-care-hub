@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Users, AlertTriangle, CheckCircle, Clock, TrendingUp } from "lucide-react";
+import { FileText, Users, AlertTriangle, CheckCircle, Clock, TrendingUp, Heart, IndianRupee } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -45,6 +45,26 @@ export default function AdminOverview() {
     },
   });
 
+  const { data: donationStats, isLoading: donationsLoading } = useQuery({
+    queryKey: ["admin-donation-stats"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("donations")
+        .select("amount, email");
+      
+      if (error) throw error;
+      
+      const totalAmount = data.reduce((sum, d) => sum + (parseFloat(d.amount) || 0), 0);
+      const uniqueDonors = new Set(data.map(d => d.email.toLowerCase())).size;
+      
+      return {
+        total: data.length,
+        totalAmount,
+        uniqueDonors,
+      };
+    },
+  });
+
   const { data: recentReports } = useQuery({
     queryKey: ["admin-recent-reports"],
     queryFn: async () => {
@@ -73,6 +93,14 @@ export default function AdminOverview() {
     },
   });
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
   return (
     <div className="space-y-8">
       <div>
@@ -81,7 +109,35 @@ export default function AdminOverview() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        <Card className="border-border">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Raised</CardTitle>
+            <IndianRupee className="h-4 w-4 text-primary" />
+          </CardHeader>
+          <CardContent>
+            {donationsLoading ? (
+              <Skeleton className="h-8 w-20" />
+            ) : (
+              <div className="text-2xl font-bold text-primary">{formatCurrency(donationStats?.totalAmount || 0)}</div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="border-border">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Donors</CardTitle>
+            <Heart className="h-4 w-4 text-destructive" />
+          </CardHeader>
+          <CardContent>
+            {donationsLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold text-foreground">{donationStats?.uniqueDonors || 0}</div>
+            )}
+          </CardContent>
+        </Card>
+
         <Card className="border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Reports</CardTitle>
@@ -112,7 +168,7 @@ export default function AdminOverview() {
 
         <Card className="border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Volunteers</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Volunteers</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -126,7 +182,7 @@ export default function AdminOverview() {
 
         <Card className="border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Pending Applications</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Pending Apps</CardTitle>
             <Clock className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
