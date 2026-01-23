@@ -268,7 +268,7 @@ export default function LegalResources() {
         </div>
 
         <div className="container">
-          <div className="max-w-2xl mx-auto">
+          <div id="report-elder-abuse" className="max-w-2xl mx-auto scroll-mt-24">
 
             {submitted ? (
               <Card className="border-primary">
