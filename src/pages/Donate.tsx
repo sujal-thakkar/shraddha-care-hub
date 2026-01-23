@@ -10,6 +10,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { checkRateLimit } from "@/lib/rate-limit";
 import upiQrCode from "@/assets/upi-qr-code.png";
 import volunteerJourneyPath from "@/assets/volunteer-journey-path.jpg";
 import announcementIcon from "@/assets/announcement-icon.svg";
@@ -60,6 +61,18 @@ export default function Donate() {
     setIsSubmitting(true);
 
     try {
+      // Check rate limit
+      const rateLimitResult = await checkRateLimit(formData.email, 'donations');
+      if (!rateLimitResult.allowed) {
+        toast({
+          title: "Too many submissions",
+          description: rateLimitResult.message,
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
       // Store donation in database
       const { error: dbError } = await supabase
         .from('donations')

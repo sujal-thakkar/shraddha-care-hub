@@ -22,6 +22,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { Loader2, Send, Building2, User, Mail, Phone, MessageSquare } from "lucide-react";
 
 const partnerFormSchema = z.object({
@@ -84,6 +85,18 @@ export function PartnerContactModal({ open, onOpenChange }: PartnerContactModalP
     setIsSubmitting(true);
     
     try {
+      // Check rate limit
+      const rateLimitResult = await checkRateLimit(data.email, 'partner_inquiries');
+      if (!rateLimitResult.allowed) {
+        toast({
+          title: "Too many submissions",
+          description: rateLimitResult.message,
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
       // Save to database
       const { data: inquiry, error } = await supabase
         .from("partner_inquiries")

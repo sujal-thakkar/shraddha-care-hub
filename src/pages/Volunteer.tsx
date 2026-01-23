@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Heart, Users, Clock, MapPin, CheckCircle, Loader2, HandHeart, Phone, BookOpen, LucideIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { checkRateLimit } from "@/lib/rate-limit";
 import volunteerHeroBg from "@/assets/volunteer-hero-bg.jpg";
 import elderCareAnimation from "@/assets/elder-care-animation.gif";
 import companionCallsImg from "@/assets/volunteer-companion-calls.png";
@@ -37,6 +38,18 @@ export default function Volunteer() {
     setIsSubmitting(true);
 
     try {
+      // Check rate limit
+      const rateLimitResult = await checkRateLimit(formData.email, 'volunteer_applications');
+      if (!rateLimitResult.allowed) {
+        toast({
+          title: "Too many submissions",
+          description: rateLimitResult.message,
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
       const { data: application, error } = await supabase
         .from("volunteer_applications")
         .insert({

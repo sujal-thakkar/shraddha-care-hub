@@ -432,6 +432,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_rate_limit: {
+        Args: {
+          p_email: string
+          p_max_submissions?: number
+          p_table_name: string
+          p_time_window_minutes?: number
+        }
+        Returns: boolean
+      }
       get_consented_donors: {
         Args: never
         Returns: {
