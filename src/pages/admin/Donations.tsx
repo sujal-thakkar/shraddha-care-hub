@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Heart, Search, Eye, Users, IndianRupee, TrendingUp, Calendar, Mail, Phone, Check } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Heart, Search, Eye, Users, IndianRupee, Calendar, Mail, Phone, Check, X, Clock, CheckCircle, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -23,6 +24,7 @@ interface Donation {
   amount: string;
   consent_to_publish: boolean;
   admin_notes: string | null;
+  status: 'pending' | 'verified' | 'rejected';
   created_at: string;
 }
 
@@ -30,9 +32,11 @@ interface DonorGroup {
   email: string;
   name: string;
   totalAmount: number;
+  verifiedAmount: number;
   donationCount: number;
   lastDonation: string;
   consent: boolean;
+  hasVerified: boolean;
   donations: Donation[];
 }
 
@@ -40,9 +44,8 @@ export default function AdminDonations() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedDonor, setSelectedDonor] = useState<DonorGroup | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [adminNotes, setAdminNotes] = useState("");
-  const [selectedDonation, setSelectedDonation] = useState<Donation | null>(null);
 
   const { data: donations, isLoading } = useQuery({
     queryKey: ["admin-donations"],
@@ -54,6 +57,30 @@ export default function AdminDonations() {
       
       if (error) throw error;
       return data as Donation[];
+    },
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const { error } = await supabase
+        .from("donations")
+        .update({ status })
+        .eq("id", id);
+      
+      if (error) throw error;
+    },
+    onSuccess: (_, { status }) => {
+      queryClient.invalidateQueries({ queryKey: ["admin-donations"] });
+      queryClient.invalidateQueries({ queryKey: ["consented-donors"] });
+      toast({ 
+        title: status === 'verified' ? "Donation Verified ✓" : "Donation Rejected",
+        description: status === 'verified' 
+          ? "This donation will now appear on the Wall of Thanks (if consented)."
+          : "This donation has been marked as rejected.",
+      });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to update status.", variant: "destructive" });
     },
   });
 
@@ -85,44 +112,47 @@ export default function AdminDonations() {
             email: donation.email,
             name: donation.name,
             totalAmount: 0,
+            verifiedAmount: 0,
             donationCount: 0,
             lastDonation: donation.created_at,
             consent: donation.consent_to_publish,
+            hasVerified: false,
             donations: [],
           };
         }
         acc[email].totalAmount += parseFloat(donation.amount) || 0;
+        if (donation.status === 'verified') {
+          acc[email].verifiedAmount += parseFloat(donation.amount) || 0;
+          acc[email].hasVerified = true;
+        }
         acc[email].donationCount += 1;
         acc[email].donations.push(donation);
-        // Update consent if any donation has consent
         if (donation.consent_to_publish) {
           acc[email].consent = true;
         }
-        // Update last donation date
         if (new Date(donation.created_at) > new Date(acc[email].lastDonation)) {
           acc[email].lastDonation = donation.created_at;
         }
         return acc;
       }, {} as Record<string, DonorGroup>)
-    ).sort((a, b) => b.totalAmount - a.totalAmount) : [];
+    ).sort((a, b) => b.verifiedAmount - a.verifiedAmount) : [];
 
-  // Filter based on search
-  const filteredDonors = donorGroups.filter(donor => 
-    donor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    donor.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const filteredDonations = donations?.filter(donation =>
-    donation.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    donation.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    donation.amount.includes(searchTerm)
-  );
+  // Filter based on search and status
+  const filteredDonations = donations?.filter(donation => {
+    const matchesSearch = 
+      donation.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      donation.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      donation.amount.includes(searchTerm);
+    const matchesStatus = statusFilter === "all" || donation.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   // Stats
   const totalDonations = donations?.length || 0;
-  const totalAmount = donations?.reduce((sum, d) => sum + (parseFloat(d.amount) || 0), 0) || 0;
-  const uniqueDonors = donorGroups.length;
-  const consentedDonors = donorGroups.filter(d => d.consent).length;
+  const pendingCount = donations?.filter(d => d.status === 'pending').length || 0;
+  const verifiedCount = donations?.filter(d => d.status === 'verified').length || 0;
+  const verifiedAmount = donations?.filter(d => d.status === 'verified')
+    .reduce((sum, d) => sum + (parseFloat(d.amount) || 0), 0) || 0;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -130,6 +160,17 @@ export default function AdminDonations() {
       currency: 'INR',
       maximumFractionDigits: 0,
     }).format(amount);
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'verified':
+        return <Badge className="bg-green-500/10 text-green-600 border-green-200"><CheckCircle className="h-3 w-3 mr-1" />Verified</Badge>;
+      case 'rejected':
+        return <Badge variant="destructive" className="bg-destructive/10"><XCircle className="h-3 w-3 mr-1" />Rejected</Badge>;
+      default:
+        return <Badge variant="outline" className="border-amber-300 text-amber-600"><Clock className="h-3 w-3 mr-1" />Pending</Badge>;
+    }
   };
 
   if (isLoading) {
@@ -150,327 +191,256 @@ export default function AdminDonations() {
     <div className="space-y-6">
       <div>
         <h1 className="font-serif text-3xl font-bold text-foreground">Donations</h1>
-        <p className="text-muted-foreground">Track and manage donor contributions.</p>
+        <p className="text-muted-foreground">Verify donations and manage donor recognition.</p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Raised</CardTitle>
-            <IndianRupee className="h-4 w-4 text-primary" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Verified Total</CardTitle>
+            <IndianRupee className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-foreground">{formatCurrency(totalAmount)}</div>
+            <div className="text-2xl font-bold text-green-600">{formatCurrency(verifiedAmount)}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Donations</CardTitle>
-            <Heart className="h-4 w-4 text-destructive" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Verified Donations</CardTitle>
+            <CheckCircle className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-foreground">{verifiedCount}</div>
+          </CardContent>
+        </Card>
+
+        <Card className={pendingCount > 0 ? "border-amber-300" : ""}>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Pending Review</CardTitle>
+            <Clock className="h-4 w-4 text-amber-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-amber-600">{pendingCount}</div>
+            {pendingCount > 0 && <p className="text-xs text-amber-600">Needs verification</p>}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Submissions</CardTitle>
+            <Heart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-foreground">{totalDonations}</div>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Unique Donors</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">{uniqueDonors}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Public Recognition</CardTitle>
-            <Check className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">{consentedDonors}</div>
-            <p className="text-xs text-muted-foreground">donors consented</p>
-          </CardContent>
-        </Card>
       </div>
 
-      {/* Search */}
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Search donors by name or email..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10"
-        />
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by name, email, or amount..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="verified">Verified</SelectItem>
+            <SelectItem value="rejected">Rejected</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
-      {/* Tabs: Donors vs All Donations */}
-      <Tabs defaultValue="donors" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="donors">By Donor ({uniqueDonors})</TabsTrigger>
-          <TabsTrigger value="all">All Donations ({totalDonations})</TabsTrigger>
-        </TabsList>
-
-        {/* Donors View - Grouped */}
-        <TabsContent value="donors">
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-serif">Donors</CardTitle>
-              <CardDescription>Grouped by email, sorted by total contribution</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {filteredDonors.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Donor</TableHead>
-                      <TableHead>Total Donated</TableHead>
-                      <TableHead className="text-center">Donations</TableHead>
-                      <TableHead>Last Donation</TableHead>
-                      <TableHead>Recognition</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredDonors.map((donor) => (
-                      <TableRow key={donor.email}>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium text-foreground">{donor.name}</p>
-                            <p className="text-sm text-muted-foreground">{donor.email}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell className="font-semibold text-primary">
-                          {formatCurrency(donor.totalAmount)}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <Badge variant="secondary">{donor.donationCount}</Badge>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {format(new Date(donor.lastDonation), "dd MMM yyyy")}
-                        </TableCell>
-                        <TableCell>
-                          {donor.consent ? (
-                            <Badge variant="default" className="bg-primary/10 text-primary">
-                              <Check className="h-3 w-3 mr-1" /> Consented
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline">Private</Badge>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => setSelectedDonor(donor)}
-                              >
-                                <Eye className="h-4 w-4 mr-1" /> View History
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-2xl">
-                              <DialogHeader>
-                                <DialogTitle className="font-serif">Donation History: {donor.name}</DialogTitle>
-                                <DialogDescription>
-                                  {donor.donationCount} donation(s) totaling {formatCurrency(donor.totalAmount)}
-                                </DialogDescription>
-                              </DialogHeader>
-                              <div className="space-y-4 max-h-[60vh] overflow-y-auto">
-                                {donor.donations.map((donation) => (
-                                  <Card key={donation.id} className="border-border">
-                                    <CardContent className="p-4">
-                                      <div className="flex justify-between items-start mb-3">
-                                        <div>
-                                          <p className="text-lg font-bold text-primary">
-                                            {formatCurrency(parseFloat(donation.amount) || 0)}
-                                          </p>
-                                          <p className="text-sm text-muted-foreground flex items-center gap-1">
-                                            <Calendar className="h-3 w-3" />
-                                            {format(new Date(donation.created_at), "dd MMM yyyy, hh:mm a")}
-                                          </p>
-                                        </div>
-                                        {donation.consent_to_publish && (
-                                          <Badge variant="default" className="bg-primary/10 text-primary">
-                                            Public OK
-                                          </Badge>
-                                        )}
-                                      </div>
-                                      <div className="grid grid-cols-2 gap-2 text-sm">
-                                        <div className="flex items-center gap-1 text-muted-foreground">
-                                          <Phone className="h-3 w-3" />
-                                          {donation.phone}
-                                        </div>
-                                        <div className="flex items-center gap-1 text-muted-foreground">
-                                          <Mail className="h-3 w-3" />
-                                          {donation.email}
-                                        </div>
-                                        {donation.pan_card && (
-                                          <div className="text-muted-foreground col-span-2">
-                                            PAN: {donation.pan_card}
-                                          </div>
-                                        )}
-                                      </div>
-                                      {donation.admin_notes && (
-                                        <div className="mt-3 p-2 bg-accent rounded text-sm">
-                                          <strong>Notes:</strong> {donation.admin_notes}
-                                        </div>
-                                      )}
-                                    </CardContent>
-                                  </Card>
-                                ))}
-                              </div>
-                            </DialogContent>
-                          </Dialog>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              ) : (
-                <p className="text-muted-foreground text-center py-8">No donors found</p>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* All Donations View */}
-        <TabsContent value="all">
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-serif">All Donations</CardTitle>
-              <CardDescription>Individual donation records</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {filteredDonations && filteredDonations.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Donor</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Contact</TableHead>
-                      <TableHead>PAN</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredDonations.map((donation) => (
-                      <TableRow key={donation.id}>
-                        <TableCell className="text-muted-foreground">
-                          {format(new Date(donation.created_at), "dd MMM yyyy")}
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium text-foreground">{donation.name}</p>
-                            <p className="text-sm text-muted-foreground">{donation.email}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell className="font-semibold text-primary">
-                          {formatCurrency(parseFloat(donation.amount) || 0)}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {donation.phone}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {donation.pan_card || "-"}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => {
-                                  setSelectedDonation(donation);
-                                  setAdminNotes(donation.admin_notes || "");
-                                }}
-                              >
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle className="font-serif">Donation Details</DialogTitle>
-                              </DialogHeader>
-                              <div className="space-y-4">
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div>
-                                    <p className="text-sm text-muted-foreground">Donor</p>
-                                    <p className="font-medium">{donation.name}</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-sm text-muted-foreground">Amount</p>
-                                    <p className="font-bold text-primary">
-                                      {formatCurrency(parseFloat(donation.amount) || 0)}
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <p className="text-sm text-muted-foreground">Email</p>
-                                    <p>{donation.email}</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-sm text-muted-foreground">Phone</p>
-                                    <p>{donation.phone}</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-sm text-muted-foreground">PAN Card</p>
-                                    <p>{donation.pan_card || "Not provided"}</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-sm text-muted-foreground">Date</p>
-                                    <p>{format(new Date(donation.created_at), "dd MMM yyyy, hh:mm a")}</p>
-                                  </div>
-                                  <div className="col-span-2">
-                                    <p className="text-sm text-muted-foreground">Public Recognition</p>
-                                    <p>
-                                      {donation.consent_to_publish ? (
-                                        <Badge className="bg-primary/10 text-primary">Consented</Badge>
-                                      ) : (
-                                        <Badge variant="outline">Private</Badge>
-                                      )}
-                                    </p>
-                                  </div>
+      {/* Donations Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-serif">Donation Submissions</CardTitle>
+          <CardDescription>
+            Review each submission and verify after checking bank statements. 
+            Only verified donations with consent will appear on the Wall of Thanks.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {filteredDonations && filteredDonations.length > 0 ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Donor</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Consent</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredDonations.map((donation) => (
+                  <TableRow key={donation.id} className={donation.status === 'pending' ? 'bg-amber-50/50 dark:bg-amber-950/10' : ''}>
+                    <TableCell className="text-muted-foreground">
+                      {format(new Date(donation.created_at), "dd MMM yyyy")}
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium text-foreground">{donation.name}</p>
+                        <p className="text-sm text-muted-foreground">{donation.email}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell className="font-semibold text-primary">
+                      {formatCurrency(parseFloat(donation.amount) || 0)}
+                    </TableCell>
+                    <TableCell>
+                      {getStatusBadge(donation.status)}
+                    </TableCell>
+                    <TableCell>
+                      {donation.consent_to_publish ? (
+                        <Badge variant="outline" className="border-primary/30 text-primary">
+                          <Check className="h-3 w-3 mr-1" /> Public OK
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline">Private</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        {donation.status === 'pending' && (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="default"
+                              className="bg-green-600 hover:bg-green-700"
+                              onClick={() => updateStatusMutation.mutate({ id: donation.id, status: 'verified' })}
+                              disabled={updateStatusMutation.isPending}
+                            >
+                              <CheckCircle className="h-4 w-4 mr-1" /> Verify
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => updateStatusMutation.mutate({ id: donation.id, status: 'rejected' })}
+                              disabled={updateStatusMutation.isPending}
+                            >
+                              <XCircle className="h-4 w-4 mr-1" /> Reject
+                            </Button>
+                          </>
+                        )}
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle className="font-serif">Donation Details</DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <p className="text-sm text-muted-foreground">Donor</p>
+                                  <p className="font-medium">{donation.name}</p>
                                 </div>
+                                <div>
+                                  <p className="text-sm text-muted-foreground">Amount</p>
+                                  <p className="font-bold text-primary">
+                                    {formatCurrency(parseFloat(donation.amount) || 0)}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-sm text-muted-foreground">Email</p>
+                                  <p>{donation.email}</p>
+                                </div>
+                                <div>
+                                  <p className="text-sm text-muted-foreground">Phone</p>
+                                  <p>{donation.phone}</p>
+                                </div>
+                                <div>
+                                  <p className="text-sm text-muted-foreground">PAN Card</p>
+                                  <p>{donation.pan_card || "Not provided"}</p>
+                                </div>
+                                <div>
+                                  <p className="text-sm text-muted-foreground">Date</p>
+                                  <p>{format(new Date(donation.created_at), "dd MMM yyyy, hh:mm a")}</p>
+                                </div>
+                                <div>
+                                  <p className="text-sm text-muted-foreground">Status</p>
+                                  {getStatusBadge(donation.status)}
+                                </div>
+                                <div>
+                                  <p className="text-sm text-muted-foreground">Public Recognition</p>
+                                  <p>
+                                    {donation.consent_to_publish ? (
+                                      <Badge className="bg-primary/10 text-primary">Consented</Badge>
+                                    ) : (
+                                      <Badge variant="outline">Private</Badge>
+                                    )}
+                                  </p>
+                                </div>
+                              </div>
 
-                                <div className="space-y-2">
-                                  <p className="text-sm text-muted-foreground">Admin Notes</p>
-                                  <Textarea
-                                    value={adminNotes}
-                                    onChange={(e) => setAdminNotes(e.target.value)}
-                                    placeholder="Add internal notes about this donation..."
-                                    rows={3}
-                                  />
+                              <div className="space-y-2">
+                                <p className="text-sm text-muted-foreground">Admin Notes</p>
+                                <Textarea
+                                  defaultValue={donation.admin_notes || ""}
+                                  onChange={(e) => setAdminNotes(e.target.value)}
+                                  placeholder="Add notes about verification..."
+                                  rows={3}
+                                />
+                                <Button
+                                  size="sm"
+                                  onClick={() => updateNotesMutation.mutate({ 
+                                    id: donation.id, 
+                                    notes: adminNotes || donation.admin_notes || ""
+                                  })}
+                                  disabled={updateNotesMutation.isPending}
+                                >
+                                  Save Notes
+                                </Button>
+                              </div>
+
+                              {donation.status === 'pending' && (
+                                <div className="flex gap-2 pt-4 border-t">
                                   <Button
-                                    size="sm"
-                                    onClick={() => updateNotesMutation.mutate({ 
-                                      id: donation.id, 
-                                      notes: adminNotes 
-                                    })}
-                                    disabled={updateNotesMutation.isPending}
+                                    className="flex-1 bg-green-600 hover:bg-green-700"
+                                    onClick={() => updateStatusMutation.mutate({ id: donation.id, status: 'verified' })}
+                                    disabled={updateStatusMutation.isPending}
                                   >
-                                    Save Notes
+                                    <CheckCircle className="h-4 w-4 mr-2" /> Verify Donation
+                                  </Button>
+                                  <Button
+                                    variant="destructive"
+                                    className="flex-1"
+                                    onClick={() => updateStatusMutation.mutate({ id: donation.id, status: 'rejected' })}
+                                    disabled={updateStatusMutation.isPending}
+                                  >
+                                    <XCircle className="h-4 w-4 mr-2" /> Reject
                                   </Button>
                                 </div>
-                              </div>
-                            </DialogContent>
-                          </Dialog>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              ) : (
-                <p className="text-muted-foreground text-center py-8">No donations found</p>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                              )}
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <p className="text-muted-foreground text-center py-8">No donations found</p>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -115,6 +115,7 @@ export type Database = {
           name: string
           pan_card: string | null
           phone: string
+          status: string
           updated_at: string
         }
         Insert: {
@@ -127,6 +128,7 @@ export type Database = {
           name: string
           pan_card?: string | null
           phone: string
+          status?: string
           updated_at?: string
         }
         Update: {
@@ -139,6 +141,7 @@ export type Database = {
           name?: string
           pan_card?: string | null
           phone?: string
+          status?: string
           updated_at?: string
         }
         Relationships: []
