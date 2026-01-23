@@ -569,6 +569,7 @@ export function QuickReportModal({ isOpen, onClose }: QuickReportModalProps) {
 
       {/* Confirmation Dialog */}
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <div className={`fixed inset-0 bg-black/80 backdrop-blur-sm z-[150] transition-opacity ${showConfirmDialog ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} />
         <AlertDialogContent className="max-w-md z-[200]">
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
