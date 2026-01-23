@@ -7,11 +7,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Heart, Facebook, CreditCard, Building, Smartphone, ExternalLink, Copy, Check, Info } from "lucide-react";
 import { WallOfThanks } from "@/components/donate/WallOfThanks";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { checkRateLimit } from "@/lib/rate-limit";
+import confetti from "canvas-confetti";
 import upiQrCode from "@/assets/upi-qr-code.png";
 import volunteerJourneyPath from "@/assets/volunteer-journey-path.jpg";
 import announcementIcon from "@/assets/announcement-icon.svg";
@@ -38,6 +39,39 @@ export default function Donate() {
       return data as { name: string; donated_at: string }[];
     },
   });
+
+  const triggerConfetti = useCallback(() => {
+    const duration = 3000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+
+    const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+
+    const interval = window.setInterval(() => {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+
+      const particleCount = 50 * (timeLeft / duration);
+
+      // Left side burst
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+        colors: ['#4A9D8E', '#2D5A4A', '#78B5A8', '#FFD700', '#FF6B6B'],
+      });
+      // Right side burst
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+        colors: ['#4A9D8E', '#2D5A4A', '#78B5A8', '#FFD700', '#FF6B6B'],
+      });
+    }, 250);
+  }, []);
 
   const copyToClipboard = async (text: string, field: string) => {
     try {
@@ -103,6 +137,9 @@ export default function Donate() {
       });
 
       if (error) throw error;
+
+      // Trigger confetti celebration!
+      triggerConfetti();
 
       toast({
         title: "Thank You! 🙏",
