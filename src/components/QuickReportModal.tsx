@@ -10,11 +10,23 @@ import {
   FileText,
   Trash2,
   Image as ImageIcon,
-  Smartphone
+  Smartphone,
+  Send,
+  ImagePlus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -168,6 +180,7 @@ export function QuickReportModal({ isOpen, onClose }: QuickReportModalProps) {
   const [description, setDescription] = useState("");
   const [abuseType, setAbuseType] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   // Get location on mount (only for mobile)
   useEffect(() => {
@@ -297,8 +310,14 @@ export function QuickReportModal({ isOpen, onClose }: QuickReportModalProps) {
     return message;
   }, [abuseType, description, location]);
 
+  // Show confirmation before sending
+  const handleSendClick = useCallback(() => {
+    setShowConfirmDialog(true);
+  }, []);
+
   // Send via WhatsApp - opens directly to org's chat
-  const handleSendWhatsApp = useCallback(() => {
+  const handleConfirmSend = useCallback(() => {
+    setShowConfirmDialog(false);
     setIsSending(true);
     
     let message = buildMessage();
@@ -515,7 +534,7 @@ export function QuickReportModal({ isOpen, onClose }: QuickReportModalProps) {
           {/* Send Button */}
           <div className="flex flex-col gap-3 pt-2">
             <Button 
-              onClick={handleSendWhatsApp} 
+              onClick={handleSendClick} 
               disabled={isSending}
               className="w-full bg-green-600 hover:bg-green-700 text-white"
               size="lg"
@@ -547,6 +566,59 @@ export function QuickReportModal({ isOpen, onClose }: QuickReportModalProps) {
           </p>
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogContent className="max-w-md z-[200]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Send className="h-5 w-5 text-green-600" />
+              Ready to Send Report?
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3">
+                <p>
+                  You're about to open WhatsApp to send your abuse report directly to our emergency response team.
+                </p>
+                
+                {capturedMedia && (
+                  <div className="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg">
+                    <div className="flex items-start gap-2">
+                      <ImagePlus className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                      <div className="text-sm">
+                        <p className="font-medium text-amber-800 dark:text-amber-200">
+                          Important: Attach your {capturedMedia.type}
+                        </p>
+                        <p className="text-amber-700 dark:text-amber-300 mt-1">
+                          After sending the message, tap the <strong>📎 attachment icon</strong> in WhatsApp and select the {capturedMedia.type} you just captured from your gallery.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {!capturedMedia && (
+                  <div className="p-3 bg-muted rounded-lg">
+                    <p className="text-sm text-muted-foreground">
+                      <strong>Tip:</strong> If you have photos or videos as evidence, you can attach them in WhatsApp after sending the initial message.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2 sm:gap-0">
+            <AlertDialogCancel>Go Back</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmSend}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              <WhatsAppLogo className="h-4 w-4 mr-2" />
+              Open WhatsApp
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

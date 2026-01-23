@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,45 +10,142 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Scale, Shield, FileText, AlertTriangle, Upload, CheckCircle, Loader2 } from "lucide-react";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Scale, Shield, FileText, AlertTriangle, Upload, CheckCircle, Loader2, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { checkRateLimit } from "@/lib/rate-limit";
 import legalAwarenessHover from "@/assets/legal-awareness-hover.jpg";
 import elderCareIllustration from "@/assets/elder-care-illustration.jpg";
 
+// File validation constants
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const ALLOWED_FILE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+  "video/mp4",
+  "video/quicktime",
+  "video/webm",
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+];
+
+const ALLOWED_EXTENSIONS = ".jpg, .jpeg, .png, .gif, .webp, .mp4, .mov, .webm, .pdf, .doc, .docx";
+
+// Zod schema for form validation
+const abuseReportSchema = z.object({
+  isAnonymous: z.boolean().default(false),
+  reporterName: z.string().max(100, "Name must be less than 100 characters").optional(),
+  reporterContact: z.string().max(255, "Contact must be less than 255 characters").optional(),
+  reporterRelationship: z.string().max(100, "Relationship must be less than 100 characters").optional(),
+  victimName: z.string().min(1, "Victim's name is required").max(100, "Name must be less than 100 characters"),
+  victimAge: z.string().optional().refine((val) => !val || (parseInt(val) >= 0 && parseInt(val) <= 150), {
+    message: "Please enter a valid age",
+  }),
+  victimLocation: z.string().min(1, "Location is required").max(500, "Location must be less than 500 characters"),
+  abuseType: z.enum(["physical", "emotional", "financial", "neglect", "other"], {
+    required_error: "Please select the type of abuse",
+  }),
+  description: z.string().min(10, "Please provide at least 10 characters of description").max(5000, "Description must be less than 5000 characters"),
+}).refine((data) => {
+  // If not anonymous, reporter name and contact are recommended but not required
+  return true;
+}, {});
+
+type AbuseReportFormValues = z.infer<typeof abuseReportSchema>;
+
+interface FileWithError {
+  file: File;
+  error?: string;
+}
+
 export default function LegalResources() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isAnonymous, setIsAnonymous] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
+  const [fileErrors, setFileErrors] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
 
-  const [formData, setFormData] = useState({
-    reporterName: "",
-    reporterContact: "",
-    reporterRelationship: "",
-    victimName: "",
-    victimAge: "",
-    victimLocation: "",
-    abuseType: "",
-    description: "",
+  const form = useForm<AbuseReportFormValues>({
+    resolver: zodResolver(abuseReportSchema),
+    defaultValues: {
+      isAnonymous: false,
+      reporterName: "",
+      reporterContact: "",
+      reporterRelationship: "",
+      victimName: "",
+      victimAge: "",
+      victimLocation: "",
+      abuseType: undefined,
+      description: "",
+    },
   });
+
+  const isAnonymous = form.watch("isAnonymous");
+
+  const validateFile = (file: File): string | null => {
+    if (file.size > MAX_FILE_SIZE) {
+      return `"${file.name}" is too large. Maximum size is 10MB.`;
+    }
+    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+      return `"${file.name}" is not a supported file type. Allowed: ${ALLOWED_EXTENSIONS}`;
+    }
+    return null;
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setFiles(Array.from(e.target.files));
+      const newFiles = Array.from(e.target.files);
+      const errors: string[] = [];
+      const validFiles: File[] = [];
+
+      newFiles.forEach((file) => {
+        const error = validateFile(file);
+        if (error) {
+          errors.push(error);
+        } else {
+          validFiles.push(file);
+        }
+      });
+
+      if (errors.length > 0) {
+        setFileErrors(errors);
+        toast({
+          title: "Some files were not added",
+          description: errors[0] + (errors.length > 1 ? ` (+${errors.length - 1} more issues)` : ""),
+          variant: "destructive",
+        });
+      } else {
+        setFileErrors([]);
+      }
+
+      setFiles((prev) => [...prev, ...validFiles]);
     }
+    // Reset input to allow re-selecting same file
+    e.target.value = "";
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const removeFile = (index: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+    setFileErrors([]);
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  };
+
+  const handleSubmit = async (data: AbuseReportFormValues) => {
     setIsSubmitting(true);
 
     try {
       // Check rate limit using reporter contact (skip for anonymous reports)
-      if (!isAnonymous && formData.reporterContact) {
-        const rateCheck = await checkRateLimit(formData.reporterContact, 'abuse_reports');
+      if (!data.isAnonymous && data.reporterContact) {
+        const rateCheck = await checkRateLimit(data.reporterContact, 'abuse_reports');
         if (!rateCheck.allowed) {
           toast({
             title: "Too Many Submissions",
@@ -61,15 +161,15 @@ export default function LegalResources() {
       const { data: report, error: reportError } = await supabase
         .from("abuse_reports")
         .insert({
-          reporter_name: isAnonymous ? null : formData.reporterName,
-          reporter_contact: isAnonymous ? null : formData.reporterContact,
-          reporter_relationship: isAnonymous ? null : formData.reporterRelationship,
-          is_anonymous: isAnonymous,
-          victim_name: formData.victimName,
-          victim_age: formData.victimAge ? parseInt(formData.victimAge) : null,
-          victim_location: formData.victimLocation,
-          abuse_type: formData.abuseType as "physical" | "emotional" | "financial" | "neglect" | "other",
-          description: formData.description,
+          reporter_name: data.isAnonymous ? null : data.reporterName || null,
+          reporter_contact: data.isAnonymous ? null : data.reporterContact || null,
+          reporter_relationship: data.isAnonymous ? null : data.reporterRelationship || null,
+          is_anonymous: data.isAnonymous,
+          victim_name: data.victimName,
+          victim_age: data.victimAge ? parseInt(data.victimAge) : null,
+          victim_location: data.victimLocation,
+          abuse_type: data.abuseType,
+          description: data.description,
         })
         .select()
         .single();
@@ -297,7 +397,12 @@ export default function LegalResources() {
                     appropriate action. If you provided contact information, we may reach out 
                     for additional details.
                   </p>
-                  <Button onClick={() => setSubmitted(false)}>
+                  <Button onClick={() => {
+                    setSubmitted(false);
+                    form.reset();
+                    setFiles([]);
+                    setFileErrors([]);
+                  }}>
                     Submit Another Report
                   </Button>
                 </CardContent>
@@ -305,166 +410,247 @@ export default function LegalResources() {
             ) : (
               <Card className="border-border">
                 <CardContent className="p-6">
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Anonymous Option */}
-                    <div className="flex items-center gap-2 p-4 bg-accent/50 rounded-lg">
-                      <Checkbox
-                        id="anonymous"
-                        checked={isAnonymous}
-                        onCheckedChange={(checked) => setIsAnonymous(checked === true)}
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+                      {/* Anonymous Option */}
+                      <FormField
+                        control={form.control}
+                        name="isAnonymous"
+                        render={({ field }) => (
+                          <FormItem className="flex items-center gap-2 p-4 bg-accent/50 rounded-lg space-y-0">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                            <FormLabel className="text-sm font-normal cursor-pointer">
+                              I wish to report anonymously
+                            </FormLabel>
+                          </FormItem>
+                        )}
                       />
-                      <Label htmlFor="anonymous" className="text-sm">
-                        I wish to report anonymously
-                      </Label>
-                    </div>
 
-                    {/* Reporter Information */}
-                    {!isAnonymous && (
+                      {/* Reporter Information */}
+                      {!isAnonymous && (
+                        <div className="space-y-4">
+                          <h3 className="font-semibold text-foreground">Your Information</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormField
+                              control={form.control}
+                              name="reporterName"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Your Name</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Enter your name" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="reporterContact"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Contact Number/Email</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Phone or email" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <FormField
+                            control={form.control}
+                            name="reporterRelationship"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Relationship to Victim</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="e.g., Neighbor, Family Friend, etc." {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      )}
+
+                      {/* Victim Information */}
                       <div className="space-y-4">
-                        <h3 className="font-semibold text-foreground">Your Information</h3>
+                        <h3 className="font-semibold text-foreground">Victim Information</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="reporterName">Your Name</Label>
-                            <Input
-                              id="reporterName"
-                              value={formData.reporterName}
-                              onChange={(e) => setFormData({ ...formData, reporterName: e.target.value })}
-                              placeholder="Enter your name"
-                            />
+                          <FormField
+                            control={form.control}
+                            name="victimName"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Victim's Name *</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Enter victim's name" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="victimAge"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Victim's Age</FormLabel>
+                                <FormControl>
+                                  <Input type="number" placeholder="Approximate age" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        <FormField
+                          control={form.control}
+                          name="victimLocation"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Location *</FormLabel>
+                              <FormControl>
+                                <Input placeholder="City, State, or full address" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      {/* Abuse Details */}
+                      <div className="space-y-4">
+                        <h3 className="font-semibold text-foreground">Abuse Details</h3>
+                        <FormField
+                          control={form.control}
+                          name="abuseType"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Type of Abuse *</FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select type of abuse" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="physical">Physical Abuse</SelectItem>
+                                  <SelectItem value="emotional">Emotional/Psychological Abuse</SelectItem>
+                                  <SelectItem value="financial">Financial Exploitation</SelectItem>
+                                  <SelectItem value="neglect">Neglect</SelectItem>
+                                  <SelectItem value="other">Other</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="description"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Description *</FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  placeholder="Please describe the incident or situation in detail..."
+                                  className="min-h-[150px]"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      {/* Evidence Upload */}
+                      <div className="space-y-4">
+                        <h3 className="font-semibold text-foreground">Evidence (Optional)</h3>
+                        <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
+                          <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                          <Label htmlFor="evidence" className="cursor-pointer">
+                            <span className="text-primary hover:underline">Click to upload</span>
+                            <span className="text-muted-foreground"> photos, videos, or documents</span>
+                          </Label>
+                          <Input
+                            id="evidence"
+                            type="file"
+                            multiple
+                            accept={ALLOWED_FILE_TYPES.join(",")}
+                            className="hidden"
+                            onChange={handleFileChange}
+                          />
+                          <p className="text-xs text-muted-foreground mt-2">
+                            Max 10MB per file. Supported: {ALLOWED_EXTENSIONS}
+                          </p>
+                        </div>
+
+                        {/* File Errors */}
+                        {fileErrors.length > 0 && (
+                          <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                            <p className="text-sm font-medium text-destructive mb-1">Some files could not be added:</p>
+                            <ul className="text-xs text-destructive space-y-1">
+                              {fileErrors.map((error, i) => (
+                                <li key={i}>• {error}</li>
+                              ))}
+                            </ul>
                           </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="reporterContact">Contact Number/Email</Label>
-                            <Input
-                              id="reporterContact"
-                              value={formData.reporterContact}
-                              onChange={(e) => setFormData({ ...formData, reporterContact: e.target.value })}
-                              placeholder="Phone or email"
-                            />
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="reporterRelationship">Relationship to Victim</Label>
-                          <Input
-                            id="reporterRelationship"
-                            value={formData.reporterRelationship}
-                            onChange={(e) => setFormData({ ...formData, reporterRelationship: e.target.value })}
-                            placeholder="e.g., Neighbor, Family Friend, etc."
-                          />
-                        </div>
-                      </div>
-                    )}
+                        )}
 
-                    {/* Victim Information */}
-                    <div className="space-y-4">
-                      <h3 className="font-semibold text-foreground">Victim Information</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="victimName">Victim's Name *</Label>
-                          <Input
-                            id="victimName"
-                            required
-                            value={formData.victimName}
-                            onChange={(e) => setFormData({ ...formData, victimName: e.target.value })}
-                            placeholder="Enter victim's name"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="victimAge">Victim's Age</Label>
-                          <Input
-                            id="victimAge"
-                            type="number"
-                            value={formData.victimAge}
-                            onChange={(e) => setFormData({ ...formData, victimAge: e.target.value })}
-                            placeholder="Approximate age"
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="victimLocation">Location *</Label>
-                        <Input
-                          id="victimLocation"
-                          required
-                          value={formData.victimLocation}
-                          onChange={(e) => setFormData({ ...formData, victimLocation: e.target.value })}
-                          placeholder="City, State, or full address"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Abuse Details */}
-                    <div className="space-y-4">
-                      <h3 className="font-semibold text-foreground">Abuse Details</h3>
-                      <div className="space-y-2">
-                        <Label htmlFor="abuseType">Type of Abuse *</Label>
-                        <Select
-                          value={formData.abuseType}
-                          onValueChange={(value) => setFormData({ ...formData, abuseType: value })}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select type of abuse" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="physical">Physical Abuse</SelectItem>
-                            <SelectItem value="emotional">Emotional/Psychological Abuse</SelectItem>
-                            <SelectItem value="financial">Financial Exploitation</SelectItem>
-                            <SelectItem value="neglect">Neglect</SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="description">Description *</Label>
-                        <Textarea
-                          id="description"
-                          required
-                          value={formData.description}
-                          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                          placeholder="Please describe the incident or situation in detail..."
-                          className="min-h-[150px]"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Evidence Upload */}
-                    <div className="space-y-4">
-                      <h3 className="font-semibold text-foreground">Evidence (Optional)</h3>
-                      <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
-                        <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                        <Label htmlFor="evidence" className="cursor-pointer">
-                          <span className="text-primary hover:underline">Click to upload</span>
-                          <span className="text-muted-foreground"> photos, videos, or documents</span>
-                        </Label>
-                        <Input
-                          id="evidence"
-                          type="file"
-                          multiple
-                          accept="image/*,video/*,.pdf,.doc,.docx"
-                          className="hidden"
-                          onChange={handleFileChange}
-                        />
+                        {/* Selected Files */}
                         {files.length > 0 && (
-                          <div className="mt-4 text-sm text-muted-foreground">
-                            {files.length} file(s) selected
+                          <div className="space-y-2">
+                            <p className="text-sm font-medium text-foreground">{files.length} file(s) selected:</p>
+                            <div className="space-y-2">
+                              {files.map((file, index) => (
+                                <div key={index} className="flex items-center justify-between p-2 bg-accent/50 rounded-lg">
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                                    <span className="text-sm truncate">{file.name}</span>
+                                    <span className="text-xs text-muted-foreground flex-shrink-0">
+                                      ({formatFileSize(file.size)})
+                                    </span>
+                                  </div>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-6 w-6 flex-shrink-0"
+                                    onClick={() => removeFile(index)}
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         )}
                       </div>
-                    </div>
 
-                    <Button type="submit" className="w-full" disabled={isSubmitting || !formData.abuseType}>
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Submitting...
-                        </>
-                      ) : (
-                        "Submit Report"
-                      )}
-                    </Button>
+                      <Button type="submit" className="w-full" disabled={isSubmitting}>
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Submitting...
+                          </>
+                        ) : (
+                          "Submit Report"
+                        )}
+                      </Button>
 
-                    <p className="text-xs text-center text-muted-foreground">
-                      All information is treated confidentially. False reports may be subject to legal action.
-                    </p>
-                  </form>
+                      <p className="text-xs text-center text-muted-foreground">
+                        All information is treated confidentially. False reports may be subject to legal action.
+                      </p>
+                    </form>
+                  </Form>
                 </CardContent>
               </Card>
             )}
