@@ -3,7 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Heart, Facebook, CreditCard, Building, Smartphone, ExternalLink, Copy, Check } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Heart, Facebook, CreditCard, Building, Smartphone, ExternalLink, Copy, Check, Info } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,6 +17,7 @@ export default function Donate() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [consentToPublish, setConsentToPublish] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -46,6 +49,24 @@ export default function Donate() {
     setIsSubmitting(true);
 
     try {
+      // Store donation in database
+      const { error: dbError } = await supabase
+        .from('donations')
+        .insert({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          pan_card: formData.panCard || null,
+          amount: formData.amount,
+          consent_to_publish: consentToPublish,
+        });
+
+      if (dbError) {
+        console.error("Database error:", dbError);
+        // Continue even if db fails - email is more important
+      }
+
+      // Send confirmation email
       const { error } = await supabase.functions.invoke('send-donation-confirmation', {
         body: {
           name: formData.name,
@@ -59,11 +80,12 @@ export default function Donate() {
       if (error) throw error;
 
       toast({
-        title: "Confirmation Sent!",
-        description: "We've sent donation details to your email. Please complete your payment using UPI or bank transfer.",
+        title: "Thank You! 🙏",
+        description: "Your donation intent has been recorded. We've sent payment details to your email.",
       });
 
       setFormData({ name: "", email: "", phone: "", panCard: "", amount: "" });
+      setConsentToPublish(false);
     } catch (error: any) {
       console.error("Error sending confirmation:", error);
       toast({
@@ -260,6 +282,23 @@ export default function Donate() {
                       />
                     </div>
 
+                    <div className="flex items-start space-x-3 p-3 bg-accent/50 rounded-lg">
+                      <Checkbox
+                        id="consent"
+                        checked={consentToPublish}
+                        onCheckedChange={(checked) => setConsentToPublish(checked === true)}
+                        className="mt-0.5"
+                      />
+                      <div className="space-y-1">
+                        <Label htmlFor="consent" className="text-sm font-medium cursor-pointer">
+                          I consent to be recognized as a donor
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          Allow Shraddha to publicly acknowledge my contribution (name only, no amount)
+                        </p>
+                      </div>
+                    </div>
+
                     <Button type="submit" className="w-full" disabled={isSubmitting}>
                       {isSubmitting ? "Sending..." : "Get Payment Details"}
                     </Button>
@@ -269,6 +308,15 @@ export default function Donate() {
 
               {/* Payment Options */}
               <div className="space-y-6">
+                {/* Important Disclaimer */}
+                <Alert className="border-primary/30 bg-primary/5">
+                  <Info className="h-4 w-4 text-primary" />
+                  <AlertDescription className="text-sm">
+                    <strong>Important:</strong> To receive a confirmation receipt and be visible to our team as a donor, 
+                    please fill out the form before making your payment. If you pay directly via QR or bank transfer 
+                    without submitting the form, we won't be able to track or acknowledge your contribution.
+                  </AlertDescription>
+                </Alert>
                 <Card className="border-border">
                   <CardHeader>
                     <div className="flex items-center gap-2">

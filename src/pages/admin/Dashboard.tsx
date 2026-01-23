@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link, Outlet, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, FileText, Users, Settings, LogOut, Loader2, Menu, X, UsersRound, Building2, MessageSquare } from "lucide-react";
+import { LayoutDashboard, FileText, Users, Settings, LogOut, Loader2, Menu, X, UsersRound, Building2, MessageSquare, Heart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -66,6 +66,7 @@ export default function AdminDashboard() {
     { icon: FileText, label: "Abuse Reports", path: "/admin/dashboard/reports" },
     { icon: Users, label: "Volunteers", path: "/admin/dashboard/volunteers" },
     { icon: Building2, label: "Partners", path: "/admin/dashboard/partners" },
+    { icon: Heart, label: "Donations", path: "/admin/dashboard/donations" },
     { icon: UsersRound, label: "Team", path: "/admin/dashboard/team" },
     { icon: Settings, label: "Settings", path: "/admin/dashboard/settings" },
   ];
