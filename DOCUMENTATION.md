@@ -2,12 +2,38 @@
 
 ## 📋 Project Overview
 
-**Shraddha** is a comprehensive web platform for an NGO (the welfare arm of Hosla) focused on stopping elder abuse and promoting holistic well-being for senior citizens. The platform serves multiple stakeholders including the general public, volunteers, corporate partners, and administrators.
+**shraddha.hosla.in** is a comprehensive web platform for an NGO (the welfare arm of Hosla) focused on stopping elder abuse and promoting holistic well-being for senior citizens. The platform serves multiple stakeholders including the general public, volunteers, corporate partners, and administrators.
 
 **Live URL:** https://shraddha.hosla.in
 **Organization Email:** shraddhawelfareassociation@gmail.com  
 **Phone:** 7811009309  
 **Location:** Bishnupur
+
+---
+
+## 🆕 Recent Updates (Jan 2026)
+
+1. **Cross-form rate limiting**
+        - Added database-backed limits (3 submissions/hour per email) for Donate, Contact, Volunteer, and Partner flows.
+        - Added reusable `check_rate_limit` function and frontend guards with destructive toasts.
+
+2. **Donation verification workflow**
+        - Introduced `status` on donations (pending/verified/rejected) with admin review actions.
+        - Consented donor wall now displays only verified donations.
+
+3. **Wall of Thanks redesign**
+        - Added parallax backgrounds, decorative overlays, animated marquee, and new themed assets.
+        - Improved donor card styling and responsive layout logic.
+
+4. **Donation celebration**
+        - Added confetti burst after successful donation submissions.
+
+5. **Quick report modal**
+        - Added a dedicated quick report modal on Legal Resources with improved scroll-to-top UX.
+
+6. **Abuse report UX upgrades**
+        - Client-side Zod validation and evidence file type/size checks for quick reports.
+        - Confirmation dialog before WhatsApp redirect with focused mobile overlay and media guidance.
 
 ---
 
@@ -43,7 +69,7 @@
 
 ---
 
-## 📄 Pages & Routes (10 Public + 8 Admin)
+## 📄 Pages & Routes (7 Public + 10 Admin)
 
 ### Public Pages (7)
 
@@ -57,7 +83,7 @@
 | `/donate` | `Donate.tsx` | Donation page with UPI QR, bank details, impact tiers |
 | `/contact` | `Contact.tsx` | Contact form, info cards, social links, map embed |
 
-### Admin Pages (8)
+### Admin Pages (10)
 
 | Route | Component | Description |
 |-------|-----------|-------------|
@@ -68,6 +94,7 @@
 | `/admin/dashboard/reports` | `Reports.tsx` | Abuse report management with evidence download |
 | `/admin/dashboard/volunteers` | `Volunteers.tsx` | Volunteer application management |
 | `/admin/dashboard/partners` | `Partners.tsx` | Corporate partner inquiry management |
+| `/admin/dashboard/donations` | `Donations.tsx` | Donation verification and status management |
 | `/admin/dashboard/team` | `TeamManagement.tsx` | Team member CRUD operations |
 | `/admin/dashboard/settings` | `Settings.tsx` | Notification email configuration |
 
@@ -79,7 +106,7 @@
 
 ---
 
-## 🗄️ Database Schema (9 Tables)
+## 🗄️ Database Schema (10 Tables)
 
 ### 1. `abuse_reports`
 Stores elder abuse incident reports with secure admin-only access.
@@ -206,6 +233,7 @@ Stores donation intent records from the donation form.
 | `pan_card` | text | Yes | PAN for 80G receipt |
 | `amount` | text | No | Donation amount |
 | `consent_to_publish` | boolean | No | Public recognition consent |
+| `status` | text | No | pending/verified/rejected |
 | `admin_notes` | text | Yes | Internal notes |
 | `created_at` | timestamp | No | Submission timestamp |
 | `updated_at` | timestamp | No | Last update timestamp |
@@ -344,6 +372,20 @@ RETURNS trigger
 LANGUAGE plpgsql
 ```
 
+### `check_rate_limit(p_email, p_table_name, p_max_submissions, p_time_window_minutes)`
+Cross-form rate limiter used by public submission flows.
+```sql
+RETURNS boolean
+LANGUAGE plpgsql SECURITY DEFINER
+```
+
+### `get_consented_donors()`
+Returns distinct, consented donors limited to verified donations.
+```sql
+RETURNS TABLE (name text, donated_at timestamp with time zone)
+LANGUAGE sql STABLE SECURITY DEFINER
+```
+
 ---
 
 ## 📦 Storage Buckets
@@ -431,6 +473,12 @@ LANGUAGE plpgsql
 ### Corporate Page Components
 - `PartnerContactModal.tsx` - Partnership inquiry form dialog
 
+### Legal Resources Components
+- `QuickReportModal.tsx` - Elder abuse quick-report modal with validation and WhatsApp redirect confirmation
+
+### Donation Page Components
+- `WallOfThanks.tsx` - Donor recognition wall with parallax backgrounds, marquee, and themed assets
+
 ### Shared UI Components (shadcn/ui)
 - Full shadcn/ui component library (~50+ components)
 - Custom `ScrollReveal.tsx` - Scroll-triggered animations
@@ -463,6 +511,11 @@ LANGUAGE plpgsql
 - Zod schemas for frontend form validation
 - Database CHECK constraints for field length limits
 - File type validation for uploads
+
+### Form Rate Limiting
+- Database-backed rate limiter for public form submissions (Donate, Contact, Volunteer, Partner, and non-anonymous Abuse Reports)
+- Default policy: 3 submissions per hour per email
+- Blocks rapid repeat submissions and shows a destructive toast
 
 ### Authentication
 - Email/password authentication via Supabase Auth
@@ -503,6 +556,10 @@ LANGUAGE plpgsql
 - Inquiry review and follow-up
 - Conversion tracking
 - Company details
+
+### Donations Management
+- Donation verification workflow (pending → verified/rejected)
+- Status filtering and admin notes
 
 ### Team Management
 - Full CRUD for team members
@@ -626,7 +683,7 @@ Returns success/failure response
 |--------|-------|
 | Total Pages | 18 |
 | Public Pages | 7 |
-| Admin Pages | 8 |
+| Admin Pages | 10 |
 | Database Tables | 10 |
 | Edge Functions | 2 |
 | UI Components | 50+ |
@@ -649,15 +706,16 @@ Returns success/failure response
 1. **Elder Abuse Reporting** - Secure, anonymous reporting with evidence uploads
 2. **Volunteer Recruitment** - Application form with admin review workflow
 3. **Corporate Partnerships** - B2B inquiry system with CRM-like tracking
-4. **Donation System** - UPI & bank transfer with confirmation emails
+4. **Donation System** - UPI & bank transfer with confirmation emails, verification workflow, and donation celebration
 5. **Team Showcase** - Dynamic team display with admin management
 6. **Impact Stories** - Success story showcase with rich content
 7. **Admin Dashboard** - Comprehensive back-office for all operations
 8. **Email Notifications** - Real-time alerts for all form submissions
 9. **Role-Based Access** - Secure admin authentication and authorization
 10. **Responsive Design** - Mobile-optimized across all pages
+11. **Form Rate Limiting** - Database-backed limits across public submissions
 
 ---
 
 *Documentation Created for Shraddha Welfare Association Project*  
-*Last Updated: January 2026*
+*Last Updated: January 24, 2026*
