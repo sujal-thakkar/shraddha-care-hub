@@ -165,7 +165,7 @@ export default function AdminDonations() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'verified':
-        return <Badge className="bg-green-500/10 text-green-600 border-green-200"><CheckCircle className="h-3 w-3 mr-1" />Verified</Badge>;
+        return <Badge className="bg-green-500/10 text-green-700 border-green-200 hover:bg-green-600 hover:text-white"><CheckCircle className="h-3 w-3 mr-1" />Verified</Badge>;
       case 'rejected':
         return <Badge variant="destructive" className="bg-destructive/10"><XCircle className="h-3 w-3 mr-1" />Rejected</Badge>;
       default:
