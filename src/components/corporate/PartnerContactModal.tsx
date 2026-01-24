@@ -135,7 +135,7 @@ export function PartnerContactModal({ open, onOpenChange }: PartnerContactModalP
       console.error("Error submitting inquiry:", error);
       toast({
         title: "Something went wrong",
-        description: "Please try again or contact us directly at hoslacare@gmail.com",
+        description: "Please try again or contact us directly at shraddhawelfareassociation@gmail.com",
         variant: "destructive",
       });
     } finally {

@@ -231,7 +231,7 @@ export default function Donate() {
                     transparency in our operations and regularly share impact updates with our donors.
                   </p>
                   <a 
-                    href="https://facebook.com" 
+                    href="https://www.facebook.com/shraddhawelfareassociation" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 text-primary hover:underline"
@@ -513,7 +513,7 @@ export default function Donate() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
             <Button asChild variant="secondary" size="lg">
-              <a href="mailto:hoslacare@gmail.com">
+              <a href="mailto:shraddhawelfareassociation@gmail.com">
                 Email Us
               </a>
             </Button>

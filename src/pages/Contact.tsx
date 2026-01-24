@@ -203,7 +203,7 @@ export default function Contact() {
                 <div className="pt-4">
                   <h3 className="font-semibold text-foreground mb-4">Follow Us</h3>
                   <div className="flex flex-wrap gap-4">
-                    <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+                    <a href="https://www.facebook.com/shraddhawelfareassociation" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
                       <Facebook className="h-5 w-5" />
                       Facebook
                     </a>

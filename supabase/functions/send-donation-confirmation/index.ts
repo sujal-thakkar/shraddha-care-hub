@@ -109,14 +109,14 @@ serve(async (req) => {
           <p style="font-size: 14px; color: #666;"><em>Note: Your 80G tax exemption certificate will be sent to your email after your donation is confirmed.</em></p>
           ` : ''}
           
-          <p style="font-size: 16px;">If you have any questions, please don't hesitate to reach out to us at <a href="mailto:hoslacare@gmail.com" style="color: #4A6741;">hoslacare@gmail.com</a> or call us at <a href="tel:7811009309" style="color: #4A6741;">7811009309</a>.</p>
+          <p style="font-size: 16px;">If you have any questions, please don't hesitate to reach out to us at <a href="mailto:shraddhawelfareassociation@gmail.com" style="color: #4A6741;">shraddhawelfareassociation@gmail.com</a> or call us at <a href="tel:7811009309" style="color: #4A6741;">7811009309</a>.</p>
           
           <p style="font-size: 16px;">With heartfelt gratitude,<br><strong>Shraddha Welfare Association</strong></p>
         </div>
         
         <div style="background: #f5f5f5; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; font-size: 12px; color: #666;">
           <p style="margin: 0;">Shraddha Welfare Association | Bishnupur, West Bengal</p>
-          <p style="margin: 5px 0;">Follow us on <a href="https://facebook.com" style="color: #4A6741;">Facebook</a> | Visit <a href="https://hosla.in" style="color: #4A6741;">hosla.in</a></p>
+          <p style="margin: 5px 0;">Follow us on <a href="https://www.facebook.com/shraddhawelfareassociation" style="color: #4A6741;">Facebook</a> | Visit <a href="https://hosla.in" style="color: #4A6741;">hosla.in</a></p>
         </div>
       </body>
       </html>

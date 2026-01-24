@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { FAQSection } from "@/components/legal/FAQSection";
 import { Scale, Shield, FileText, AlertTriangle, Upload, CheckCircle, Loader2, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -265,8 +266,8 @@ export default function LegalResources() {
         </div>
         
         {/* Bottom Wave */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
+        <div className="absolute -bottom-px left-0 right-0">
+          <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto block">
             <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="hsl(var(--background))"/>
           </svg>
         </div>
@@ -354,8 +355,10 @@ export default function LegalResources() {
         </div>
       </section>
 
+      <FAQSection />
+
       {/* Report Form */}
-      <section className="py-16 lg:py-24 bg-card">
+      <section className="bg-card pb-16 lg:pb-24">
         {/* Parallax Header */}
         <div 
           className="relative h-64 md:h-80 lg:h-96 mb-12 overflow-hidden"

@@ -85,7 +85,7 @@ export function Footer() {
             <h3 className="font-semibold text-foreground">Follow Us</h3>
             <div className="flex flex-col gap-2">
               <a
-                href="https://facebook.com"
+                href="https://www.facebook.com/shraddhawelfareassociation"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
