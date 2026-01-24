@@ -116,7 +116,7 @@ serve(async (req) => {
         
         <div style="background: #f5f5f5; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; font-size: 12px; color: #666;">
           <p style="margin: 0;">Shraddha Welfare Association | Bishnupur, West Bengal</p>
-          <p style="margin: 5px 0;">Follow us on <a href="https://www.facebook.com/shraddhawelfareassociation" style="color: #4A6741;">Facebook</a> | Visit <a href="https://hosla.in" style="color: #4A6741;">hosla.in</a></p>
+          <p style="margin: 5px 0;">Follow us on <a href="https://www.facebook.com/shraddhawelfareassociation" style="color: #4A6741;">Facebook</a> | Visit <a href="https://shraddha.hosla.in" style="color: #4A6741;">shraddha.hosla.in</a></p>
         </div>
       </body>
       </html>
