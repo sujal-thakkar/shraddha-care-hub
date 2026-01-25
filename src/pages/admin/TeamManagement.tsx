@@ -38,6 +38,7 @@ interface TeamMember {
 
 const CATEGORY_OPTIONS: { value: TeamCategory; label: string }[] = [
   { value: "president", label: "President" },
+  { value: "board_member", label: "Board Member" },
   { value: "core", label: "Core Team" },
   { value: "senior_members", label: "Senior Members" },
   { value: "advocates", label: "Advocates" },

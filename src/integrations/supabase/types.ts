@@ -473,6 +473,7 @@ export type Database = {
         | "volunteers_social_media"
         | "volunteers_design"
         | "interns"
+        | "board_member"
       volunteer_status: "pending" | "contacted" | "accepted" | "rejected"
     }
     CompositeTypes: {
@@ -616,6 +617,7 @@ export const Constants = {
         "volunteers_social_media",
         "volunteers_design",
         "interns",
+        "board_member",
       ],
       volunteer_status: ["pending", "contacted", "accepted", "rejected"],
     },

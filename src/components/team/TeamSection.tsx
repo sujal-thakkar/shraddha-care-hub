@@ -25,16 +25,17 @@ interface TeamMember {
 
 const CATEGORY_CONFIG: Record<TeamCategory, { label: string; order: number }> = {
   president: { label: "President", order: 1 },
-  core: { label: "Core Team", order: 2 },
-  senior_members: { label: "Senior Members", order: 3 },
-  advocates: { label: "Advocates", order: 4 },
-  counsellors: { label: "Counsellors", order: 5 },
-  volunteers_technical: { label: "Technical Volunteers", order: 6 },
-  volunteers_hr: { label: "HR Volunteers", order: 7 },
-  volunteers_marketing: { label: "Marketing Volunteers", order: 8 },
-  volunteers_social_media: { label: "Social Media Managers", order: 9 },
-  volunteers_design: { label: "Design Volunteers", order: 10 },
-  interns: { label: "Interns", order: 11 },
+  board_member: { label: "Board Member", order: 2 },
+  core: { label: "Core Team", order: 3 },
+  senior_members: { label: "Senior Members", order: 4 },
+  advocates: { label: "Advocates", order: 5 },
+  counsellors: { label: "Counsellors", order: 6 },
+  volunteers_technical: { label: "Technical Volunteers", order: 7 },
+  volunteers_hr: { label: "HR Volunteers", order: 8 },
+  volunteers_marketing: { label: "Marketing Volunteers", order: 9 },
+  volunteers_social_media: { label: "Social Media Managers", order: 10 },
+  volunteers_design: { label: "Design Volunteers", order: 11 },
+  interns: { label: "Interns", order: 12 },
 };
 
 export function TeamSection() {
