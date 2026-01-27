@@ -20,6 +20,7 @@ import AdminReports from "./pages/admin/Reports";
 import AdminVolunteers from "./pages/admin/Volunteers";
 import AdminPartners from "./pages/admin/Partners";
 import AdminDonations from "./pages/admin/Donations";
+import AdminProjectsEvents from "./pages/admin/ProjectsEvents";
 import AdminSettings from "./pages/admin/Settings";
 import AdminTeamManagement from "./pages/admin/TeamManagement";
 import NotFound from "./pages/NotFound";
@@ -50,6 +51,7 @@ const App = () => (
             <Route path="volunteers" element={<AdminVolunteers />} />
             <Route path="partners" element={<AdminPartners />} />
             <Route path="donations" element={<AdminDonations />} />
+            <Route path="projects" element={<AdminProjectsEvents />} />
             <Route path="team" element={<AdminTeamManagement />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>

@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Marquee } from "@/components/ui/marquee";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { PartnerContactModal } from "@/components/corporate/PartnerContactModal";
-import { Building2, Phone, CheckCircle, ArrowRight, Mail, Quote } from "lucide-react";
+import { ProjectsEventsSection } from "@/components/corporate/ProjectsEventsSection";
+import { Building2, Phone, CheckCircle, ArrowRight, Mail } from "lucide-react";
 
 import corporateCareHeroBg from "@/assets/corporate-care-hero-bg.jpg";
 import corporateCtaBg from "@/assets/corporate-cta-bg.jpg";
@@ -16,9 +17,6 @@ import cpcHelpline from "@/assets/cpc-helpline.png";
 import cpcBenefits1 from "@/assets/cpc-benefits-1.png";
 import cpcBenefits2 from "@/assets/cpc-benefits-2.png";
 import cpcBenefits3 from "@/assets/cpc-benefits-3.png";
-import testimonial1 from "@/assets/testimonial-1.jpg";
-import testimonial2 from "@/assets/testimonial-2.jpg";
-import testimonial3 from "@/assets/testimonial-3.jpg";
 
 export default function CorporateCare() {
   const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false);
@@ -62,30 +60,6 @@ export default function CorporateCare() {
     "Tax benefits under CSR initiatives",
     "Customized programs for your workforce size",
     "Regular impact reports and feedback"
-  ];
-
-  const testimonials = [
-    {
-      quote: "Shraddha's Corporate Parental Care program has been a game-changer for our employees. They now work with peace of mind knowing their parents are well cared for.",
-      author: "Priya Sharma",
-      role: "HR Director",
-      company: "Catalog",
-      image: testimonial2
-    },
-    {
-      quote: "The positive impact on employee morale and productivity has exceeded our expectations. This partnership truly reflects our values as a people-first organization.",
-      author: "Rajesh Kumar",
-      role: "CEO",
-      company: "BuildingBlocks",
-      image: testimonial1
-    },
-    {
-      quote: "Our team members feel valued and supported. The regular updates and professional care provided by Shraddha have strengthened our employee engagement significantly.",
-      author: "Anita Desai",
-      role: "Head of People Operations",
-      company: "Ikigailabs",
-      image: testimonial3
-    }
   ];
 
   const partnerLogos = [
@@ -370,71 +344,8 @@ export default function CorporateCare() {
         </Marquee>
       </section>
 
-      {/* Testimonials */}
-      <section 
-        className="relative py-16 lg:py-24 overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, rgba(88, 55, 163, 0.08) 0%, rgba(120, 80, 200, 0.12) 100%)' }}
-      >
-        {/* Decorative quote marks */}
-        <div className="absolute top-10 left-10 opacity-5">
-          <Quote className="w-32 h-32" style={{ color: 'hsl(250, 70%, 45%)' }} />
-        </div>
-        <div className="absolute bottom-10 right-10 opacity-5 rotate-180">
-          <Quote className="w-32 h-32" style={{ color: 'hsl(250, 70%, 45%)' }} />
-        </div>
-        
-        <div className="container relative z-10">
-          <ScrollReveal>
-            <div className="text-center mb-12">
-              <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">
-                What Our Partners Say
-              </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                Hear from organizations that have transformed their employee experience with our program.
-              </p>
-            </div>
-          </ScrollReveal>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {testimonials.map((testimonial, index) => (
-              <ScrollReveal key={index} delay={index * 150}>
-                <div 
-                  className="relative bg-background rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-border/50 group h-full"
-                >
-                  {/* Purple accent line */}
-                  <div 
-                    className="absolute top-0 left-6 right-6 h-1 rounded-b-full"
-                    style={{ background: 'linear-gradient(90deg, hsl(250, 70%, 45%), hsl(220, 70%, 50%))' }}
-                  />
-                  
-                  <Quote 
-                    className="w-8 h-8 mb-4 opacity-20 group-hover:opacity-40 transition-opacity" 
-                    style={{ color: 'hsl(250, 70%, 45%)' }}
-                  />
-                  
-                  <p className="text-muted-foreground mb-6 leading-relaxed italic">
-                    "{testimonial.quote}"
-                  </p>
-                  
-                  <div className="flex items-center gap-3">
-                    <img 
-                      src={testimonial.image}
-                      alt={testimonial.author}
-                      className="w-12 h-12 rounded-full object-cover border-2"
-                      style={{ borderColor: 'hsl(250, 70%, 45%)' }}
-                    />
-                    <div>
-                      <p className="font-semibold text-foreground">{testimonial.author}</p>
-                      <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                      <p className="text-sm font-medium" style={{ color: 'hsl(250, 70%, 45%)' }}>{testimonial.company}</p>
-                    </div>
-                  </div>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Projects & Events */}
+      <ProjectsEventsSection />
 
       {/* CTA */}
       <ScrollReveal>

@@ -239,6 +239,51 @@ export type Database = {
         }
         Relationships: []
       }
+      projects_events: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number
+          end_date: string | null
+          id: string
+          is_published: boolean
+          organization: Database["public"]["Enums"]["organization_type"]
+          resource_link: string | null
+          start_date: string
+          status: Database["public"]["Enums"]["project_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          end_date?: string | null
+          id?: string
+          is_published?: boolean
+          organization?: Database["public"]["Enums"]["organization_type"]
+          resource_link?: string | null
+          start_date: string
+          status?: Database["public"]["Enums"]["project_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          end_date?: string | null
+          id?: string
+          is_published?: boolean
+          organization?: Database["public"]["Enums"]["organization_type"]
+          resource_link?: string | null
+          start_date?: string
+          status?: Database["public"]["Enums"]["project_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       report_evidence: {
         Row: {
           created_at: string
@@ -460,6 +505,8 @@ export type Database = {
     Enums: {
       abuse_type: "physical" | "emotional" | "financial" | "neglect" | "other"
       app_role: "admin" | "moderator" | "user"
+      organization_type: "shraddha" | "hosla" | "both"
+      project_status: "upcoming" | "ongoing" | "completed"
       report_status: "new" | "investigating" | "resolved" | "archived"
       team_category:
         | "president"
@@ -604,6 +651,8 @@ export const Constants = {
     Enums: {
       abuse_type: ["physical", "emotional", "financial", "neglect", "other"],
       app_role: ["admin", "moderator", "user"],
+      organization_type: ["shraddha", "hosla", "both"],
+      project_status: ["upcoming", "ongoing", "completed"],
       report_status: ["new", "investigating", "resolved", "archived"],
       team_category: [
         "president",
