@@ -16,6 +16,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { ImageUpload } from "@/components/ui/image-upload";
+import { useImageUpload } from "@/hooks/use-image-upload";
 import { Plus, Pencil, Trash2, CalendarIcon, ExternalLink, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -41,6 +43,7 @@ interface FormData {
   title: string;
   description: string;
   location: string;
+  poster_url: string;
   start_date: Date | undefined;
   end_date: Date | undefined;
   status: ProjectStatus;
@@ -54,6 +57,7 @@ const defaultFormData: FormData = {
   title: "",
   description: "",
   location: "",
+  poster_url: "",
   start_date: undefined,
   end_date: undefined,
   status: "upcoming",
@@ -70,6 +74,13 @@ export default function AdminProjectsEvents() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormData>(defaultFormData);
+
+  const { upload: uploadPoster, isUploading: isPosterUploading } = useImageUpload({
+    bucket: "project-posters",
+    folder: "projects-events",
+    maxSizeMB: 1.5,
+    maxWidthOrHeight: 1600,
+  });
 
   const { data: events = [], isLoading } = useQuery({
     queryKey: ["admin-projects-events"],
@@ -91,6 +102,7 @@ export default function AdminProjectsEvents() {
         title: data.title,
         description: data.description || null,
         location: data.location || null,
+        poster_url: data.poster_url || null,
         start_date: data.start_date ? format(data.start_date, "yyyy-MM-dd") : null!,
         end_date: data.end_date ? format(data.end_date, "yyyy-MM-dd") : null,
         status: data.status,
@@ -119,6 +131,7 @@ export default function AdminProjectsEvents() {
           title: data.title,
           description: data.description || null,
           location: data.location || null,
+          poster_url: data.poster_url || null,
           start_date: data.start_date ? format(data.start_date, "yyyy-MM-dd") : null!,
           end_date: data.end_date ? format(data.end_date, "yyyy-MM-dd") : null,
           status: data.status,
@@ -182,6 +195,7 @@ export default function AdminProjectsEvents() {
       title: event.title,
       description: event.description || "",
       location: event.location || "",
+      poster_url: event.poster_url || "",
       start_date: event.start_date ? new Date(event.start_date) : undefined,
       end_date: event.end_date ? new Date(event.end_date) : undefined,
       status: event.status,
@@ -406,6 +420,19 @@ export default function AdminProjectsEvents() {
                 placeholder="City, venue, or area"
                 maxLength={200}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="poster_url">Poster Image URL</Label>
+              <ImageUpload
+                value={formData.poster_url}
+                onChange={(url) => setFormData({ ...formData, poster_url: url })}
+                onUpload={uploadPoster}
+                isUploading={isPosterUploading}
+              />
+              <p className="text-xs text-muted-foreground">
+                Upload a poster (auto-optimized). Recommended 1600px wide, max 1.5MB.
+              </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">

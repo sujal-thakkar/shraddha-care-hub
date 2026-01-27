@@ -249,6 +249,7 @@ export type Database = {
           is_published: boolean
           location: string | null
           organization: Database["public"]["Enums"]["organization_type"]
+          poster_url: string | null
           resource_link: string | null
           start_date: string
           status: Database["public"]["Enums"]["project_status"]
@@ -264,6 +265,7 @@ export type Database = {
           is_published?: boolean
           location?: string | null
           organization?: Database["public"]["Enums"]["organization_type"]
+          poster_url?: string | null
           resource_link?: string | null
           start_date: string
           status?: Database["public"]["Enums"]["project_status"]
@@ -279,6 +281,7 @@ export type Database = {
           is_published?: boolean
           location?: string | null
           organization?: Database["public"]["Enums"]["organization_type"]
+          poster_url?: string | null
           resource_link?: string | null
           start_date?: string
           status?: Database["public"]["Enums"]["project_status"]
