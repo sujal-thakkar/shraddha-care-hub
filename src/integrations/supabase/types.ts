@@ -247,6 +247,7 @@ export type Database = {
           end_date: string | null
           id: string
           is_published: boolean
+          location: string | null
           organization: Database["public"]["Enums"]["organization_type"]
           resource_link: string | null
           start_date: string
@@ -261,6 +262,7 @@ export type Database = {
           end_date?: string | null
           id?: string
           is_published?: boolean
+          location?: string | null
           organization?: Database["public"]["Enums"]["organization_type"]
           resource_link?: string | null
           start_date: string
@@ -275,6 +277,7 @@ export type Database = {
           end_date?: string | null
           id?: string
           is_published?: boolean
+          location?: string | null
           organization?: Database["public"]["Enums"]["organization_type"]
           resource_link?: string | null
           start_date?: string

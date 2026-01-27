@@ -40,6 +40,7 @@ const ORG_OPTIONS: { value: OrganizationType; label: string }[] = [
 interface FormData {
   title: string;
   description: string;
+  location: string;
   start_date: Date | undefined;
   end_date: Date | undefined;
   status: ProjectStatus;
@@ -52,6 +53,7 @@ interface FormData {
 const defaultFormData: FormData = {
   title: "",
   description: "",
+  location: "",
   start_date: undefined,
   end_date: undefined,
   status: "upcoming",
@@ -88,6 +90,7 @@ export default function AdminProjectsEvents() {
       const { error } = await supabase.from("projects_events").insert({
         title: data.title,
         description: data.description || null,
+        location: data.location || null,
         start_date: data.start_date ? format(data.start_date, "yyyy-MM-dd") : null!,
         end_date: data.end_date ? format(data.end_date, "yyyy-MM-dd") : null,
         status: data.status,
@@ -115,6 +118,7 @@ export default function AdminProjectsEvents() {
         .update({
           title: data.title,
           description: data.description || null,
+          location: data.location || null,
           start_date: data.start_date ? format(data.start_date, "yyyy-MM-dd") : null!,
           end_date: data.end_date ? format(data.end_date, "yyyy-MM-dd") : null,
           status: data.status,
@@ -177,6 +181,7 @@ export default function AdminProjectsEvents() {
     setFormData({
       title: event.title,
       description: event.description || "",
+      location: event.location || "",
       start_date: event.start_date ? new Date(event.start_date) : undefined,
       end_date: event.end_date ? new Date(event.end_date) : undefined,
       status: event.status,
@@ -280,6 +285,11 @@ export default function AdminProjectsEvents() {
                         <TableRow key={event.id}>
                           <TableCell className="font-medium max-w-[200px]">
                             <div className="truncate" title={event.title}>{event.title}</div>
+                            {event.location && (
+                              <div className="text-xs text-muted-foreground mt-1">
+                                {event.location}
+                              </div>
+                            )}
                             {event.resource_link && (
                               <a 
                                 href={event.resource_link} 
@@ -384,6 +394,17 @@ export default function AdminProjectsEvents() {
                 placeholder="Brief description of the event"
                 maxLength={1000}
                 rows={3}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="location">Location</Label>
+              <Input
+                id="location"
+                value={formData.location}
+                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                placeholder="City, venue, or area"
+                maxLength={200}
               />
             </div>
 

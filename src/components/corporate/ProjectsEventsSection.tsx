@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Calendar, Loader2 } from "lucide-react";
+import { ExternalLink, Calendar, Loader2, MapPin } from "lucide-react";
 import { format } from "date-fns";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -147,6 +147,13 @@ export function ProjectsEventsSection() {
                         {event.end_date && ` - ${format(new Date(event.end_date), "MMM d, yyyy")}`}
                       </span>
                     </div>
+
+                    {event.location && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                        <MapPin className="h-4 w-4" style={{ color: 'hsl(250, 70%, 45%)' }} />
+                        <span>{event.location}</span>
+                      </div>
+                    )}
                     
                     {event.resource_link && (
                       <Button 
