@@ -11,6 +11,7 @@ const navItems = [
   { name: "Corporate Care", path: "/corporate-care" },
   { name: "Legal Resources", path: "/legal-resources" },
   { name: "Volunteer", path: "/volunteer" },
+  { name: "Games", path: "/games" },
   { name: "Donate", path: "/donate" },
   { name: "Contact", path: "/contact" },
 ];

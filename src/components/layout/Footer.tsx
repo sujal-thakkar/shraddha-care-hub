@@ -45,6 +45,9 @@ export function Footer() {
               <Link to="/volunteer" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                 Volunteer
               </Link>
+              <Link to="/games" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                Games
+              </Link>
               <Link to="/donate" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                 Donate
               </Link>
