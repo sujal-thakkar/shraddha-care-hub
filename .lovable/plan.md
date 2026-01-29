@@ -1,89 +1,157 @@
 
-# Mobile Carousel for Projects & Events Section
+
+# 3D Card Effect for Hero Carousel
 
 ## Overview
-Transform the Projects & Events section on the Corporate Care page to display cards in a horizontal carousel format on mobile devices, with auto-play functionality and swipe gesture support. On larger screens (tablets and desktops), the current grid layout will be preserved.
+Transform the existing hero section carousel into an immersive 3D card experience. Each carousel slide will feature interactive 3D perspective effects on hover, with text overlays and optional CTA buttons that respond to mouse movement.
 
 ---
 
 ## What Will Change
 
-### Mobile View (screens < 768px)
-- Cards displayed horizontally in a carousel, one card visible at a time
-- Auto-carousel that advances every 4 seconds
-- Swipe gesture support for manual navigation (built into Embla Carousel)
-- Dot indicators to show current position and total slides
-- Auto-play pauses when user interacts with the carousel
+### Visual Effects
+- Cards tilt and rotate based on mouse position (3D perspective)
+- Elements within cards "float" at different depths (translateZ)
+- Smooth transitions when hovering/leaving cards
+- Text and buttons appear to pop out from the image
 
-### Desktop/Tablet View (screens >= 768px)
-- Current grid layout preserved (2 columns on tablet, 3 columns on desktop)
-- No changes to existing functionality
+### Content Structure
+Each card will include:
+- Background image (existing)
+- Title text (floating at depth)
+- Description/subtitle (floating at greater depth)
+- Optional CTA button (highest depth)
+- All with 3D perspective transforms
 
 ---
 
-## Implementation Details
+## Implementation Approach
 
-### Responsive Layout Strategy
-The component will use the existing `useIsMobile` hook to detect screen size and conditionally render either:
-- **Mobile**: Carousel component with auto-play
-- **Desktop**: Current CSS grid layout
+### Step 1: Create the 3D Card Components
+Create a new file `src/components/ui/3d-card.tsx` containing:
+- `CardContainer` - Wrapper that tracks mouse position and applies rotation
+- `CardBody` - The 3D-transformed card body
+- `CardItem` - Individual elements with customizable translateZ depth
+- `MouseEnterContext` - Context to share hover state between components
 
-### Technical Approach
-
-**File to Modify:** `src/components/corporate/ProjectsEventsSection.tsx`
-
-**Changes:**
-1. Import the existing Carousel components from `@/components/ui/carousel`
-2. Import the `useIsMobile` hook from `@/hooks/use-mobile`
-3. Add state for carousel API and auto-play pause control
-4. Implement auto-play using `setInterval` (following the pattern from `ImpactGallery.tsx`)
-5. Create conditional rendering based on mobile detection
-6. Add dot indicators for slide position feedback
-
-### Code Structure
+### Step 2: Update Hero Carousel Data Structure
+Extend the `heroImages` array to include:
 
 ```text
-ProjectsEventsSection
-├── useIsMobile() - detect mobile viewport
-├── CarouselApi state - control carousel programmatically
-├── isPaused state - track user interaction
-├── useEffect for autoplay (4-second interval)
-│
-└── Render Logic:
-    ├── Mobile (isMobile = true):
-    │   ├── Carousel wrapper with touch handling
-    │   ├── CarouselContent with full-width items
-    │   ├── ProjectEventCard for each event
-    │   └── Dot indicators for navigation
-    │
-    └── Desktop (isMobile = false):
-        └── Current grid layout (unchanged)
+{
+  src: string,           // Image source
+  alt: string,           // Alt text
+  title?: string,        // Optional title overlay
+  description?: string,  // Optional description
+  ctaText?: string,      // Optional button text
+  ctaLink?: string       // Optional button link
+}
 ```
 
-### Carousel Configuration
-- **Loop**: Enabled for infinite scrolling
-- **Align**: "start" for proper card alignment
-- **Auto-play**: 4-second interval (matching existing carousels in the project)
-- **Pause on interaction**: Carousel pauses when user swipes or touches
+### Step 3: Redesign HeroCarousel Component
+Replace the current flat image display with 3D cards:
+- Wrap each slide in `CardContainer` for mouse tracking
+- Use `CardBody` for the image container
+- Layer `CardItem` elements for text and buttons at different depths
+- Maintain existing auto-play, pause-on-hover, and dot indicators
 
-### Visual Additions for Mobile
-- Dot indicators below the carousel (purple theme)
-- Subtle animation on slide change
-- Touch-friendly gesture area
-
----
-
-## Files Affected
-
-| File | Change Type | Description |
-|------|-------------|-------------|
-| `src/components/corporate/ProjectsEventsSection.tsx` | Modify | Add mobile carousel logic with responsive rendering |
+### Step 4: Styling Considerations
+- Dark gradient overlay on images for text readability
+- Text with drop shadows for visibility
+- Responsive design (3D effect may be reduced on touch devices)
+- Maintain aspect ratio and rounded corners
 
 ---
 
-## Consistency with Existing Patterns
-This implementation follows the same patterns used in:
-- `ImpactGallery.tsx` - Auto-play with pause on hover, CarouselApi usage
-- `HeroCarousel.tsx` - 4-second interval, dot indicators
+## Technical Details
 
-No new dependencies required - uses existing `embla-carousel-react` package already installed and the Carousel UI components already in the project.
+### Files to Create
+| File | Description |
+|------|-------------|
+| `src/components/ui/3d-card.tsx` | Core 3D card components with perspective transforms |
+
+### Files to Modify
+| File | Description |
+|------|-------------|
+| `src/components/home/HeroCarousel.tsx` | Integrate 3D cards, add content data structure |
+
+---
+
+## 3D Card Component Structure
+
+```text
+CardContainer (perspective: 1000px)
+├── tracks mouse position
+├── applies rotateX/rotateY based on cursor
+└── provides MouseEnterContext
+
+CardBody (preserve-3d transform)
+└── contains all card content
+
+CardItem (individual depth layers)
+├── translateZ: 50px  → Title (subtle float)
+├── translateZ: 60px  → Description (medium float)
+├── translateZ: 100px → Image (base layer)
+└── translateZ: 20px  → CTA Button (prominent float)
+```
+
+---
+
+## Enhanced Hero Data Structure
+
+```text
+Example Card:
+─────────────────────────────
+Image: awareness-banner.png
+Title: "Stop Elder Abuse"
+Description: "Join our campaign against domestic abuse of elderly"
+CTA: "Learn More" → /about
+─────────────────────────────
+```
+
+Suggested content for each image:
+1. **Awareness Banner** - "Stop Elder Abuse" with CTA to Legal Resources
+2. **Family Illustration** - "Family Support Network" with CTA to About
+3. **Elder Abuse Awareness** - "World Elder Abuse Awareness Day" with CTA to Volunteer
+4. **Cloth Distribution** - "Community Outreach" with CTA to Donate
+5. **Team Event** - "Join Our Team" with CTA to Volunteer
+6. **Organization Collage** - "Our Impact" with CTA to About
+
+---
+
+## Mobile/Touch Considerations
+- 3D effect works on hover (desktop)
+- On touch devices: subtle static tilt or tap-to-activate
+- Maintain swipe functionality for carousel
+- Text overlays always visible on mobile
+
+---
+
+## Visual Hierarchy on Each Card
+
+```text
+┌─────────────────────────────────────┐
+│                                     │
+│         [Background Image]          │
+│                                     │
+│    ┌─────────────────────────┐      │
+│    │   TITLE (bold, large)   │ ← translateZ: 50
+│    │                         │      │
+│    │   Description text      │ ← translateZ: 60
+│    │   with subtle style     │      │
+│    │                         │      │
+│    │   [ CTA Button ]        │ ← translateZ: 20
+│    └─────────────────────────┘      │
+│                                     │
+│  ● ● ● ○ ○ ○  (dot indicators)     │
+└─────────────────────────────────────┘
+```
+
+---
+
+## Dependencies
+- Uses existing `cn` utility from `@/lib/utils`
+- React Context for mouse state sharing
+- CSS transforms with preserve-3d
+- No additional packages required
+
