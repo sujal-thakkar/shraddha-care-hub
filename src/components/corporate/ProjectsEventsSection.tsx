@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
@@ -7,6 +7,13 @@ import { Button } from "@/components/ui/button";
 import { ExternalLink, Calendar, Loader2, MapPin } from "lucide-react";
 import { format } from "date-fns";
 import type { Database } from "@/integrations/supabase/types";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  type CarouselApi,
+} from "@/components/ui/carousel";
 
 type ProjectEvent = Database["public"]["Tables"]["projects_events"]["Row"];
 type ProjectStatus = Database["public"]["Enums"]["project_status"];
@@ -214,6 +221,11 @@ const ProjectEventCard = ({
 };
 
 export function ProjectsEventsSection() {
+  const isMobile = useIsMobile();
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
   const { data: events = [], isLoading } = useQuery({
     queryKey: ["public-projects-events"],
     queryFn: async () => {
@@ -229,6 +241,41 @@ export function ProjectsEventsSection() {
       return data as ProjectEvent[];
     },
   });
+
+  // Track current slide
+  useEffect(() => {
+    if (!api) return;
+
+    const onSelect = () => {
+      setCurrent(api.selectedScrollSnap());
+    };
+
+    api.on("select", onSelect);
+    onSelect();
+
+    return () => {
+      api.off("select", onSelect);
+    };
+  }, [api]);
+
+  // Auto-play for mobile carousel
+  useEffect(() => {
+    if (!api || !isMobile || isPaused || events.length <= 1) return;
+
+    const interval = setInterval(() => {
+      api.scrollNext();
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [api, isMobile, isPaused, events.length]);
+
+  const handleInteractionStart = useCallback(() => {
+    setIsPaused(true);
+  }, []);
+
+  const handleInteractionEnd = useCallback(() => {
+    setTimeout(() => setIsPaused(false), 5000);
+  }, []);
 
   const getStatusBadge = (status: ProjectStatus) => {
     if (status === "upcoming") {
@@ -305,6 +352,48 @@ export function ProjectsEventsSection() {
               <p className="text-muted-foreground">No upcoming events at the moment. Check back soon!</p>
             </div>
           </ScrollReveal>
+        ) : isMobile ? (
+          <div
+            onTouchStart={handleInteractionStart}
+            onTouchEnd={handleInteractionEnd}
+          >
+            <Carousel
+              opts={{ loop: true, align: "start" }}
+              setApi={setApi}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-2">
+                {events.map((event, index) => (
+                  <CarouselItem key={event.id} className="pl-2 basis-full">
+                    <ProjectEventCard
+                      event={event}
+                      index={0}
+                      getStatusBadge={getStatusBadge}
+                      getOrgLabel={getOrgLabel}
+                    />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
+            
+            {/* Dot indicators */}
+            {events.length > 1 && (
+              <div className="flex justify-center gap-2 mt-6">
+                {events.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => api?.scrollTo(index)}
+                    className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                      index === current
+                        ? "w-6 bg-[hsl(250,70%,45%)]"
+                        : "bg-[hsl(250,70%,45%)]/30 hover:bg-[hsl(250,70%,45%)]/50"
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {events.map((event, index) => (
