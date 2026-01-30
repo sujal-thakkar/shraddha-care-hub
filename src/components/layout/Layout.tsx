@@ -11,19 +11,10 @@ interface LayoutProps {
   children: ReactNode;
 }
 
-// "Report Elder Abuse" in major Indian regional languages
-const reportTexts = [
-  "Report Elder Abuse",           // English
-  "बुजुर्ग शोषण रिपोर्ट करें",      // Hindi
-  "প্রবীণ নির্যাতন রিপোর্ট",         // Bengali
-  "முதியோர் துஷ்பிரயோகம் புகார்",    // Tamil
-  "వృద్ధుల దుర్వినియోగం నివేదిక",    // Telugu
-  "वृद्ध शोषण तक्रार करा",          // Marathi
-  "વૃદ્ધ દુર્વ્યવહારની જાણ કરો",      // Gujarati
-  "ಹಿರಿಯರ ದುರುಪಯೋಗ ವರದಿ",        // Kannada
-  "മുതിർന്ന പീഡനം റിപ്പോർട്ട്",       // Malayalam
-  "ਬਜ਼ੁਰਗ ਦੁਰਵਿਵਹਾਰ ਰਿਪੋਰਟ",        // Punjabi
-  "ବୟସ୍କ ନିର୍ଯ୍ୟାତନ ରିପୋର୍ଟ",        // Odia
+// Banner announcement messages
+const bannerMessages = [
+  "🛡️ Report Elder Abuse — Your voice can protect our seniors. Speak up, stay anonymous.",
+  "🎮 NEW: Fun Games for Seniors — Enjoy puzzles & brain teasers at your fingertips!",
 ];
 
 export function Layout({ children }: LayoutProps) {
@@ -31,25 +22,20 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Sticky Report Elder Abuse Banner */}
+      {/* Sticky Announcement Banner */}
       <StickyBanner 
-        className="bg-destructive text-destructive-foreground"
+        className="bg-gradient-to-r from-blue-600 to-blue-500 text-white"
         hideOnScroll={false}
       >
-        <button
-          onClick={() => setIsQuickReportOpen(true)}
-          className="flex items-center gap-2 hover:opacity-90 transition-opacity"
-        >
-          <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+        <div className="flex items-center gap-2">
           <span className="text-sm font-medium">
             <TextFlip 
-              words={reportTexts} 
-              duration={2500} 
-              className="min-w-[120px] sm:min-w-[180px]"
+              words={bannerMessages} 
+              duration={4000} 
+              className="min-w-[280px] sm:min-w-[400px] text-center"
             />
           </span>
-          <span className="hidden sm:inline text-sm opacity-80 ml-2">— Click to report</span>
-        </button>
+        </div>
       </StickyBanner>
 
       <Header />
@@ -57,7 +43,7 @@ export function Layout({ children }: LayoutProps) {
       <Footer />
       <ScrollToTopButton />
       
-      {/* Floating Report Elder Abuse Button - Rectangular with animated multilingual text */}
+      {/* Floating Report Elder Abuse Button */}
       <button
         onClick={() => setIsQuickReportOpen(true)}
         className="fixed bottom-24 right-4 sm:right-6 z-50 group"
@@ -70,11 +56,7 @@ export function Layout({ children }: LayoutProps) {
           {/* Main button */}
           <div className="relative flex items-center gap-2 px-4 py-3 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
             <AlertTriangle className="h-5 w-5 flex-shrink-0" />
-            <TextFlip 
-              words={reportTexts} 
-              duration={2500} 
-              className="text-sm font-semibold min-w-[140px] sm:min-w-[180px] text-left"
-            />
+            <span className="text-sm font-semibold">Report Elder Abuse</span>
           </div>
         </div>
       </button>
