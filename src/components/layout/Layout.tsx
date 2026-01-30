@@ -5,6 +5,7 @@ import { ScrollToTopButton } from "@/components/ui/scroll-to-top-button";
 import { AlertTriangle } from "lucide-react";
 import { QuickReportModal } from "@/components/QuickReportModal";
 import { TextFlip } from "@/components/ui/text-flip";
+import { StickyBanner } from "@/components/ui/sticky-banner";
 
 interface LayoutProps {
   children: ReactNode;
@@ -30,6 +31,27 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* Sticky Report Elder Abuse Banner */}
+      <StickyBanner 
+        className="bg-destructive text-destructive-foreground"
+        hideOnScroll={false}
+      >
+        <button
+          onClick={() => setIsQuickReportOpen(true)}
+          className="flex items-center gap-2 hover:opacity-90 transition-opacity"
+        >
+          <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+          <span className="text-sm font-medium">
+            <TextFlip 
+              words={reportTexts} 
+              duration={2500} 
+              className="min-w-[120px] sm:min-w-[180px]"
+            />
+          </span>
+          <span className="hidden sm:inline text-sm opacity-80 ml-2">— Click to report</span>
+        </button>
+      </StickyBanner>
+
       <Header />
       <main className="flex-1">{children}</main>
       <Footer />
