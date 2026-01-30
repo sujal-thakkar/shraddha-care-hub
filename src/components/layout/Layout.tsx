@@ -24,9 +24,9 @@ const bannerMessagesShort = [
 ];
 
 const elderAbuseTranslations = [
-  "वृद्धों पर अत्याचार की रिपोर्ट करें",
   "Report Elder Abuse",
   "বয়স্ক নির্যাতনের রিপোর্ট করুন",
+  "वृद्धों पर अत्याचार की रिपोर्ट करें",
   "বয়স্ক নির্যাতনের রিপোর্ট করুন",
 ];
 
