@@ -123,48 +123,6 @@ export function HeroCarousel() {
             </div>
           ))}
 
-          {/* Dark gradient overlay for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/30 to-transparent pointer-events-none" />
-
-          {/* Floating text content */}
-          <div className="absolute bottom-8 left-6 right-6 md:bottom-12 md:left-10 md:right-10 text-primary-foreground z-10">
-            {currentSlide.title && (
-              <CardItem
-                translateZ={50}
-                className="mb-2"
-              >
-                <h3 className="text-xl md:text-3xl font-bold drop-shadow-lg">
-                  {currentSlide.title}
-                </h3>
-              </CardItem>
-            )}
-
-            {currentSlide.description && (
-              <CardItem
-                translateZ={60}
-                className="mb-4"
-              >
-                <p className="text-sm md:text-lg opacity-90 drop-shadow-md max-w-md">
-                  {currentSlide.description}
-                </p>
-              </CardItem>
-            )}
-
-            {currentSlide.ctaText && currentSlide.ctaLink && (
-              <CardItem translateZ={80}>
-                <Button
-                  asChild
-                  variant="heroOutline"
-                  size={isMobile ? "sm" : "default"}
-                  className="shadow-lg"
-                >
-                  <Link to={currentSlide.ctaLink}>
-                    {currentSlide.ctaText}
-                  </Link>
-                </Button>
-              </CardItem>
-            )}
-          </div>
         </CardBody>
       </CardContainer>
 
