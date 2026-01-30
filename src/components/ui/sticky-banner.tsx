@@ -1,6 +1,6 @@
 "use client";
 import React, { SVGProps, useState } from "react";
-import { motion, useMotionValueEvent, useScroll } from "framer-motion";
+import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 export const StickyBanner = ({
@@ -23,43 +23,49 @@ export const StickyBanner = ({
     }
   });
 
-  if (!open) return null;
-
   return (
-    <motion.div
-      className={cn(
-        "sticky inset-x-0 top-0 z-50 flex min-h-12 w-full items-center justify-center px-4 py-2",
-        className,
-      )}
-      initial={{
-        y: -100,
-        opacity: 0,
-      }}
-      animate={{
-        y: 0,
-        opacity: 1,
-      }}
-      transition={{
-        duration: 0.3,
-        ease: "easeInOut",
-      }}
-    >
-      {children}
+    <AnimatePresence>
+      {open ? (
+        <motion.div
+          className={cn(
+            "sticky inset-x-0 top-0 z-50 flex min-h-12 w-full items-center justify-center px-4 py-2",
+            className,
+          )}
+          initial={{
+            y: -100,
+            opacity: 0,
+          }}
+          animate={{
+            y: 0,
+            opacity: 1,
+          }}
+          exit={{
+            y: -100,
+            opacity: 0,
+          }}
+          transition={{
+            duration: 0.3,
+            ease: "easeInOut",
+          }}
+        >
+          {children}
 
-      <motion.button
-        initial={{
-          scale: 0,
-        }}
-        animate={{
-          scale: 1,
-        }}
-        className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer hover:opacity-80 transition-opacity"
-        onClick={() => setOpen(false)}
-        aria-label="Close banner"
-      >
-        <CloseIcon className="h-5 w-5" />
-      </motion.button>
-    </motion.div>
+          <motion.button
+            initial={{
+              scale: 0,
+            }}
+            animate={{
+              scale: 1,
+            }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() => setOpen(false)}
+            aria-label="Close banner"
+          >
+            <CloseIcon className="h-5 w-5" />
+          </motion.button>
+        </motion.div>
+      ) : null}
+    </AnimatePresence>
   );
 };
 

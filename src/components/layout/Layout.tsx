@@ -5,6 +5,7 @@ import { ScrollToTopButton } from "@/components/ui/scroll-to-top-button";
 import { AlertTriangle } from "lucide-react";
 import { QuickReportModal } from "@/components/QuickReportModal";
 import { TextFlip } from "@/components/ui/text-flip";
+import { LayoutTextFlip } from "@/components/ui/layout-text-flip";
 import { StickyBanner } from "@/components/ui/sticky-banner";
 
 interface LayoutProps {
@@ -17,6 +18,18 @@ const bannerMessages = [
   "🎮 NEW: Fun Games for Seniors — Enjoy puzzles & brain teasers at your fingertips!",
 ];
 
+const bannerMessagesShort = [
+  "🛡️ Report Elder Abuse — Stay anonymous.",
+  "🎮 New: Senior Games — Play now!",
+];
+
+const elderAbuseTranslations = [
+  "वृद्धों पर अत्याचार की रिपोर्ट करें",
+  "Report Elder Abuse",
+  "वृद्धों पर अत्याचार की रिपोर्ट करें",
+  "বয়স্ক নির্যাতনের রিপোর্ট করুন",
+];
+
 export function Layout({ children }: LayoutProps) {
   const [isQuickReportOpen, setIsQuickReportOpen] = useState(false);
 
@@ -25,14 +38,19 @@ export function Layout({ children }: LayoutProps) {
       {/* Sticky Announcement Banner */}
       <StickyBanner 
         className="bg-gradient-to-r from-blue-600 to-blue-500 text-white"
-        hideOnScroll={false}
+        hideOnScroll
       >
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">
             <TextFlip 
+              words={bannerMessagesShort} 
+              duration={4000} 
+              className="min-w-[220px] text-center sm:hidden"
+            />
+            <TextFlip 
               words={bannerMessages} 
               duration={4000} 
-              className="min-w-[280px] sm:min-w-[400px] text-center"
+              className="hidden min-w-[400px] text-center sm:inline-flex"
             />
           </span>
         </div>
@@ -51,12 +69,19 @@ export function Layout({ children }: LayoutProps) {
       >
         <div className="relative">
           {/* Pulse animation background */}
-          <div className="absolute inset-0 bg-destructive rounded-lg animate-ping opacity-20" />
+          <div className="absolute inset-0 bg-destructive rounded-lg animate-pulse opacity-20" />
           
           {/* Main button */}
           <div className="relative flex items-center gap-2 px-4 py-3 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
             <AlertTriangle className="h-5 w-5 flex-shrink-0" />
-            <span className="text-sm font-semibold">Report Elder Abuse</span>
+            <LayoutTextFlip
+              text=""
+              words={elderAbuseTranslations}
+              duration={2600}
+              containerClassName="gap-0"
+              textClassName="text-xs sm:text-sm"
+              flipClassName="px-2 py-0.5 text-xs sm:text-sm bg-red-50/90 text-red-900 rounded-md ring-1 ring-red-200/70"
+            />
           </div>
         </div>
       </button>
