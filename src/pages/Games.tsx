@@ -5,9 +5,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
 import ribbonAbstract from "@/assets/ribbon-abstract.jpg";
+import hplPoster from "@/assets/HPL-poster.jpeg";
 import { PictureWordMatch } from "@/components/games/PictureWordMatch";
 const winningCombos = [
   [0, 1, 2],
@@ -98,7 +100,31 @@ function getBestMove(board: CellValue[], aiPlayer: Player, humanPlayer: Player) 
     return best;
   };
 
+  // Make the AI occasionally pick a non-optimal move so the game stays winnable.
+  const shouldMakeMistake = Math.random() < 0.4;
+
   if (availableMoves.length === 0) return null;
+
+  if (shouldMakeMistake) {
+    const safeMoves = availableMoves.filter((move) => {
+      const nextBoard = [...board];
+      nextBoard[move] = aiPlayer;
+      const remaining = nextBoard
+        .map((value, index) => (value === null ? index : null))
+        .filter((value): value is number => value !== null);
+
+      // Avoid moves that let the human win immediately on the next turn.
+      return remaining.every((humanMove) => {
+        const humanBoard = [...nextBoard];
+        humanBoard[humanMove] = humanPlayer;
+        return getWinner(humanBoard) !== humanPlayer;
+      });
+    });
+
+    const pool = safeMoves.length > 0 ? safeMoves : availableMoves;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
   return minimax(board, true).move ?? availableMoves[0];
 }
 
@@ -217,16 +243,47 @@ export default function Games() {
           {`@keyframes draw-line { to { stroke-dashoffset: 0; } }`}
         </style>
         <div className="relative container px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center">
-            <p className="text-sm font-semibold uppercase tracking-widest text-primary">Play & Connect</p>
-            <h1 className="mt-4 font-serif text-3xl lg:text-4xl font-bold text-foreground">Games for Elders</h1>
-            <p className="mt-4 text-muted-foreground">
-              Gentle, brain-friendly games designed for focus, fun, and sharing moments together.
-            </p>
-          </div>
+          <ScrollReveal direction="up" duration={900}>
+            <div className="max-w-3xl mx-auto text-center">
+              <p className="text-sm font-semibold uppercase tracking-widest text-primary">Play & Connect</p>
+              <h1 className="mt-4 font-serif text-3xl lg:text-4xl font-bold text-foreground">Games for Elders</h1>
+              <p className="mt-4 text-muted-foreground">
+                Gentle, brain-friendly games designed for focus, fun, and sharing moments together.
+              </p>
+            </div>
+          </ScrollReveal>
 
-          <div className="mt-12">
-            <Tabs defaultValue="tic-tac-toe" className="w-full">
+          <ScrollReveal direction="up" delay={150} duration={900}>
+            <div className="mt-10 flex flex-col items-center gap-4">
+              <div className="inline-flex items-center rounded-full bg-primary/10 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary">
+                Hosla Premiere League
+              </div>
+              <div className="w-full max-w-md overflow-hidden rounded-3xl border border-primary/20 bg-background/80 shadow-lg">
+                <img
+                  src={hplPoster}
+                  alt="Hosla Premiere League event poster"
+                  className="h-auto w-full object-cover"
+                  loading="lazy"
+                />
+                <div className="px-4 py-3 text-center text-sm text-muted-foreground">
+                  Join us for the Hosla Premiere League — cheer, connect, and play together.
+                </div>
+              </div>
+              <Button asChild size="lg" className="shadow-md">
+                <a
+                  href="https://forms.gle/LQvaRz7msRf4TQUx7"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  https://forms.gle/LQvaRz7msRf4TQUx7
+                </a>
+              </Button>
+            </div>
+          </ScrollReveal>
+
+          <ScrollReveal direction="up" delay={250} duration={900}>
+            <div className="mt-12">
+              <Tabs defaultValue="tic-tac-toe" className="w-full">
               <div className="flex justify-center">
                 <TabsList className="bg-background shadow-sm flex-wrap h-auto gap-1 p-1">
                   <TabsTrigger value="tic-tac-toe">Tic Tac Toe</TabsTrigger>
@@ -483,8 +540,9 @@ export default function Games() {
                   <PictureWordMatch />
                 </div>
               </TabsContent>
-            </Tabs>
-          </div>
+              </Tabs>
+            </div>
+          </ScrollReveal>
         </div>
       </section>
     </Layout>
