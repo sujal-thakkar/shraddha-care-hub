@@ -1,98 +1,18 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
-import { Clock, Trophy, Star, RefreshCw, CheckCircle2, XCircle, Zap } from "lucide-react";
-
-// Game data with difficulty levels
-interface GameRound {
-  id: number;
-  difficulty: "easy" | "medium" | "hard";
-  image: string;
-  correctAnswer: string;
-  options: string[];
-  timeLimit: number; // in seconds
-  points: number;
-}
-
-// Image URLs using emoji representations for universal compatibility
-const gameRounds: GameRound[] = [
-  // Easy round (1) - 10 points, 15 seconds
-  {
-    id: 1,
-    difficulty: "easy",
-    image: "🍎",
-    correctAnswer: "Apple",
-    options: ["Apple", "Orange", "Banana", "Mango"],
-    timeLimit: 15,
-    points: 10,
-  },
-  // Medium rounds (2) - 20 points, 12 seconds
-  {
-    id: 2,
-    difficulty: "medium",
-    image: "🏠",
-    correctAnswer: "House",
-    options: ["House", "Building", "Hut", "Tent"],
-    timeLimit: 12,
-    points: 20,
-  },
-  {
-    id: 3,
-    difficulty: "medium",
-    image: "🚌",
-    correctAnswer: "Bus",
-    options: ["Car", "Bus", "Van", "Truck"],
-    timeLimit: 12,
-    points: 20,
-  },
-  // Hard rounds (2) - 25 points, 10 seconds
-  {
-    id: 4,
-    difficulty: "hard",
-    image: "🚢",
-    correctAnswer: "Cruise",
-    options: ["Boat", "Ship", "Cruise", "Yacht"],
-    timeLimit: 10,
-    points: 25,
-  },
-  {
-    id: 5,
-    difficulty: "hard",
-    image: "🦅",
-    correctAnswer: "Eagle",
-    options: ["Hawk", "Falcon", "Eagle", "Vulture"],
-    timeLimit: 10,
-    points: 25,
-  },
-];
-
-// Additional game sets for variety
-const gameSets: GameRound[][] = [
-  gameRounds,
-  [
-    { id: 1, difficulty: "easy", image: "🐕", correctAnswer: "Dog", options: ["Cat", "Dog", "Wolf", "Fox"], timeLimit: 15, points: 10 },
-    { id: 2, difficulty: "medium", image: "✈️", correctAnswer: "Airplane", options: ["Airplane", "Helicopter", "Jet", "Drone"], timeLimit: 12, points: 20 },
-    { id: 3, difficulty: "medium", image: "🌻", correctAnswer: "Sunflower", options: ["Rose", "Sunflower", "Daisy", "Tulip"], timeLimit: 12, points: 20 },
-    { id: 4, difficulty: "hard", image: "🎻", correctAnswer: "Violin", options: ["Guitar", "Cello", "Violin", "Viola"], timeLimit: 10, points: 25 },
-    { id: 5, difficulty: "hard", image: "🦎", correctAnswer: "Lizard", options: ["Gecko", "Iguana", "Lizard", "Chameleon"], timeLimit: 10, points: 25 },
-  ],
-  [
-    { id: 1, difficulty: "easy", image: "🌞", correctAnswer: "Sun", options: ["Sun", "Moon", "Star", "Planet"], timeLimit: 15, points: 10 },
-    { id: 2, difficulty: "medium", image: "🎹", correctAnswer: "Piano", options: ["Piano", "Keyboard", "Organ", "Synthesizer"], timeLimit: 12, points: 20 },
-    { id: 3, difficulty: "medium", image: "🦋", correctAnswer: "Butterfly", options: ["Moth", "Butterfly", "Dragonfly", "Bee"], timeLimit: 12, points: 20 },
-    { id: 4, difficulty: "hard", image: "🏛️", correctAnswer: "Museum", options: ["Library", "Museum", "Gallery", "Palace"], timeLimit: 10, points: 25 },
-    { id: 5, difficulty: "hard", image: "🦉", correctAnswer: "Owl", options: ["Crow", "Raven", "Owl", "Hawk"], timeLimit: 10, points: 25 },
-  ],
-];
+import { Clock, Trophy, Star, RefreshCw, CheckCircle2, XCircle, Zap, Volume2, VolumeX } from "lucide-react";
+import { useGameSounds } from "@/hooks/use-game-sounds";
+import { GameRound, getRandomGameSet, getCategoryInfo } from "./gameData";
 
 type GameState = "idle" | "playing" | "roundEnd" | "gameOver";
 
 export function PictureWordMatch() {
   const [gameState, setGameState] = useState<GameState>("idle");
-  const [currentSetIndex, setCurrentSetIndex] = useState(0);
+  const [currentRounds, setCurrentRounds] = useState<GameRound[]>([]);
   const [currentRoundIndex, setCurrentRoundIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(0);
@@ -100,46 +20,70 @@ export function PictureWordMatch() {
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [roundResults, setRoundResults] = useState<{ correct: boolean; points: number; timeTaken: number }[]>([]);
   const [streak, setStreak] = useState(0);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const lastTimeRef = useRef<number>(0);
 
-  const currentRounds = gameSets[currentSetIndex];
+  const { 
+    playCorrect, 
+    playWrong, 
+    playTick, 
+    playUrgentTick, 
+    playVictory, 
+    playGameStart 
+  } = useGameSounds();
+
   const currentRound = currentRounds[currentRoundIndex];
   const totalRounds = currentRounds.length;
   const maxPossibleScore = currentRounds.reduce((sum, r) => sum + r.points, 0);
 
-  // Timer effect
+  // Timer effect with sound
   useEffect(() => {
-    if (gameState !== "playing" || timeLeft <= 0) return;
+    if (gameState !== "playing" || timeLeft <= 0 || !currentRound) return;
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          // Time's up - auto-fail the round
           handleAnswer(null);
           return 0;
         }
+        
+        // Play tick sound
+        if (soundEnabled && prev !== lastTimeRef.current) {
+          if (prev <= 4) {
+            playUrgentTick();
+          } else {
+            playTick();
+          }
+        }
+        lastTimeRef.current = prev - 1;
+        
         return prev - 1;
       });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [gameState, timeLeft]);
+  }, [gameState, timeLeft, currentRound, soundEnabled, playTick, playUrgentTick]);
 
   const startGame = useCallback(() => {
-    // Randomize game set
-    const randomSetIndex = Math.floor(Math.random() * gameSets.length);
-    setCurrentSetIndex(randomSetIndex);
+    const newRounds = getRandomGameSet();
+    setCurrentRounds(newRounds);
     setCurrentRoundIndex(0);
     setScore(0);
     setRoundResults([]);
     setStreak(0);
     setSelectedAnswer(null);
     setIsCorrect(null);
-    setTimeLeft(gameSets[randomSetIndex][0].timeLimit);
+    setTimeLeft(newRounds[0].timeLimit);
+    lastTimeRef.current = newRounds[0].timeLimit;
     setGameState("playing");
-  }, []);
+    
+    if (soundEnabled) {
+      playGameStart();
+    }
+  }, [soundEnabled, playGameStart]);
 
   const handleAnswer = useCallback((answer: string | null) => {
-    if (gameState !== "playing") return;
+    if (gameState !== "playing" || !currentRound) return;
 
     const isAnswerCorrect = answer === currentRound.correctAnswer;
     const timeTaken = currentRound.timeLimit - timeLeft;
@@ -149,7 +93,6 @@ export function PictureWordMatch() {
     setGameState("roundEnd");
 
     if (isAnswerCorrect) {
-      // Bonus points for quick answers
       const timeBonus = Math.floor((timeLeft / currentRound.timeLimit) * 5);
       const streakBonus = streak >= 2 ? Math.floor(currentRound.points * 0.1 * streak) : 0;
       const totalPoints = currentRound.points + timeBonus + streakBonus;
@@ -158,7 +101,10 @@ export function PictureWordMatch() {
       setStreak((prev) => prev + 1);
       setRoundResults((prev) => [...prev, { correct: true, points: totalPoints, timeTaken }]);
 
-      // Celebration confetti
+      if (soundEnabled) {
+        playCorrect();
+      }
+
       confetti({
         particleCount: 80 + streak * 20,
         spread: 60,
@@ -168,8 +114,12 @@ export function PictureWordMatch() {
     } else {
       setStreak(0);
       setRoundResults((prev) => [...prev, { correct: false, points: 0, timeTaken }]);
+      
+      if (soundEnabled) {
+        playWrong();
+      }
     }
-  }, [gameState, currentRound, timeLeft, streak]);
+  }, [gameState, currentRound, timeLeft, streak, soundEnabled, playCorrect, playWrong]);
 
   const nextRound = useCallback(() => {
     if (currentRoundIndex < totalRounds - 1) {
@@ -178,10 +128,15 @@ export function PictureWordMatch() {
       setSelectedAnswer(null);
       setIsCorrect(null);
       setTimeLeft(currentRounds[nextIndex].timeLimit);
+      lastTimeRef.current = currentRounds[nextIndex].timeLimit;
       setGameState("playing");
     } else {
       setGameState("gameOver");
-      // Big celebration for completing the game
+      
+      if (soundEnabled) {
+        playVictory();
+      }
+      
       if (score > maxPossibleScore * 0.6) {
         const duration = 2000;
         const end = Date.now() + duration;
@@ -205,7 +160,7 @@ export function PictureWordMatch() {
         frame();
       }
     }
-  }, [currentRoundIndex, totalRounds, currentRounds, score, maxPossibleScore]);
+  }, [currentRoundIndex, totalRounds, currentRounds, score, maxPossibleScore, soundEnabled, playVictory]);
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -214,13 +169,6 @@ export function PictureWordMatch() {
       case "hard": return "bg-rose-500/20 text-rose-700 border-rose-500/30";
       default: return "bg-muted text-muted-foreground";
     }
-  };
-
-  const getTimeColor = () => {
-    const percentage = (timeLeft / currentRound.timeLimit) * 100;
-    if (percentage > 50) return "bg-emerald-500";
-    if (percentage > 25) return "bg-amber-500";
-    return "bg-rose-500";
   };
 
   const getScoreGrade = () => {
@@ -237,15 +185,26 @@ export function PictureWordMatch() {
     return (
       <Card className="overflow-hidden border-primary/20 shadow-lg">
         <CardHeader className="bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10">
-          <CardTitle className="flex items-center gap-2">
-            <span className="text-2xl">🖼️</span>
-            Picture to Word Match
-          </CardTitle>
-          <CardDescription>Match images with the correct words. Test your visual memory!</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <span className="text-2xl">🖼️</span>
+                Picture to Word Match
+              </CardTitle>
+              <CardDescription>Match images with the correct words. Test your visual memory!</CardDescription>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSoundEnabled(!soundEnabled)}
+              className="shrink-0"
+            >
+              {soundEnabled ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="p-6">
           <div className="max-w-md mx-auto text-center space-y-6">
-            {/* Game preview */}
             <div className="grid grid-cols-3 gap-3 p-4 bg-muted/30 rounded-2xl">
               {["🍎", "🏠", "🚢"].map((emoji, i) => (
                 <div key={i} className="aspect-square rounded-xl bg-background shadow-sm flex items-center justify-center text-4xl">
@@ -254,7 +213,6 @@ export function PictureWordMatch() {
               ))}
             </div>
 
-            {/* Game info */}
             <div className="space-y-3">
               <h3 className="font-semibold text-lg">How to Play</h3>
               <ul className="text-sm text-muted-foreground space-y-2 text-left">
@@ -273,7 +231,6 @@ export function PictureWordMatch() {
               </ul>
             </div>
 
-            {/* Difficulty legend */}
             <div className="flex flex-wrap justify-center gap-2">
               <span className={cn("px-3 py-1 rounded-full text-xs font-medium border", getDifficultyColor("easy"))}>
                 Easy: 10 pts
@@ -285,6 +242,10 @@ export function PictureWordMatch() {
                 Hard: 25 pts
               </span>
             </div>
+
+            <p className="text-xs text-muted-foreground">
+              Categories include: Fruits, Animals, Vehicles, Sports, Music, Indian Food & more!
+            </p>
 
             <Button size="lg" onClick={startGame} className="w-full max-w-xs shadow-lg">
               <Star className="mr-2 h-5 w-5" />
@@ -300,24 +261,33 @@ export function PictureWordMatch() {
   if (gameState === "gameOver") {
     const { grade, message, color } = getScoreGrade();
     const correctCount = roundResults.filter(r => r.correct).length;
+    const category = getCategoryInfo(currentRounds);
 
     return (
       <Card className="overflow-hidden border-primary/20 shadow-lg">
         <CardHeader className="bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10">
-          <CardTitle className="flex items-center gap-2">
-            <Trophy className="h-6 w-6 text-amber-500" />
-            Game Complete!
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Trophy className="h-6 w-6 text-amber-500" />
+              Game Complete!
+            </CardTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSoundEnabled(!soundEnabled)}
+            >
+              {soundEnabled ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
+            </Button>
+          </div>
+          <CardDescription>Category: {category}</CardDescription>
         </CardHeader>
         <CardContent className="p-6">
           <div className="max-w-md mx-auto text-center space-y-6">
-            {/* Score display */}
             <div className="relative">
               <div className={cn("text-7xl font-bold", color)}>{grade}</div>
               <p className="mt-2 text-muted-foreground">{message}</p>
             </div>
 
-            {/* Stats grid */}
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 rounded-xl bg-muted/30 border border-border/60">
                 <div className="text-3xl font-bold text-primary">{score}</div>
@@ -329,7 +299,6 @@ export function PictureWordMatch() {
               </div>
             </div>
 
-            {/* Round breakdown */}
             <div className="space-y-2">
               <h4 className="text-sm font-semibold">Round Breakdown</h4>
               <div className="flex justify-center gap-2">
@@ -362,6 +331,8 @@ export function PictureWordMatch() {
   }
 
   // Playing / Round End states
+  if (!currentRound) return null;
+
   return (
     <Card className="overflow-hidden border-primary/20 shadow-lg">
       <CardHeader className="bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10 pb-3">
@@ -371,8 +342,19 @@ export function PictureWordMatch() {
             <span className={cn("px-2 py-0.5 rounded-full text-xs font-medium border", getDifficultyColor(currentRound.difficulty))}>
               {currentRound.difficulty}
             </span>
+            <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">
+              {currentRound.category}
+            </span>
           </div>
           <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSoundEnabled(!soundEnabled)}
+              className="h-8 w-8"
+            >
+              {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+            </Button>
             {streak >= 2 && (
               <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-violet-500/20 text-violet-700 text-xs font-semibold animate-pulse">
                 <Zap className="h-3 w-3" />
@@ -386,7 +368,6 @@ export function PictureWordMatch() {
           </div>
         </div>
         
-        {/* Timer bar */}
         <div className="mt-3 space-y-1">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
@@ -406,7 +387,6 @@ export function PictureWordMatch() {
       
       <CardContent className="p-6">
         <div className="max-w-lg mx-auto space-y-6">
-          {/* Image display */}
           <div className={cn(
             "relative aspect-square max-w-[200px] mx-auto rounded-2xl flex items-center justify-center transition-all duration-300",
             "bg-gradient-to-br from-muted/50 to-muted shadow-lg border-2",
@@ -416,7 +396,6 @@ export function PictureWordMatch() {
           )}>
             <span className="text-8xl sm:text-9xl select-none">{currentRound.image}</span>
             
-            {/* Result overlay */}
             {gameState === "roundEnd" && (
               <div className={cn(
                 "absolute inset-0 rounded-2xl flex items-center justify-center",
@@ -431,7 +410,6 @@ export function PictureWordMatch() {
             )}
           </div>
 
-          {/* Options grid */}
           <div className="grid grid-cols-2 gap-3">
             {currentRound.options.map((option) => {
               const isSelected = selectedAnswer === option;
@@ -466,7 +444,6 @@ export function PictureWordMatch() {
             })}
           </div>
 
-          {/* Round end feedback */}
           {gameState === "roundEnd" && (
             <div className="text-center space-y-4 animate-fade-in">
               <p className={cn("text-lg font-semibold", isCorrect ? "text-emerald-600" : "text-rose-600")}>
@@ -480,7 +457,6 @@ export function PictureWordMatch() {
             </div>
           )}
 
-          {/* Progress dots */}
           <div className="flex justify-center gap-2 pt-2">
             {currentRounds.map((_, i) => (
               <div
