@@ -48,10 +48,10 @@ const fruitsFoodsSet2: GameRound[] = [
 
 const indianFoodSet: GameRound[] = [
   createRound(1, "easy", "🍚", "Rice", ["Rice", "Wheat", "Flour", "Oats"], "Indian Food"),
-  createRound(2, "medium", "🫓", "Roti", ["Naan", "Roti", "Paratha", "Puri"], "Indian Food"),
+  createRound(2, "medium", "https://images.unsplash.com/photo-1601387434127-20979856e76e?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "Roti", ["Naan", "Roti", "Paratha", "Puri"], "Indian Food"),
   createRound(3, "medium", "🍛", "Curry", ["Soup", "Curry", "Stew", "Gravy"], "Indian Food"),
-  createRound(4, "hard", "🧆", "Vada", ["Pakora", "Samosa", "Vada", "Bhaji"], "Indian Food"),
-  createRound(5, "hard", "🥘", "Biryani", ["Pulao", "Biryani", "Khichdi", "Tehri"], "Indian Food"),
+  createRound(4, "hard", "https://images.unsplash.com/photo-1730191843435-073792ba22bc?q=80&w=627&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "Vada", ["Pakora", "Samosa", "Vada", "Bhaji"], "Indian Food"),
+  createRound(5, "hard", "https://images.unsplash.com/photo-1697155406055-2db32d47ca07?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "Biryani", ["Pulao", "Biryani", "Khichdi", "Tehri"], "Indian Food"),
 ];
 
 // ============ ANIMALS ============
@@ -74,7 +74,7 @@ const animalsSet2: GameRound[] = [
 const birdsSet: GameRound[] = [
   createRound(1, "easy", "🐦", "Bird", ["Bird", "Sparrow", "Finch", "Robin"], "Birds"),
   createRound(2, "medium", "🦅", "Eagle", ["Hawk", "Falcon", "Eagle", "Vulture"], "Birds"),
-  createRound(3, "medium", "🦜", "Parrot", ["Macaw", "Parrot", "Cockatoo", "Parakeet"], "Birds"),
+  createRound(3, "medium", "https://images.unsplash.com/photo-1606383070180-aa3c0a87cd28?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "Parrot", ["Macaw", "Parrot", "Cockatoo", "Parakeet"], "Birds"),
   createRound(4, "hard", "🦉", "Owl", ["Crow", "Raven", "Owl", "Hawk"], "Birds"),
   createRound(5, "hard", "🦚", "Peacock", ["Pheasant", "Peacock", "Turkey", "Quail"], "Birds"),
 ];
@@ -101,7 +101,7 @@ const vehiclesSet2: GameRound[] = [
   createRound(2, "medium", "🏍️", "Motorcycle", ["Scooter", "Motorcycle", "Moped", "Bike"], "Vehicles"),
   createRound(3, "medium", "🚂", "Train", ["Metro", "Train", "Tram", "Subway"], "Vehicles"),
   createRound(4, "hard", "🚀", "Rocket", ["Missile", "Rocket", "Shuttle", "Satellite"], "Vehicles"),
-  createRound(5, "hard", "⛵", "Sailboat", ["Yacht", "Sailboat", "Catamaran", "Dinghy"], "Vehicles"),
+  createRound(5, "hard", "https://plus.unsplash.com/premium_vector-1717732789864-1a6115f6d78a?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "Sailboat", ["Yacht", "Sailboat", "Catamaran", "Dinghy"], "Vehicles"),
 ];
 
 // ============ BUILDINGS & PLACES ============
@@ -109,7 +109,7 @@ const buildingsSet: GameRound[] = [
   createRound(1, "easy", "🏠", "House", ["House", "Building", "Hut", "Tent"], "Buildings"),
   createRound(2, "medium", "🏥", "Hospital", ["Clinic", "Hospital", "Pharmacy", "Lab"], "Buildings"),
   createRound(3, "medium", "🏫", "School", ["College", "School", "University", "Academy"], "Buildings"),
-  createRound(4, "hard", "🏛️", "Museum", ["Library", "Museum", "Gallery", "Palace"], "Buildings"),
+  createRound(4, "hard", "https://images.unsplash.com/photo-1554907984-15263bfd63bd?auto=format&fit=crop&w=800&q=80", "Museum", ["Library", "Museum", "Gallery", "Palace"], "Buildings"),
   createRound(5, "hard", "🏰", "Castle", ["Fort", "Castle", "Palace", "Citadel"], "Buildings"),
 ];
 
@@ -161,7 +161,7 @@ const musicSet: GameRound[] = [
   createRound(2, "medium", "🎹", "Piano", ["Piano", "Keyboard", "Organ", "Synthesizer"], "Music"),
   createRound(3, "medium", "🎺", "Trumpet", ["Horn", "Trumpet", "Trombone", "Bugle"], "Music"),
   createRound(4, "hard", "🎻", "Violin", ["Guitar", "Cello", "Violin", "Viola"], "Music"),
-  createRound(5, "hard", "🪘", "Tabla", ["Drum", "Tabla", "Dholak", "Mridangam"], "Music"),
+  createRound(5, "hard", "https://images.unsplash.com/photo-1597235506549-5392d2b7559a?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "Tabla", ["Drum", "Tabla", "Dholak", "Mridangam"], "Music"),
 ];
 
 // ============ SPORTS ============

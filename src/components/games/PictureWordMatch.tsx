@@ -180,6 +180,16 @@ export function PictureWordMatch() {
     return { grade: "D", message: "Keep trying! Practice makes perfect!", color: "text-rose-500" };
   };
 
+  const isImageSource = (value: string) => {
+    if (!value) return false;
+    return (
+      value.startsWith("http://") ||
+      value.startsWith("https://") ||
+      value.startsWith("/") ||
+      /\.(png|jpe?g|webp|gif|svg)$/i.test(value)
+    );
+  };
+
   // Idle state - Show start screen
   if (gameState === "idle") {
     return (
@@ -394,7 +404,16 @@ export function PictureWordMatch() {
             gameState === "roundEnd" && !isCorrect && "border-rose-500 shadow-rose-500/20",
             gameState === "playing" && "border-primary/20"
           )}>
-            <span className="text-8xl sm:text-9xl select-none">{currentRound.image}</span>
+            {isImageSource(currentRound.image) ? (
+              <img
+                src={currentRound.image}
+                alt={currentRound.correctAnswer}
+                className="h-full w-full rounded-2xl object-contain p-4"
+                loading="lazy"
+              />
+            ) : (
+              <span className="text-8xl sm:text-9xl select-none">{currentRound.image}</span>
+            )}
             
             {gameState === "roundEnd" && (
               <div className={cn(
