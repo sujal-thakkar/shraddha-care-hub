@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
 import ribbonAbstract from "@/assets/ribbon-abstract.jpg";
-
+import { PictureWordMatch } from "@/components/games/PictureWordMatch";
 const winningCombos = [
   [0, 1, 2],
   [3, 4, 5],
@@ -228,9 +228,10 @@ export default function Games() {
           <div className="mt-12">
             <Tabs defaultValue="tic-tac-toe" className="w-full">
               <div className="flex justify-center">
-                <TabsList className="bg-background shadow-sm">
+                <TabsList className="bg-background shadow-sm flex-wrap h-auto gap-1 p-1">
                   <TabsTrigger value="tic-tac-toe">Tic Tac Toe</TabsTrigger>
                   <TabsTrigger value="number-guess">Number Guessing</TabsTrigger>
+                  <TabsTrigger value="picture-word">Picture Match</TabsTrigger>
                 </TabsList>
               </div>
 
@@ -475,6 +476,12 @@ export default function Games() {
                     </div>
                   </CardContent>
                 </Card>
+              </TabsContent>
+
+              <TabsContent value="picture-word">
+                <div className="mt-6">
+                  <PictureWordMatch />
+                </div>
               </TabsContent>
             </Tabs>
           </div>
