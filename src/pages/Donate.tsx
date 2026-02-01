@@ -215,63 +215,6 @@ export default function Donate() {
         </div>
       </section>
 
-      {/* Transparency Pledge */}
-      <section className="py-12 bg-background">
-        <div className="container">
-          <Card className="max-w-4xl mx-auto border-primary/20">
-            <CardContent className="p-8">
-              <div className="flex flex-col md:flex-row items-center gap-6">
-                <img src={announcementIcon} alt="Announcement" className="h-16 w-16 flex-shrink-0" />
-                <div className="text-center md:text-left space-y-3">
-                  <h2 className="font-serif text-2xl font-bold text-foreground">
-                    Our Transparency Pledge
-                  </h2>
-                  <p className="text-muted-foreground">
-                    Every rupee you donate goes directly to supporting seniors. We maintain complete 
-                    transparency in our operations and regularly share impact updates with our donors.
-                  </p>
-                  <a 
-                    href="https://www.facebook.com/shraddhawelfareassociation" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-primary hover:underline"
-                  >
-                    <Facebook className="h-4 w-4" />
-                    Follow our journey on Facebook
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* Impact Cards */}
-      <section className="py-16 lg:py-24 bg-background">
-        <div className="container">
-          <div className="text-center mb-12">
-            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">
-              Your Impact
-            </h2>
-            <p className="text-muted-foreground">
-              See how your donation makes a difference.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
-            {impactCards.map((card, index) => (
-              <Card key={index} className="text-center border-border hover:border-primary/50 transition-colors">
-                <CardContent className="p-6 space-y-3">
-                  <div className="text-3xl font-bold text-primary">{card.amount}</div>
-                  <p className="text-sm text-muted-foreground">{card.impact}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Donation Form */}
       <section className="py-16 lg:py-24 bg-card">
         <div className="container">
@@ -492,6 +435,63 @@ export default function Donate() {
                 </Card>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Transparency Pledge */}
+      <section className="py-12 bg-background">
+        <div className="container">
+          <Card className="max-w-4xl mx-auto border-primary/20">
+            <CardContent className="p-8">
+              <div className="flex flex-col md:flex-row items-center gap-6">
+                <img src={announcementIcon} alt="Announcement" className="h-16 w-16 flex-shrink-0" />
+                <div className="text-center md:text-left space-y-3">
+                  <h2 className="font-serif text-2xl font-bold text-foreground">
+                    Our Transparency Pledge
+                  </h2>
+                  <p className="text-muted-foreground">
+                    Every rupee you donate goes directly to supporting seniors. We maintain complete 
+                    transparency in our operations and regularly share impact updates with our donors.
+                  </p>
+                  <a 
+                    href="https://www.facebook.com/shraddhawelfareassociation" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-primary hover:underline"
+                  >
+                    <Facebook className="h-4 w-4" />
+                    Follow our journey on Facebook
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Impact Cards */}
+      <section className="py-16 lg:py-24 bg-background">
+        <div className="container">
+          <div className="text-center mb-12">
+            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-4">
+              Your Impact
+            </h2>
+            <p className="text-muted-foreground">
+              See how your donation makes a difference.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
+            {impactCards.map((card, index) => (
+              <Card key={index} className="text-center border-border hover:border-primary/50 transition-colors">
+                <CardContent className="p-6 space-y-3">
+                  <div className="text-3xl font-bold text-primary">{card.amount}</div>
+                  <p className="text-sm text-muted-foreground">{card.impact}</p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
