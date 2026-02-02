@@ -148,7 +148,7 @@ export function WallOfThanks({ donors }: WallOfThanksProps) {
       />
       
       {/* Light overlay to maintain readability */}
-      <div className="absolute inset-0 bg-background/40 backdrop-blur-[2px]" />
+      <div className="absolute inset-0 bg-background/25 backdrop-blur-[2px]" />
 
       {/* Floating decorative elements */}
       <FloatingHeart className="top-24 left-[10%]" delay="0s" />
@@ -226,7 +226,7 @@ export function WallOfThanks({ donors }: WallOfThanksProps) {
             <div className="overflow-hidden py-4">
               <SimpleMarquee
                 direction="left"
-                baseVelocity={3}
+                baseVelocity={1}
                 slowdownOnHover
                 slowDownFactor={0.2}
                 repeat={4}
@@ -242,7 +242,7 @@ export function WallOfThanks({ donors }: WallOfThanksProps) {
               <div className="overflow-hidden py-4">
                 <SimpleMarquee
                   direction="right"
-                  baseVelocity={3}
+                  baseVelocity={1}
                   slowdownOnHover
                   slowDownFactor={0.2}
                   repeat={4}
