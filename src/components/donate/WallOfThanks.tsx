@@ -1,7 +1,9 @@
 import { Heart, Sparkles, Star } from "lucide-react";
+import { motion, Variants } from "framer-motion";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import { Marquee } from "@/components/ui/marquee";
+import SimpleMarquee from "@/components/ui/simple-marquee";
 import floralFrame from "@/assets/floral-frame.jpg";
+import { cn } from "@/lib/utils";
 
 interface Donor {
   name: string;
@@ -12,43 +14,101 @@ interface WallOfThanksProps {
   donors: Donor[];
 }
 
-// Simple donor card
+// Enhanced 3D donor card with hover effects
 const DonorCard = ({ donor, index }: { donor: Donor; index: number }) => {
   const colors = [
-    "from-primary/20 to-accent/40",
-    "from-accent/30 to-primary/20",
-    "from-rose-200/40 to-pink-300/30",
-    "from-amber-200/40 to-orange-300/30",
-    "from-sky-200/40 to-blue-300/30",
-    "from-violet-200/40 to-purple-300/30",
-    "from-emerald-200/40 to-teal-300/30",
-    "from-lime-200/40 to-green-300/30",
+    "from-rose-400/80 to-pink-500/80",
+    "from-violet-400/80 to-purple-500/80",
+    "from-amber-400/80 to-orange-500/80",
+    "from-emerald-400/80 to-teal-500/80",
+    "from-sky-400/80 to-blue-500/80",
+    "from-fuchsia-400/80 to-pink-500/80",
+    "from-lime-400/80 to-green-500/80",
+    "from-cyan-400/80 to-teal-500/80",
   ];
   const colorIndex = index % colors.length;
 
+  const cardVariants: Variants = {
+    initial: {
+      y: 0,
+      scale: 1,
+      rotateX: 0,
+      rotateY: 0,
+    },
+    hover: {
+      y: -8,
+      scale: 1.05,
+      rotateX: -5,
+      rotateY: 5,
+      transition: {
+        duration: 0.2,
+        ease: "easeOut",
+      },
+    },
+  };
+
+  const glowVariants: Variants = {
+    initial: { opacity: 0 },
+    hover: { 
+      opacity: 1,
+      transition: { duration: 0.2 }
+    },
+  };
+
+  const heartVariants: Variants = {
+    initial: { scale: 1 },
+    hover: { 
+      scale: 1.2,
+      transition: { 
+        duration: 0.3,
+        repeat: Infinity,
+        repeatType: "reverse"
+      }
+    },
+  };
+
   return (
-    <div
-      className={`
-        group relative inline-flex items-center gap-3 
-        bg-gradient-to-br ${colors[colorIndex]}
-        backdrop-blur-sm border border-primary/20
-        px-5 py-3 rounded-2xl
-        shadow-md hover:shadow-xl
-        hover:border-primary/40 hover:scale-105
-        transition-all duration-300 ease-out
-        cursor-default
-      `}
+    <motion.div
+      className="mx-3 cursor-pointer perspective-1000"
+      initial="initial"
+      whileHover="hover"
+      variants={cardVariants}
+      style={{ transformStyle: "preserve-3d" }}
     >
-      {/* Glow effect on hover */}
-      <div className="absolute inset-0 rounded-2xl bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-      
-      <div className="relative flex items-center gap-3">
-        <div className="relative">
-          <Heart className="h-5 w-5 text-primary fill-primary/30 group-hover:fill-primary/50 transition-all duration-300 group-hover:scale-110" />
-        </div>
-        <span className="font-medium text-foreground whitespace-nowrap">{donor.name}</span>
+      <div
+        className={cn(
+          "relative flex items-center gap-3 px-6 py-4",
+          "bg-gradient-to-br backdrop-blur-md",
+          colors[colorIndex],
+          "rounded-2xl shadow-lg",
+          "border border-white/30",
+          "transform-gpu"
+        )}
+        style={{ transformStyle: "preserve-3d" }}
+      >
+        {/* Glow effect */}
+        <motion.div
+          className="absolute inset-0 rounded-2xl bg-white/20 blur-xl -z-10"
+          variants={glowVariants}
+        />
+        
+        {/* Inner shadow for depth */}
+        <div className="absolute inset-0 rounded-2xl shadow-inner pointer-events-none" />
+        
+        {/* Heart icon */}
+        <motion.div variants={heartVariants}>
+          <Heart className="h-5 w-5 text-white fill-white/50 drop-shadow-md" />
+        </motion.div>
+        
+        {/* Name in stylish font */}
+        <span 
+          className="font-serif text-lg font-semibold text-white drop-shadow-md whitespace-nowrap"
+          style={{ textShadow: "0 2px 4px rgba(0,0,0,0.2)" }}
+        >
+          {donor.name}
+        </span>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -88,7 +148,7 @@ export function WallOfThanks({ donors }: WallOfThanksProps) {
       />
       
       {/* Light overlay to maintain readability */}
-      <div className="absolute inset-0 bg-background/30" />
+      <div className="absolute inset-0 bg-background/40 backdrop-blur-[2px]" />
 
       {/* Floating decorative elements */}
       <FloatingHeart className="top-24 left-[10%]" delay="0s" />
@@ -157,29 +217,46 @@ export function WallOfThanks({ donors }: WallOfThanksProps) {
 
         {/* Conditional Layout: Stacked for few donors, Marquee for many */}
         {useMarquee ? (
-          // Animated Marquee of Donors (for more than 6 donors)
-          <div className="space-y-8 py-4">
-            <div className="py-2">
-              <Marquee pauseOnHover speed="slow">
+          // 3D Animated Marquee of Donors
+          <div 
+            className="space-y-6 py-8"
+            style={{ perspective: "1000px" }}
+          >
+            {/* First row - moves left */}
+            <div className="overflow-hidden py-4">
+              <SimpleMarquee
+                direction="left"
+                baseVelocity={3}
+                slowdownOnHover
+                slowDownFactor={0.2}
+                repeat={4}
+              >
                 {firstRow.map((donor, index) => (
                   <DonorCard key={`first-${donor.name}-${index}`} donor={donor} index={index} />
                 ))}
-              </Marquee>
+              </SimpleMarquee>
             </div>
             
+            {/* Second row - moves right */}
             {secondRow.length > 0 && (
-              <div className="py-2">
-                <Marquee direction="right" pauseOnHover speed="slow">
+              <div className="overflow-hidden py-4">
+                <SimpleMarquee
+                  direction="right"
+                  baseVelocity={3}
+                  slowdownOnHover
+                  slowDownFactor={0.2}
+                  repeat={4}
+                >
                   {secondRow.map((donor, index) => (
                     <DonorCard key={`second-${donor.name}-${index}`} donor={donor} index={index + midPoint} />
                   ))}
-                </Marquee>
+                </SimpleMarquee>
               </div>
             )}
           </div>
         ) : (
           // Stacked centered layout (for 6 or fewer donors)
-          <div className="flex flex-wrap justify-center items-center gap-4 px-4 py-6 max-w-3xl mx-auto">
+          <div className="flex flex-wrap justify-center items-center gap-4 px-4 py-6 max-w-4xl mx-auto">
             {donors.map((donor, index) => (
               <DonorCard key={`stacked-${donor.name}-${index}`} donor={donor} index={index} />
             ))}
