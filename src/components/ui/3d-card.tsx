@@ -53,6 +53,7 @@ export const CardContainer = ({
         )}
         style={{
           perspective: "1000px",
+          contain: "layout style",
         }}
       >
         <div
@@ -66,6 +67,7 @@ export const CardContainer = ({
           )}
           style={{
             transformStyle: "preserve-3d",
+            willChange: "transform",
           }}
         >
           {children}
@@ -137,6 +139,7 @@ export const CardItem = ({
     <Tag
       ref={ref}
       className={cn("w-fit transition duration-200 ease-linear", className)}
+      style={{ willChange: "transform", contain: "layout style" }}
       {...rest}
     >
       {children}
