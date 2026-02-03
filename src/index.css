@@ -178,6 +178,21 @@ All colors MUST be HSL.
   }
 }
 
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.2);
+  }
+  50% {
+    transform: scale(1);
+  }
+  75% {
+    transform: scale(1.15);
+  }
+}
+
 @layer utilities {
   .animate-marquee-left {
     animation: marquee-left linear infinite;
@@ -185,5 +200,18 @@ All colors MUST be HSL.
   
   .animate-marquee-right {
     animation: marquee-right linear infinite;
+  }
+  
+  .animate-heartbeat {
+    animation: heartbeat 0.6s ease-in-out infinite;
+  }
+  
+  /* Slow down marquee on hover */
+  .marquee-container {
+    transition: animation-duration 0.3s ease;
+  }
+  
+  .marquee-container:hover {
+    animation-duration: 60s !important;
   }
 }
