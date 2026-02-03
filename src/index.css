@@ -158,3 +158,32 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Marquee animations for Wall of Thanks - CSS-based for smooth mobile performance */
+@keyframes marquee-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-33.333%);
+  }
+}
+
+@keyframes marquee-right {
+  0% {
+    transform: translateX(-33.333%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@layer utilities {
+  .animate-marquee-left {
+    animation: marquee-left linear infinite;
+  }
+  
+  .animate-marquee-right {
+    animation: marquee-right linear infinite;
+  }
+}
