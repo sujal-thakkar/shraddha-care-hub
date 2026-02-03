@@ -5,8 +5,8 @@ import { CardContainer, CardBody, CardItem } from "@/components/ui/3d-card";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-// Import images
-import awarenessBanner from "@/assets/awareness-banner.png";
+// Import images - first image uses public folder for LCP optimization
+const awarenessBanner = "/images/awareness-banner.png";
 import elderAbuseAwareness from "@/assets/elder-abuse-awareness.png";
 import clothDistribution from "@/assets/cloth-distribution.png";
 import teamEvent from "@/assets/team-event.png";
