@@ -73,7 +73,11 @@ const DonorCard = ({ donor, index }: { donor: Donor; index: number }) => {
       initial="initial"
       whileHover="hover"
       variants={cardVariants}
-      style={{ transformStyle: "preserve-3d" }}
+      style={{ 
+        transformStyle: "preserve-3d",
+        willChange: "transform",
+        contain: "layout style",
+      }}
     >
       <div
         className={cn(
@@ -90,13 +94,14 @@ const DonorCard = ({ donor, index }: { donor: Donor; index: number }) => {
         <motion.div
           className="absolute inset-0 rounded-2xl bg-white/20 blur-xl -z-10"
           variants={glowVariants}
+          style={{ willChange: "opacity" }}
         />
         
         {/* Inner shadow for depth */}
         <div className="absolute inset-0 rounded-2xl shadow-inner pointer-events-none" />
         
         {/* Heart icon */}
-        <motion.div variants={heartVariants}>
+        <motion.div variants={heartVariants} style={{ willChange: "transform" }}>
           <Heart className="h-5 w-5 text-white fill-white/50 drop-shadow-md" />
         </motion.div>
         
