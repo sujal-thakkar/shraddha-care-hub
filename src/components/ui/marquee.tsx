@@ -33,6 +33,7 @@ const Marquee = React.forwardRef<HTMLDivElement, MarqueeProps>(
           "group flex overflow-hidden [--gap:2rem]",
           className
         )}
+        style={{ contain: "layout style" }}
         {...props}
       >
         <div
@@ -43,6 +44,7 @@ const Marquee = React.forwardRef<HTMLDivElement, MarqueeProps>(
           )}
           style={{
             animationDuration: speedMap[speed],
+            willChange: "transform",
           }}
         >
           {children}
@@ -56,6 +58,7 @@ const Marquee = React.forwardRef<HTMLDivElement, MarqueeProps>(
           )}
           style={{
             animationDuration: speedMap[speed],
+            willChange: "transform",
           }}
         >
           {children}
