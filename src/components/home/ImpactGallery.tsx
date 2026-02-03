@@ -108,9 +108,12 @@ export const ImpactGallery = () => {
                 className="overflow-hidden rounded-xl shadow-lg cursor-pointer group aspect-[4/3]"
                 onClick={() => setSelectedImage(index)}
               >
-                <img
+              <img
                   src={image.src}
                   alt={image.alt}
+                  loading="lazy"
+                  width={413}
+                  height={310}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
@@ -136,6 +139,9 @@ export const ImpactGallery = () => {
             <img
               src={image.src}
               alt={image.alt}
+              loading="lazy"
+              width={64}
+              height={48}
               className="w-full h-full object-cover"
             />
           </button>
@@ -163,6 +169,7 @@ export const ImpactGallery = () => {
               <img
                 src={impactImages[selectedImage].src}
                 alt={impactImages[selectedImage].alt}
+                loading="eager"
                 className="w-full h-full object-contain rounded-lg max-h-[60vh]"
               />
               
