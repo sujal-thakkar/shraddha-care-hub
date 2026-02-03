@@ -210,6 +210,7 @@ const SimpleMarquee = ({
   return (
     <motion.div
       className={cn("flex", isHorizontal ? "flex-row" : "flex-col", className)}
+      style={{ contain: "layout style", willChange: "transform" }}
       onHoverStart={() => (isHovered.current = true)}
       onHoverEnd={() => (isHovered.current = false)}
       onPointerDown={handlePointerDown}
@@ -225,7 +226,11 @@ const SimpleMarquee = ({
             isHorizontal && "flex",
             draggable && grabCursor && "cursor-grab"
           )}
-          style={isHorizontal ? { x } : { y }}
+          style={{ 
+            ...(isHorizontal ? { x } : { y }),
+            willChange: "transform",
+            contain: "layout",
+          }}
           aria-hidden={i > 0}
         >
           {children}
