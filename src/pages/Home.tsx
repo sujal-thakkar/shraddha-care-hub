@@ -44,7 +44,7 @@ export default function Home() {
                   className="inline-flex items-center gap-2 bg-primary/10 px-3 sm:px-4 py-2 rounded-full text-sm font-medium border border-primary/20 transition-all duration-300 hover:bg-primary/20 hover:border-primary/40 hover:scale-105 hover:shadow-md cursor-pointer"
                 >
                   <span className="text-muted-foreground">Backed by</span>
-                  <img src={hoslaLogo} alt="Hosla" className="h-5 w-auto" />
+                  <img src={hoslaLogo} alt="Hosla" className="h-5 w-auto" width={45} height={20} />
                 </a>
                 {/* Know More bubble - hidden on small screens, repositioned on medium */}
                 <a
@@ -53,7 +53,7 @@ export default function Home() {
                   rel="noopener noreferrer"
                   className="hidden sm:block absolute -right-24 md:-right-28 -top-8 md:-top-10 w-20 md:w-24 h-auto transition-all duration-300 hover:scale-110 hover:brightness-110 drop-shadow-lg"
                 >
-                  <img src={knowMoreBubble} alt="Click to Know More" className="w-32 md:w-40 h-auto animate-float-bounce" />
+                  <img src={knowMoreBubble} alt="Click to Know More" className="w-32 md:w-40 h-auto animate-float-bounce" width={128} height={128} loading="lazy" />
                 </a>
               </div>
 
@@ -279,6 +279,9 @@ export default function Home() {
                     src={corporateCareIllustration} 
                     alt="Corporate partnership illustration" 
                     className="w-full h-auto object-contain relative z-10"
+                    loading="lazy"
+                    width={636}
+                    height={646}
                   />
                   {/* Gradient overlay effect */}
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/20 via-transparent to-transparent rounded-2xl pointer-events-none" />

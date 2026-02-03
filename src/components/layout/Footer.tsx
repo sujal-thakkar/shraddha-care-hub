@@ -11,7 +11,7 @@ export function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <Link to="/" className="flex items-center">
-              <img src={logoShraddha} alt="Shraddha" className="h-10" />
+              <img src={logoShraddha} alt="Shraddha" className="h-10" width={158} height={40} loading="lazy" />
             </Link>
             <p className="text-sm text-muted-foreground">
               Providing dignity, protection, and care for our beloved seniors. Backed by Hosla.
@@ -133,7 +133,7 @@ export function Footer() {
         <div className="border-t border-border mt-8 pt-8 text-center">
           <p className="text-sm text-muted-foreground inline-flex items-center justify-center gap-1.5 flex-wrap">
             © {new Date().getFullYear()} Shraddha. All rights reserved. | Powered by{" "}
-            <img src={hoslaLogo} alt="Hosla" className="h-4 inline-block" />
+            <img src={hoslaLogo} alt="Hosla" className="h-4 inline-block" width={36} height={16} loading="lazy" />
           </p>
         </div>
       </div>
