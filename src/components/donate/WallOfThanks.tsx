@@ -1,7 +1,5 @@
 import { Heart, Sparkles, Star } from "lucide-react";
-import { motion, Variants } from "framer-motion";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import SimpleMarquee from "@/components/ui/simple-marquee";
 import floralFrame from "@/assets/floral-frame.jpg";
 import { cn } from "@/lib/utils";
 
@@ -14,7 +12,7 @@ interface WallOfThanksProps {
   donors: Donor[];
 }
 
-// Enhanced 3D donor card with hover effects
+// Simplified donor card - CSS-only animations for smooth mobile performance
 const DonorCard = ({ donor, index }: { donor: Donor; index: number }) => {
   const colors = [
     "from-rose-400/80 to-pink-500/80",
@@ -28,92 +26,66 @@ const DonorCard = ({ donor, index }: { donor: Donor; index: number }) => {
   ];
   const colorIndex = index % colors.length;
 
-  const cardVariants: Variants = {
-    initial: {
-      y: 0,
-      scale: 1,
-      rotateX: 0,
-      rotateY: 0,
-    },
-    hover: {
-      y: -8,
-      scale: 1.05,
-      rotateX: -5,
-      rotateY: 5,
-      transition: {
-        duration: 0.2,
-        ease: "easeOut",
-      },
-    },
-  };
-
-  const glowVariants: Variants = {
-    initial: { opacity: 0 },
-    hover: { 
-      opacity: 1,
-      transition: { duration: 0.2 }
-    },
-  };
-
-  const heartVariants: Variants = {
-    initial: { scale: 1 },
-    hover: { 
-      scale: 1.2,
-      transition: { 
-        duration: 0.3,
-        repeat: Infinity,
-        repeatType: "reverse"
-      }
-    },
-  };
-
   return (
-    <motion.div
-      className="mx-3 cursor-pointer perspective-1000"
-      initial="initial"
-      whileHover="hover"
-      variants={cardVariants}
-      style={{ 
-        transformStyle: "preserve-3d",
-        willChange: "transform",
-        contain: "layout style",
-      }}
-    >
+    <div className="mx-2 sm:mx-3 flex-shrink-0">
       <div
         className={cn(
-          "relative flex items-center gap-3 px-6 py-4",
+          "relative flex items-center gap-3 px-4 sm:px-6 py-3 sm:py-4",
           "bg-gradient-to-br backdrop-blur-md",
           colors[colorIndex],
           "rounded-2xl shadow-lg",
           "border border-white/30",
-          "transform-gpu"
+          "transform-gpu transition-transform duration-200",
+          "hover:scale-105 hover:-translate-y-1"
         )}
-        style={{ transformStyle: "preserve-3d" }}
       >
-        {/* Glow effect */}
-        <motion.div
-          className="absolute inset-0 rounded-2xl bg-white/20 blur-xl -z-10"
-          variants={glowVariants}
-          style={{ willChange: "opacity" }}
-        />
-        
-        {/* Inner shadow for depth */}
-        <div className="absolute inset-0 rounded-2xl shadow-inner pointer-events-none" />
-        
         {/* Heart icon */}
-        <motion.div variants={heartVariants} style={{ willChange: "transform" }}>
-          <Heart className="h-5 w-5 text-white fill-white/50 drop-shadow-md" />
-        </motion.div>
+        <Heart className="h-4 w-4 sm:h-5 sm:w-5 text-white fill-white/50 drop-shadow-md flex-shrink-0" />
         
         {/* Name in stylish font */}
         <span 
-          className="font-serif text-lg font-semibold text-white drop-shadow-md whitespace-nowrap"
+          className="font-serif text-base sm:text-lg font-semibold text-white drop-shadow-md whitespace-nowrap"
           style={{ textShadow: "0 2px 4px rgba(0,0,0,0.2)" }}
         >
           {donor.name}
         </span>
       </div>
-    </motion.div>
+    </div>
+  );
+};
+
+// CSS-only marquee for smooth mobile performance
+const CSSMarquee = ({ 
+  children, 
+  direction = "left",
+  duration = 30 
+}: { 
+  children: React.ReactNode; 
+  direction?: "left" | "right";
+  duration?: number;
+}) => {
+  const animationClass = direction === "left" ? "animate-marquee-left" : "animate-marquee-right";
+  
+  return (
+    <div className="overflow-hidden">
+      <div 
+        className={cn(
+          "flex",
+          animationClass
+        )}
+        style={{ 
+          animationDuration: `${duration}s`,
+          willChange: "transform",
+        }}
+      >
+        {/* Original content */}
+        <div className="flex shrink-0">{children}</div>
+        {/* Duplicate for seamless loop */}
+        <div className="flex shrink-0" aria-hidden="true">{children}</div>
+        {/* Triple for wider screens */}
+        <div className="flex shrink-0" aria-hidden="true">{children}</div>
+      </div>
+    </div>
   );
 };
 
@@ -222,46 +194,31 @@ export function WallOfThanks({ donors }: WallOfThanksProps) {
 
         {/* Conditional Layout: Stacked for few donors, Marquee for many */}
         {useMarquee ? (
-          // 3D Animated Marquee of Donors
-          <div 
-            className="space-y-6 py-8"
-            style={{ perspective: "1000px" }}
-          >
+          // CSS-based Marquee for smooth mobile performance
+          <div className="space-y-4 sm:space-y-6 py-4 sm:py-8">
             {/* First row - moves left */}
-            <div className="overflow-hidden py-4">
-              <SimpleMarquee
-                direction="left"
-                baseVelocity={1}
-                slowdownOnHover
-                slowDownFactor={0.2}
-                repeat={4}
-              >
+            <div className="py-2 sm:py-4">
+              <CSSMarquee direction="left" duration={35}>
                 {firstRow.map((donor, index) => (
                   <DonorCard key={`first-${donor.name}-${index}`} donor={donor} index={index} />
                 ))}
-              </SimpleMarquee>
+              </CSSMarquee>
             </div>
             
             {/* Second row - moves right */}
             {secondRow.length > 0 && (
-              <div className="overflow-hidden py-4">
-                <SimpleMarquee
-                  direction="right"
-                  baseVelocity={1}
-                  slowdownOnHover
-                  slowDownFactor={0.2}
-                  repeat={4}
-                >
+              <div className="py-2 sm:py-4">
+                <CSSMarquee direction="right" duration={40}>
                   {secondRow.map((donor, index) => (
                     <DonorCard key={`second-${donor.name}-${index}`} donor={donor} index={index + midPoint} />
                   ))}
-                </SimpleMarquee>
+                </CSSMarquee>
               </div>
             )}
           </div>
         ) : (
           // Stacked centered layout (for 6 or fewer donors)
-          <div className="flex flex-wrap justify-center items-center gap-4 px-4 py-6 max-w-4xl mx-auto">
+          <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-4 px-4 py-6 max-w-4xl mx-auto">
             {donors.map((donor, index) => (
               <DonorCard key={`stacked-${donor.name}-${index}`} donor={donor} index={index} />
             ))}
