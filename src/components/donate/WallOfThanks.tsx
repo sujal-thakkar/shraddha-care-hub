@@ -12,7 +12,7 @@ interface WallOfThanksProps {
   donors: Donor[];
 }
 
-// Donor card with CSS-only animations for smooth mobile performance
+// Simplified donor card - CSS-only animations for smooth mobile performance
 const DonorCard = ({ donor, index }: { donor: Donor; index: number }) => {
   const colors = [
     "from-rose-400/80 to-pink-500/80",
@@ -27,10 +27,10 @@ const DonorCard = ({ donor, index }: { donor: Donor; index: number }) => {
   const colorIndex = index % colors.length;
 
   return (
-    <div className="mx-2 sm:mx-3 flex-shrink-0 py-2">
+    <div className="mx-2 sm:mx-3 flex-shrink-0">
       <div
         className={cn(
-          "group relative flex items-center gap-3 px-4 sm:px-6 py-3 sm:py-4",
+          "relative flex items-center gap-3 px-4 sm:px-6 py-3 sm:py-4",
           "bg-gradient-to-br backdrop-blur-md",
           colors[colorIndex],
           "rounded-2xl shadow-lg",
@@ -39,8 +39,8 @@ const DonorCard = ({ donor, index }: { donor: Donor; index: number }) => {
           "hover:scale-105 hover:-translate-y-1"
         )}
       >
-        {/* Heart icon with beating animation on hover */}
-        <Heart className="h-4 w-4 sm:h-5 sm:w-5 text-white fill-white/50 drop-shadow-md flex-shrink-0 transition-transform group-hover:animate-heartbeat" />
+        {/* Heart icon */}
+        <Heart className="h-4 w-4 sm:h-5 sm:w-5 text-white fill-white/50 drop-shadow-md flex-shrink-0" />
         
         {/* Name in stylish font */}
         <span 
@@ -54,7 +54,7 @@ const DonorCard = ({ donor, index }: { donor: Donor; index: number }) => {
   );
 };
 
-// CSS-only marquee for smooth mobile performance with hover slowdown
+// CSS-only marquee for smooth mobile performance
 const CSSMarquee = ({ 
   children, 
   direction = "left",
@@ -67,10 +67,10 @@ const CSSMarquee = ({
   const animationClass = direction === "left" ? "animate-marquee-left" : "animate-marquee-right";
   
   return (
-    <div className="overflow-visible py-2">
+    <div className="overflow-hidden">
       <div 
         className={cn(
-          "flex marquee-container",
+          "flex",
           animationClass
         )}
         style={{ 
@@ -195,10 +195,10 @@ export function WallOfThanks({ donors }: WallOfThanksProps) {
         {/* Conditional Layout: Stacked for few donors, Marquee for many */}
         {useMarquee ? (
           // CSS-based Marquee for smooth mobile performance
-          <div className="space-y-2 sm:space-y-4 py-4 sm:py-8 overflow-hidden">
+          <div className="space-y-4 sm:space-y-6 py-4 sm:py-8">
             {/* First row - moves left */}
-            <div className="overflow-hidden">
-              <CSSMarquee direction="left" duration={20}>
+            <div className="py-2 sm:py-4">
+              <CSSMarquee direction="left" duration={35}>
                 {firstRow.map((donor, index) => (
                   <DonorCard key={`first-${donor.name}-${index}`} donor={donor} index={index} />
                 ))}
@@ -207,8 +207,8 @@ export function WallOfThanks({ donors }: WallOfThanksProps) {
             
             {/* Second row - moves right */}
             {secondRow.length > 0 && (
-              <div className="overflow-hidden">
-                <CSSMarquee direction="right" duration={25}>
+              <div className="py-2 sm:py-4">
+                <CSSMarquee direction="right" duration={40}>
                   {secondRow.map((donor, index) => (
                     <DonorCard key={`second-${donor.name}-${index}`} donor={donor} index={index + midPoint} />
                   ))}
