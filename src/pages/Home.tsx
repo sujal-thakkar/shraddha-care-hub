@@ -69,7 +69,7 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2 sm:pt-4">
                 <Button asChild size="lg" className="group w-full sm:w-auto">
                   <Link to="/about">
-                    Learn More
+                    Learn About Shraddha
                     <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </Button>
@@ -262,7 +262,7 @@ export default function Home() {
                   }`}
                 >
                   <Link to="/corporate-care">
-                    Learn More
+                    Explore Corporate Care
                     <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </Button>
