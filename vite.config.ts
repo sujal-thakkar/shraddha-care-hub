@@ -18,17 +18,22 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     ViteImageOptimizer({
       png: {
-        quality: 80,
+        quality: 65,
+        compressionLevel: 9,
+        palette: true,
       },
       jpeg: {
-        quality: 80,
+        quality: 65,
+        progressive: true,
       },
       jpg: {
-        quality: 80,
+        quality: 65,
+        progressive: true,
       },
       webp: {
         lossless: false,
-        quality: 80,
+        quality: 65,
+        alphaQuality: 65,
       },
     }),
   ].filter(Boolean),
