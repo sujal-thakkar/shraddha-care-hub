@@ -1039,9 +1039,11 @@ export default function LegalResources() {
       }
 
       // Insert the abuse report
-      const { data: report, error: reportError } = await supabase
+      const reportId = crypto.randomUUID();
+      const { error: reportError } = await supabase
         .from("abuse_reports")
         .insert({
+          id: reportId,
           reporter_name: data.isAnonymous ? null : data.reporterName || null,
           reporter_contact: data.isAnonymous ? null : data.reporterContact || null,
           reporter_relationship: data.isAnonymous ? null : data.reporterRelationship || null,
@@ -1051,16 +1053,14 @@ export default function LegalResources() {
           victim_location: data.victimLocation,
           abuse_type: data.abuseType,
           description: data.description,
-        })
-        .select()
-        .single();
+        });
 
       if (reportError) throw reportError;
 
       // Upload evidence files if any
-      if (files.length > 0 && report) {
+      if (files.length > 0) {
         for (const file of files) {
-          const filePath = `${report.id}/${Date.now()}-${file.name}`;
+          const filePath = `${reportId}/${Date.now()}-${file.name}`;
           const { error: uploadError } = await supabase.storage
             .from("abuse-evidence")
             .upload(filePath, file);
@@ -1072,7 +1072,7 @@ export default function LegalResources() {
 
           // Record the evidence in the database
           await supabase.from("report_evidence").insert({
-            report_id: report.id,
+            report_id: reportId,
             file_path: filePath,
             file_name: file.name,
             file_type: file.type,
@@ -1084,7 +1084,7 @@ export default function LegalResources() {
       // Trigger email notification
       try {
         await supabase.functions.invoke("send-notification", {
-          body: { type: "abuse_report", reportId: report.id },
+          body: { type: "abuse_report", reportId: reportId },
         });
       } catch (emailError) {
         console.error("Email notification error:", emailError);

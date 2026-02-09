@@ -50,17 +50,17 @@ export default function Volunteer() {
         return;
       }
 
-      const { data: application, error } = await supabase
+      const applicationId = crypto.randomUUID();
+      const { error } = await supabase
         .from("volunteer_applications")
         .insert({
+          id: applicationId,
           name: formData.name,
           email: formData.email,
           phone: formData.phone,
           city: formData.city,
           motivation: formData.motivation,
-        })
-        .select()
-        .single();
+        });
 
       if (error) throw error;
 
@@ -69,7 +69,7 @@ export default function Volunteer() {
         await supabase.functions.invoke("send-notification", {
           body: { 
             type: "volunteer_application", 
-            applicationId: application.id,
+            applicationId: applicationId,
             email: formData.email, 
             name: formData.name 
           },

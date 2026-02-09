@@ -98,18 +98,18 @@ export function PartnerContactModal({ open, onOpenChange }: PartnerContactModalP
       }
 
       // Save to database
-      const { data: inquiry, error } = await supabase
+      const inquiryId = crypto.randomUUID();
+      const { error } = await supabase
         .from("partner_inquiries")
         .insert({
+          id: inquiryId,
           company_name: data.companyName,
           contact_name: data.contactName,
           email: data.email,
           phone: data.phone,
           employee_count: data.employeeCount || null,
           message: data.message,
-        })
-        .select("id")
-        .single();
+        });
 
       if (error) throw error;
 
@@ -117,7 +117,7 @@ export function PartnerContactModal({ open, onOpenChange }: PartnerContactModalP
       await supabase.functions.invoke("send-notification", {
         body: {
           type: "partner_inquiry",
-          inquiryId: inquiry.id,
+          inquiryId: inquiryId,
           companyName: data.companyName,
           name: data.contactName,
           email: data.email,
