@@ -45,18 +45,32 @@ export default function AdminVolunteers() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async ({ id, status, notes }: { id: string; status: VolunteerStatus; notes?: string }) => {
+    mutationFn: async ({ id, status, notes, email, name }: { id: string; status: VolunteerStatus; notes?: string; email?: string; name?: string }) => {
       const { error } = await supabase
         .from("volunteer_applications")
         .update({ status, admin_notes: notes })
         .eq("id", id);
 
       if (error) throw error;
+
+      // Send email notification when accepted or rejected
+      if ((status === "accepted" || status === "rejected") && email) {
+        try {
+          await supabase.functions.invoke("send-volunteer-status", {
+            body: { applicationId: id, status },
+          });
+        } catch (emailError) {
+          console.error("Failed to send status email:", emailError);
+        }
+      }
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["admin-volunteers"] });
       queryClient.invalidateQueries({ queryKey: ["admin-volunteer-stats"] });
-      toast({ title: "Application updated successfully" });
+      const statusMsg = variables.status === "accepted" ? "accepted (email sent)" 
+        : variables.status === "rejected" ? "rejected (email sent)" 
+        : "updated";
+      toast({ title: `Application ${statusMsg} successfully` });
     },
     onError: (error) => {
       toast({ title: "Error updating application", description: error.message, variant: "destructive" });
@@ -235,7 +249,12 @@ export default function AdminVolunteers() {
                 <Select
                   value={selectedVolunteer.status}
                   onValueChange={(value) => {
-                    updateMutation.mutate({ id: selectedVolunteer.id, status: value as VolunteerStatus });
+                    updateMutation.mutate({ 
+                      id: selectedVolunteer.id, 
+                      status: value as VolunteerStatus,
+                      email: selectedVolunteer.email,
+                      name: selectedVolunteer.name,
+                    });
                     setSelectedVolunteer({ ...selectedVolunteer, status: value as VolunteerStatus });
                   }}
                 >
