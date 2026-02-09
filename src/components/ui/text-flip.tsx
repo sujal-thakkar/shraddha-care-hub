@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface TextFlipProps {
-  words: string[];
+  words: (string | React.ReactNode)[];
   duration?: number;
   className?: string;
 }

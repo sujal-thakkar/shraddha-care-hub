@@ -28,7 +28,7 @@ export const StickyBanner = ({
       {open ? (
         <motion.div
           className={cn(
-            "sticky inset-x-0 top-0 z-50 flex min-h-12 w-full items-center justify-center px-4 py-2",
+            "sticky inset-x-0 top-0 z-50 w-full px-4 py-2",
             className,
           )}
           initial={{
@@ -48,21 +48,30 @@ export const StickyBanner = ({
             ease: "easeInOut",
           }}
         >
-          {children}
+          <div className="relative flex min-h-12 w-full items-center justify-center">
+            {children}
 
-          <motion.button
-            initial={{
-              scale: 0,
-            }}
-            animate={{
-              scale: 1,
-            }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={() => setOpen(false)}
-            aria-label="Close banner"
-          >
-            <CloseIcon className="h-5 w-5" />
-          </motion.button>
+            <motion.button
+              initial={{
+                scale: 0,
+              }}
+              animate={{
+                scale: 1,
+              }}
+              whileHover={{
+                scale: 1.1,
+                rotate: 90,
+              }}
+              whileTap={{
+                scale: 0.9,
+              }}
+              className="absolute right-0 flex items-center justify-center p-1 rounded-full cursor-pointer transition-colors hover:bg-black/10 dark:hover:bg-white/10"
+              onClick={() => setOpen(false)}
+              aria-label="Close banner"
+            >
+              <CloseIcon className="h-5 w-5 text-current" />
+            </motion.button>
+          </div>
         </motion.div>
       ) : null}
     </AnimatePresence>
