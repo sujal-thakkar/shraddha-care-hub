@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Calendar, Loader2, MapPin } from "lucide-react";
+import { ExternalLink, Calendar, Loader2, MapPin, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import type { Database } from "@/integrations/supabase/types";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -202,17 +203,31 @@ const ProjectEventCard = ({
           )}
 
           {event.resource_link && (
-            <Button
-              asChild
-              variant="outline"
-              size="sm"
-              className="w-full mt-auto border-[hsl(250,70%,45%)]/30 text-[hsl(250,70%,45%)] hover:bg-[hsl(250,70%,45%)] hover:text-white"
-            >
-              <a href={event.resource_link} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="h-4 w-4 mr-2" />
-                Learn More
-              </a>
-            </Button>
+            event.resource_link.startsWith("/") ? (
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="w-full mt-auto border-[hsl(250,70%,45%)]/30 text-[hsl(250,70%,45%)] hover:bg-[hsl(250,70%,45%)] hover:text-white"
+              >
+                <Link to={event.resource_link}>
+                  <ChevronRight className="h-4 w-4 mr-2" />
+                  Know More
+                </Link>
+              </Button>
+            ) : (
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="w-full mt-auto border-[hsl(250,70%,45%)]/30 text-[hsl(250,70%,45%)] hover:bg-[hsl(250,70%,45%)] hover:text-white"
+              >
+                <a href={event.resource_link} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Learn More
+                </a>
+              </Button>
+            )
           )}
         </div>
       </div>
