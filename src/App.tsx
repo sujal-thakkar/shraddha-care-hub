@@ -16,6 +16,7 @@ const Volunteer = lazy(() => import("./pages/Volunteer"));
 const Donate = lazy(() => import("./pages/Donate"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Games = lazy(() => import("./pages/Games"));
+const HPL = lazy(() => import("./pages/HPL"));
 const AdminLogin = lazy(() => import("./pages/admin/Login"));
 const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
 const AdminOverview = lazy(() => import("./pages/admin/Overview"));
@@ -56,6 +57,7 @@ const App = () => (
             <Route path="/donate" element={<Donate />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/games" element={<Games />} />
+            <Route path="/hpl" element={<HPL />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />}>
               <Route index element={<AdminOverview />} />
