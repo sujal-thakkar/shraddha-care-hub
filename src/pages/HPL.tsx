@@ -262,9 +262,24 @@ export default function HPL() {
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.3 }}
+                style={{ boxShadow: "0 0 30px rgba(251, 191, 36, 0.3), 0 0 60px rgba(251, 191, 36, 0.1)" }}
               >
+                {/* Animated glow ring */}
+                <div className="absolute -inset-[2px] rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-400 opacity-30 blur-sm animate-pulse pointer-events-none" />
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-yellow-100 via-amber-50 to-yellow-100 dark:from-yellow-900/30 dark:via-amber-900/20 dark:to-yellow-900/30" />
                 <div className="absolute top-2 right-4 text-6xl opacity-20">🏆</div>
-                <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+                {/* Floating sparkles */}
+                <motion.div
+                  className="absolute top-4 left-8 text-2xl pointer-events-none"
+                  animate={{ y: [-4, 4, -4], opacity: [0.4, 1, 0.4], rotate: [0, 15, 0] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                >✨</motion.div>
+                <motion.div
+                  className="absolute bottom-4 right-16 text-xl pointer-events-none"
+                  animate={{ y: [3, -5, 3], opacity: [0.3, 0.9, 0.3], rotate: [0, -10, 0] }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                >⭐</motion.div>
+                <div className="relative z-10 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
                   <div className="flex-shrink-0">
                     <div className="h-20 w-20 rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center shadow-lg shadow-yellow-400/30">
                       <Trophy className="h-10 w-10 text-white" />
