@@ -260,7 +260,12 @@ export default function HPL() {
                     <p className="text-lg lg:text-xl text-white/90 leading-relaxed max-w-lg">
                       A high-energy sports league for our beloved Senior Citizens!
                       Offline games (Carrom, Ludo, Badminton) & Online games
-                      (Quizzes, Antakshari) — celebrating courage at every age.
+                      (Quizzes, Antakshari).
+                    </p>
+                    <p className="mt-2 pb-1 text-lg sm:text-xl lg:text-2xl font-semibold italic tracking-wide leading-relaxed max-w-lg">
+                      <span className="bg-gradient-to-r from-yellow-200 via-white to-yellow-200 bg-clip-text text-transparent drop-shadow-lg pr-2">
+                        "Celebrating Courage at Every Age."
+                      </span>
                     </p>
 
                     <div className="flex flex-wrap gap-3 pt-2">
