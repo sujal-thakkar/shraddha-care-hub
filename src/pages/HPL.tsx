@@ -22,7 +22,6 @@ import {
   Users,
   Gamepad2,
   Search,
-  
   ArrowLeft,
   Calendar,
   Clock,
@@ -30,6 +29,13 @@ import {
   Flame,
   Target,
   ChevronRight,
+  ChevronLeft,
+  Sparkles,
+  Dumbbell,
+  Zap,
+  Award,
+  Swords,
+  ExternalLink,
 } from "lucide-react";
 import { format, isToday, isYesterday } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -70,6 +76,9 @@ interface HPLData {
 const HPL_API =
   "https://script.google.com/macros/s/AKfycbz3EnfDbyApScLtZd6igngJJKwMzpdxeaWmDWh3LWDjOG2w970U32L-nC1cwyJjhalKLA/exec";
 
+const REGISTRATION_LINK = "https://forms.gle/LQvaRz7msRf4TQUx7";
+const PLAYERS_PER_PAGE = 15;
+
 const cleanTeamName = (name: string) => {
   if (!name || name === "Unknown") return "Unknown";
   return name.split(" ").slice(0, 2).join(" ");
@@ -83,9 +92,9 @@ const formatMatchTime = (isoString: string) => {
 };
 
 const RANK_COLORS = [
-  "from-yellow-400 to-amber-500", // Gold
-  "from-gray-300 to-gray-400",    // Silver
-  "from-orange-400 to-orange-600", // Bronze
+  "from-yellow-400 to-amber-500",
+  "from-gray-300 to-gray-400",
+  "from-orange-400 to-orange-600",
 ];
 
 const RANK_ICONS = [goldMedal, silverMedal, bronzeMedal];
@@ -117,6 +126,7 @@ const HPLSkeleton = () => (
 // ─── Main Component ───────────────────────────────────────────
 export default function HPL() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const { data, isLoading, error } = useQuery<HPLData>({
     queryKey: ["hpl-data"],
@@ -125,7 +135,7 @@ export default function HPL() {
       if (!res.ok) throw new Error("Failed to fetch HPL data");
       return res.json();
     },
-    refetchInterval: 60000, // Refresh every 60s
+    refetchInterval: 60000,
     staleTime: 30000,
   });
 
@@ -154,7 +164,21 @@ export default function HPL() {
     );
   }, [sortedPlayers, searchQuery]);
 
+  // Reset page when search changes
+  const totalPages = Math.ceil(filteredPlayers.length / PLAYERS_PER_PAGE);
+  const safePage = Math.min(currentPage, totalPages || 1);
+  const paginatedPlayers = filteredPlayers.slice(
+    (safePage - 1) * PLAYERS_PER_PAGE,
+    safePage * PLAYERS_PER_PAGE
+  );
+
   const leadingTeam = sortedTeams[0];
+
+  // Reset page on search change
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
+  };
 
   if (isLoading) return <HPLSkeleton />;
 
@@ -195,11 +219,12 @@ export default function HPL() {
           <ScrollReveal>
             <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500 dark:from-orange-600 dark:via-amber-600 dark:to-yellow-600 p-1">
               <div className="relative rounded-[calc(1.5rem-4px)] overflow-hidden bg-gradient-to-br from-orange-600 via-amber-600 to-yellow-500 dark:from-orange-700 dark:via-amber-700 dark:to-yellow-600">
+                {/* Background decorative icons */}
                 <div className="absolute inset-0 opacity-10">
-                  <div className="absolute top-4 left-4 text-6xl">🏆</div>
-                  <div className="absolute top-8 right-8 text-5xl">⭐</div>
-                  <div className="absolute bottom-4 left-1/3 text-4xl">🎯</div>
-                  <div className="absolute bottom-8 right-4 text-5xl">🏅</div>
+                  <Trophy className="absolute top-4 left-4 h-16 w-16 text-white" />
+                  <Star className="absolute top-8 right-8 h-14 w-14 text-white" />
+                  <Target className="absolute bottom-4 left-1/3 h-12 w-12 text-white" />
+                  <Medal className="absolute bottom-8 right-4 h-14 w-14 text-white" />
                 </div>
 
                 <div className="relative z-10 grid lg:grid-cols-2 gap-6 p-6 lg:p-10 items-center">
@@ -208,7 +233,7 @@ export default function HPL() {
                       <img
                         src={hoslaLogo}
                         alt="Hosla"
-                        className="h-10 w-10 rounded-full bg-white/20 p-1"
+                        className="h-10 w-auto object-contain"
                       />
                       <Badge className="bg-white/20 text-white border-white/30 text-sm hover:bg-white/30">
                         <Flame className="h-3.5 w-3.5 mr-1" />
@@ -220,7 +245,7 @@ export default function HPL() {
                       Hosla Premier
                       <br />
                       League{" "}
-                      <span className="text-yellow-200">🏏</span>
+                      <Swords className="inline h-8 w-8 lg:h-10 lg:w-10 text-yellow-200" />
                     </h1>
 
                     <p className="text-lg lg:text-xl text-white/90 leading-relaxed max-w-lg">
@@ -230,10 +255,16 @@ export default function HPL() {
                     </p>
 
                     <div className="flex flex-wrap gap-3 pt-2">
-                      <div className="flex items-center gap-2 bg-white/15 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-medium">
+                      <a
+                        href={REGISTRATION_LINK}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-medium hover:bg-white/30 transition-colors"
+                      >
                         <Target className="h-4 w-4" />
-                        Registrations Open!
-                      </div>
+                        Register Now!
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
                       <div className="flex items-center gap-2 bg-white/15 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-medium">
                         <Calendar className="h-4 w-4" />
                         Matches Every Weekend
@@ -271,18 +302,22 @@ export default function HPL() {
                 {/* Animated glow ring */}
                 <div className="absolute -inset-[2px] rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-400 opacity-30 blur-sm animate-pulse pointer-events-none" />
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-yellow-100 via-amber-50 to-yellow-100 dark:from-yellow-900/30 dark:via-amber-900/20 dark:to-yellow-900/30" />
-                <div className="absolute top-2 right-4 text-6xl opacity-20">🏆</div>
+                <Trophy className="absolute top-2 right-4 h-16 w-16 text-amber-400/20" />
                 {/* Floating sparkles */}
                 <motion.div
-                  className="absolute top-4 left-8 text-2xl pointer-events-none"
+                  className="absolute top-4 left-8 pointer-events-none"
                   animate={{ y: [-4, 4, -4], opacity: [0.4, 1, 0.4], rotate: [0, 15, 0] }}
                   transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                >✨</motion.div>
+                >
+                  <Sparkles className="h-6 w-6 text-yellow-500" />
+                </motion.div>
                 <motion.div
-                  className="absolute bottom-4 right-16 text-xl pointer-events-none"
+                  className="absolute bottom-4 right-16 pointer-events-none"
                   animate={{ y: [3, -5, 3], opacity: [0.3, 0.9, 0.3], rotate: [0, -10, 0] }}
                   transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                >⭐</motion.div>
+                >
+                  <Star className="h-5 w-5 text-amber-500" />
+                </motion.div>
                 <div className="relative z-10 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
                   <div className="flex-shrink-0">
                     <div className="h-20 w-20 rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center shadow-lg shadow-yellow-400/30">
@@ -290,8 +325,9 @@ export default function HPL() {
                     </div>
                   </div>
                   <div className="text-center sm:text-left flex-1">
-                    <p className="text-sm font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-1">
-                      🔥 Current Leader
+                    <p className="text-sm font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-1 flex items-center gap-1.5 justify-center sm:justify-start">
+                      <Flame className="h-4 w-4" />
+                      Current Leader
                     </p>
                     <h2 className="text-3xl lg:text-4xl font-bold text-foreground">
                       {cleanTeamName(leadingTeam.name)}
@@ -361,10 +397,7 @@ export default function HPL() {
                             </span>
                           )}
                         </div>
-                        <Badge
-                          variant="secondary"
-                          className="text-xs"
-                        >
+                        <Badge variant="secondary" className="text-xs">
                           {team.memberCount} members
                         </Badge>
                       </div>
@@ -424,8 +457,9 @@ export default function HPL() {
                         <p className="font-semibold text-foreground text-sm">
                           {match.game}
                         </p>
-                        <p className="text-xs text-muted-foreground truncate">
-                          🏆 {match.winners}
+                        <p className="text-xs text-muted-foreground truncate flex items-center gap-1">
+                          <Trophy className="h-3 w-3 inline-block" />
+                          {match.winners}
                         </p>
                       </div>
                       <span className="text-xs text-muted-foreground whitespace-nowrap ml-auto">
@@ -455,7 +489,7 @@ export default function HPL() {
                 <Input
                   placeholder="Search by name or team..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   className="pl-10 text-base"
                 />
               </div>
@@ -477,7 +511,7 @@ export default function HPL() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredPlayers.length === 0 ? (
+                    {paginatedPlayers.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
                           {searchQuery
@@ -486,8 +520,7 @@ export default function HPL() {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      filteredPlayers.map((player, i) => {
-                        // Find original rank in full sorted list
+                      paginatedPlayers.map((player) => {
                         const originalRank = sortedPlayers.findIndex(
                           (p) => p.name === player.name
                         );
@@ -513,18 +546,15 @@ export default function HPL() {
                               {player.name}
                             </TableCell>
                             <TableCell>
-                              {player.team === "Unknown" ? (
+                              {!player.team || player.team === "Unknown" ? (
                                 <Badge
                                   variant="outline"
                                   className="text-muted-foreground border-muted-foreground/30"
                                 >
-                                  Unassigned
+                                  Not Assigned
                                 </Badge>
                               ) : (
-                                <Badge
-                                  variant="secondary"
-                                  className="font-medium"
-                                >
+                                <Badge variant="secondary" className="font-medium">
                                   {cleanTeamName(player.team)}
                                 </Badge>
                               )}
@@ -541,6 +571,58 @@ export default function HPL() {
                   </TableBody>
                 </Table>
               </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between border-t px-4 py-3">
+                  <p className="text-sm text-muted-foreground">
+                    Showing {(safePage - 1) * PLAYERS_PER_PAGE + 1}–
+                    {Math.min(safePage * PLAYERS_PER_PAGE, filteredPlayers.length)} of{" "}
+                    {filteredPlayers.length} players
+                  </p>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={safePage <= 1}
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter((page) => {
+                        // Show first, last, and pages near current
+                        return page === 1 || page === totalPages || Math.abs(page - safePage) <= 1;
+                      })
+                      .map((page, idx, arr) => {
+                        const showEllipsis = idx > 0 && page - arr[idx - 1] > 1;
+                        return (
+                          <span key={page} className="flex items-center">
+                            {showEllipsis && (
+                              <span className="px-1 text-muted-foreground text-sm">…</span>
+                            )}
+                            <Button
+                              variant={page === safePage ? "default" : "outline"}
+                              size="sm"
+                              className="min-w-[36px]"
+                              onClick={() => setCurrentPage(page)}
+                            >
+                              {page}
+                            </Button>
+                          </span>
+                        );
+                      })}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={safePage >= totalPages}
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </Card>
           </ScrollReveal>
         </section>
@@ -549,7 +631,7 @@ export default function HPL() {
         <section className="container pb-16">
           <ScrollReveal delay={300}>
             <div className="text-center rounded-2xl bg-gradient-to-r from-orange-100 via-amber-50 to-yellow-100 dark:from-orange-900/20 dark:via-amber-900/15 dark:to-yellow-900/20 border border-amber-200/50 dark:border-amber-800/30 p-8 lg:p-12">
-              <p className="text-4xl mb-4">💪</p>
+              <Dumbbell className="h-12 w-12 mx-auto mb-4 text-amber-600 dark:text-amber-400" />
               <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-3">
                 Every Player is a Champion!
               </h2>
@@ -558,10 +640,10 @@ export default function HPL() {
                 keep winning — age is just a number!
               </p>
               <Button asChild size="lg" className="bg-amber-600 hover:bg-amber-700 text-white">
-                <Link to="/corporate-care">
+                <a href={REGISTRATION_LINK} target="_blank" rel="noopener noreferrer">
                   <ChevronRight className="h-4 w-4 mr-1" />
-                  Explore Corporate Care
-                </Link>
+                  Register Now!
+                </a>
               </Button>
             </div>
           </ScrollReveal>
