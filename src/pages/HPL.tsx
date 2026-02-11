@@ -22,6 +22,7 @@ import {
   Users,
   Gamepad2,
   Search,
+  
   ArrowLeft,
   Calendar,
   Clock,
@@ -35,6 +36,9 @@ import { Button } from "@/components/ui/button";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import hplPoster from "@/assets/HPL-poster.jpeg";
 import hoslaLogo from "@/assets/hosla-logo.png";
+import goldMedal from "@/assets/trophy-svgrepo-com.svg";
+import silverMedal from "@/assets/ribbon-svgrepo-com.svg";
+import bronzeMedal from "@/assets/third-svgrepo-com.svg";
 
 // ─── Types ────────────────────────────────────────────────────
 interface Team {
@@ -84,7 +88,7 @@ const RANK_COLORS = [
   "from-orange-400 to-orange-600", // Bronze
 ];
 
-const RANK_ICONS = ["🥇", "🥈", "🥉"];
+const RANK_ICONS = [goldMedal, silverMedal, bronzeMedal];
 
 const RANK_BORDER_COLORS = [
   "border-yellow-400/60",
@@ -350,7 +354,7 @@ export default function HPL() {
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-2">
                           {index < 3 ? (
-                            <span className="text-2xl">{RANK_ICONS[index]}</span>
+                            <img src={RANK_ICONS[index]} alt={`Rank ${index + 1}`} className="h-8 w-8" />
                           ) : (
                             <span className="flex items-center justify-center h-8 w-8 rounded-full bg-muted text-sm font-bold text-muted-foreground">
                               #{index + 1}
@@ -498,9 +502,7 @@ export default function HPL() {
                           >
                             <TableCell className="text-center text-lg font-bold">
                               {originalRank < 3 ? (
-                                <span className="text-2xl">
-                                  {RANK_ICONS[originalRank]}
-                                </span>
+                                <img src={RANK_ICONS[originalRank]} alt={`Rank ${originalRank + 1}`} className="h-8 w-8 inline-block" />
                               ) : (
                                 <span className="text-muted-foreground">
                                   {originalRank + 1}

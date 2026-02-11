@@ -143,7 +143,7 @@ Suggested content for each image:
 │    │   [ CTA Button ]        │ ← translateZ: 20
 │    └─────────────────────────┘      │
 │                                     │
-│  ● ● ● ○ ○ ○  (dot indicators)     │
+│  ● ● ● ○ ○ ○  (dot indicators)      │
 └─────────────────────────────────────┘
 ```
 
