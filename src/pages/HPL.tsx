@@ -232,11 +232,13 @@ export default function HPL() {
                 <div className="relative z-10 grid lg:grid-cols-2 gap-6 p-6 lg:p-10 items-center">
                   <div className="space-y-4 text-white">
                     <div className="flex items-center gap-3">
-                      <img
-                        src={hoslaLogo}
-                        alt="Hosla"
-                        className="h-10 w-auto object-contain"
-                      />
+                      <div className="relative flex items-center justify-center px-4 py-2 rounded-lg bg-white/15 backdrop-blur-sm ring-1 ring-white/25 shadow-lg shadow-amber-900/10">
+                        <img
+                          src={hoslaLogo}
+                          alt="Hosla"
+                          className="h-8 w-auto object-contain drop-shadow-sm"
+                        />
+                      </div>
                       <Badge className="bg-white/20 text-white border-white/30 text-sm hover:bg-white/30">
                         <Flame className="h-3.5 w-3.5 mr-1" />
                         Live Event
