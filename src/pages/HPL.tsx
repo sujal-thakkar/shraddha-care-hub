@@ -36,6 +36,7 @@ import {
   Zap,
   Award,
   Swords,
+  Puzzle,
   ExternalLink,
 } from "lucide-react";
 import { format, isToday, isYesterday } from "date-fns";
@@ -250,6 +251,7 @@ export default function HPL() {
                         <Swords className="inline h-7 w-7 lg:h-9 lg:w-9 text-yellow-200" />
                         <Dices className="inline h-7 w-7 lg:h-9 lg:w-9 text-yellow-200" />
                         <Gamepad2 className="inline h-7 w-7 lg:h-9 lg:w-9 text-yellow-200" />
+                        <Puzzle className="inline h-7 w-7 lg:h-9 lg:w-9 text-yellow-200"/>
                       </span>
                     </h1>
 
