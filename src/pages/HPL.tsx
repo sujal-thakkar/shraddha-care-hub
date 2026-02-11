@@ -31,6 +31,7 @@ import {
   ChevronRight,
   ChevronLeft,
   Sparkles,
+  Dices,
   Dumbbell,
   Zap,
   Award,
@@ -245,7 +246,11 @@ export default function HPL() {
                       Hosla Premier
                       <br />
                       League{" "}
-                      <Swords className="inline h-8 w-8 lg:h-10 lg:w-10 text-yellow-200" />
+                      <span className="inline-flex gap-1.5 align-middle">
+                        <Swords className="inline h-7 w-7 lg:h-9 lg:w-9 text-yellow-200" />
+                        <Dices className="inline h-7 w-7 lg:h-9 lg:w-9 text-yellow-200" />
+                        <Gamepad2 className="inline h-7 w-7 lg:h-9 lg:w-9 text-yellow-200" />
+                      </span>
                     </h1>
 
                     <p className="text-lg lg:text-xl text-white/90 leading-relaxed max-w-lg">
