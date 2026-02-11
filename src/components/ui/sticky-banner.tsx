@@ -28,7 +28,7 @@ export const StickyBanner = ({
       {open ? (
         <motion.div
           className={cn(
-            "sticky inset-x-0 top-0 z-50 w-full px-4 py-2",
+            "sticky inset-x-0 top-0 z-50 w-full px-4",
             className,
           )}
           initial={{
