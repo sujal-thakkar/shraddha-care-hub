@@ -140,6 +140,7 @@ const HPLSkeleton = () => (
 export default function HPL() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [teamFilter, setTeamFilter] = useState("all");
 
   const { data, isLoading, error } = useQuery<HPLData>({
     queryKey: ["hpl-data"],
@@ -168,14 +169,20 @@ export default function HPL() {
 
   // Filtered players
   const filteredPlayers = useMemo(() => {
-    if (!searchQuery.trim()) return sortedPlayers;
-    const q = searchQuery.toLowerCase();
-    return sortedPlayers.filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) ||
-        cleanTeamName(p.team).toLowerCase().includes(q)
-    );
-  }, [sortedPlayers, searchQuery]);
+    let result = sortedPlayers;
+    if (teamFilter !== "all") {
+      result = result.filter((p) => p.team === teamFilter);
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          cleanTeamName(p.team).toLowerCase().includes(q)
+      );
+    }
+    return result;
+  }, [sortedPlayers, searchQuery, teamFilter]);
 
   // Reset page when search changes
   const totalPages = Math.ceil(filteredPlayers.length / PLAYERS_PER_PAGE);
@@ -510,14 +517,26 @@ export default function HPL() {
                 </h2>
               </div>
 
-              <div className="relative w-full sm:w-72">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search by name or team..."
-                  value={searchQuery}
-                  onChange={(e) => handleSearchChange(e.target.value)}
-                  className="pl-10 text-base"
-                />
+              <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                <select
+                  value={teamFilter}
+                  onChange={(e) => { setTeamFilter(e.target.value); setCurrentPage(1); }}
+                  className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                >
+                  <option value="all">All Teams</option>
+                  {(data?.teams || []).map((t) => (
+                    <option key={t.name} value={t.name}>{cleanTeamName(t.name)}</option>
+                  ))}
+                </select>
+                <div className="relative flex-1 sm:w-72 sm:flex-none">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search by name..."
+                    value={searchQuery}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                    className="pl-10 text-base"
+                  />
+                </div>
               </div>
             </div>
 
