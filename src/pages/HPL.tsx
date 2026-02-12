@@ -107,6 +107,17 @@ const RANK_BORDER_COLORS = [
   "border-orange-400/60",
 ];
 
+const TEAM_COLORS: Record<string, { bg: string; text: string; border: string; dot: string }> = {
+  "Team 1": { bg: "bg-blue-100 dark:bg-blue-900/40", text: "text-blue-700 dark:text-blue-300", border: "border-blue-300 dark:border-blue-700", dot: "bg-blue-500" },
+  "Team 2": { bg: "bg-emerald-100 dark:bg-emerald-900/40", text: "text-emerald-700 dark:text-emerald-300", border: "border-emerald-300 dark:border-emerald-700", dot: "bg-emerald-500" },
+  "Team 3": { bg: "bg-purple-100 dark:bg-purple-900/40", text: "text-purple-700 dark:text-purple-300", border: "border-purple-300 dark:border-purple-700", dot: "bg-purple-500" },
+  "Team 4": { bg: "bg-rose-100 dark:bg-rose-900/40", text: "text-rose-700 dark:text-rose-300", border: "border-rose-300 dark:border-rose-700", dot: "bg-rose-500" },
+};
+
+const getTeamColor = (teamName: string) => {
+  return TEAM_COLORS[teamName] || { bg: "bg-muted", text: "text-muted-foreground", border: "border-border", dot: "bg-muted-foreground" };
+};
+
 // ─── Loading Skeleton ─────────────────────────────────────────
 const HPLSkeleton = () => (
   <Layout>
@@ -416,7 +427,8 @@ export default function HPL() {
                         </Badge>
                       </div>
 
-                      <h3 className="text-xl font-bold text-foreground mb-3">
+                      <h3 className="text-xl font-bold text-foreground mb-3 flex items-center gap-2">
+                        <span className={`inline-block h-3 w-3 rounded-full ${getTeamColor(team.name).dot}`} />
                         {cleanTeamName(team.name)}
                       </h3>
 
@@ -568,7 +580,11 @@ export default function HPL() {
                                   Not Assigned
                                 </Badge>
                               ) : (
-                                <Badge variant="secondary" className="font-medium">
+                                <Badge
+                                  variant="outline"
+                                  className={`font-medium ${getTeamColor(player.team).bg} ${getTeamColor(player.team).text} ${getTeamColor(player.team).border}`}
+                                >
+                                  <span className={`inline-block h-2 w-2 rounded-full mr-1.5 ${getTeamColor(player.team).dot}`} />
                                   {cleanTeamName(player.team)}
                                 </Badge>
                               )}
