@@ -490,9 +490,9 @@ export default function HPL() {
                         <p className="font-semibold text-foreground text-sm">
                           {match.game}
                         </p>
-                        <p className="text-xs text-muted-foreground truncate flex items-center gap-1">
-                          <Trophy className="h-3 w-3 inline-block" />
-                          {match.winners}
+                        <p className="text-xs text-muted-foreground flex items-center gap-1 max-w-[180px]">
+                          <Trophy className="h-3 w-3 inline-block flex-shrink-0" />
+                          <span className="truncate">{match.winners}</span>
                         </p>
                       </div>
                       <span className="text-xs text-muted-foreground whitespace-nowrap ml-auto">
