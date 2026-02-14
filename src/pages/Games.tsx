@@ -129,7 +129,7 @@ function getBestMove(board: CellValue[], aiPlayer: Player, humanPlayer: Player) 
 }
 
 export default function Games() {
-  const [gameMode, setGameMode] = useState<"friend" | "computer">("friend");
+  const [gameMode, setGameMode] = useState<"friend" | "computer">("computer");
   const [board, setBoard] = useState<CellValue[]>(Array(9).fill(null));
   const [currentPlayer, setCurrentPlayer] = useState<Player>("X");
 
