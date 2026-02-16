@@ -47,6 +47,7 @@ import hoslaLogo from "@/assets/hosla-logo.png";
 import goldMedal from "@/assets/trophy-svgrepo-com.svg";
 import silverMedal from "@/assets/ribbon-svgrepo-com.svg";
 import bronzeMedal from "@/assets/third-svgrepo-com.svg";
+import AllGamesModal from "@/components/hpl/AllGamesModal";
 
 // ─── Types ────────────────────────────────────────────────────
 interface Team {
@@ -141,6 +142,7 @@ export default function HPL() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [teamFilter, setTeamFilter] = useState("all");
+  const [showAllGames, setShowAllGames] = useState(false);
 
   const { data, isLoading, error } = useQuery<HPLData>({
     queryKey: ["hpl-data"],
@@ -278,7 +280,13 @@ export default function HPL() {
                     <p className="text-lg lg:text-xl text-white/90 leading-relaxed max-w-lg">
                       A high-energy sports league for our beloved Senior Citizens!
                       Offline games (Carrom, Ludo, Badminton) & Online games
-                      (Quizzes, Antakshari).
+                      (Quizzes, Antakshari).{" "}
+                      <button
+                        onClick={() => setShowAllGames(true)}
+                        className="inline-flex items-center gap-1 underline underline-offset-2 decoration-white/50 hover:decoration-white font-semibold text-yellow-200 hover:text-white transition-colors"
+                      >
+                        See all games →
+                      </button>
                     </p>
                     <p className="mt-2 pb-1 text-lg sm:text-xl lg:text-2xl font-semibold italic tracking-wide leading-relaxed max-w-lg">
                       <span className="bg-gradient-to-r from-yellow-200 via-white to-yellow-200 bg-clip-text text-transparent drop-shadow-lg pr-2">
@@ -698,6 +706,8 @@ export default function HPL() {
           </ScrollReveal>
         </section>
       </div>
+
+      <AllGamesModal open={showAllGames} onClose={() => setShowAllGames(false)} />
     </Layout>
   );
 }
