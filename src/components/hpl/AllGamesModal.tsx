@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Wifi, WifiOff, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -70,6 +71,15 @@ const CATEGORY_CONFIG = [
 ];
 
 export default function AllGamesModal({ open, onClose }: AllGamesModalProps) {
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
+
   return (
     <AnimatePresence>
       {open && (
