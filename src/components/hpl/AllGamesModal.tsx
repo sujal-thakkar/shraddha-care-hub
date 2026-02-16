@@ -3,16 +3,21 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Wifi, WifiOff, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+import carromImg from "@/assets/hpl-carrom.jpg";
+import ludoImg from "@/assets/hpl-ludo.jpg";
+import chessImg from "@/assets/hpl-chess.jpg";
+import foosballImg from "@/assets/hpl-foosball.jpg";
+
 interface AllGamesModalProps {
   open: boolean;
   onClose: () => void;
 }
 
 const OFFLINE_GAMES = [
-  { en: "Carrom", bn: "ক্যারাম", emoji: "🎯" },
-  { en: "Ludo", bn: "লুডো", emoji: "🎲" },
-  { en: "Chess", bn: "দাবা", emoji: "♟️" },
-  { en: "Foosball", bn: "ফুসবল", emoji: "⚽" },
+  { en: "Carrom", bn: "ক্যারাম", emoji: "🎯", img: carromImg },
+  { en: "Ludo", bn: "লুডো", emoji: "🎲", img: ludoImg },
+  { en: "Chess", bn: "দাবা", emoji: "♟️", img: chessImg },
+  { en: "Foosball", bn: "ফুসবল", emoji: "⚽", img: foosballImg },
   { en: "Slow Walk", bn: "ধীর পায়ে হাঁটা", emoji: "🚶" },
   { en: "Marble Spoon", bn: "মার্বেল চামচ", emoji: "🥄" },
   { en: "Badminton", bn: "ব্যাডমিন্টন", emoji: "🏸" },
@@ -40,11 +45,13 @@ const BOTH_GAMES = [
   { en: "Gita Shloka", bn: "গীতা শ্লোক", emoji: "📖" },
 ];
 
+type GameItem = { en: string; bn: string; emoji: string; img?: string };
+
 const CATEGORY_CONFIG = [
   {
     title: "Offline Games",
     titleBn: "অফলাইন গেম",
-    games: OFFLINE_GAMES,
+    games: OFFLINE_GAMES as GameItem[],
     icon: WifiOff,
     gradient: "from-emerald-500 to-teal-600",
     cardBg: "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/40",
@@ -53,7 +60,7 @@ const CATEGORY_CONFIG = [
   {
     title: "Online Games",
     titleBn: "অনলাইন গেম",
-    games: ONLINE_GAMES,
+    games: ONLINE_GAMES as GameItem[],
     icon: Wifi,
     gradient: "from-blue-500 to-indigo-600",
     cardBg: "bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800/40",
@@ -62,7 +69,7 @@ const CATEGORY_CONFIG = [
   {
     title: "Both",
     titleBn: "উভয়",
-    games: BOTH_GAMES,
+    games: BOTH_GAMES as GameItem[],
     icon: Globe,
     gradient: "from-purple-500 to-pink-600",
     cardBg: "bg-purple-50 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800/40",
@@ -101,12 +108,16 @@ export default function AllGamesModal({ open, onClose }: AllGamesModalProps) {
 
           {/* Modal */}
           <motion.div
-            className="relative z-10 w-full max-w-3xl max-h-[85vh] overflow-y-auto rounded-2xl bg-background border shadow-2xl"
+            className="relative z-10 w-full max-w-3xl max-h-[85vh] overflow-y-auto rounded-2xl bg-background border shadow-2xl scrollbar-hide"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             initial={{ scale: 0.9, opacity: 0, y: 30 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 30 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
           >
+            {/* Hide webkit scrollbar */}
+            <style>{`.scrollbar-hide::-webkit-scrollbar { display: none; }`}</style>
+
             {/* Header */}
             <div className="sticky top-0 z-20 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 p-5 rounded-t-2xl">
               <div className="flex items-center justify-between">
@@ -151,17 +162,40 @@ export default function AllGamesModal({ open, onClose }: AllGamesModalProps) {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: catIdx * 0.1 + i * 0.03 }}
-                        className={`rounded-xl border p-3 flex items-center gap-3 transition-all hover:shadow-md hover:-translate-y-0.5 cursor-default ${cat.cardBg}`}
+                        className={`rounded-xl border overflow-hidden transition-all hover:shadow-md hover:-translate-y-0.5 cursor-default ${game.img ? "relative h-24" : `p-3 flex items-center gap-3 ${cat.cardBg}`}`}
                       >
-                        <span className="text-2xl flex-shrink-0">{game.emoji}</span>
-                        <div className="min-w-0">
-                          <p className="font-semibold text-sm text-foreground leading-tight truncate">
-                            {game.en}
-                          </p>
-                          <p className="text-xs text-muted-foreground truncate">
-                            {game.bn}
-                          </p>
-                        </div>
+                        {game.img ? (
+                          <>
+                            <img
+                              src={game.img}
+                              alt={game.en}
+                              className="absolute inset-0 w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/50" />
+                            <div className="relative z-10 flex items-end h-full p-3">
+                              <div className="min-w-0">
+                                <p className="font-bold text-sm text-white leading-tight truncate drop-shadow-lg">
+                                  {game.en}
+                                </p>
+                                <p className="text-xs text-white/80 truncate drop-shadow">
+                                  {game.bn}
+                                </p>
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-2xl flex-shrink-0">{game.emoji}</span>
+                            <div className="min-w-0">
+                              <p className="font-semibold text-sm text-foreground leading-tight truncate">
+                                {game.en}
+                              </p>
+                              <p className="text-xs text-muted-foreground truncate">
+                                {game.bn}
+                              </p>
+                            </div>
+                          </>
+                        )}
                       </motion.div>
                     ))}
                   </div>
