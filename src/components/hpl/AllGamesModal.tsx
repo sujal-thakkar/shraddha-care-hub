@@ -7,6 +7,16 @@ import carromImg from "@/assets/hpl-carrom.jpg";
 import ludoImg from "@/assets/hpl-ludo.jpg";
 import chessImg from "@/assets/hpl-chess.jpg";
 import foosballImg from "@/assets/hpl-foosball.jpg";
+import slowWalkImg from "@/assets/hpl-slow-walk.jpg";
+import marbleSpoonImg from "@/assets/hpl-marble-spoon.jpg";
+import badmintonImg from "@/assets/hpl-badminton.jpg";
+import memoryGameImg from "@/assets/hpl-memory-game.jpg";
+import gaanerLoraiImg from "@/assets/hpl-gaaner-lorai.jpg";
+import bucketBallImg from "@/assets/hpl-bucket-ball.jpg";
+import saankhBajanoImg from "@/assets/hpl-saankh-bajano.jpg";
+import antakshariImg from "@/assets/hpl-antakshari.jpg";
+import songGuessImg from "@/assets/hpl-song-guess.jpg";
+import createSongPoemImg from "@/assets/hpl-create-song-poem.jpg";
 
 interface AllGamesModalProps {
   open: boolean;
@@ -18,19 +28,19 @@ const OFFLINE_GAMES = [
   { en: "Ludo", bn: "লুডো", emoji: "🎲", img: ludoImg },
   { en: "Chess", bn: "দাবা", emoji: "♟️", img: chessImg },
   { en: "Foosball", bn: "ফুসবল", emoji: "⚽", img: foosballImg },
-  { en: "Slow Walk", bn: "ধীর পায়ে হাঁটা", emoji: "🚶" },
-  { en: "Marble Spoon", bn: "মার্বেল চামচ", emoji: "🥄" },
-  { en: "Badminton", bn: "ব্যাডমিন্টন", emoji: "🏸" },
-  { en: "Memory Game", bn: "মেমরি গেম", emoji: "🧠" },
-  { en: "Gaaner Lorai", bn: "গানের লড়াই", emoji: "🎤" },
-  { en: "Bucket Ball", bn: "বাকেট বল", emoji: "🪣" },
-  { en: "Saankh Bajano", bn: "শাঁখ বাজানো", emoji: "🐚" },
+  { en: "Slow Walk", bn: "ধীর পায়ে হাঁটা", emoji: "🚶", img: slowWalkImg },
+  { en: "Marble Spoon", bn: "মার্বেল চামচ", emoji: "🥄", img: marbleSpoonImg },
+  { en: "Badminton", bn: "ব্যাডমিন্টন", emoji: "🏸", img: badmintonImg },
+  { en: "Memory Game", bn: "মেমরি গেম", emoji: "🧠", img: memoryGameImg },
+  { en: "Gaaner Lorai", bn: "গানের লড়াই", emoji: "🎤", img: gaanerLoraiImg },
+  { en: "Bucket Ball", bn: "বাকেট বল", emoji: "🪣", img: bucketBallImg },
+  { en: "Saankh Bajano", bn: "শাঁখ বাজানো", emoji: "🐚", img: saankhBajanoImg },
 ];
 
 const ONLINE_GAMES = [
-  { en: "Antakshari", bn: "অন্তাক্ষরী", emoji: "🎵" },
-  { en: "Popular Song Guess", bn: "জনপ্রিয় গান অনুমান", emoji: "🎶" },
-  { en: "Create Song/Poem", bn: "গান/কবিতা রচনা", emoji: "✍️" },
+  { en: "Antakshari", bn: "অন্তাক্ষরী", emoji: "🎵", img: antakshariImg },
+  { en: "Popular Song Guess", bn: "জনপ্রিয় গান অনুমান", emoji: "🎶", img: songGuessImg },
+  { en: "Create Song/Poem", bn: "গান/কবিতা রচনা", emoji: "✍️", img: createSongPoemImg },
   { en: "Quiz", bn: "কুইজ", emoji: "❓" },
   { en: "Word Making", bn: "শব্দ তৈরি", emoji: "🔤" },
   { en: "Online Presence", bn: "অনলাইন উপস্থিতি", emoji: "📱" },
