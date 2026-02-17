@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import GameRulesModal from "./GameRulesModal";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Wifi, WifiOff, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -88,6 +89,8 @@ const CATEGORY_CONFIG = [
 ];
 
 export default function AllGamesModal({ open, onClose }: AllGamesModalProps) {
+  const [selectedGame, setSelectedGame] = useState<GameItem | null>(null);
+
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
@@ -172,7 +175,8 @@ export default function AllGamesModal({ open, onClose }: AllGamesModalProps) {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: catIdx * 0.1 + i * 0.03 }}
-                        className={`rounded-xl border overflow-hidden transition-all hover:shadow-md hover:-translate-y-0.5 cursor-default ${game.img ? "relative h-24" : `p-3 flex items-center gap-3 ${cat.cardBg}`}`}
+                        className={`rounded-xl border overflow-hidden transition-all hover:shadow-md hover:-translate-y-0.5 cursor-pointer ${game.img ? "relative h-24" : `p-3 flex items-center gap-3 ${cat.cardBg}`}`}
+                        onClick={() => setSelectedGame(game)}
                       >
                         {game.img ? (
                           <>
@@ -213,6 +217,13 @@ export default function AllGamesModal({ open, onClose }: AllGamesModalProps) {
               ))}
             </div>
           </motion.div>
+
+          {/* Game Rules Modal */}
+          <GameRulesModal
+            open={!!selectedGame}
+            onClose={() => setSelectedGame(null)}
+            game={selectedGame}
+          />
         </motion.div>
       )}
     </AnimatePresence>
