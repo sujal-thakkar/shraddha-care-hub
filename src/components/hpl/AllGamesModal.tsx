@@ -18,6 +18,15 @@ import saankhBajanoImg from "@/assets/hpl-saankh-bajano.jpg";
 import antakshariImg from "@/assets/hpl-antakshari.jpg";
 import songGuessImg from "@/assets/hpl-song-guess.jpg";
 import createSongPoemImg from "@/assets/hpl-create-song-poem.jpg";
+import gitaImg from "@/assets/gita-shloka.jpg";
+import wordMakingImg from "@/assets/word-making.jpeg";
+import onlinePresenceImg from "@/assets/online-presence.jpg.jpeg";
+import suchSutoImg from "@/assets/such-suto.jpg.jpeg";
+import tatImg from "@/assets/TAT.jpg.jpeg";
+import yesNoImg from "@/assets/yes-no.jpeg";
+import songQuizImg from "@/assets/song-quiz.jpg.jpeg"; 
+import songQuizIdvImg from "@/assets/song-quiz-individual.jpg.jpeg";
+import quizImg from "@/assets/quiz.jpg.jpeg";
 
 interface AllGamesModalProps {
   open: boolean;
@@ -42,18 +51,18 @@ const ONLINE_GAMES = [
   { en: "Antakshari", bn: "অন্তাক্ষরী", emoji: "🎵", img: antakshariImg },
   { en: "Popular Song Guess", bn: "জনপ্রিয় গান অনুমান", emoji: "🎶", img: songGuessImg },
   { en: "Create Song/Poem", bn: "গান/কবিতা রচনা", emoji: "✍️", img: createSongPoemImg },
-  { en: "Quiz", bn: "কুইজ", emoji: "❓" },
-  { en: "Word Making", bn: "শব্দ তৈরি", emoji: "🔤" },
-  { en: "Online Presence", bn: "অনলাইন উপস্থিতি", emoji: "📱" },
-  { en: "Such Suto", bn: "সুচ সুতো", emoji: "🧵" },
-  { en: "TAT", bn: "ছবি দেখে বলা", emoji: "🖼️" },
-  { en: "Yes No Guess", bn: "হ্যাঁ/না অনুমান", emoji: "🤔" },
-  { en: "Song Quiz", bn: "গান ধরো", emoji: "🎧" },
-  { en: "Song Quiz - Individual", bn: "গান ধরো (একক)", emoji: "🎙️" },
+  { en: "Quiz", bn: "কুইজ", emoji: "❓", img: quizImg },
+  { en: "Word Making", bn: "শব্দ তৈরি", emoji: "🔤", img: wordMakingImg },
+  { en: "Online Presence", bn: "অনলাইন উপস্থিতি", emoji: "📱", img: onlinePresenceImg },
+  { en: "Such Suto", bn: "সুচ সুতো", emoji: "🧵", img: suchSutoImg },
+  { en: "TAT", bn: "ছবি দেখে বলা", emoji: "🖼️", img: tatImg },
+  { en: "Yes No Guess", bn: "হ্যাঁ/না অনুমান", emoji: "🤔", img: yesNoImg },
+  { en: "Song Quiz", bn: "গান ধরো", emoji: "🎧", img: songQuizImg },
+  { en: "Song Quiz - Individual", bn: "গান ধরো (একক)", emoji: "🎙️", img: songQuizIdvImg },
 ];
 
 const BOTH_GAMES = [
-  { en: "Gita Shloka", bn: "গীতা শ্লোক", emoji: "📖" },
+  { en: "Gita Shloka", bn: "গীতা শ্লোক", emoji: "📖", img: gitaImg },
 ];
 
 type GameItem = { en: string; bn: string; emoji: string; img?: string };

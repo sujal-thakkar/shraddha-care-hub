@@ -77,7 +77,7 @@ interface HPLData {
 
 // ─── Helpers ──────────────────────────────────────────────────
 const HPL_API =
-  "https://script.google.com/macros/s/AKfycbxe4qzzgioWdtVaGCIr9qZ3LvPL7lBXhL8ouvpSFLeBNa_ZWSr8kGZimqkgtJ70TkSdug/exec";
+  "https://script.google.com/macros/s/AKfycbyoC3byt920Tan07iCj63kA4CN10xuEuhZXNiKVaGZHC_cDVzrMCdaudRapE-LD20TsnA/exec";
 
 const REGISTRATION_LINK = "https://forms.gle/LQvaRz7msRf4TQUx7";
 const PLAYERS_PER_PAGE = 15;
