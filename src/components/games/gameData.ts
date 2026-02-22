@@ -31,7 +31,7 @@ const createRound = (
 
 // ============ FRUITS & FOODS ============
 
-{/* const fruitsFoodsSet1: GameRound[] = [
+  const fruitsFoodsSet1: GameRound[] = [
   createRound(1, "easy", "🍎", "Apple", ["Apple", "Orange", "Banana", "Mango"], "Fruits"),
   createRound(2, "medium", "🥭", "Mango", ["Papaya", "Mango", "Peach", "Apricot"], "Fruits"),
   createRound(3, "medium", "🍇", "Grapes", ["Berries", "Grapes", "Olives", "Cherries"], "Fruits"),
@@ -95,7 +95,7 @@ const vehiclesSet1: GameRound[] = [
   createRound(3, "medium", "✈️", "Airplane", ["Airplane", "Helicopter", "Jet", "Drone"], "Vehicles"),
   createRound(4, "hard", "🚢", "Cruise", ["Boat", "Ship", "Cruise", "Yacht"], "Vehicles"),
   createRound(5, "hard", "🚁", "Helicopter", ["Airplane", "Drone", "Helicopter", "Jet"], "Vehicles"),
-]; */}
+]; 
 
 const vehiclesSet2: GameRound[] = [
   createRound(1, "easy", "🚲", "Bicycle", ["Bicycle", "Motorcycle", "Scooter", "Tricycle"], "Vehicles"),
@@ -114,7 +114,7 @@ const buildingsSet: GameRound[] = [
   createRound(5, "hard", "🏰", "Castle", ["Fort", "Castle", "Palace", "Citadel"], "Buildings"),
 ];
 
-{/* const indianMonumentsSet: GameRound[] = [
+  const indianMonumentsSet: GameRound[] = [
   createRound(1, "easy", "🕌", "Mosque", ["Temple", "Mosque", "Church", "Gurudwara"], "Indian Monuments"),
   createRound(2, "medium", "🛕", "Temple", ["Shrine", "Temple", "Pagoda", "Chapel"], "Indian Monuments"),
   createRound(3, "medium", "🏯", "Fort", ["Castle", "Fort", "Palace", "Citadel"], "Indian Monuments"),
@@ -208,31 +208,31 @@ const toolsSet: GameRound[] = [
   createRound(3, "medium", "✂️", "Scissors", ["Shears", "Scissors", "Clippers", "Cutters"], "Tools"),
   createRound(4, "hard", "🔧", "Wrench", ["Spanner", "Wrench", "Pliers", "Clamp"], "Tools"),
   createRound(5, "hard", "⚙️", "Gear", ["Cog", "Gear", "Wheel", "Sprocket"], "Tools"),
-]; */}
+]; 
 
 // All game sets combined
 export const allGameSets: GameRound[][] = [
-  // fruitsFoodsSet1,
-  // fruitsFoodsSet2,
-  // indianFoodSet,
-  // animalsSet1,
-  // animalsSet2,
-  // birdsSet,
-  // seaCreaturesSet,
-  // vehiclesSet1,
+  fruitsFoodsSet1,
+  fruitsFoodsSet2,
+  indianFoodSet,
+  animalsSet1,
+  animalsSet2,
+  birdsSet,
+  seaCreaturesSet,
+  vehiclesSet1,
   vehiclesSet2,
   buildingsSet,
-  // indianMonumentsSet,
-  // natureSet,
-  // weatherSet,
-  // householdSet1,
-  // householdSet2,
-  // musicSet,
-  // sportsSet,
-  // professionsSet,
-  // emotionsSet,
-  // celebrationsSet,
-  // toolsSet,
+  indianMonumentsSet,
+  natureSet,
+  weatherSet,
+  householdSet1,
+  householdSet2,
+  musicSet,
+  sportsSet,
+  professionsSet,
+  emotionsSet,
+  celebrationsSet,
+  toolsSet,
 ];
 
 // Get a random game set
