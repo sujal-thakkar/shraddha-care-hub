@@ -241,7 +241,7 @@ export default function HPL() {
             collisionPadding={12}
             className={`max-w-[220px] text-center backdrop-blur-md border ${colors.glass} !bg-opacity-80`}
           >
-            <p className="font-[cursive] font-medium"
+            <p className="font-medium"
             >Total points &divide; fixed denominator (largest team size) &mdash; same for all teams.</p>
           </TooltipContent>
         </Tooltip>
