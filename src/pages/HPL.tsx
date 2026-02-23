@@ -115,15 +115,15 @@ const RANK_BORDER_COLORS = [
   "border-orange-400/60",
 ];
 
-const TEAM_COLORS: Record<string, { bg: string; text: string; border: string; dot: string }> = {
-  "Team 1": { bg: "bg-blue-100 dark:bg-blue-900/40", text: "text-blue-700 dark:text-blue-300", border: "border-blue-300 dark:border-blue-700", dot: "bg-blue-500" },
-  "Team 2": { bg: "bg-emerald-100 dark:bg-emerald-900/40", text: "text-emerald-700 dark:text-emerald-300", border: "border-emerald-300 dark:border-emerald-700", dot: "bg-emerald-500" },
-  "Team 3": { bg: "bg-purple-100 dark:bg-purple-900/40", text: "text-purple-700 dark:text-purple-300", border: "border-purple-300 dark:border-purple-700", dot: "bg-purple-500" },
-  "Team 4": { bg: "bg-rose-100 dark:bg-rose-900/40", text: "text-rose-700 dark:text-rose-300", border: "border-rose-300 dark:border-rose-700", dot: "bg-rose-500" },
+const TEAM_COLORS: Record<string, { bg: string; text: string; border: string; dot: string; glass: string }> = {
+  "Team 1": { bg: "bg-blue-100 dark:bg-blue-900/40", text: "text-blue-700 dark:text-blue-300", border: "border-blue-300 dark:border-blue-700", dot: "bg-blue-500", glass: "bg-blue-500/15 dark:bg-blue-400/15 border-blue-400/30 dark:border-blue-300/30 text-blue-900 dark:text-blue-100" },
+  "Team 2": { bg: "bg-emerald-100 dark:bg-emerald-900/40", text: "text-emerald-700 dark:text-emerald-300", border: "border-emerald-300 dark:border-emerald-700", dot: "bg-emerald-500", glass: "bg-emerald-500/15 dark:bg-emerald-400/15 border-emerald-400/30 dark:border-emerald-300/30 text-emerald-900 dark:text-emerald-100" },
+  "Team 3": { bg: "bg-purple-100 dark:bg-purple-900/40", text: "text-purple-700 dark:text-purple-300", border: "border-purple-300 dark:border-purple-700", dot: "bg-purple-500", glass: "bg-purple-500/15 dark:bg-purple-400/15 border-purple-400/30 dark:border-purple-300/30 text-purple-900 dark:text-purple-100" },
+  "Team 4": { bg: "bg-rose-100 dark:bg-rose-900/40", text: "text-rose-700 dark:text-rose-300", border: "border-rose-300 dark:border-rose-700", dot: "bg-rose-500", glass: "bg-rose-500/15 dark:bg-rose-400/15 border-rose-400/30 dark:border-rose-300/30 text-rose-900 dark:text-rose-100" },
 };
 
 const getTeamColor = (teamName: string) => {
-  return TEAM_COLORS[teamName] || { bg: "bg-muted", text: "text-muted-foreground", border: "border-border", dot: "bg-muted-foreground" };
+  return TEAM_COLORS[teamName] || { bg: "bg-muted", text: "text-muted-foreground", border: "border-border", dot: "bg-muted-foreground", glass: "bg-white/15 dark:bg-white/10 border-white/20 text-foreground" };
 };
 
 // ─── Loading Skeleton ─────────────────────────────────────────
@@ -207,6 +207,46 @@ export default function HPL() {
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
     setCurrentPage(1);
+  };
+
+  // Avg info tooltip — works on hover (desktop) & tap (mobile)
+  const AvgInfoBadge = ({ size = "sm", teamName }: { size?: "sm" | "md"; teamName: string }) => {
+    const [open, setOpen] = useState(false);
+    const colors = getTeamColor(teamName);
+    return (
+      <TooltipProvider delayDuration={0}>
+        <Tooltip open={open} onOpenChange={setOpen}>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              aria-label="How is average calculated?"
+              onClick={() => setOpen((o) => !o)}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                setOpen((o) => !o);
+              }}
+              className="inline-flex items-center justify-center rounded-full focus:outline-none"
+            >
+              <Info
+                className={`${
+                  size === "md" ? "h-3.5 w-3.5" : "h-3 w-3"
+                } cursor-help text-muted-foreground/70 hover:text-muted-foreground transition-colors`}
+              />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent
+            side="top"
+            align="center"
+            avoidCollisions
+            collisionPadding={12}
+            className={`max-w-[220px] text-center backdrop-blur-md border ${colors.glass} !bg-opacity-80`}
+          >
+            <p className="font-[cursive] font-medium"
+            >Total points &divide; fixed denominator (largest team size) &mdash; same for all teams.</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
   };
 
   if (isLoading) return <HPLSkeleton />;
@@ -386,16 +426,7 @@ export default function HPL() {
                       </p>
                       <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider flex items-center gap-1 justify-center sm:justify-start">
                         Avg Score
-                        <TooltipProvider delayDuration={0}>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Info className="h-3.5 w-3.5 cursor-help text-muted-foreground/70 hover:text-muted-foreground" />
-                            </TooltipTrigger>
-                            <TooltipContent side="bottom" className="max-w-[220px] text-center">
-                              <p>Total points divided by a fixed denominator (largest team size) — same for all teams.</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                        <AvgInfoBadge size="md" teamName={leadingTeam.name} />
                       </p>
                     </div>
                     <div>
@@ -470,16 +501,7 @@ export default function HPL() {
                           </p>
                           <p className="text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-1">
                             Average
-                            <TooltipProvider delayDuration={0}>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Info className="h-3 w-3 cursor-help text-muted-foreground/70 hover:text-muted-foreground" />
-                                </TooltipTrigger>
-                                <TooltipContent side="bottom" className="max-w-[220px] text-center">
-                                  <p>Total points divided by a fixed denominator (largest team size) — same for all teams.</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+                            <AvgInfoBadge teamName={team.name} />
                           </p>
                         </div>
                         <div>
