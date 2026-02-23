@@ -38,10 +38,17 @@ import {
   Swords,
   Puzzle,
   ExternalLink,
+  Info,
 } from "lucide-react";
 import { format, isToday, isYesterday } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import hplPoster from "@/assets/HPL-poster.jpeg";
 import hoslaLogo from "@/assets/hosla-logo.png";
 import goldMedal from "@/assets/trophy-svgrepo-com.svg";
@@ -77,7 +84,7 @@ interface HPLData {
 
 // ─── Helpers ──────────────────────────────────────────────────
 const HPL_API =
-  "https://script.google.com/macros/s/AKfycbyoC3byt920Tan07iCj63kA4CN10xuEuhZXNiKVaGZHC_cDVzrMCdaudRapE-LD20TsnA/exec";
+  "https://script.google.com/macros/s/AKfycbyxPlMd_zGAuQWn9PIco4Vj3gxZVOpeGOKnD-CnAcY1Zls2xaQVp7wEjAQGWeHNAuusdg/exec";
 
 const REGISTRATION_LINK = "https://forms.gle/LQvaRz7msRf4TQUx7";
 const PLAYERS_PER_PAGE = 15;
@@ -377,8 +384,18 @@ export default function HPL() {
                       <p className="text-4xl lg:text-5xl font-bold text-amber-600 dark:text-amber-400">
                         {parseFloat(leadingTeam.average).toFixed(2)}
                       </p>
-                      <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                      <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider flex items-center gap-1 justify-center sm:justify-start">
                         Avg Score
+                        <TooltipProvider delayDuration={0}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="h-3.5 w-3.5 cursor-help text-muted-foreground/70 hover:text-muted-foreground" />
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom" className="max-w-[220px] text-center">
+                              <p>Total points divided by a fixed denominator (largest team size) — same for all teams.</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </p>
                     </div>
                     <div>
@@ -451,8 +468,18 @@ export default function HPL() {
                           <p className="text-3xl font-bold text-amber-600 dark:text-amber-400">
                             {parseFloat(team.average).toFixed(2)}
                           </p>
-                          <p className="text-xs text-muted-foreground uppercase tracking-wider">
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-1">
                             Average
+                            <TooltipProvider delayDuration={0}>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Info className="h-3 w-3 cursor-help text-muted-foreground/70 hover:text-muted-foreground" />
+                                </TooltipTrigger>
+                                <TooltipContent side="bottom" className="max-w-[220px] text-center">
+                                  <p>Total points divided by a fixed denominator (largest team size) — same for all teams.</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                           </p>
                         </div>
                         <div>
