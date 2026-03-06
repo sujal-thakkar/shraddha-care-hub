@@ -251,15 +251,38 @@ export function QuickReportModal({ isOpen, onClose }: QuickReportModalProps) {
     );
   }, []);
 
+  // Save captured photo to device storage so it appears in gallery/downloads
+  // Videos are auto-saved by the native camera app, but photos captured via
+  // <input type="file" capture> on newer Android Chrome are only kept as
+  // temporary files and NOT saved to the gallery automatically.
+  const savePhotoToDevice = useCallback((file: File) => {
+    try {
+      const downloadUrl = URL.createObjectURL(file);
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = `shraddha-report-${Date.now()}.jpg`;
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(downloadUrl);
+      }, 150);
+    } catch (err) {
+      console.log("Could not auto-save photo to device");
+    }
+  }, []);
+
   // Handle native file input for photo capture
   const handlePhotoCapture = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const url = URL.createObjectURL(file);
       setCapturedMedia({ type: "photo", file, url });
+      savePhotoToDevice(file);
     }
     if (photoInputRef.current) photoInputRef.current.value = "";
-  }, []);
+  }, [savePhotoToDevice]);
 
   // Handle native file input for video capture
   const handleVideoCapture = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
