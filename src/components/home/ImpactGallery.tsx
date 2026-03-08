@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import {
   Carousel,
@@ -151,7 +151,8 @@ export const ImpactGallery = () => {
             <CarouselItem key={index} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
               <div 
                 className="overflow-hidden rounded-xl shadow-lg cursor-pointer group aspect-[4/3] relative"
-                onClick={() => openLightbox(index)}
+                onPointerDown={handlePointerDown}
+                onClick={(e) => handleClick(index, e)}
               >
                 <img
                   src={image.src}
