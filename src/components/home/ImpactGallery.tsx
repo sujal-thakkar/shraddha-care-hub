@@ -116,7 +116,23 @@ export const ImpactGallery = () => {
   const handleMouseEnter = useCallback(() => setIsPaused(true), []);
   const handleMouseLeave = useCallback(() => setIsPaused(false), []);
 
-  const openLightbox = useCallback((index: number) => {
+  // Track drag vs click — embla swallows clicks after drag
+  const pointerDown = useRef<{ x: number; y: number } | null>(null);
+
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    pointerDown.current = { x: e.clientX, y: e.clientY };
+  }, []);
+
+  const handleClick = useCallback((index: number, e: React.MouseEvent) => {
+    if (pointerDown.current) {
+      const dx = Math.abs(e.clientX - pointerDown.current.x);
+      const dy = Math.abs(e.clientY - pointerDown.current.y);
+      if (dx > 5 || dy > 5) {
+        pointerDown.current = null;
+        return; // was a drag, not a click
+      }
+    }
+    pointerDown.current = null;
     setSelectedImage(index);
   }, []);
 
