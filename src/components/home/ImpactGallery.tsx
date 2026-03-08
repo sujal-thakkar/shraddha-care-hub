@@ -192,11 +192,11 @@ export const ImpactGallery = () => {
       </div>
 
       {/* Lightbox Modal */}
-      {selectedImage !== null && (
+      {selectedImage !== null && createPortal(
         <div 
-          className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-sm flex items-center justify-center"
+          className="fixed inset-0 flex items-center justify-center"
           onClick={() => setSelectedImage(null)}
-          style={{ top: 0, left: 0, right: 0, bottom: 0, position: "fixed" }}
+          style={{ top: 0, left: 0, right: 0, bottom: 0, position: "fixed", zIndex: 99999, backgroundColor: "rgba(0, 0, 0, 0.92)" }}
         >
           <div 
             className="relative w-full h-full flex flex-col items-center justify-center p-4 sm:p-8"
