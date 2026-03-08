@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import {
   Carousel,
@@ -116,7 +116,23 @@ export const ImpactGallery = () => {
   const handleMouseEnter = useCallback(() => setIsPaused(true), []);
   const handleMouseLeave = useCallback(() => setIsPaused(false), []);
 
-  const openLightbox = useCallback((index: number) => {
+  // Track drag vs click — embla swallows clicks after drag
+  const pointerDown = useRef<{ x: number; y: number } | null>(null);
+
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    pointerDown.current = { x: e.clientX, y: e.clientY };
+  }, []);
+
+  const handleClick = useCallback((index: number, e: React.MouseEvent) => {
+    if (pointerDown.current) {
+      const dx = Math.abs(e.clientX - pointerDown.current.x);
+      const dy = Math.abs(e.clientY - pointerDown.current.y);
+      if (dx > 5 || dy > 5) {
+        pointerDown.current = null;
+        return; // was a drag, not a click
+      }
+    }
+    pointerDown.current = null;
     setSelectedImage(index);
   }, []);
 
@@ -135,7 +151,8 @@ export const ImpactGallery = () => {
             <CarouselItem key={index} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
               <div 
                 className="overflow-hidden rounded-xl shadow-lg cursor-pointer group aspect-[4/3] relative"
-                onClick={() => openLightbox(index)}
+                onPointerDown={handlePointerDown}
+                onClick={(e) => handleClick(index, e)}
               >
                 <img
                   src={image.src}
