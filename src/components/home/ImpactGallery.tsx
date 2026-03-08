@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import {
   Carousel,
   CarouselContent,
@@ -8,7 +9,6 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 
-// Import all impact images
 import impactImg1 from "@/assets/impact-img1.jpg";
 import impactImg2 from "@/assets/impact-img2.jpg";
 import impactImg3 from "@/assets/impact-img3.jpg";
@@ -72,31 +72,60 @@ const impactImages = [
 export const ImpactGallery = () => {
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
   const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
-  // Autoplay functionality
+  // Track current slide
+  useEffect(() => {
+    if (!api) return;
+    const onSelect = () => setCurrent(api.selectedScrollSnap());
+    api.on("select", onSelect);
+    onSelect();
+    return () => { api.off("select", onSelect); };
+  }, [api]);
+
+  // Autoplay
   useEffect(() => {
     if (!api || isPaused) return;
-
-    const interval = setInterval(() => {
-      api.scrollNext();
-    }, 4000);
-
+    const interval = setInterval(() => api.scrollNext(), 4000);
     return () => clearInterval(interval);
   }, [api, isPaused]);
+
+  // Lock body scroll when lightbox is open
+  useEffect(() => {
+    if (selectedImage !== null) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [selectedImage]);
+
+  // Keyboard navigation in lightbox
+  useEffect(() => {
+    if (selectedImage === null) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelectedImage(null);
+      if (e.key === "ArrowLeft") setSelectedImage((prev) => prev !== null ? (prev - 1 + impactImages.length) % impactImages.length : null);
+      if (e.key === "ArrowRight") setSelectedImage((prev) => prev !== null ? (prev + 1) % impactImages.length : null);
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [selectedImage]);
 
   const handleMouseEnter = useCallback(() => setIsPaused(true), []);
   const handleMouseLeave = useCallback(() => setIsPaused(false), []);
 
+  const openLightbox = useCallback((index: number) => {
+    setSelectedImage(index);
+  }, []);
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Main Carousel */}
       <Carousel
         setApi={setApi}
-        opts={{
-          align: "start",
-          loop: true,
-        }}
+        opts={{ align: "start", loop: true }}
         className="w-full"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -105,17 +134,21 @@ export const ImpactGallery = () => {
           {impactImages.map((image, index) => (
             <CarouselItem key={index} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
               <div 
-                className="overflow-hidden rounded-xl shadow-lg cursor-pointer group aspect-[4/3]"
-                onClick={() => setSelectedImage(index)}
+                className="overflow-hidden rounded-xl shadow-lg cursor-pointer group aspect-[4/3] relative"
+                onClick={() => openLightbox(index)}
               >
-              <img
+                <img
                   src={image.src}
                   alt={image.alt}
                   loading="lazy"
                   width={413}
                   height={310}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
+                {/* Hover overlay with caption */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-4">
+                  <p className="text-white text-sm font-medium leading-snug">{image.caption}</p>
+                </div>
               </div>
             </CarouselItem>
           ))}
@@ -124,80 +157,87 @@ export const ImpactGallery = () => {
         <CarouselNext className="hidden md:flex -right-4 bg-background/80 backdrop-blur-sm border-border hover:bg-background" />
       </Carousel>
 
-      {/* Thumbnail Navigation */}
-      <div className="flex justify-center gap-2 overflow-x-auto py-2 px-4">
-        {impactImages.map((image, index) => (
+      {/* Dot indicators */}
+      <div className="flex justify-center gap-2 py-1">
+        {impactImages.map((_, index) => (
           <button
             key={index}
-            onClick={() => setSelectedImage(index)}
-            className={`flex-shrink-0 w-16 h-12 rounded-md overflow-hidden border-2 transition-all duration-300 ${
-              selectedImage === index 
-                ? "border-primary ring-2 ring-primary/30" 
-                : "border-border hover:border-primary/50"
+            onClick={() => api?.scrollTo(index)}
+            className={`rounded-full transition-all duration-300 ${
+              current === index
+                ? "w-6 h-2.5 bg-primary"
+                : "w-2.5 h-2.5 bg-muted-foreground/30 hover:bg-muted-foreground/50"
             }`}
-          >
-            <img
-              src={image.src}
-              alt={image.alt}
-              loading="lazy"
-              width={64}
-              height={48}
-              className="w-full h-full object-cover"
-            />
-          </button>
+            aria-label={`Go to slide ${index + 1}`}
+          />
         ))}
       </div>
 
       {/* Lightbox Modal */}
       {selectedImage !== null && (
         <div 
-          className="fixed inset-0 z-[100] bg-foreground/95 flex items-center justify-center p-4"
+          className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-sm flex items-center justify-center"
           onClick={() => setSelectedImage(null)}
+          style={{ top: 0, left: 0, right: 0, bottom: 0, position: "fixed" }}
         >
           <div 
-            className="relative max-w-5xl max-h-[90vh] w-full flex flex-col"
+            className="relative w-full h-full flex flex-col items-center justify-center p-4 sm:p-8"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Close button */}
             <button
               onClick={() => setSelectedImage(null)}
-              className="absolute -top-12 right-0 text-background hover:text-primary transition-colors text-lg font-medium z-10"
+              className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10 text-white/80 hover:text-white transition-colors bg-white/10 hover:bg-white/20 rounded-full p-2"
+              aria-label="Close lightbox"
             >
-              Close ✕
+              <X className="h-6 w-6" />
             </button>
+
+            {/* Counter */}
+            <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-10 text-white/60 text-sm font-medium bg-white/10 px-3 py-1 rounded-full">
+              {selectedImage + 1} / {impactImages.length}
+            </div>
             
-            <div className="relative flex-1 min-h-0">
+            {/* Image container */}
+            <div className="relative flex-1 w-full max-w-5xl flex items-center justify-center min-h-0">
               <img
                 src={impactImages[selectedImage].src}
                 alt={impactImages[selectedImage].alt}
-                loading="eager"
-                className="w-full h-full object-contain rounded-lg max-h-[60vh]"
+                className="max-w-full max-h-[65vh] object-contain rounded-lg shadow-2xl animate-in fade-in zoom-in-95 duration-300"
               />
               
-              {/* Navigation buttons */}
+              {/* Previous button */}
               <button
-                onClick={() => setSelectedImage((selectedImage - 1 + impactImages.length) % impactImages.length)}
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-background/20 hover:bg-background/40 text-background p-3 rounded-full transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedImage((selectedImage - 1 + impactImages.length) % impactImages.length);
+                }}
+                className="absolute left-0 sm:left-2 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/25 text-white p-2.5 sm:p-3 rounded-full transition-all duration-300 hover:scale-110"
+                aria-label="Previous image"
               >
-                ←
+                <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
               </button>
+
+              {/* Next button */}
               <button
-                onClick={() => setSelectedImage((selectedImage + 1) % impactImages.length)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-background/20 hover:bg-background/40 text-background p-3 rounded-full transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedImage((selectedImage + 1) % impactImages.length);
+                }}
+                className="absolute right-0 sm:right-2 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/25 text-white p-2.5 sm:p-3 rounded-full transition-all duration-300 hover:scale-110"
+                aria-label="Next image"
               >
-                →
+                <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
               </button>
             </div>
             
-            {/* Caption and Description */}
-            <div className="mt-4 text-center px-4 space-y-2">
-              <h3 className="text-xl font-serif font-semibold text-background">
+            {/* Caption */}
+            <div className="mt-4 text-center px-4 space-y-2 max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h3 className="text-lg sm:text-xl font-serif font-semibold text-white">
                 {impactImages[selectedImage].caption}
               </h3>
-              <p className="text-background/80 text-sm max-w-2xl mx-auto leading-relaxed">
+              <p className="text-white/70 text-sm leading-relaxed">
                 {impactImages[selectedImage].description}
-              </p>
-              <p className="text-background/50 text-xs mt-2">
-                {selectedImage + 1} / {impactImages.length}
               </p>
             </div>
           </div>
