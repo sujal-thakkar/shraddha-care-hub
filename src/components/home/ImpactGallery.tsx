@@ -259,7 +259,8 @@ export const ImpactGallery = () => {
               </p>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
