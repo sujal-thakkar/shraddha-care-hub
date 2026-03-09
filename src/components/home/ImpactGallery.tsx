@@ -196,7 +196,7 @@ export const ImpactGallery = () => {
         <div 
           className="fixed inset-0 flex items-center justify-center"
           onClick={() => setSelectedImage(null)}
-          style={{ top: 0, left: 0, right: 0, bottom: 0, position: "fixed", zIndex: 99999, background: "#000" }}
+          style={{ top: 0, left: 0, right: 0, bottom: 0, position: "fixed", zIndex: 99999, background: "rgba(0,0,0,0.85)" }}
         >
           <div 
             className="relative w-full h-full flex flex-col items-center justify-center p-4 sm:p-8"
