@@ -86,7 +86,7 @@ function DesktopDropdown({ group }: { group: NavGroup }) {
     );
   }
 
-  const active = isGroupActive(group, location.pathname);
+  const active = isGroupActive(group, location.pathname, location.hash);
 
   return (
     <div className="relative" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
@@ -213,7 +213,7 @@ export function Header() {
               }
 
               const isExpanded = expandedGroup === group.name;
-              const active = isGroupActive(group, location.pathname);
+              const active = isGroupActive(group, location.pathname, location.hash);
 
               return (
                 <div
