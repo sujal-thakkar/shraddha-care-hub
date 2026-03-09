@@ -1,96 +1,56 @@
 
 
-## Plan: Dropdown Navigation & Events Page
+## Plan: Dropdown Nav + Events Page + Home Preview
 
-### Overview
-Restructure navigation with hover dropdowns and create a dedicated Events page. Keep Corporate Care distinct with a preview card on Home page.
+### 1. Navbar Restructure (`src/components/layout/Header.tsx`)
 
----
-
-### Navigation Structure
+Replace flat nav with grouped dropdowns:
 
 ```text
-Home    About ▾         Projects & Events ▾    Community ▾    Donate    [Support Us]
-        ├─ About Us      ├─ Events (new)        ├─ Volunteer
-        └─ Corporate     ├─ HPL                 └─ Contact
-           Care          └─ Games
+Home    About ▾              Projects & Events ▾    Community ▾    Donate    [Support Us]
+        ├─ About Us           ├─ Events (new)        ├─ Volunteer
+        └─ Corporate Care     ├─ HPL                 └─ Contact
+                              └─ Games
 ```
 
----
+- Desktop: hover-triggered dropdown panels with child links
+- Mobile: accordion-style — tap parent to expand/collapse children with chevron animation
+- Active state on parent when any child route is active
 
-### File Changes
+### 2. New Events Page (`src/pages/Events.tsx`)
+
+Full listing of all published events with filter tabs: All | Upcoming | Ongoing | Completed. Uses Layout wrapper, grid display, reuses `ProjectEventCard` styling.
+
+**Database change needed**: Update RLS policy on `projects_events` to allow public viewing of completed events too (current policy excludes `status = 'completed'`).
+
+### 3. Home Page Update (`src/pages/Home.tsx`)
+
+Add `ProjectsEventsSection` with `limit={3}` between the Impact Gallery section and the Corporate Care CTA section. Include an "Explore All Events" button linking to `/events`.
+
+### 4. ProjectsEventsSection Enhancement (`src/components/corporate/ProjectsEventsSection.tsx`)
+
+- Add optional `limit` prop — applies `.limit(n)` to the query
+- Add optional `showViewAll` prop — renders "Explore All Events →" CTA linking to `/events`
+- Add `id="events"` to section root
+
+### 5. Corporate Care Cleanup (`src/pages/CorporateCare.tsx`)
+
+- Remove `<ProjectsEventsSection />` (line 348)
+- Add a compact inline link before the CTA: "See our latest projects & events →" pointing to `/events`
+
+### 6. Route Registration (`src/App.tsx`)
+
+Add lazy-loaded `/events` route.
+
+### Files Summary
 
 | File | Action |
 |------|--------|
-| `src/pages/Events.tsx` | **Create** — Full events listing with filter tabs (All/Upcoming/Ongoing/Completed) |
-| `src/App.tsx` | Add `/events` route (lazy loaded) |
-| `src/components/layout/Header.tsx` | Rewrite nav with dropdown groups (desktop hover, mobile accordion) |
-| `src/pages/Home.tsx` | Add `ProjectsEventsSection` preview (3 items max) + "View All Events" CTA |
-| `src/components/corporate/ProjectsEventsSection.tsx` | Add `limit` prop + `id="events"` anchor |
-| `src/pages/CorporateCare.tsx` | Remove full section, add small teaser link to `/events` |
-
----
-
-### Implementation Details
-
-**1. Header.tsx — Dropdown Navigation**
-- Replace flat `navItems` array with grouped structure:
-  ```typescript
-  const navGroups = [
-    { name: "Home", path: "/" },
-    { 
-      name: "About", 
-      children: [
-        { name: "About Us", path: "/about" },
-        { name: "Corporate Care", path: "/corporate-care" }
-      ]
-    },
-    { 
-      name: "Projects & Events", 
-      children: [
-        { name: "Events", path: "/events" },
-        { name: "HPL", path: "/hpl" },
-        { name: "Games", path: "/games" }
-      ]
-    },
-    { 
-      name: "Community", 
-      children: [
-        { name: "Volunteer", path: "/volunteer" },
-        { name: "Contact", path: "/contact" }
-      ]
-    },
-    { name: "Donate", path: "/donate" }
-  ];
-  ```
-- Desktop: hover triggers dropdown panel with child links
-- Mobile: accordion-style expansion on tap, chevron toggles
-
-**2. Events.tsx — Dedicated Page**
-- Filter tabs: All | Upcoming | Ongoing | Completed
-- Grid layout showing all published events
-- Reuse existing query logic from `ProjectsEventsSection`
-- No date limit—show all historical events too
-
-**3. Home.tsx — Preview Section**
-- Import `ProjectsEventsSection` with `limit={3}` prop
-- Place after Impact Gallery section
-- Add "Explore All Events →" button linking to `/events`
-
-**4. ProjectsEventsSection.tsx — Add Props**
-- Add optional `limit?: number` prop
-- Apply `.limit(limit)` to Supabase query when provided
-- Add `id="events"` to section root for anchor linking
-
-**5. CorporateCare.tsx — Clean Up**
-- Remove `<ProjectsEventsSection />` import and render
-- Add small inline teaser: "See our latest projects & events →" linking to `/events`
-
----
-
-### Mobile Behavior
-- Header dropdowns become collapsible accordions
-- Each parent item shows chevron icon
-- Tap expands/collapses child links inline
-- Close mobile menu on any link click (existing behavior)
+| `src/components/layout/Header.tsx` | Rewrite — dropdown groups, mobile accordion |
+| `src/pages/Events.tsx` | Create — full events listing with filters |
+| `src/pages/Home.tsx` | Add events preview section |
+| `src/components/corporate/ProjectsEventsSection.tsx` | Add `limit` + `showViewAll` props |
+| `src/pages/CorporateCare.tsx` | Remove section, add teaser link |
+| `src/App.tsx` | Add `/events` route |
+| Database migration | Update RLS to allow viewing completed events publicly |
 
