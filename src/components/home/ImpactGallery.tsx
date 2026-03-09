@@ -175,19 +175,21 @@ export const ImpactGallery = () => {
         <CarouselNext className="hidden md:flex -right-4 bg-background/80 backdrop-blur-sm border-border hover:bg-background" />
       </Carousel>
 
-      {/* Dot indicators */}
-      <div className="flex justify-center gap-2 py-1">
-        {impactImages.map((_, index) => (
+      {/* Thumbnail preview boxes */}
+      <div className="flex justify-center gap-2 py-2 overflow-x-auto px-2">
+        {impactImages.map((image, index) => (
           <button
             key={index}
             onClick={() => api?.scrollTo(index)}
-            className={`rounded-full transition-all duration-300 ${
+            className={`flex-shrink-0 w-14 h-10 sm:w-16 sm:h-12 rounded-md overflow-hidden border-2 transition-all duration-300 ${
               current === index
-                ? "w-6 h-2.5 bg-primary"
-                : "w-2.5 h-2.5 bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                ? "border-primary opacity-100 scale-110 shadow-md"
+                : "border-border/30 opacity-50 hover:opacity-80"
             }`}
             aria-label={`Go to slide ${index + 1}`}
-          />
+          >
+            <img src={image.src} alt={image.alt} className="w-full h-full object-cover" />
+          </button>
         ))}
       </div>
 
