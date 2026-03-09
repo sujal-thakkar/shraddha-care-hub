@@ -1,41 +1,147 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Heart } from "lucide-react";
+import { Heart, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import logoShraddha from "@/assets/logo-shraddha.png";
 
-const navItems = [
+interface NavChild {
+  name: string;
+  path: string;
+  description: string;
+}
+
+interface NavGroup {
+  name: string;
+  path?: string;
+  children?: NavChild[];
+}
+
+const navGroups: NavGroup[] = [
   { name: "Home", path: "/" },
-  { name: "About Us", path: "/about" },
-  { name: "Corporate Care", path: "/corporate-care" },
-  { name: "Legal Resources", path: "/legal-resources" },
-  { name: "Volunteer", path: "/volunteer" },
-  { name: "Games", path: "/games" },
+  {
+    name: "About",
+    children: [
+      { name: "About Us", path: "/about", description: "Our mission, team & story" },
+      { name: "Corporate Care", path: "/corporate-care", description: "Programs for your employees' parents" },
+    ],
+  },
+  {
+    name: "Projects & Events",
+    children: [
+      { name: "Events", path: "/events", description: "Upcoming & past initiatives" },
+      { name: "HPL", path: "/hpl", description: "Hosla Premier League" },
+      { name: "Games", path: "/games", description: "Fun activities for seniors" },
+    ],
+  },
+  {
+    name: "Community",
+    children: [
+      { name: "Volunteer", path: "/volunteer", description: "Join our mission" },
+      { name: "Legal Resources", path: "/legal-resources", description: "Know your rights" },
+      { name: "Contact", path: "/contact", description: "Get in touch with us" },
+    ],
+  },
   { name: "Donate", path: "/donate" },
-  { name: "Contact", path: "/contact" },
 ];
+
+function isGroupActive(group: NavGroup, pathname: string): boolean {
+  if (group.path) return pathname === group.path;
+  return group.children?.some((c) => pathname === c.path) ?? false;
+}
+
+function DesktopDropdown({ group }: { group: NavGroup }) {
+  const location = useLocation();
+  const [open, setOpen] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+
+  const handleEnter = () => {
+    clearTimeout(timeoutRef.current);
+    setOpen(true);
+  };
+  const handleLeave = () => {
+    timeoutRef.current = setTimeout(() => setOpen(false), 150);
+  };
+
+  useEffect(() => () => clearTimeout(timeoutRef.current), []);
+
+  if (!group.children) {
+    return (
+      <Link
+        to={group.path!}
+        className={cn(
+          "text-sm font-medium transition-colors hover:text-primary py-2",
+          location.pathname === group.path ? "text-primary" : "text-muted-foreground"
+        )}
+      >
+        {group.name}
+      </Link>
+    );
+  }
+
+  const active = isGroupActive(group, location.pathname);
+
+  return (
+    <div className="relative" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
+      <button
+        className={cn(
+          "flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary py-2",
+          active ? "text-primary" : "text-muted-foreground"
+        )}
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+      >
+        {group.name}
+        <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", open && "rotate-180")} />
+      </button>
+
+      <div
+        className={cn(
+          "absolute top-full left-1/2 -translate-x-1/2 pt-2 transition-all duration-200",
+          open ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-1"
+        )}
+      >
+        <div className="bg-popover border border-border rounded-xl shadow-lg p-2 min-w-[220px]">
+          {group.children.map((child) => (
+            <Link
+              key={child.path}
+              to={child.path}
+              onClick={() => setOpen(false)}
+              className={cn(
+                "block px-3 py-2.5 rounded-lg transition-colors",
+                location.pathname === child.path
+                  ? "bg-primary/10 text-primary"
+                  : "text-foreground hover:bg-accent"
+              )}
+            >
+              <div className="text-sm font-medium">{child.name}</div>
+              <div className="text-xs text-muted-foreground mt-0.5">{child.description}</div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
   const location = useLocation();
 
-  // Close menu on route change
   useEffect(() => {
     setIsMenuOpen(false);
+    setExpandedGroup(null);
   }, [location.pathname]);
 
-  // Prevent body scroll when menu is open
   useEffect(() => {
-    if (isMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
+    document.body.style.overflow = isMenuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
   }, [isMenuOpen]);
+
+  const toggleGroup = (name: string) => {
+    setExpandedGroup((prev) => (prev === name ? null : name));
+  };
 
   return (
     <>
@@ -47,102 +153,119 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-6">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={cn(
-                  "text-sm font-medium transition-colors hover:text-primary",
-                  location.pathname === item.path
-                    ? "text-primary"
-                    : "text-muted-foreground"
-                )}
-              >
-                {item.name}
-              </Link>
+            {navGroups.map((group) => (
+              <DesktopDropdown key={group.name} group={group} />
             ))}
             <Button asChild size="sm">
               <Link to="/donate">Support Us</Link>
             </Button>
           </nav>
 
-          {/* Mobile Menu Button - Enhanced touch target */}
+          {/* Mobile Menu Button */}
           <button
             className="lg:hidden relative z-[60] w-12 h-12 flex items-center justify-center rounded-lg transition-colors hover:bg-accent active:bg-accent/80 touch-manipulation"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             aria-expanded={isMenuOpen}
           >
-            {/* Animated hamburger icon */}
             <div className="relative w-6 h-5 flex flex-col justify-between">
-              <span
-                className={cn(
-                  "block h-0.5 w-6 bg-foreground rounded-full transition-all duration-300 ease-in-out origin-center",
-                  isMenuOpen && "rotate-45 translate-y-[9px]"
-                )}
-              />
-              <span
-                className={cn(
-                  "block h-0.5 w-6 bg-foreground rounded-full transition-all duration-300 ease-in-out",
-                  isMenuOpen && "opacity-0 scale-x-0"
-                )}
-              />
-              <span
-                className={cn(
-                  "block h-0.5 w-6 bg-foreground rounded-full transition-all duration-300 ease-in-out origin-center",
-                  isMenuOpen && "-rotate-45 -translate-y-[9px]"
-                )}
-              />
+              <span className={cn("block h-0.5 w-6 bg-foreground rounded-full transition-all duration-300 ease-in-out origin-center", isMenuOpen && "rotate-45 translate-y-[9px]")} />
+              <span className={cn("block h-0.5 w-6 bg-foreground rounded-full transition-all duration-300 ease-in-out", isMenuOpen && "opacity-0 scale-x-0")} />
+              <span className={cn("block h-0.5 w-6 bg-foreground rounded-full transition-all duration-300 ease-in-out origin-center", isMenuOpen && "-rotate-45 -translate-y-[9px]")} />
             </div>
           </button>
         </div>
       </header>
 
-      {/* Mobile Navigation - Moved outside header to fix stacking context */}
+      {/* Mobile Navigation */}
       <div
         className={cn(
           "lg:hidden fixed inset-0 top-16 bg-background z-[55] transition-all duration-300 ease-in-out",
-          isMenuOpen
-            ? "opacity-100 visible"
-            : "opacity-0 invisible pointer-events-none"
+          isMenuOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
         )}
       >
         <nav className="container h-full py-6 px-4 flex flex-col overflow-y-auto">
           <div className="flex flex-col gap-1">
-            {navItems.map((item, index) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={cn(
-                  "flex items-center px-4 py-4 text-base font-medium rounded-xl transition-all duration-300 active:scale-[0.98] touch-manipulation",
-                  location.pathname === item.path
-                    ? "bg-primary/10 text-primary"
-                    : "text-foreground hover:bg-accent",
-                  isMenuOpen
-                    ? "translate-x-0 opacity-100"
-                    : "-translate-x-4 opacity-0"
-                )}
-                style={{
-                  transitionDelay: isMenuOpen ? `${index * 50}ms` : "0ms",
-                }}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {item.name}
-              </Link>
-            ))}
+            {navGroups.map((group, groupIndex) => {
+              if (!group.children) {
+                return (
+                  <Link
+                    key={group.name}
+                    to={group.path!}
+                    className={cn(
+                      "flex items-center px-4 py-4 text-base font-medium rounded-xl transition-all duration-300 active:scale-[0.98] touch-manipulation",
+                      location.pathname === group.path ? "bg-primary/10 text-primary" : "text-foreground hover:bg-accent",
+                      isMenuOpen ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
+                    )}
+                    style={{ transitionDelay: isMenuOpen ? `${groupIndex * 50}ms` : "0ms" }}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {group.name}
+                  </Link>
+                );
+              }
+
+              const isExpanded = expandedGroup === group.name;
+              const active = isGroupActive(group, location.pathname);
+
+              return (
+                <div
+                  key={group.name}
+                  className={cn(
+                    "transition-all duration-300",
+                    isMenuOpen ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
+                  )}
+                  style={{ transitionDelay: isMenuOpen ? `${groupIndex * 50}ms` : "0ms" }}
+                >
+                  <button
+                    className={cn(
+                      "w-full flex items-center justify-between px-4 py-4 text-base font-medium rounded-xl transition-colors touch-manipulation",
+                      active ? "bg-primary/10 text-primary" : "text-foreground hover:bg-accent"
+                    )}
+                    onClick={() => toggleGroup(group.name)}
+                    aria-expanded={isExpanded}
+                  >
+                    {group.name}
+                    <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", isExpanded && "rotate-180")} />
+                  </button>
+
+                  <div
+                    className={cn(
+                      "overflow-hidden transition-all duration-300",
+                      isExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                    )}
+                  >
+                    <div className="pl-4 pb-2 flex flex-col gap-1">
+                      {group.children.map((child) => (
+                        <Link
+                          key={child.path}
+                          to={child.path}
+                          className={cn(
+                            "flex flex-col px-4 py-3 rounded-lg transition-colors touch-manipulation",
+                            location.pathname === child.path
+                              ? "bg-primary/10 text-primary"
+                              : "text-foreground hover:bg-accent"
+                          )}
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <span className="text-sm font-medium">{child.name}</span>
+                          <span className="text-xs text-muted-foreground">{child.description}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
           {/* Mobile CTA Button */}
           <div
             className={cn(
               "mt-6 pt-6 border-t border-border transition-all duration-300",
-              isMenuOpen
-                ? "translate-y-0 opacity-100"
-                : "translate-y-4 opacity-0"
+              isMenuOpen ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
             )}
-            style={{
-              transitionDelay: isMenuOpen ? `${navItems.length * 50 + 100}ms` : "0ms",
-            }}
+            style={{ transitionDelay: isMenuOpen ? `${navGroups.length * 50 + 100}ms` : "0ms" }}
           >
             <Button asChild size="lg" className="w-full h-14 text-base">
               <Link to="/donate" onClick={() => setIsMenuOpen(false)}>
