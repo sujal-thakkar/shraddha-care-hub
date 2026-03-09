@@ -146,6 +146,51 @@ export type Database = {
         }
         Relationships: []
       }
+      event_registrations: {
+        Row: {
+          age: number
+          area: string
+          checked_in: boolean
+          checked_in_at: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          medical_concerns: string | null
+          mobile: string
+          source: string
+          updated_at: string
+        }
+        Insert: {
+          age: number
+          area: string
+          checked_in?: boolean
+          checked_in_at?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          medical_concerns?: string | null
+          mobile: string
+          source?: string
+          updated_at?: string
+        }
+        Update: {
+          age?: number
+          area?: string
+          checked_in?: boolean
+          checked_in_at?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          medical_concerns?: string | null
+          mobile?: string
+          source?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notification_emails: {
         Row: {
           created_at: string
