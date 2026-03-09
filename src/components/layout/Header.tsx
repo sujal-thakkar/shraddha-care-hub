@@ -9,6 +9,7 @@ interface NavChild {
   name: string;
   path: string;
   description: string;
+  accent?: "pink" | "violet";
 }
 
 interface NavGroup {
@@ -30,8 +31,8 @@ const navGroups: NavGroup[] = [
     name: "Projects & Events",
     children: [
       { name: "Events", path: "/events", description: "Upcoming & past initiatives" },
-      { name: "Mumbai Health Camp", path: "/mumbai-health-camp", description: "Register for the Senior Citizens' Health Camp" },
-      { name: "Corporate Care", path: "/corporate-care", description: "Programs for your employees' parents" },
+      { name: "Mumbai Health Camp", path: "/mumbai-health-camp", description: "Register for the Senior Citizens' Health Camp", accent: "pink" },
+      { name: "Corporate Care", path: "/corporate-care", description: "Programs for your employees' parents", accent: "violet" },
       { name: "HPL", path: "/hpl", description: "Hosla Premier League" },
       { name: "Games", path: "/games", description: "Fun activities for seniors" },
     ],
@@ -57,6 +58,11 @@ function isGroupActive(group: NavGroup, pathname: string, hash: string): boolean
     return pathname === c.path;
   }) ?? false;
 }
+
+const accentStyles = {
+  pink: { active: "bg-pink-100 text-pink-700", idle: "text-pink-600 hover:bg-pink-50", desc: "text-pink-400" },
+  violet: { active: "bg-violet-100 text-violet-700", idle: "text-violet-600 hover:bg-violet-50", desc: "text-violet-400" },
+} as const;
 
 function DesktopDropdown({ group }: { group: NavGroup }) {
   const location = useLocation();
@@ -110,22 +116,27 @@ function DesktopDropdown({ group }: { group: NavGroup }) {
         )}
       >
         <div className="bg-popover border border-border rounded-xl shadow-lg p-2 min-w-[220px]">
-          {group.children.map((child) => (
+          {group.children.map((child) => {
+            const a = child.accent ? accentStyles[child.accent] : null;
+            return (
             <Link
               key={child.path}
               to={child.path}
               onClick={() => setOpen(false)}
               className={cn(
                 "block px-3 py-2.5 rounded-lg transition-colors",
-                location.pathname === child.path
-                  ? "bg-primary/10 text-primary"
-                  : "text-foreground hover:bg-accent"
+                a
+                  ? location.pathname === child.path ? a.active : a.idle
+                  : location.pathname === child.path
+                    ? "bg-primary/10 text-primary"
+                    : "text-foreground hover:bg-accent"
               )}
             >
               <div className="text-sm font-medium">{child.name}</div>
-              <div className="text-xs text-muted-foreground mt-0.5">{child.description}</div>
+              <div className={cn("text-xs mt-0.5", a ? a.desc : "text-muted-foreground")}>{child.description}</div>
             </Link>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
@@ -244,22 +255,27 @@ export function Header() {
                     )}
                   >
                     <div className="pl-4 pb-2 flex flex-col gap-1">
-                      {group.children.map((child) => (
+                      {group.children.map((child) => {
+                        const a = child.accent ? accentStyles[child.accent] : null;
+                        return (
                         <Link
                           key={child.path}
                           to={child.path}
                           className={cn(
                             "flex flex-col px-4 py-3 rounded-lg transition-colors touch-manipulation",
-                            location.pathname === child.path
-                              ? "bg-primary/10 text-primary"
-                              : "text-foreground hover:bg-accent"
+                            a
+                              ? location.pathname === child.path ? a.active : a.idle
+                              : location.pathname === child.path
+                                ? "bg-primary/10 text-primary"
+                                : "text-foreground hover:bg-accent"
                           )}
                           onClick={() => setIsMenuOpen(false)}
                         >
                           <span className="text-sm font-medium">{child.name}</span>
-                          <span className="text-xs text-muted-foreground">{child.description}</span>
+                          <span className={cn("text-xs", a ? a.desc : "text-muted-foreground")}>{child.description}</span>
                         </Link>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
