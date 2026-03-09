@@ -46,9 +46,15 @@ const navGroups: NavGroup[] = [
   { name: "Donate", path: "/donate" },
 ];
 
-function isGroupActive(group: NavGroup, pathname: string): boolean {
+function isGroupActive(group: NavGroup, pathname: string, hash: string): boolean {
   if (group.path) return pathname === group.path;
-  return group.children?.some((c) => pathname === c.path) ?? false;
+  return group.children?.some((c) => {
+    if (c.path.includes('#')) {
+      const [p, h] = c.path.split('#');
+      return pathname === p && hash === `#${h}`;
+    }
+    return pathname === c.path;
+  }) ?? false;
 }
 
 function DesktopDropdown({ group }: { group: NavGroup }) {
