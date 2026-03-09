@@ -22,14 +22,15 @@ const navGroups: NavGroup[] = [
   {
     name: "About",
     children: [
-      { name: "About Us", path: "/about", description: "Our mission, team & story" },
-      { name: "Corporate Care", path: "/corporate-care", description: "Programs for your employees' parents" },
+      { name: "About Us", path: "/about", description: "Our mission & story" },
+      { name: "Our Team", path: "/about#team", description: "Meet the people behind our work" },
     ],
   },
   {
     name: "Projects & Events",
     children: [
       { name: "Events", path: "/events", description: "Upcoming & past initiatives" },
+      { name: "Corporate Care", path: "/corporate-care", description: "Programs for your employees' parents" },
       { name: "HPL", path: "/hpl", description: "Hosla Premier League" },
       { name: "Games", path: "/games", description: "Fun activities for seniors" },
     ],
