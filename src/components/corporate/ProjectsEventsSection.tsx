@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Calendar, Loader2, MapPin, ChevronRight } from "lucide-react";
+import { ExternalLink, Calendar, Loader2, MapPin, ChevronRight, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import type { Database } from "@/integrations/supabase/types";
@@ -235,16 +235,21 @@ const ProjectEventCard = ({
   );
 };
 
-export function ProjectsEventsSection() {
+interface ProjectsEventsSectionProps {
+  limit?: number;
+  showViewAll?: boolean;
+}
+
+export function ProjectsEventsSection({ limit, showViewAll = false }: ProjectsEventsSectionProps) {
   const isMobile = useIsMobile();
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
   const { data: events = [], isLoading } = useQuery({
-    queryKey: ["public-projects-events"],
+    queryKey: ["public-projects-events", limit],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("projects_events")
         .select("*")
         .eq("is_published", true)
@@ -252,6 +257,9 @@ export function ProjectsEventsSection() {
         .order("display_order", { ascending: true })
         .order("start_date", { ascending: true });
       
+      if (limit) query = query.limit(limit);
+      
+      const { data, error } = await query;
       if (error) throw error;
       return data as ProjectEvent[];
     },
@@ -337,6 +345,7 @@ export function ProjectsEventsSection() {
 
   return (
     <section 
+      id="events"
       className="relative py-16 lg:py-24 overflow-hidden"
       style={{ background: 'linear-gradient(135deg, rgba(88, 55, 163, 0.08) 0%, rgba(120, 80, 200, 0.12) 100%)' }}
     >
@@ -420,6 +429,17 @@ export function ProjectsEventsSection() {
                 getOrgLabel={getOrgLabel}
               />
             ))}
+          </div>
+        )}
+
+        {showViewAll && events.length > 0 && (
+          <div className="text-center mt-10">
+            <Button asChild variant="outline" size="lg" className="border-[hsl(250,70%,45%)]/30 text-[hsl(250,70%,45%)] hover:bg-[hsl(250,70%,45%)] hover:text-white">
+              <Link to="/events">
+                Explore All Events
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
           </div>
         )}
       </div>
