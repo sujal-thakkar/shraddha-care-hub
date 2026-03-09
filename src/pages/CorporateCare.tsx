@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Marquee } from "@/components/ui/marquee";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { PartnerContactModal } from "@/components/corporate/PartnerContactModal";
-import { ProjectsEventsSection } from "@/components/corporate/ProjectsEventsSection";
 import { Building2, Phone, CheckCircle, ArrowRight, Mail } from "lucide-react";
 
 import corporateCareHeroBg from "@/assets/corporate-care-hero-bg.jpg";
@@ -344,8 +343,17 @@ export default function CorporateCare() {
         </Marquee>
       </section>
 
-      {/* Projects & Events */}
-      <ProjectsEventsSection />
+      {/* Events Teaser */}
+      <section className="py-8 bg-background">
+        <div className="container text-center">
+          <Button asChild variant="outline" size="lg" className="border-[hsl(250,70%,45%)]/30 text-[hsl(250,70%,45%)] hover:bg-[hsl(250,70%,45%)] hover:text-white">
+            <Link to="/events">
+              See our latest projects & events
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
+      </section>
 
       {/* CTA */}
       <ScrollReveal>

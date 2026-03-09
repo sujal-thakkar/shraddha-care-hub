@@ -11,6 +11,7 @@ import { AnimatedHeroText } from "@/components/home/AnimatedHeroText";
 import ServiceCard from "@/components/home/ServiceCard";
 import { ImpactGallery } from "@/components/home/ImpactGallery";
 import { StatCard } from "@/components/home/StatCard";
+import { ProjectsEventsSection } from "@/components/corporate/ProjectsEventsSection";
 
 // Import hover images
 import legalAwarenessHover from "@/assets/legal-awareness-hover.jpg";
@@ -188,6 +189,9 @@ export default function Home() {
           <ImpactGallery />
         </div>
       </section>
+
+      {/* Projects & Events Preview */}
+      <ProjectsEventsSection limit={3} showViewAll />
 
       {/* Corporate Care CTA */}
       <section className="py-16 lg:py-24 bg-background">
