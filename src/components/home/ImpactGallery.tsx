@@ -196,7 +196,7 @@ export const ImpactGallery = () => {
         <div 
           className="fixed inset-0 flex items-center justify-center"
           onClick={() => setSelectedImage(null)}
-          style={{ top: 0, left: 0, right: 0, bottom: 0, position: "fixed", zIndex: 99999, background: "#000" }}
+          style={{ top: 0, left: 0, right: 0, bottom: 0, position: "fixed", zIndex: 99999, background: "rgba(0,0,0,0.85)" }}
         >
           <div 
             className="relative w-full h-full flex flex-col items-center justify-center p-4 sm:p-8"
@@ -250,13 +250,30 @@ export const ImpactGallery = () => {
             </div>
             
             {/* Caption */}
-            <div className="mt-4 text-center px-4 space-y-2 max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <h3 className="text-lg sm:text-xl font-serif font-semibold text-white">
+            <div className="mt-3 text-center px-4 space-y-1 max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h3 className="text-base sm:text-lg font-serif font-semibold text-white">
                 {impactImages[selectedImage].caption}
               </h3>
-              <p className="text-white/70 text-sm leading-relaxed">
+              <p className="text-white/70 text-xs sm:text-sm leading-relaxed">
                 {impactImages[selectedImage].description}
               </p>
+            </div>
+
+            {/* Thumbnail strip */}
+            <div className="mt-4 flex justify-center gap-2 px-4 overflow-x-auto max-w-full pb-2">
+              {impactImages.map((image, index) => (
+                <button
+                  key={index}
+                  onClick={(e) => { e.stopPropagation(); setSelectedImage(index); }}
+                  className={`flex-shrink-0 w-14 h-10 sm:w-16 sm:h-12 rounded-md overflow-hidden border-2 transition-all duration-300 ${
+                    selectedImage === index
+                      ? "border-white opacity-100 scale-110"
+                      : "border-transparent opacity-50 hover:opacity-80"
+                  }`}
+                >
+                  <img src={image.src} alt={image.alt} className="w-full h-full object-cover" />
+                </button>
+              ))}
             </div>
           </div>
         </div>,
