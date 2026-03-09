@@ -105,7 +105,7 @@ export function TeamSection() {
   }
 
   return (
-    <section className="py-0 bg-card">
+    <section id="team" className="py-0 bg-card">
       {/* Animated Gradient Header */}
       <div className="group relative overflow-hidden py-16 lg:py-24">
         {/* Background Image */}

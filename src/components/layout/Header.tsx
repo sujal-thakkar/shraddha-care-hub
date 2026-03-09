@@ -22,14 +22,15 @@ const navGroups: NavGroup[] = [
   {
     name: "About",
     children: [
-      { name: "About Us", path: "/about", description: "Our mission, team & story" },
-      { name: "Corporate Care", path: "/corporate-care", description: "Programs for your employees' parents" },
+      { name: "About Us", path: "/about", description: "Our mission & story" },
+      { name: "Our Team", path: "/about#team", description: "Meet the people behind our work" },
     ],
   },
   {
     name: "Projects & Events",
     children: [
       { name: "Events", path: "/events", description: "Upcoming & past initiatives" },
+      { name: "Corporate Care", path: "/corporate-care", description: "Programs for your employees' parents" },
       { name: "HPL", path: "/hpl", description: "Hosla Premier League" },
       { name: "Games", path: "/games", description: "Fun activities for seniors" },
     ],
@@ -45,9 +46,15 @@ const navGroups: NavGroup[] = [
   { name: "Donate", path: "/donate" },
 ];
 
-function isGroupActive(group: NavGroup, pathname: string): boolean {
+function isGroupActive(group: NavGroup, pathname: string, hash: string): boolean {
   if (group.path) return pathname === group.path;
-  return group.children?.some((c) => pathname === c.path) ?? false;
+  return group.children?.some((c) => {
+    if (c.path.includes('#')) {
+      const [p, h] = c.path.split('#');
+      return pathname === p && hash === `#${h}`;
+    }
+    return pathname === c.path;
+  }) ?? false;
 }
 
 function DesktopDropdown({ group }: { group: NavGroup }) {
@@ -79,7 +86,7 @@ function DesktopDropdown({ group }: { group: NavGroup }) {
     );
   }
 
-  const active = isGroupActive(group, location.pathname);
+  const active = isGroupActive(group, location.pathname, location.hash);
 
   return (
     <div className="relative" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
@@ -206,7 +213,7 @@ export function Header() {
               }
 
               const isExpanded = expandedGroup === group.name;
-              const active = isGroupActive(group, location.pathname);
+              const active = isGroupActive(group, location.pathname, location.hash);
 
               return (
                 <div
