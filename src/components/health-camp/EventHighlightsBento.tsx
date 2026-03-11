@@ -71,18 +71,18 @@ const SkeletonGames = () => (
 );
 
 const SkeletonMemory = () => {
-  const cards = ["🧩", "🎯", "💡", "🧠", "🎲", "✨"];
+  const icons = [Puzzle, Target, Lightbulb, Brain, Dices, Sparkles];
   return (
     <motion.div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-pink-100 to-pink-200/40 items-center justify-center p-4">
       <div className="grid grid-cols-3 gap-2">
-        {cards.map((emoji, i) => (
+        {icons.map((Icon, i) => (
           <motion.div
             key={i}
-            className="w-10 h-10 rounded-lg bg-white/80 border border-pink-200 flex items-center justify-center text-lg cursor-pointer shadow-sm"
+            className="w-10 h-10 rounded-lg bg-white/80 border border-pink-200 flex items-center justify-center cursor-pointer shadow-sm"
             whileHover={{ rotateY: 180, backgroundColor: "rgb(252, 231, 243)" }}
             transition={{ duration: 0.4 }}
           >
-            {emoji}
+            <Icon className="h-4 w-4 text-pink-500" />
           </motion.div>
         ))}
       </div>
