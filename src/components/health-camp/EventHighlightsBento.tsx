@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Stethoscope, Mic2, Gamepad2, Brain, BadgePercent } from "lucide-react";
+import { Stethoscope, Mic2, Gamepad2, Brain, BadgePercent, Music, BookOpen, Puzzle, Target, Lightbulb, Dices, Sparkles, Gift } from "lucide-react";
 import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
 
 const SkeletonDental = () => (
@@ -33,18 +33,15 @@ const SkeletonTalent = () => {
     },
   };
   return (
-    <motion.div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-pink-200/60 via-pink-100 to-pink-50 items-center justify-center gap-2 p-4">
-      {["🎤", "🎶", "📖"].map((emoji, i) => (
+    <motion.div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-pink-200/60 via-pink-100 to-pink-50 items-center justify-center gap-4 p-4">
+      {[Mic2, Music, BookOpen].map((Icon, i) => (
         <motion.div
           key={i}
-          className="text-3xl"
-          variants={variants}
-          initial="initial"
-          animate="animate"
-          style={{ animationDelay: `${i * 0.3}s` }}
+          className="w-12 h-12 rounded-full bg-white/70 border border-pink-200 flex items-center justify-center shadow-sm"
+          animate={{ y: [-2, 2, -2] }}
           transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
         >
-          {emoji}
+          <Icon className="h-5 w-5 text-pink-500" />
         </motion.div>
       ))}
     </motion.div>
@@ -74,18 +71,18 @@ const SkeletonGames = () => (
 );
 
 const SkeletonMemory = () => {
-  const cards = ["🧩", "🎯", "💡", "🧠", "🎲", "✨"];
+  const icons = [Puzzle, Target, Lightbulb, Brain, Dices, Sparkles];
   return (
     <motion.div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-pink-100 to-pink-200/40 items-center justify-center p-4">
       <div className="grid grid-cols-3 gap-2">
-        {cards.map((emoji, i) => (
+        {icons.map((Icon, i) => (
           <motion.div
             key={i}
-            className="w-10 h-10 rounded-lg bg-white/80 border border-pink-200 flex items-center justify-center text-lg cursor-pointer shadow-sm"
+            className="w-10 h-10 rounded-lg bg-white/80 border border-pink-200 flex items-center justify-center cursor-pointer shadow-sm"
             whileHover={{ rotateY: 180, backgroundColor: "rgb(252, 231, 243)" }}
             transition={{ duration: 0.4 }}
           >
-            {emoji}
+            <Icon className="h-4 w-4 text-pink-500" />
           </motion.div>
         ))}
       </div>
@@ -108,7 +105,7 @@ const SkeletonMembership = () => (
       }}
     />
     <div className="flex flex-col items-center gap-1 z-10">
-      <span className="text-3xl">🎁</span>
+      <Gift className="h-8 w-8 text-pink-500" />
       <span className="text-xs font-medium text-pink-600 bg-pink-100 px-3 py-1 rounded-full border border-pink-200">
         Early Bird Offer
       </span>
