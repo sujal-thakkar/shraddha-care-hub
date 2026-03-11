@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Stethoscope, Mic2, Gamepad2, Brain, BadgePercent } from "lucide-react";
+import { Stethoscope, Mic2, Gamepad2, Brain, BadgePercent, Music, BookOpen, Puzzle, Target, Lightbulb, Dices, Sparkles, Gift } from "lucide-react";
 import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
 
 const SkeletonDental = () => (
