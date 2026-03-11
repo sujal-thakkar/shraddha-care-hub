@@ -19,34 +19,6 @@ import logoShraddha from "@/assets/logo-shraddha.png";
 import heroIllustration from "@/assets/health-camp-hero-illustration.jpg";
 import heroImg from "@/assets/helath-camp-hero-img.jpg";
 
-const eventHighlights = [
-  {
-    icon: Stethoscope,
-    title: "Free Dental Check-up",
-    description: "Professional screening to ensure your oral health is on track. A healthy smile is a timeless one!",
-  },
-  {
-    icon: Mic2,
-    title: "Senior Citizen Talent Express",
-    description: "A stage for our elders to shine — sing a classic melody, recite poetry, or share a life story.",
-  },
-  {
-    icon: Gamepad2,
-    title: "Recreational Games & Activities",
-    description: "Specially designed light physical activities to keep the energy high and the spirit youthful.",
-  },
-  {
-    icon: Brain,
-    title: "Memory Games",
-    description: "Fun, cognitive exercises aimed at boosting mental agility and keeping the mind sharp.",
-  },
-  {
-    icon: BadgePercent,
-    title: "Exclusive Membership Offers",
-    description: "Be the first to join the Hosla community with special Early Bird Offers available only at the event.",
-  },
-];
-
 const sourceOptions = ["WhatsApp", "Facebook/Instagram", "Friend/Relative", "Website", "Other"];
 
 export default function MumbaiHealthCamp() {
