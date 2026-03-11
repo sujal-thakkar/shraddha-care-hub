@@ -219,19 +219,7 @@ export default function MumbaiHealthCamp() {
             <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground">Event Highlights</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {eventHighlights.map((item, i) => (
-              <Card key={i} className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-pink-100">
-                <CardContent className="p-6 space-y-3">
-                  <div className="w-12 h-12 rounded-xl bg-pink-100 flex items-center justify-center group-hover:bg-pink-200 transition-colors">
-                    <item.icon className="h-6 w-6 text-pink-600" />
-                  </div>
-                  <h3 className="font-semibold text-foreground text-lg">{item.title}</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">{item.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          <EventHighlightsBento />
         </div>
       </section>
 
