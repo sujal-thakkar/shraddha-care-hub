@@ -133,7 +133,6 @@ export default function MumbaiHealthCamp() {
               <div className="inline-flex items-center gap-2 bg-pink-100 px-4 py-2 rounded-full text-sm font-medium border border-pink-200">
                 <Heart className="h-4 w-4 text-pink-600" />
                 <span className="text-pink-700">Senior Citizens' Health & Wellness Camp</span>
-                <Heart className="h-4 w-4 text-pink-600" />
               </div>
 
               <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground leading-tight">
@@ -199,7 +198,6 @@ export default function MumbaiHealthCamp() {
             <div className="flex items-center justify-center gap-2 mb-4">
               <MapPin className="h-5 w-5 text-pink-600" />
               <span className="text-pink-600 font-medium uppercase tracking-widest text-sm">Event Venue</span>
-              <MapPin className="h-5 w-5 text-pink-600" />
             </div>
             <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-3">How to Reach Us</h2>
             <p className="text-muted-foreground max-w-xl mx-auto">Find us easily — the venue is a well-known landmark in Nala Sopara West.</p>
@@ -273,7 +271,6 @@ export default function MumbaiHealthCamp() {
             <div className="flex items-center justify-center gap-2 mb-4">
               <Sparkles className="h-5 w-5 text-pink-600" />
               <span className="text-pink-600 font-medium uppercase tracking-widest text-sm">What to Expect</span>
-              <Sparkles className="h-5 w-5 text-pink-600" />
             </div>
             <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground">Event Highlights</h2>
           </div>
