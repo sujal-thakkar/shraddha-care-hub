@@ -33,18 +33,15 @@ const SkeletonTalent = () => {
     },
   };
   return (
-    <motion.div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-pink-200/60 via-pink-100 to-pink-50 items-center justify-center gap-2 p-4">
-      {["🎤", "🎶", "📖"].map((emoji, i) => (
+    <motion.div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-pink-200/60 via-pink-100 to-pink-50 items-center justify-center gap-4 p-4">
+      {[Mic2, Music, BookOpen].map((Icon, i) => (
         <motion.div
           key={i}
-          className="text-3xl"
-          variants={variants}
-          initial="initial"
-          animate="animate"
-          style={{ animationDelay: `${i * 0.3}s` }}
+          className="w-12 h-12 rounded-full bg-white/70 border border-pink-200 flex items-center justify-center shadow-sm"
+          animate={{ y: [-2, 2, -2] }}
           transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
         >
-          {emoji}
+          <Icon className="h-5 w-5 text-pink-500" />
         </motion.div>
       ))}
     </motion.div>
