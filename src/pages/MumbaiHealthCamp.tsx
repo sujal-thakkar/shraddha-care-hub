@@ -10,41 +10,14 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { checkRateLimit } from "@/lib/rate-limit";
 import {
-  CalendarDays, Clock, MapPin, Phone, Heart, Stethoscope, Mic2, Gamepad2, Brain,
-  BadgePercent, Users, CheckCircle, ArrowRight, Sparkles, Star
+  CalendarDays, Clock, MapPin, Phone, Heart,
+  Users, CheckCircle, ArrowRight, Sparkles, Star
 } from "lucide-react";
+import EventHighlightsBento from "@/components/health-camp/EventHighlightsBento";
 import hoslaLogo from "@/assets/hosla-logo.png";
 import logoShraddha from "@/assets/logo-shraddha.png";
 import heroIllustration from "@/assets/health-camp-hero-illustration.jpg";
 import heroImg from "@/assets/helath-camp-hero-img.jpg";
-
-const eventHighlights = [
-  {
-    icon: Stethoscope,
-    title: "Free Dental Check-up",
-    description: "Professional screening to ensure your oral health is on track. A healthy smile is a timeless one!",
-  },
-  {
-    icon: Mic2,
-    title: "Senior Citizen Talent Express",
-    description: "A stage for our elders to shine — sing a classic melody, recite poetry, or share a life story.",
-  },
-  {
-    icon: Gamepad2,
-    title: "Recreational Games & Activities",
-    description: "Specially designed light physical activities to keep the energy high and the spirit youthful.",
-  },
-  {
-    icon: Brain,
-    title: "Memory Games",
-    description: "Fun, cognitive exercises aimed at boosting mental agility and keeping the mind sharp.",
-  },
-  {
-    icon: BadgePercent,
-    title: "Exclusive Membership Offers",
-    description: "Be the first to join the Hosla community with special Early Bird Offers available only at the event.",
-  },
-];
 
 const sourceOptions = ["WhatsApp", "Facebook/Instagram", "Friend/Relative", "Website", "Other"];
 
@@ -246,19 +219,7 @@ export default function MumbaiHealthCamp() {
             <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground">Event Highlights</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {eventHighlights.map((item, i) => (
-              <Card key={i} className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-pink-100">
-                <CardContent className="p-6 space-y-3">
-                  <div className="w-12 h-12 rounded-xl bg-pink-100 flex items-center justify-center group-hover:bg-pink-200 transition-colors">
-                    <item.icon className="h-6 w-6 text-pink-600" />
-                  </div>
-                  <h3 className="font-semibold text-foreground text-lg">{item.title}</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">{item.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          <EventHighlightsBento />
         </div>
       </section>
 
