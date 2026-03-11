@@ -10,9 +10,10 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { checkRateLimit } from "@/lib/rate-limit";
 import {
-  CalendarDays, Clock, MapPin, Phone, Heart, Stethoscope, Mic2, Gamepad2, Brain,
-  BadgePercent, Users, CheckCircle, ArrowRight, Sparkles, Star
+  CalendarDays, Clock, MapPin, Phone, Heart,
+  Users, CheckCircle, ArrowRight, Sparkles, Star
 } from "lucide-react";
+import EventHighlightsBento from "@/components/health-camp/EventHighlightsBento";
 import hoslaLogo from "@/assets/hosla-logo.png";
 import logoShraddha from "@/assets/logo-shraddha.png";
 import heroIllustration from "@/assets/health-camp-hero-illustration.jpg";
