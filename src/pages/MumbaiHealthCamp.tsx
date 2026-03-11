@@ -11,8 +11,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { checkRateLimit } from "@/lib/rate-limit";
 import {
   CalendarDays, Clock, MapPin, Phone, Heart,
-  Users, CheckCircle, ArrowRight, Sparkles, Star
-} from "lucide-react";
+  Users, CheckCircle, ArrowRight, Sparkles, Star } from
+"lucide-react";
 import EventHighlightsBento from "@/components/health-camp/EventHighlightsBento";
 import hoslaLogo from "@/assets/hosla-logo.png";
 import logoShraddha from "@/assets/logo-shraddha.png";
@@ -32,7 +32,7 @@ export default function MumbaiHealthCamp() {
     age: "",
     area: "",
     medical_concerns: "",
-    source: "",
+    source: ""
   });
 
   const handleChange = (field: string, value: string) => {
@@ -73,7 +73,7 @@ export default function MumbaiHealthCamp() {
         age,
         area: formData.area.trim(),
         medical_concerns: formData.medical_concerns.trim() || null,
-        source: formData.source,
+        source: formData.source
       });
 
       if (error) throw error;
@@ -85,13 +85,13 @@ export default function MumbaiHealthCamp() {
             type: "registration_confirmation",
             registrationId,
             name: formData.full_name.trim(),
-            email: formData.email.trim().toLowerCase(),
-          },
+            email: formData.email.trim().toLowerCase()
+          }
         });
       } catch {
+
         // Don't block on email failure
       }
-
       setIsRegistered(true);
     } catch (err) {
       console.error("Registration error:", err);
@@ -109,9 +109,9 @@ export default function MumbaiHealthCamp() {
           "--primary": "330 65% 55%",
           "--primary-foreground": "0 0% 100%",
           "--accent": "330 50% 95%",
-          "--accent-foreground": "330 65% 30%",
-        } as React.CSSProperties}
-      >
+          "--accent-foreground": "330 65% 30%"
+        } as React.CSSProperties}>
+        
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-pink-50 via-pink-100/60 to-pink-50 py-16 lg:py-24 overflow-hidden">
         <div className="absolute inset-0 opacity-10">
@@ -133,7 +133,7 @@ export default function MumbaiHealthCamp() {
               <div className="inline-flex items-center gap-2 bg-pink-100 px-4 py-2 rounded-full text-sm font-medium border border-pink-200">
                 <Heart className="h-4 w-4 text-pink-600" />
                 <span className="text-pink-700">Senior Citizens' Health & Wellness Camp</span>
-                <Heart className="h-4 w-4 text-pink-600" />
+                
               </div>
 
               <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground leading-tight">
@@ -169,98 +169,39 @@ export default function MumbaiHealthCamp() {
             {/* Right — Illustrations */}
             <div className="hidden lg:flex flex-col gap-4 items-center">
               <img
-                src={heroImg}
-                alt="Senior citizens enjoying community time together"
-                className="rounded-2xl shadow-xl border-4 border-white/80 w-full max-w-md object-cover"
-              />
+                  src={heroImg}
+                  alt="Senior citizens enjoying community time together"
+                  className="rounded-2xl shadow-xl border-4 border-white/80 w-full max-w-md object-cover" />
+                
               <img
-                src={heroIllustration}
-                alt="Health camp wellness illustration"
-                className="rounded-2xl shadow-lg border-4 border-white/80 w-full max-w-sm object-cover -mt-8 ml-12"
-              />
+                  src={heroIllustration}
+                  alt="Health camp wellness illustration"
+                  className="rounded-2xl shadow-lg border-4 border-white/80 w-full max-w-sm object-cover -mt-8 ml-12" />
+                
             </div>
 
             {/* Mobile illustrations — single stacked image */}
             <div className="flex lg:hidden justify-center">
               <img
-                src={heroImg}
-                alt="Senior citizens enjoying community time together"
-                className="rounded-2xl shadow-xl border-4 border-white/80 w-full max-w-md object-cover"
-              />
+                  src={heroImg}
+                  alt="Senior citizens enjoying community time together"
+                  className="rounded-2xl shadow-xl border-4 border-white/80 w-full max-w-md object-cover" />
+                
             </div>
           </div>
         </div>
       </section>
 
       {/* Venue Section */}
-      <section className="py-16 lg:py-20 bg-card border-y border-pink-100">
+      <section className="py-12 bg-card border-y border-pink-100">
         <div className="container px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <MapPin className="h-5 w-5 text-pink-600" />
-              <span className="text-pink-600 font-medium uppercase tracking-widest text-sm">Event Venue</span>
-              <MapPin className="h-5 w-5 text-pink-600" />
-            </div>
-            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-3">How to Reach Us</h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">Find us easily — the venue is a well-known landmark in Nala Sopara West.</p>
-          </div>
-
-          <div className="max-w-5xl mx-auto grid lg:grid-cols-5 gap-6 items-stretch">
-            {/* Map */}
-            <div className="lg:col-span-3 rounded-2xl overflow-hidden border-2 border-pink-200 shadow-lg aspect-[4/3] lg:aspect-auto">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d470.3728136076308!2d72.7879297!3d19.4131617!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7ab65153c0adf%3A0x7e74913712b9d696!2sNEW%20ANGEL%20MEDICAL!5e0!3m2!1sen!2sin!4v1773199580907!5m2!1sen!2sin"
-                width="100%"
-                height="100%"
-                style={{ border: 0, minHeight: 320 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Event venue — J.B. Sadan, Nala Sopara West"
-              />
-            </div>
-
-            {/* Info cards */}
-            <div className="lg:col-span-2 flex flex-col gap-4">
-              <Card className="border-pink-200 flex-1">
-                <CardContent className="p-5 space-y-3">
-                  <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center">
-                    <MapPin className="h-5 w-5 text-pink-600" />
-                  </div>
-                  <h3 className="font-semibold text-foreground">Full Address</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    J.B. Sadan, Hall above New Angel Medical, Ludrick Stop, Mardes – Wagholi, <strong className="text-foreground">Nala Sopara West</strong>, Mumbai
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-pink-200 flex-1">
-                <CardContent className="p-5 space-y-3">
-                  <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center">
-                    <Star className="h-5 w-5 text-pink-600" />
-                  </div>
-                  <h3 className="font-semibold text-foreground">Landmark</h3>
-                  <p className="text-sm text-muted-foreground">Above <strong className="text-foreground">New Angel Medical</strong> store at Ludrick Stop</p>
-                </CardContent>
-              </Card>
-
-              <a
-                href="https://maps.google.com/?q=19.4131617,72.7879297"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block"
-              >
-                <Button className="w-full bg-pink-600 hover:bg-pink-700 gap-2" size="lg">
-                  <MapPin className="h-4 w-4" />
-                  Open in Google Maps
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </a>
-
-              <div className="flex items-center gap-2 text-sm text-muted-foreground bg-pink-50 rounded-xl p-3 border border-pink-100">
-                <Phone className="h-4 w-4 text-pink-600 flex-shrink-0" />
-                <span>Lost? Call <a href="tel:+917811009309" className="text-pink-600 font-medium hover:underline">78110 09309</a></span>
-              </div>
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4 text-center md:text-left">
+            <MapPin className="h-8 w-8 text-pink-600 flex-shrink-0" />
+            <div>
+              <h3 className="font-medium text-foreground text-lg">Venue</h3>
+              <p className="text-muted-foreground">
+                J.B. Sadan, Hall above New Angel Medical, Ludrick Stop, Mardes – Wagholi, Nala Sopara West, Mumbai
+              </p>
             </div>
           </div>
         </div>
@@ -320,7 +261,7 @@ export default function MumbaiHealthCamp() {
       <section id="register" className="py-16 lg:py-24 bg-background scroll-mt-20">
         <div className="container px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl mx-auto">
-            {isRegistered ? (
+            {isRegistered ?
               <Card className="border-pink-200 shadow-lg">
                 <CardContent className="p-8 sm:p-12 text-center space-y-6">
                   <div className="w-20 h-20 rounded-full bg-pink-100 flex items-center justify-center mx-auto">
@@ -346,8 +287,8 @@ export default function MumbaiHealthCamp() {
                   </div>
                   <p className="text-xs text-muted-foreground italic">Caring for our Elders</p>
                 </CardContent>
-              </Card>
-            ) : (
+              </Card> :
+
               <>
                 <div className="text-center mb-8">
                   <div className="flex items-center justify-center gap-2 mb-4">
@@ -374,8 +315,8 @@ export default function MumbaiHealthCamp() {
                           value={formData.full_name}
                           onChange={(e) => handleChange("full_name", e.target.value)}
                           maxLength={100}
-                          required
-                        />
+                          required />
+                        
                       </div>
 
                       <div className="grid sm:grid-cols-2 gap-5">
@@ -388,8 +329,8 @@ export default function MumbaiHealthCamp() {
                             value={formData.mobile}
                             onChange={(e) => handleChange("mobile", e.target.value)}
                             maxLength={15}
-                            required
-                          />
+                            required />
+                          
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="age">Age *</Label>
@@ -401,8 +342,8 @@ export default function MumbaiHealthCamp() {
                             onChange={(e) => handleChange("age", e.target.value)}
                             min={1}
                             max={120}
-                            required
-                          />
+                            required />
+                          
                           <p className="text-xs text-muted-foreground">To help us tailor our activities</p>
                         </div>
                       </div>
@@ -416,8 +357,8 @@ export default function MumbaiHealthCamp() {
                           value={formData.email}
                           onChange={(e) => handleChange("email", e.target.value)}
                           maxLength={255}
-                          required
-                        />
+                          required />
+                        
                         <p className="text-xs text-muted-foreground">For event reminders and updates</p>
                       </div>
 
@@ -429,8 +370,8 @@ export default function MumbaiHealthCamp() {
                           value={formData.area}
                           onChange={(e) => handleChange("area", e.target.value)}
                           maxLength={200}
-                          required
-                        />
+                          required />
+                        
                       </div>
 
                       <div className="space-y-2">
@@ -441,8 +382,8 @@ export default function MumbaiHealthCamp() {
                           value={formData.medical_concerns}
                           onChange={(e) => handleChange("medical_concerns", e.target.value)}
                           maxLength={500}
-                          rows={3}
-                        />
+                          rows={3} />
+                        
                       </div>
 
                       <div className="space-y-2">
@@ -452,9 +393,9 @@ export default function MumbaiHealthCamp() {
                             <SelectValue placeholder="Select source" />
                           </SelectTrigger>
                           <SelectContent>
-                            {sourceOptions.map((opt) => (
-                              <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                            ))}
+                            {sourceOptions.map((opt) =>
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                            )}
                           </SelectContent>
                         </Select>
                       </div>
@@ -466,11 +407,11 @@ export default function MumbaiHealthCamp() {
                   </CardContent>
                 </Card>
               </>
-            )}
+              }
           </div>
         </div>
       </section>
       </div>
-    </Layout>
-  );
+    </Layout>);
+
 }
