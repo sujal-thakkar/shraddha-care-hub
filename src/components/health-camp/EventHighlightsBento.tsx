@@ -105,7 +105,7 @@ const SkeletonMembership = () => (
       }}
     />
     <div className="flex flex-col items-center gap-1 z-10">
-      <span className="text-3xl">🎁</span>
+      <Gift className="h-8 w-8 text-pink-500" />
       <span className="text-xs font-medium text-pink-600 bg-pink-100 px-3 py-1 rounded-full border border-pink-200">
         Early Bird Offer
       </span>
