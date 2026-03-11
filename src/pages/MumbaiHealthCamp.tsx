@@ -193,15 +193,74 @@ export default function MumbaiHealthCamp() {
       </section>
 
       {/* Venue Section */}
-      <section className="py-12 bg-card border-y border-pink-100">
+      <section className="py-16 lg:py-20 bg-card border-y border-pink-100">
         <div className="container px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-center gap-4 text-center md:text-left">
-            <MapPin className="h-8 w-8 text-pink-600 flex-shrink-0" />
-            <div>
-              <h3 className="font-medium text-foreground text-lg">Venue</h3>
-              <p className="text-muted-foreground">
-                J.B. Sadan, Hall above New Angel Medical, Ludrick Stop, Mardes – Wagholi, Nala Sopara West, Mumbai
-              </p>
+          <div className="text-center mb-10">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <MapPin className="h-5 w-5 text-pink-600" />
+              <span className="text-pink-600 font-medium uppercase tracking-widest text-sm">Event Venue</span>
+              <MapPin className="h-5 w-5 text-pink-600" />
+            </div>
+            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-3">How to Reach Us</h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">Find us easily — the venue is a well-known landmark in Nala Sopara West.</p>
+          </div>
+
+          <div className="max-w-5xl mx-auto grid lg:grid-cols-5 gap-6 items-stretch">
+            {/* Map */}
+            <div className="lg:col-span-3 rounded-2xl overflow-hidden border-2 border-pink-200 shadow-lg aspect-[4/3] lg:aspect-auto">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d470.3728136076308!2d72.7879297!3d19.4131617!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7ab65153c0adf%3A0x7e74913712b9d696!2sNEW%20ANGEL%20MEDICAL!5e0!3m2!1sen!2sin!4v1773199580907!5m2!1sen!2sin"
+                width="100%"
+                height="100%"
+                style={{ border: 0, minHeight: 320 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Event venue — J.B. Sadan, Nala Sopara West"
+              />
+            </div>
+
+            {/* Info cards */}
+            <div className="lg:col-span-2 flex flex-col gap-4">
+              <Card className="border-pink-200 flex-1">
+                <CardContent className="p-5 space-y-3">
+                  <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center">
+                    <MapPin className="h-5 w-5 text-pink-600" />
+                  </div>
+                  <h3 className="font-semibold text-foreground">Full Address</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    J.B. Sadan, Hall above New Angel Medical, Ludrick Stop, Mardes – Wagholi, <strong className="text-foreground">Nala Sopara West</strong>, Mumbai
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-pink-200 flex-1">
+                <CardContent className="p-5 space-y-3">
+                  <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center">
+                    <Star className="h-5 w-5 text-pink-600" />
+                  </div>
+                  <h3 className="font-semibold text-foreground">Landmark</h3>
+                  <p className="text-sm text-muted-foreground">Above <strong className="text-foreground">New Angel Medical</strong> store at Ludrick Stop</p>
+                </CardContent>
+              </Card>
+
+              <a
+                href="https://maps.google.com/?q=19.4131617,72.7879297"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block"
+              >
+                <Button className="w-full bg-pink-600 hover:bg-pink-700 gap-2" size="lg">
+                  <MapPin className="h-4 w-4" />
+                  Open in Google Maps
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </a>
+
+              <div className="flex items-center gap-2 text-sm text-muted-foreground bg-pink-50 rounded-xl p-3 border border-pink-100">
+                <Phone className="h-4 w-4 text-pink-600 flex-shrink-0" />
+                <span>Lost? Call <a href="tel:+917811009309" className="text-pink-600 font-medium hover:underline">78110 09309</a></span>
+              </div>
             </div>
           </div>
         </div>
