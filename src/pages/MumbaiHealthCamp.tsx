@@ -18,6 +18,7 @@ import hoslaLogo from "@/assets/hosla-logo.png";
 import logoShraddha from "@/assets/logo-shraddha.png";
 import heroIllustration from "@/assets/health-camp-hero-illustration.jpg";
 import heroImg from "@/assets/helath-camp-hero-img.jpg";
+import heroRock from "@/assets/health-camp-hero-rock.jpg";
 
 const sourceOptions = ["WhatsApp", "Facebook/Instagram", "Friend/Relative", "Website", "Other"];
 
