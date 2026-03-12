@@ -1,156 +1,57 @@
-import { motion } from "framer-motion";
-import { Stethoscope, Mic2, Gamepad2, Brain, BadgePercent, Music, BookOpen, Puzzle, Target, Lightbulb, Dices, Sparkles, Gift } from "lucide-react";
+import { Stethoscope, Mic2, Gamepad2, Brain, BadgePercent } from "lucide-react";
 import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
 
-const SkeletonDental = () => (
-  <motion.div
-    className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-pink-100 via-pink-50 to-white overflow-hidden items-center justify-center"
-    initial={{ opacity: 0.8 }}
-    whileHover={{ scale: 1.02 }}
-  >
-    <motion.div className="flex gap-3 items-end">
-      {[40, 56, 48, 36, 52].map((h, i) => (
-        <motion.div
-          key={i}
-          className="rounded-t-md bg-pink-300/70 w-4"
-          style={{ height: h }}
-          initial={{ height: 0 }}
-          animate={{ height: h }}
-          transition={{ duration: 0.5, delay: i * 0.1 }}
-        />
-      ))}
-    </motion.div>
-    <Stethoscope className="h-10 w-10 text-pink-400/40 absolute" />
-  </motion.div>
-);
+import bentoDental from "@/assets/bento-dental.jpg";
+import bentoTalent from "@/assets/bento-talent.jpg";
+import bentoGames from "@/assets/bento-games.png";
+import bentoMemory from "@/assets/bento-memory.jpg";
+import bentoMembership from "@/assets/bento-membership.jpg";
 
-const SkeletonTalent = () => {
-  const variants = {
-    initial: { y: 0 },
-    animate: {
-      y: [-2, 2, -2],
-      transition: { duration: 2, repeat: Infinity },
-    },
-  };
-  return (
-    <motion.div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-pink-200/60 via-pink-100 to-pink-50 items-center justify-center gap-4 p-4">
-      {[Mic2, Music, BookOpen].map((Icon, i) => (
-        <motion.div
-          key={i}
-          className="w-12 h-12 rounded-full bg-white/70 border border-pink-200 flex items-center justify-center shadow-sm"
-          animate={{ y: [-2, 2, -2] }}
-          transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
-        >
-          <Icon className="h-5 w-5 text-pink-500" />
-        </motion.div>
-      ))}
-    </motion.div>
-  );
-};
-
-const SkeletonGames = () => (
-  <motion.div
-    className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-pink-50 to-pink-100/80 items-center justify-center relative overflow-hidden"
-    whileHover="hover"
-  >
-    <motion.div
-      className="grid grid-cols-3 gap-2"
-      variants={{ hover: { rotate: 3 } }}
-    >
-      {Array.from({ length: 9 }).map((_, i) => (
-        <motion.div
-          key={i}
-          className="w-6 h-6 rounded bg-pink-300/50"
-          initial={{ scale: 0.8, opacity: 0.5 }}
-          animate={{ scale: 1, opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 1.5, delay: i * 0.1, repeat: Infinity }}
-        />
-      ))}
-    </motion.div>
-  </motion.div>
-);
-
-const SkeletonMemory = () => {
-  const icons = [Puzzle, Target, Lightbulb, Brain, Dices, Sparkles];
-  return (
-    <motion.div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-pink-100 to-pink-200/40 items-center justify-center p-4">
-      <div className="grid grid-cols-3 gap-2">
-        {icons.map((Icon, i) => (
-          <motion.div
-            key={i}
-            className="w-10 h-10 rounded-lg bg-white/80 border border-pink-200 flex items-center justify-center cursor-pointer shadow-sm"
-            whileHover={{ rotateY: 180, backgroundColor: "rgb(252, 231, 243)" }}
-            transition={{ duration: 0.4 }}
-          >
-            <Icon className="h-4 w-4 text-pink-500" />
-          </motion.div>
-        ))}
-      </div>
-    </motion.div>
-  );
-};
-
-const SkeletonMembership = () => (
-  <motion.div
-    className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-pink-600/10 via-pink-100 to-pink-50 items-center justify-center relative overflow-hidden"
-    whileHover="hover"
-  >
-    <motion.div
-      className="absolute inset-0 bg-gradient-to-r from-transparent via-pink-200/30 to-transparent"
-      variants={{
-        hover: {
-          x: ["-100%", "100%"],
-          transition: { duration: 1.5, repeat: Infinity },
-        },
-      }}
+const ImageHeader = ({ src, alt }: { src: string; alt: string }) => (
+  <div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl overflow-hidden relative group/img">
+    <img
+      src={src}
+      alt={alt}
+      className="w-full h-full object-cover rounded-xl transition-transform duration-500 group-hover/img:scale-110"
+      loading="lazy"
     />
-    <div className="flex flex-col items-center gap-1 z-10">
-      <Gift className="h-8 w-8 text-pink-500" />
-      <span className="text-xs font-medium text-pink-600 bg-pink-100 px-3 py-1 rounded-full border border-pink-200">
-        Early Bird Offer
-      </span>
-    </div>
-  </motion.div>
+    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl" />
+  </div>
 );
 
 const highlights = [
   {
     title: "Free Dental Check-up",
-    description:
-      "Professional screening to ensure your oral health is on track. A healthy smile is a timeless one!",
-    header: <SkeletonDental />,
+    description: "Professional screening to ensure your oral health is on track. A healthy smile is a timeless one!",
+    header: <ImageHeader src={bentoDental} alt="Free dental check-up for senior citizens" />,
     className: "md:col-span-1",
     icon: <Stethoscope className="h-4 w-4 text-pink-600" />,
   },
   {
     title: "Senior Citizen Talent Express",
-    description:
-      "A stage for our elders to shine — sing a classic melody, recite poetry, or share a life story.",
-    header: <SkeletonTalent />,
+    description: "A stage for our elders to shine — sing a classic melody, recite poetry, or share a life story.",
+    header: <ImageHeader src={bentoTalent} alt="Senior citizens performing on stage" />,
     className: "md:col-span-1",
     icon: <Mic2 className="h-4 w-4 text-pink-600" />,
   },
   {
     title: "Recreational Games & Activities",
-    description:
-      "Specially designed light physical activities to keep the energy high and the spirit youthful.",
-    header: <SkeletonGames />,
+    description: "Specially designed light physical activities to keep the energy high and the spirit youthful.",
+    header: <ImageHeader src={bentoGames} alt="Seniors playing recreational games outdoors" />,
     className: "md:col-span-1",
     icon: <Gamepad2 className="h-4 w-4 text-pink-600" />,
   },
   {
     title: "Memory Games",
-    description:
-      "Fun, cognitive exercises aimed at boosting mental agility and keeping the mind sharp.",
-    header: <SkeletonMemory />,
+    description: "Fun, cognitive exercises aimed at boosting mental agility and keeping the mind sharp.",
+    header: <ImageHeader src={bentoMemory} alt="Seniors playing memory card games" />,
     className: "md:col-span-2",
     icon: <Brain className="h-4 w-4 text-pink-600" />,
   },
   {
     title: "Exclusive Membership Offers",
-    description:
-      "Be the first to join the Hosla community with special Early Bird Offers available only at the event.",
-    header: <SkeletonMembership />,
+    description: "Be the first to join the Hosla community with special Early Bird Offers available only at the event.",
+    header: <ImageHeader src={bentoMembership} alt="VIP early bird membership offer" />,
     className: "md:col-span-1",
     icon: <BadgePercent className="h-4 w-4 text-pink-600" />,
   },
