@@ -181,24 +181,22 @@ export default function MumbaiHealthCamp() {
               </Button>
             </div>
 
-            {/* Right — Desktop Illustrations (3 images side-by-side stacked) */}
-            <div className="hidden lg:flex flex-col gap-4 items-center">
-              <div className="flex gap-4 w-full max-w-lg">
-                <img
-                  src={heroImg}
-                  alt="Senior citizens enjoying community time together"
-                  className="rounded-2xl shadow-xl border-4 border-white/80 w-1/2 object-cover aspect-[3/4]"
-                />
-                <img
-                  src={heroRock}
-                  alt="Growth and nurturing symbolism"
-                  className="rounded-2xl shadow-xl border-4 border-white/80 w-1/2 object-cover aspect-[3/4]"
-                />
-              </div>
+            {/* Right — Desktop Illustrations */}
+            <div className="hidden lg:relative lg:flex flex-col gap-4 items-center">
+              <img
+                src={heroImg}
+                alt="Senior citizens enjoying community time together"
+                className="rounded-2xl shadow-xl border-4 border-white/80 w-full max-w-md object-cover aspect-[16/10]"
+              />
               <img
                 src={heroIllustration}
                 alt="Health camp wellness illustration"
                 className="rounded-2xl shadow-lg border-4 border-white/80 w-full max-w-sm object-cover -mt-6"
+              />
+              <img
+                src={heroRock}
+                alt="Growth and nurturing symbolism"
+                className="absolute -right-6 top-1/2 -translate-y-1/2 rounded-2xl shadow-xl border-4 border-white/80 w-40 h-52 object-cover z-10"
               />
             </div>
           </div>
