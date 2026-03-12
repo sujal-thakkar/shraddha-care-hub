@@ -114,8 +114,23 @@ export default function MumbaiHealthCamp() {
         } as React.CSSProperties}
       >
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-pink-50 via-pink-100/60 to-pink-50 py-16 lg:py-24 overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
+      {/* Hero Section */}
+      <section className="relative py-16 lg:py-24 overflow-hidden">
+        {/* Desktop: gradient bg */}
+        <div className="hidden lg:block absolute inset-0 bg-gradient-to-br from-pink-50 via-pink-100/60 to-pink-50" />
+
+        {/* Mobile: image collage background */}
+        <div className="lg:hidden absolute inset-0">
+          <div className="absolute inset-0 grid grid-cols-2 grid-rows-2">
+            <img src={heroImg} alt="" className="w-full h-full object-cover" />
+            <img src={heroIllustration} alt="" className="w-full h-full object-cover" />
+            <img src={heroRock} alt="" className="w-full h-full object-cover col-span-2" />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-b from-pink-50/90 via-pink-50/85 to-pink-50/90" />
+        </div>
+
+        {/* Decorative blobs (desktop only) */}
+        <div className="hidden lg:block absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-32 h-32 bg-pink-400 rounded-full blur-3xl" />
           <div className="absolute bottom-10 right-10 w-48 h-48 bg-pink-300 rounded-full blur-3xl" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-pink-400/30 rounded-full blur-3xl" />
@@ -166,26 +181,24 @@ export default function MumbaiHealthCamp() {
               </Button>
             </div>
 
-            {/* Right — Illustrations */}
+            {/* Right — Desktop Illustrations (3 images side-by-side stacked) */}
             <div className="hidden lg:flex flex-col gap-4 items-center">
-              <img
-                src={heroImg}
-                alt="Senior citizens enjoying community time together"
-                className="rounded-2xl shadow-xl border-4 border-white/80 w-full max-w-md object-cover"
-              />
+              <div className="flex gap-4 w-full max-w-lg">
+                <img
+                  src={heroImg}
+                  alt="Senior citizens enjoying community time together"
+                  className="rounded-2xl shadow-xl border-4 border-white/80 w-1/2 object-cover aspect-[3/4]"
+                />
+                <img
+                  src={heroRock}
+                  alt="Growth and nurturing symbolism"
+                  className="rounded-2xl shadow-xl border-4 border-white/80 w-1/2 object-cover aspect-[3/4]"
+                />
+              </div>
               <img
                 src={heroIllustration}
                 alt="Health camp wellness illustration"
-                className="rounded-2xl shadow-lg border-4 border-white/80 w-full max-w-sm object-cover -mt-8 ml-12"
-              />
-            </div>
-
-            {/* Mobile illustrations — single stacked image */}
-            <div className="flex lg:hidden justify-center">
-              <img
-                src={heroImg}
-                alt="Senior citizens enjoying community time together"
-                className="rounded-2xl shadow-xl border-4 border-white/80 w-full max-w-md object-cover"
+                className="rounded-2xl shadow-lg border-4 border-white/80 w-full max-w-sm object-cover -mt-6"
               />
             </div>
           </div>
