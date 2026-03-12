@@ -1,4 +1,4 @@
-import { Stethoscope, Mic2, Gamepad2, Brain, BadgePercent } from "lucide-react";
+import { Stethoscope, Mic2, Gamepad2, Brain, BadgePercent, LucideIcon } from "lucide-react";
 import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
 
 import bentoDental from "@/assets/bento-dental.jpg";
@@ -7,7 +7,7 @@ import bentoGames from "@/assets/bento-games.png";
 import bentoMemory from "@/assets/bento-memory.jpg";
 import bentoMembership from "@/assets/bento-membership.jpg";
 
-const ImageHeader = ({ src, alt }: { src: string; alt: string }) => (
+const ImageHeader = ({ src, alt, Icon }: { src: string; alt: string; Icon: LucideIcon }) => (
   <div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl overflow-hidden relative group/img">
     <img
       src={src}
@@ -16,6 +16,9 @@ const ImageHeader = ({ src, alt }: { src: string; alt: string }) => (
       loading="lazy"
     />
     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl" />
+    <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-md transition-all duration-300 group-hover/img:scale-110 group-hover/img:bg-pink-50 group-hover/img:shadow-pink-200/50">
+      <Icon className="h-5 w-5 text-pink-600 transition-transform duration-300 group-hover/img:rotate-12" />
+    </div>
   </div>
 );
 
