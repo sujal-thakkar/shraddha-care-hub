@@ -255,7 +255,7 @@ export default function MumbaiHealthCamp() {
               </Card>
 
               <a
-                href="https://maps.google.com/?q=19.4131617,72.7879297"
+                href="https://maps.google.com/?q=19.438008240508733,72.7652191749005"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block"
