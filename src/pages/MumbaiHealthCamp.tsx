@@ -250,7 +250,7 @@ export default function MumbaiHealthCamp() {
                     <Star className="h-5 w-5 text-pink-600" />
                   </div>
                   <h3 className="font-semibold text-foreground">Landmark</h3>
-                  <p className="text-sm text-muted-foreground"><strong className="text-foreground">New Life Foundation</strong></p>
+                  <p className="text-sm text-muted-foreground">Near <strong className="text-foreground">Vatar School Stop</strong>, Jeladi Beach</p>
                 </CardContent>
               </Card>
 
