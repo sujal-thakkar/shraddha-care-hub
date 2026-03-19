@@ -53,9 +53,9 @@ serve(async (req) => {
           </div>
           <p>We are excited to have you at the <strong>Mumbai Senior Citizens' Meet & Health Wellness Camp</strong>.</p>
           <div style="background: #f0fdf4; border-radius: 12px; padding: 16px; margin: 16px 0;">
-            <p style="margin: 4px 0;"><strong>📅 Date:</strong> March 15, 2026</p>
+            <p style="margin: 4px 0;"><strong>📅 Date:</strong> March 20, 2026</p>
             <p style="margin: 4px 0;"><strong>🕘 Time:</strong> 9:00 AM – 10:00 AM</p>
-            <p style="margin: 4px 0;"><strong>📍 Venue:</strong> J.B. Sadan, Hall above New Angel Medical, Ludrick Stop, Mardes – Wagholi, Nala Sopara West, Mumbai</p>
+            <p style="margin: 4px 0;"><strong>📍 Venue:</strong> New Life Foundation, Nala Sopara, Mumbai</p>
           </div>
           <p>Your health and happiness are our priority. We will send a reminder a day before the event.</p>
           <p style="margin-top: 24px; color: #666;">Need help? Call us at <a href="tel:+917811009309" style="color: #0d9668;">78110 09309</a></p>
@@ -118,10 +118,10 @@ serve(async (req) => {
               html: `
                 <div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
                   <h1 style="color: #0d9668;">Hi ${reg.full_name}, see you tomorrow! 🌿</h1>
-                  <p>Just a friendly reminder — the <strong>Mumbai Senior Citizens' Meet & Health Wellness Camp</strong> is happening <strong>tomorrow, March 15th</strong>!</p>
+                  <p>Just a friendly reminder — the <strong>Mumbai Senior Citizens' Meet & Health Wellness Camp</strong> is happening <strong>tomorrow, March 20th</strong>!</p>
                   <div style="background: #f0fdf4; border-radius: 12px; padding: 16px; margin: 16px 0;">
                     <p style="margin: 4px 0;"><strong>🕘 Time:</strong> 9:00 AM – 10:00 AM</p>
-                    <p style="margin: 4px 0;"><strong>📍 Venue:</strong> J.B. Sadan, Nala Sopara West, Mumbai</p>
+                    <p style="margin: 4px 0;"><strong>📍 Venue:</strong> New Life Foundation, Nala Sopara, Mumbai</p>
                   </div>
                   <p>We look forward to seeing you there. Bring your smile and your stories!</p>
                   <p style="color: #666;">Need help? <a href="tel:+917811009309" style="color: #0d9668;">78110 09309</a></p>

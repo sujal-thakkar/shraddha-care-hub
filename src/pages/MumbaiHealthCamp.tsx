@@ -163,7 +163,7 @@ export default function MumbaiHealthCamp() {
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-4">
                 <div className="flex items-center gap-2 bg-card px-4 py-2 rounded-xl border border-pink-200 shadow-sm">
                   <CalendarDays className="h-5 w-5 text-pink-600" />
-                  <span className="font-medium text-foreground">March 15, 2026</span>
+                  <span className="font-medium text-foreground">March 20, 2026</span>
                 </div>
                 <div className="flex items-center gap-2 bg-card px-4 py-2 rounded-xl border border-pink-200 shadow-sm">
                   <Clock className="h-5 w-5 text-pink-600" />
@@ -212,21 +212,21 @@ export default function MumbaiHealthCamp() {
               <span className="text-pink-600 font-medium uppercase tracking-widest text-sm">Event Venue</span>
             </div>
             <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-3">How to Reach Us</h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">Find us easily — the venue is a well-known landmark in Nala Sopara West.</p>
+            <p className="text-muted-foreground max-w-xl mx-auto">Find us easily at New Life Foundation in Nala Sopara.</p>
           </div>
 
           <div className="max-w-5xl mx-auto grid lg:grid-cols-5 gap-6 items-stretch">
             {/* Map */}
             <div className="lg:col-span-3 rounded-2xl overflow-hidden border-2 border-pink-200 shadow-lg aspect-[4/3] lg:aspect-auto">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d470.3728136076308!2d72.7879297!3d19.4131617!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7ab65153c0adf%3A0x7e74913712b9d696!2sNEW%20ANGEL%20MEDICAL!5e0!3m2!1sen!2sin!4v1773199580907!5m2!1sen!2sin"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3762.4070748481568!2d72.7652191749005!3d19.438008240508733!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7ab863749bcfd%3A0xea52e851e7da8be!2sNew%20life%20foundation!5e0!3m2!1sen!2sin!4v1773938024976!5m2!1sen!2sin"
                 width="100%"
                 height="100%"
                 style={{ border: 0, minHeight: 320 }}
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title="Event venue — J.B. Sadan, Nala Sopara West"
+                title="Event venue — New Life Foundation, Nala Sopara"
               />
             </div>
 
@@ -238,9 +238,9 @@ export default function MumbaiHealthCamp() {
                     <MapPin className="h-5 w-5 text-pink-600" />
                   </div>
                   <h3 className="font-semibold text-foreground">Full Address</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    J.B. Sadan, Hall above New Angel Medical, Ludrick Stop, Mardes – Wagholi, <strong className="text-foreground">Nala Sopara West</strong>, Mumbai
-                  </p>
+                   <p className="text-sm text-muted-foreground leading-relaxed">
+                     New Life Foundation, <strong className="text-foreground">Nala Sopara</strong>, Mumbai
+                   </p>
                 </CardContent>
               </Card>
 
@@ -250,12 +250,12 @@ export default function MumbaiHealthCamp() {
                     <Star className="h-5 w-5 text-pink-600" />
                   </div>
                   <h3 className="font-semibold text-foreground">Landmark</h3>
-                  <p className="text-sm text-muted-foreground">Above <strong className="text-foreground">New Angel Medical</strong> store at Ludrick Stop</p>
+                  <p className="text-sm text-muted-foreground"><strong className="text-foreground">New Life Foundation</strong></p>
                 </CardContent>
               </Card>
 
               <a
-                href="https://maps.google.com/?q=19.4131617,72.7879297"
+                href="https://maps.google.com/?q=19.438008240508733,72.7652191749005"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block"
@@ -339,7 +339,7 @@ export default function MumbaiHealthCamp() {
                     Thank you for registering!
                   </h2>
                   <p className="text-muted-foreground leading-relaxed max-w-md mx-auto">
-                    We are excited to see you on <strong className="text-foreground">March 15th at J.B. Sadan</strong>. 
+                    We are excited to see you on <strong className="text-foreground">March 20th at New Life Foundation</strong>. 
                     Your health and happiness are our priority. We will send a reminder via email a day before the event.
                   </p>
                   <div className="bg-pink-50 rounded-xl p-4 border border-pink-100">
