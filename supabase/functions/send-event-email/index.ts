@@ -121,7 +121,7 @@ serve(async (req) => {
                   <p>Just a friendly reminder — the <strong>Mumbai Senior Citizens' Meet & Health Wellness Camp</strong> is happening <strong>tomorrow, March 20th</strong>!</p>
                   <div style="background: #f0fdf4; border-radius: 12px; padding: 16px; margin: 16px 0;">
                     <p style="margin: 4px 0;"><strong>🕘 Time:</strong> 9:00 AM – 10:00 AM</p>
-                    <p style="margin: 4px 0;"><strong>📍 Venue:</strong> New Life Foundation, Nala Sopara, Mumbai</p>
+                    <p style="margin: 4px 0;"><strong>📍 Venue:</strong> New Life Old Age Home, Vatar School Stop, Jeladi Beach, Virar (W) 401301</p>
                   </div>
                   <p>We look forward to seeing you there. Bring your smile and your stories!</p>
                   <p style="color: #666;">Need help? <a href="tel:+917811009309" style="color: #0d9668;">78110 09309</a></p>
