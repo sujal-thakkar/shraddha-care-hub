@@ -219,14 +219,14 @@ export default function MumbaiHealthCamp() {
             {/* Map */}
             <div className="lg:col-span-3 rounded-2xl overflow-hidden border-2 border-pink-200 shadow-lg aspect-[4/3] lg:aspect-auto">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d470.3728136076308!2d72.7879297!3d19.4131617!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7ab65153c0adf%3A0x7e74913712b9d696!2sNEW%20ANGEL%20MEDICAL!5e0!3m2!1sen!2sin!4v1773199580907!5m2!1sen!2sin"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3762.4070748481568!2d72.7652191749005!3d19.438008240508733!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7ab863749bcfd%3A0xea52e851e7da8be!2sNew%20life%20foundation!5e0!3m2!1sen!2sin!4v1773938024976!5m2!1sen!2sin"
                 width="100%"
                 height="100%"
                 style={{ border: 0, minHeight: 320 }}
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title="Event venue — J.B. Sadan, Nala Sopara West"
+                title="Event venue — New Life Foundation, Nala Sopara"
               />
             </div>
 
