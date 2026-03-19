@@ -1,20 +1,56 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Search, CheckCircle, XCircle, Users, UserCheck, Clock, Download } from "lucide-react";
+import {
+  Search, CheckCircle, XCircle, Users, UserCheck, Clock, Download,
+  Mail, Bell, Heart, AlertTriangle,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+
+type EmailType = "event_reminder" | "thank_you_attended" | "missed_event_followup";
+
+const emailActions: { type: EmailType; label: string; description: string; icon: typeof Mail; variant: "default" | "outline" }[] = [
+  {
+    type: "event_reminder",
+    label: "Send Reminder",
+    description: "Send a reminder email to ALL registered participants about the event tomorrow.",
+    icon: Bell,
+    variant: "outline",
+  },
+  {
+    type: "thank_you_attended",
+    label: "Thank Attendees",
+    description: "Send a thank-you email to all participants who have been CHECKED IN.",
+    icon: Heart,
+    variant: "default",
+  },
+  {
+    type: "missed_event_followup",
+    label: "Follow Up (Missed)",
+    description: "Send a follow-up email to registered participants who did NOT check in.",
+    icon: AlertTriangle,
+    variant: "outline",
+  },
+];
 
 export default function AdminRegistrations() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
+  const [emailDialog, setEmailDialog] = useState<EmailType | null>(null);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
 
   const { data: registrations, isLoading } = useQuery({
     queryKey: ["admin-registrations"],
@@ -47,6 +83,23 @@ export default function AdminRegistrations() {
       toast({ title: "Failed to update", variant: "destructive" });
     },
   });
+
+  const handleSendEmail = async (type: EmailType) => {
+    setIsSendingEmail(true);
+    try {
+      const { error } = await supabase.functions.invoke("send-event-email", {
+        body: { type },
+      });
+      if (error) throw error;
+      toast({ title: "Emails sent successfully!" });
+    } catch (err) {
+      console.error("Email send error:", err);
+      toast({ title: "Failed to send emails", description: "Check the console for details.", variant: "destructive" });
+    } finally {
+      setIsSendingEmail(false);
+      setEmailDialog(null);
+    }
+  };
 
   const filtered = registrations?.filter((r) => {
     const q = search.toLowerCase();
@@ -84,12 +137,14 @@ export default function AdminRegistrations() {
     URL.revokeObjectURL(url);
   };
 
+  const currentAction = emailActions.find((a) => a.type === emailDialog);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Event Registrations</h1>
-          <p className="text-muted-foreground">Mumbai Health Camp — March 15, 2026</p>
+          <p className="text-muted-foreground">Mumbai Health Camp — March 20, 2026</p>
         </div>
         <Button variant="outline" size="sm" onClick={exportCSV} disabled={!registrations?.length}>
           <Download className="h-4 w-4 mr-2" />
@@ -127,6 +182,65 @@ export default function AdminRegistrations() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Email Actions */}
+      <Card>
+        <CardContent className="p-4">
+          <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
+            <Mail className="h-4 w-4" /> Bulk Email Actions
+          </h3>
+          <div className="flex flex-wrap gap-3">
+            {emailActions.map((action) => {
+              const Icon = action.icon;
+              return (
+                <Button
+                  key={action.type}
+                  variant={action.variant}
+                  size="sm"
+                  onClick={() => setEmailDialog(action.type)}
+                  disabled={!registrations?.length}
+                >
+                  <Icon className="h-4 w-4 mr-2" />
+                  {action.label}
+                </Button>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Confirmation Dialog */}
+      <AlertDialog open={!!emailDialog} onOpenChange={(open) => !open && setEmailDialog(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm: {currentAction?.label}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {currentAction?.description}
+              <br /><br />
+              <strong>This action cannot be undone.</strong> Emails will be sent immediately.
+              {emailDialog === "thank_you_attended" && stats.checkedIn === 0 && (
+                <span className="block mt-2 text-destructive font-medium">
+                  ⚠ No one is checked in yet. No emails will be sent.
+                </span>
+              )}
+              {emailDialog === "missed_event_followup" && stats.pending === 0 && (
+                <span className="block mt-2 text-destructive font-medium">
+                  ⚠ Everyone is checked in. No emails will be sent.
+                </span>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isSendingEmail}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => emailDialog && handleSendEmail(emailDialog)}
+              disabled={isSendingEmail}
+            >
+              {isSendingEmail ? "Sending..." : "Send Emails"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Search */}
       <div className="relative max-w-md">
