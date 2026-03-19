@@ -239,7 +239,7 @@ export default function MumbaiHealthCamp() {
                   </div>
                   <h3 className="font-semibold text-foreground">Full Address</h3>
                    <p className="text-sm text-muted-foreground leading-relaxed">
-                     New Life Foundation, <strong className="text-foreground">Nala Sopara</strong>, Mumbai
+                     New Life Old Age Home, Vatar School Stop, Jeladi Rampatti Road, Jeladi Beach, <strong className="text-foreground">Virar (W) 401301</strong>
                    </p>
                 </CardContent>
               </Card>
