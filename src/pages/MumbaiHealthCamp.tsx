@@ -339,7 +339,7 @@ export default function MumbaiHealthCamp() {
                     Thank you for registering!
                   </h2>
                   <p className="text-muted-foreground leading-relaxed max-w-md mx-auto">
-                    We are excited to see you on <strong className="text-foreground">March 15th at J.B. Sadan</strong>. 
+                    We are excited to see you on <strong className="text-foreground">March 20th at New Life Foundation</strong>. 
                     Your health and happiness are our priority. We will send a reminder via email a day before the event.
                   </p>
                   <div className="bg-pink-50 rounded-xl p-4 border border-pink-100">
