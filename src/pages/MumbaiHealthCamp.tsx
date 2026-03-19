@@ -163,7 +163,7 @@ export default function MumbaiHealthCamp() {
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-4">
                 <div className="flex items-center gap-2 bg-card px-4 py-2 rounded-xl border border-pink-200 shadow-sm">
                   <CalendarDays className="h-5 w-5 text-pink-600" />
-                  <span className="font-medium text-foreground">March 15, 2026</span>
+                  <span className="font-medium text-foreground">March 20, 2026</span>
                 </div>
                 <div className="flex items-center gap-2 bg-card px-4 py-2 rounded-xl border border-pink-200 shadow-sm">
                   <Clock className="h-5 w-5 text-pink-600" />
