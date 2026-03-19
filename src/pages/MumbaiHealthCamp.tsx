@@ -238,9 +238,9 @@ export default function MumbaiHealthCamp() {
                     <MapPin className="h-5 w-5 text-pink-600" />
                   </div>
                   <h3 className="font-semibold text-foreground">Full Address</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    J.B. Sadan, Hall above New Angel Medical, Ludrick Stop, Mardes – Wagholi, <strong className="text-foreground">Nala Sopara West</strong>, Mumbai
-                  </p>
+                   <p className="text-sm text-muted-foreground leading-relaxed">
+                     New Life Foundation, <strong className="text-foreground">Nala Sopara</strong>, Mumbai
+                   </p>
                 </CardContent>
               </Card>
 
