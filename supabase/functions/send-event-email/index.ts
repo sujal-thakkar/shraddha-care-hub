@@ -55,7 +55,7 @@ serve(async (req) => {
           <div style="background: #f0fdf4; border-radius: 12px; padding: 16px; margin: 16px 0;">
             <p style="margin: 4px 0;"><strong>📅 Date:</strong> March 20, 2026</p>
             <p style="margin: 4px 0;"><strong>🕘 Time:</strong> 9:00 AM – 10:00 AM</p>
-            <p style="margin: 4px 0;"><strong>📍 Venue:</strong> New Life Foundation, Nala Sopara, Mumbai</p>
+            <p style="margin: 4px 0;"><strong>📍 Venue:</strong> New Life Old Age Home, Vatar School Stop, Jeladi Rampatti Road, Jeladi Beach, Virar (W) 401301</p>
           </div>
           <p>Your health and happiness are our priority. We will send a reminder a day before the event.</p>
           <p style="margin-top: 24px; color: #666;">Need help? Call us at <a href="tel:+917811009309" style="color: #0d9668;">78110 09309</a></p>
