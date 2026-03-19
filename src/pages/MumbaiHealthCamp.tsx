@@ -212,7 +212,7 @@ export default function MumbaiHealthCamp() {
               <span className="text-pink-600 font-medium uppercase tracking-widest text-sm">Event Venue</span>
             </div>
             <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-3">How to Reach Us</h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">Find us easily — the venue is a well-known landmark in Nala Sopara West.</p>
+            <p className="text-muted-foreground max-w-xl mx-auto">Find us easily at New Life Foundation in Nala Sopara.</p>
           </div>
 
           <div className="max-w-5xl mx-auto grid lg:grid-cols-5 gap-6 items-stretch">
