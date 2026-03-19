@@ -239,7 +239,7 @@ export default function MumbaiHealthCamp() {
                   </div>
                   <h3 className="font-semibold text-foreground">Full Address</h3>
                    <p className="text-sm text-muted-foreground leading-relaxed">
-                     New Life Foundation, <strong className="text-foreground">Nala Sopara</strong>, Mumbai
+                     New Life Old Age Home, Vatar School Stop, Jeladi Rampatti Road, Jeladi Beach, <strong className="text-foreground">Virar (W) 401301</strong>
                    </p>
                 </CardContent>
               </Card>
@@ -250,7 +250,7 @@ export default function MumbaiHealthCamp() {
                     <Star className="h-5 w-5 text-pink-600" />
                   </div>
                   <h3 className="font-semibold text-foreground">Landmark</h3>
-                  <p className="text-sm text-muted-foreground"><strong className="text-foreground">New Life Foundation</strong></p>
+                  <p className="text-sm text-muted-foreground">Near <strong className="text-foreground">Vatar School Stop</strong>, Jeladi Beach</p>
                 </CardContent>
               </Card>
 
@@ -339,7 +339,7 @@ export default function MumbaiHealthCamp() {
                     Thank you for registering!
                   </h2>
                   <p className="text-muted-foreground leading-relaxed max-w-md mx-auto">
-                    We are excited to see you on <strong className="text-foreground">March 20th at New Life Foundation</strong>. 
+                    We are excited to see you on <strong className="text-foreground">March 20th at New Life Old Age Home, Virar (W)</strong>. 
                     Your health and happiness are our priority. We will send a reminder via email a day before the event.
                   </p>
                   <div className="bg-pink-50 rounded-xl p-4 border border-pink-100">
