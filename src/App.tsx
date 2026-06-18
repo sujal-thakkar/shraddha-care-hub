@@ -32,6 +32,7 @@ const AdminProjectsEvents = lazy(() => import("./pages/admin/ProjectsEvents"));
 const AdminSettings = lazy(() => import("./pages/admin/Settings"));
 const AdminTeamManagement = lazy(() => import("./pages/admin/TeamManagement"));
 const AdminRegistrations = lazy(() => import("./pages/admin/Registrations"));
+const AdminEventManagement = lazy(() => import("./pages/admin/EventManagement"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -76,6 +77,7 @@ const App = () => (
               <Route path="donations" element={<AdminDonations />} />
               <Route path="projects" element={<AdminProjectsEvents />} />
               <Route path="team" element={<AdminTeamManagement />} />
+              <Route path="events" element={<AdminEventManagement />} />
               <Route path="registrations" element={<AdminRegistrations />} />
               <Route path="settings" element={<AdminSettings />} />
             </Route>
