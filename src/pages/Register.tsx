@@ -75,12 +75,23 @@ export default function Register() {
                             <span>{format(new Date(event.event_date), "MMM d, yyyy")}</span>
                           </div>
                         )}
-                        {(event.start_time || event.end_time) && (
-                          <div className="flex items-center gap-2">
-                            <Clock className="h-4 w-4 text-primary" />
-                            <span>{[event.start_time, event.end_time].filter(Boolean).join(" – ")}</span>
-                          </div>
-                        )}
+                        {(event.start_time || event.end_time) && (() => {
+                          const fmt = (t: string) => {
+                            const [hStr, mStr] = t.split(":");
+                            let h = parseInt(hStr, 10);
+                            const m = mStr ?? "00";
+                            if (isNaN(h)) return t;
+                            const ampm = h >= 12 ? "PM" : "AM";
+                            h = h % 12 || 12;
+                            return `${h}:${m} ${ampm}`;
+                          };
+                          return (
+                            <div className="flex items-center gap-2">
+                              <Clock className="h-4 w-4 text-primary" />
+                              <span>{[event.start_time, event.end_time].filter(Boolean).map((t) => fmt(t!)).join(" – ")}</span>
+                            </div>
+                          );
+                        })()}
                         {event.venue_name && (
                           <div className="flex items-center gap-2">
                             <MapPin className="h-4 w-4 text-primary" />

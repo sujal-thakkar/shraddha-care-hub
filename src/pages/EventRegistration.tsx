@@ -173,8 +173,22 @@ export default function EventRegistration() {
     );
   }
 
+  const formatTime12 = (t: string) => {
+    if (!t) return "";
+    const [hStr, mStr] = t.split(":");
+    let h = parseInt(hStr, 10);
+    const m = mStr ?? "00";
+    if (isNaN(h)) return t;
+    const ampm = h >= 12 ? "PM" : "AM";
+    h = h % 12 || 12;
+    return `${h}:${m} ${ampm}`;
+  };
+
   const eventDateLabel = event.event_date ? format(new Date(event.event_date), "MMMM d, yyyy") : null;
-  const timeLabel = [event.start_time, event.end_time].filter(Boolean).join(" – ");
+  const timeLabel = [event.start_time, event.end_time]
+    .filter(Boolean)
+    .map((t) => formatTime12(t!))
+    .join(" – ");
 
   return (
     <Layout>
@@ -263,12 +277,21 @@ export default function EventRegistration() {
                       <Phone className="h-5 w-5 text-primary" />
                     </div>
                     <h3 className="font-semibold text-foreground">Need help?</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Call us at{" "}
-                      <a href={`tel:${event.contact_phone.replace(/\s/g, "")}`} className="text-primary font-medium hover:underline">
-                        {event.contact_phone}
-                      </a>
-                    </p>
+                    <div className="text-sm text-muted-foreground space-y-1">
+                      <span>Call us at </span>
+                      {event.contact_phone.split(",").map((phone, i, arr) => {
+                        const trimmed = phone.trim();
+                        if (!trimmed) return null;
+                        return (
+                          <span key={i}>
+                            <a href={`tel:${trimmed.replace(/\s/g, "")}`} className="text-primary font-medium hover:underline">
+                              {trimmed}
+                            </a>
+                            {i < arr.length - 1 && arr[i + 1]?.trim() ? ", " : ""}
+                          </span>
+                        );
+                      })}
+                    </div>
                   </CardContent>
                 </Card>
               )}
@@ -300,9 +323,18 @@ export default function EventRegistration() {
                     <div className="bg-accent/50 rounded-xl p-4 border border-border">
                       <p className="text-sm text-muted-foreground">
                         Need help? Call us at{" "}
-                        <a href={`tel:${event.contact_phone.replace(/\s/g, "")}`} className="text-primary font-medium hover:underline">
-                          {event.contact_phone}
-                        </a>
+                        {event.contact_phone.split(",").map((phone, i, arr) => {
+                          const trimmed = phone.trim();
+                          if (!trimmed) return null;
+                          return (
+                            <span key={i}>
+                              <a href={`tel:${trimmed.replace(/\s/g, "")}`} className="text-primary font-medium hover:underline">
+                                {trimmed}
+                              </a>
+                              {i < arr.length - 1 && arr[i + 1]?.trim() ? ", " : ""}
+                            </span>
+                          );
+                        })}
                       </p>
                     </div>
                   )}

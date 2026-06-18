@@ -68,7 +68,7 @@ export default function AdminDashboard() {
     { icon: Building2, label: "Partners", path: "/admin/dashboard/partners" },
     { icon: Heart, label: "Donations", path: "/admin/dashboard/donations" },
     { icon: CalendarDays, label: "Projects & Events", path: "/admin/dashboard/projects" },
-    { icon: CalendarDays, label: "Registration Events", path: "/admin/dashboard/events" },
+    { icon: CalendarDays, label: "Manage Events", path: "/admin/dashboard/events" },
     { icon: ClipboardList, label: "Event Registrations", path: "/admin/dashboard/registrations" },
     { icon: UsersRound, label: "Team", path: "/admin/dashboard/team" },
     { icon: Settings, label: "Settings", path: "/admin/dashboard/settings" },

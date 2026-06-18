@@ -17,7 +17,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "@/components/ui/image-upload";
 import { useImageUpload } from "@/hooks/use-image-upload";
-import { Plus, Pencil, Trash2, Loader2, ExternalLink, Copy } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, ExternalLink, Copy, X } from "lucide-react";
 import { format } from "date-fns";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -80,6 +80,18 @@ const defaultForm: FormState = {
 const slugify = (s: string) =>
   s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
 
+/** Convert "HH:MM" 24-h to "h:mm AM/PM" for display */
+const formatTime12 = (t: string) => {
+  if (!t) return "";
+  const [hStr, mStr] = t.split(":");
+  let h = parseInt(hStr, 10);
+  const m = mStr ?? "00";
+  if (isNaN(h)) return t;           // fallback: show raw value
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12 || 12;
+  return `${h}:${m} ${ampm}`;
+};
+
 export default function AdminEventManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -87,6 +99,7 @@ export default function AdminEventManagement() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(defaultForm);
   const [slugEdited, setSlugEdited] = useState(false);
+  const [phoneInput, setPhoneInput] = useState("");
 
   const { upload: uploadBanner, isUploading } = useImageUpload({
     bucket: "project-posters",
@@ -173,6 +186,7 @@ export default function AdminEventManagement() {
     setEditingId(null);
     setForm(defaultForm);
     setSlugEdited(false);
+    setPhoneInput("");
   };
 
   const handleEdit = (ev: RegEvent) => {
@@ -230,7 +244,7 @@ export default function AdminEventManagement() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Registration Events</h1>
+          <h1 className="text-2xl font-bold text-foreground">Manage Events</h1>
           <p className="text-muted-foreground">Create and manage events people can register for.</p>
         </div>
         <Button onClick={() => setIsDialogOpen(true)} className="gap-2">
@@ -380,11 +394,11 @@ export default function AdminEventManagement() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="start_time">Start Time</Label>
-                <Input id="start_time" value={form.start_time} onChange={(e) => setForm({ ...form, start_time: e.target.value })} placeholder="9:00 AM" />
+                <Input id="start_time" type="time" value={form.start_time} onChange={(e) => setForm({ ...form, start_time: e.target.value })} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="end_time">End Time</Label>
-                <Input id="end_time" value={form.end_time} onChange={(e) => setForm({ ...form, end_time: e.target.value })} placeholder="10:00 AM" />
+                <Input id="end_time" type="time" value={form.end_time} onChange={(e) => setForm({ ...form, end_time: e.target.value })} />
               </div>
             </div>
 
@@ -399,8 +413,76 @@ export default function AdminEventManagement() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="contact_phone">Contact Phone</Label>
-              <Input id="contact_phone" value={form.contact_phone} onChange={(e) => setForm({ ...form, contact_phone: e.target.value })} placeholder="78110 09309" />
+              <Label>Contact Phone Numbers</Label>
+              {/* Phone tags */}
+              {form.contact_phone && (
+                <div className="flex flex-wrap gap-2">
+                  {form.contact_phone.split(",").map((phone, i) => {
+                    const trimmed = phone.trim();
+                    if (!trimmed) return null;
+                    return (
+                      <span key={i} className="inline-flex items-center gap-1 bg-primary/10 text-primary text-sm font-medium px-3 py-1 rounded-full border border-primary/20">
+                        {trimmed}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const phones = form.contact_phone.split(",").map((p) => p.trim()).filter(Boolean);
+                            phones.splice(i, 1);
+                            setForm({ ...form, contact_phone: phones.join(", ") });
+                          }}
+                          className="hover:bg-destructive/20 rounded-full p-0.5 transition-colors"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
+              {/* Phone input */}
+              <Input
+                id="contact_phone"
+                value={phoneInput}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  // If user types a comma, add the number before it as a tag
+                  if (val.includes(",")) {
+                    const parts = val.split(",");
+                    const newPhone = parts[0].trim();
+                    if (newPhone) {
+                      const existing = form.contact_phone ? form.contact_phone.split(",").map((p) => p.trim()).filter(Boolean) : [];
+                      existing.push(newPhone);
+                      setForm({ ...form, contact_phone: existing.join(", ") });
+                    }
+                    setPhoneInput(parts.slice(1).join(","));
+                  } else {
+                    setPhoneInput(val);
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    const newPhone = phoneInput.trim();
+                    if (newPhone) {
+                      const existing = form.contact_phone ? form.contact_phone.split(",").map((p) => p.trim()).filter(Boolean) : [];
+                      existing.push(newPhone);
+                      setForm({ ...form, contact_phone: existing.join(", ") });
+                      setPhoneInput("");
+                    }
+                  }
+                  // Backspace on empty input removes last tag
+                  if (e.key === "Backspace" && !phoneInput) {
+                    const phones = form.contact_phone ? form.contact_phone.split(",").map((p) => p.trim()).filter(Boolean) : [];
+                    if (phones.length) {
+                      const removed = phones.pop()!;
+                      setForm({ ...form, contact_phone: phones.join(", ") });
+                      setPhoneInput(removed);
+                    }
+                  }
+                }}
+                placeholder={form.contact_phone ? "Add another number…" : "e.g. 78110 09309"}
+              />
+              <p className="text-xs text-muted-foreground">Press comma or Enter after each number to add it.</p>
             </div>
 
             <div className="space-y-2">
