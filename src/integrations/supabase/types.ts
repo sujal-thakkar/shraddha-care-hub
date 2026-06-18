@@ -154,6 +154,7 @@ export type Database = {
           checked_in_at: string | null
           created_at: string
           email: string
+          event_id: string | null
           full_name: string
           id: string
           medical_concerns: string | null
@@ -168,6 +169,7 @@ export type Database = {
           checked_in_at?: string | null
           created_at?: string
           email: string
+          event_id?: string | null
           full_name: string
           id?: string
           medical_concerns?: string | null
@@ -182,6 +184,7 @@ export type Database = {
           checked_in_at?: string | null
           created_at?: string
           email?: string
+          event_id?: string | null
           full_name?: string
           id?: string
           medical_concerns?: string | null
@@ -189,7 +192,15 @@ export type Database = {
           source?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "event_registrations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "registration_events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notification_emails: {
         Row: {
@@ -332,6 +343,66 @@ export type Database = {
           status?: Database["public"]["Enums"]["project_status"]
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      registration_events: {
+        Row: {
+          banner_url: string | null
+          contact_phone: string | null
+          created_at: string
+          description: string | null
+          display_order: number
+          end_time: string | null
+          event_date: string | null
+          field_config: Json
+          id: string
+          is_published: boolean
+          registration_open: boolean
+          slug: string
+          start_time: string | null
+          title: string
+          updated_at: string
+          venue_address: string | null
+          venue_name: string | null
+        }
+        Insert: {
+          banner_url?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          end_time?: string | null
+          event_date?: string | null
+          field_config?: Json
+          id?: string
+          is_published?: boolean
+          registration_open?: boolean
+          slug: string
+          start_time?: string | null
+          title: string
+          updated_at?: string
+          venue_address?: string | null
+          venue_name?: string | null
+        }
+        Update: {
+          banner_url?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          end_time?: string | null
+          event_date?: string | null
+          field_config?: Json
+          id?: string
+          is_published?: boolean
+          registration_open?: boolean
+          slug?: string
+          start_time?: string | null
+          title?: string
+          updated_at?: string
+          venue_address?: string | null
+          venue_name?: string | null
         }
         Relationships: []
       }
