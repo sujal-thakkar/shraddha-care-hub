@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
@@ -25,21 +26,21 @@ const emailActions: { type: EmailType; label: string; description: string; icon:
   {
     type: "event_reminder",
     label: "Send Reminder",
-    description: "Send a reminder email to ALL registered participants about the event tomorrow.",
+    description: "Send a reminder email to ALL registered participants of the selected event.",
     icon: Bell,
     variant: "outline",
   },
   {
     type: "thank_you_attended",
     label: "Thank Attendees",
-    description: "Send a thank-you email to all participants who have been CHECKED IN.",
+    description: "Send a thank-you email to all participants who have been CHECKED IN for the selected event.",
     icon: Heart,
     variant: "default",
   },
   {
     type: "missed_event_followup",
     label: "Follow Up (Missed)",
-    description: "Send a follow-up email to registered participants who did NOT check in.",
+    description: "Send a follow-up email to registered participants who did NOT check in for the selected event.",
     icon: AlertTriangle,
     variant: "outline",
   },
@@ -49,20 +50,44 @@ export default function AdminRegistrations() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
+  const [selectedEventId, setSelectedEventId] = useState<string>("");
   const [emailDialog, setEmailDialog] = useState<EmailType | null>(null);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
 
-  const { data: registrations, isLoading } = useQuery({
-    queryKey: ["admin-registrations"],
+  const { data: events = [] } = useQuery({
+    queryKey: ["registration-events-list"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("event_registrations")
-        .select("*")
+        .from("registration_events")
+        .select("id, title, event_date")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
   });
+
+  // Default to the most recent event once loaded
+  useEffect(() => {
+    if (!selectedEventId && events.length) {
+      setSelectedEventId(events[0].id);
+    }
+  }, [events, selectedEventId]);
+
+  const { data: registrations, isLoading } = useQuery({
+    queryKey: ["admin-registrations", selectedEventId],
+    enabled: !!selectedEventId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("event_registrations")
+        .select("*")
+        .eq("event_id", selectedEventId)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const selectedEvent = events.find((e) => e.id === selectedEventId);
 
   const checkInMutation = useMutation({
     mutationFn: async ({ id, checked_in }: { id: string; checked_in: boolean }) => {
@@ -85,10 +110,11 @@ export default function AdminRegistrations() {
   });
 
   const handleSendEmail = async (type: EmailType) => {
+    if (!selectedEventId) return;
     setIsSendingEmail(true);
     try {
       const { error } = await supabase.functions.invoke("send-event-email", {
-        body: { type },
+        body: { type, eventId: selectedEventId },
       });
       if (error) throw error;
       toast({ title: "Emails sent successfully!" });
@@ -132,7 +158,7 @@ export default function AdminRegistrations() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "event-registrations.csv";
+    a.download = `${selectedEvent?.title || "event"}-registrations.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -144,12 +170,36 @@ export default function AdminRegistrations() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Event Registrations</h1>
-          <p className="text-muted-foreground">Mumbai Health Camp — March 20, 2026</p>
+          <p className="text-muted-foreground">
+            {selectedEvent
+              ? `${selectedEvent.title}${selectedEvent.event_date ? ` — ${format(new Date(selectedEvent.event_date), "PP")}` : ""}`
+              : "Select an event to view registrations"}
+          </p>
         </div>
         <Button variant="outline" size="sm" onClick={exportCSV} disabled={!registrations?.length}>
           <Download className="h-4 w-4 mr-2" />
           Export CSV
         </Button>
+      </div>
+
+      {/* Event Selector */}
+      <div className="max-w-md">
+        <Select value={selectedEventId} onValueChange={setSelectedEventId}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select an event" />
+          </SelectTrigger>
+          <SelectContent>
+            {events.length === 0 ? (
+              <SelectItem value="none" disabled>No events yet</SelectItem>
+            ) : (
+              events.map((e) => (
+                <SelectItem key={e.id} value={e.id}>
+                  {e.title}
+                </SelectItem>
+              ))
+            )}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Stats */}
@@ -261,7 +311,7 @@ export default function AdminRegistrations() {
       ) : !filtered?.length ? (
         <Card>
           <CardContent className="p-8 text-center text-muted-foreground">
-            {search ? "No registrations match your search." : "No registrations yet."}
+            {search ? "No registrations match your search." : "No registrations yet for this event."}
           </CardContent>
         </Card>
       ) : (
@@ -276,7 +326,7 @@ export default function AdminRegistrations() {
                       <Badge variant={reg.checked_in ? "default" : "secondary"} className="text-xs">
                         {reg.checked_in ? "Checked In" : "Registered"}
                       </Badge>
-                      <span className="text-xs text-muted-foreground">Age: {reg.age}</span>
+                      {reg.age > 0 && <span className="text-xs text-muted-foreground">Age: {reg.age}</span>}
                     </div>
                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
                       <span>{reg.mobile}</span>

@@ -31,7 +31,7 @@ const navGroups: NavGroup[] = [
     name: "Projects & Events",
     children: [
       { name: "Events", path: "/events", description: "Upcoming & past initiatives" },
-      { name: "Mumbai Health Camp", path: "/mumbai-health-camp", description: "Register for the Senior Citizens' Health Camp", accent: "pink" },
+      { name: "Register for Events", path: "/register", description: "Sign up for our upcoming events", accent: "pink" },
       { name: "Corporate Care", path: "/corporate-care", description: "Programs for your employees' parents", accent: "violet" },
       { name: "HPL", path: "/hpl", description: "Hosla Premier League" },
       { name: "Games", path: "/games", description: "Fun activities for seniors" },

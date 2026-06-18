@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { PageLoader } from "@/components/ui/page-loader";
 import Home from "./pages/Home";
@@ -18,7 +18,8 @@ const Contact = lazy(() => import("./pages/Contact"));
 const Games = lazy(() => import("./pages/Games"));
 const HPL = lazy(() => import("./pages/HPL"));
 const Events = lazy(() => import("./pages/Events"));
-const MumbaiHealthCamp = lazy(() => import("./pages/MumbaiHealthCamp"));
+const Register = lazy(() => import("./pages/Register"));
+const EventRegistration = lazy(() => import("./pages/EventRegistration"));
 const AdminLogin = lazy(() => import("./pages/admin/Login"));
 const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
 const AdminOverview = lazy(() => import("./pages/admin/Overview"));
@@ -31,6 +32,7 @@ const AdminProjectsEvents = lazy(() => import("./pages/admin/ProjectsEvents"));
 const AdminSettings = lazy(() => import("./pages/admin/Settings"));
 const AdminTeamManagement = lazy(() => import("./pages/admin/TeamManagement"));
 const AdminRegistrations = lazy(() => import("./pages/admin/Registrations"));
+const AdminEventManagement = lazy(() => import("./pages/admin/EventManagement"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -62,7 +64,9 @@ const App = () => (
             <Route path="/games" element={<Games />} />
             <Route path="/hpl" element={<HPL />} />
             <Route path="/events" element={<Events />} />
-            <Route path="/mumbai-health-camp" element={<MumbaiHealthCamp />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/register/:slug" element={<EventRegistration />} />
+            <Route path="/mumbai-health-camp" element={<Navigate to="/register/mumbai-senior-citizens-health-camp" replace />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />}>
               <Route index element={<AdminOverview />} />
@@ -73,6 +77,7 @@ const App = () => (
               <Route path="donations" element={<AdminDonations />} />
               <Route path="projects" element={<AdminProjectsEvents />} />
               <Route path="team" element={<AdminTeamManagement />} />
+              <Route path="events" element={<AdminEventManagement />} />
               <Route path="registrations" element={<AdminRegistrations />} />
               <Route path="settings" element={<AdminSettings />} />
             </Route>
