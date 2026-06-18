@@ -20,6 +20,7 @@ const HPL = lazy(() => import("./pages/HPL"));
 const Events = lazy(() => import("./pages/Events"));
 const Register = lazy(() => import("./pages/Register"));
 const EventRegistration = lazy(() => import("./pages/EventRegistration"));
+const MembershipPlansPage = lazy(() => import("./pages/MembershipPlansPage"));
 const AdminLogin = lazy(() => import("./pages/admin/Login"));
 const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
 const AdminOverview = lazy(() => import("./pages/admin/Overview"));
@@ -66,6 +67,7 @@ const App = () => (
             <Route path="/events" element={<Events />} />
             <Route path="/register" element={<Register />} />
             <Route path="/register/:slug" element={<EventRegistration />} />
+            <Route path="/membership-plans" element={<MembershipPlansPage />} />
             <Route path="/mumbai-health-camp" element={<Navigate to="/register/mumbai-senior-citizens-health-camp" replace />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />}>

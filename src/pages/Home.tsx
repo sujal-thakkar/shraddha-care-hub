@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Scale, Users, Megaphone, Building2, ArrowRight, HandHeart, Heart, UserCheck, MapPin } from "lucide-react";
+import { Scale, Users, Megaphone, Building2, ArrowRight, HandHeart, Heart, UserCheck, MapPin, Star } from "lucide-react";
 import hoslaLogo from "@/assets/hosla-logo.png";
 import knowMoreBubble from "@/assets/know-more-bubble.jpg";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
@@ -172,6 +172,17 @@ export default function Home() {
               linkText="Join the movement"
               hoverImage={publicSensitizationHover}
             />
+          </div>
+
+          {/* Membership Plans CTA */}
+          <div className="text-center mt-10">
+            <Button asChild variant="heroOutline" size="lg" className="group">
+              <Link to="/membership-plans">
+                <Star className="mr-2 h-4 w-4" />
+                Explore Membership Plans
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
