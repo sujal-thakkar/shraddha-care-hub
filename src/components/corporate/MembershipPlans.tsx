@@ -7,6 +7,7 @@ import {
   Handshake, UserCog, Mail, CheckCircle, Star, ArrowRight, MapPin,
 } from "lucide-react";
 import { PartnerContactModal } from "@/components/corporate/PartnerContactModal";
+import { HoslaMembershipModal } from "@/components/corporate/HoslaMembershipModal";
 
 /* ------------------------------------------------------------------ */
 /*  Types & Data                                                      */
