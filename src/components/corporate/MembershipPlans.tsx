@@ -65,6 +65,7 @@ export function MembershipPlans() {
   const [billing, setBilling] = useState<BillingCycle>("monthly");
   const [city, setCity] = useState<CityType>("non-metro");
   const [partnerModal, setPartnerModal] = useState(false);
+  const [membershipModal, setMembershipModal] = useState(false);
 
   const price = hoslaPrice[city][billing];
   const yearlySavings = hoslaPrice[city].monthly * 12 - hoslaPrice[city].yearly;
@@ -196,7 +197,7 @@ export function MembershipPlans() {
                   <Button
                     size="lg"
                     className="w-full mb-6 bg-[hsl(250,70%,45%)] hover:bg-[hsl(250,70%,40%)] text-white group"
-                    onClick={() => setPartnerModal(true)}
+                    onClick={() => setMembershipModal(true)}
                   >
                     Get Started
                     <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
