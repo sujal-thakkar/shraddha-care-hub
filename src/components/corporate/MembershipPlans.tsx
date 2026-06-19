@@ -353,6 +353,7 @@ export function MembershipPlans() {
       </section>
 
       <PartnerContactModal open={partnerModal} onOpenChange={setPartnerModal} />
+      <HoslaMembershipModal open={membershipModal} onOpenChange={setMembershipModal} />
     </>
   );
 }
