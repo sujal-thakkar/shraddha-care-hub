@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link, Outlet, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, FileText, Users, Settings, LogOut, Loader2, Menu, X, UsersRound, Building2, MessageSquare, Heart, CalendarDays, ClipboardList } from "lucide-react";
+import { LayoutDashboard, FileText, Users, Settings, LogOut, Loader2, Menu, X, UsersRound, Building2, MessageSquare, Heart, CalendarDays, ClipboardList, IdCard } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -70,6 +70,7 @@ export default function AdminDashboard() {
     { icon: CalendarDays, label: "Projects & Events", path: "/admin/dashboard/projects" },
     { icon: CalendarDays, label: "Manage Events", path: "/admin/dashboard/events" },
     { icon: ClipboardList, label: "Event Registrations", path: "/admin/dashboard/registrations" },
+    { icon: IdCard, label: "Memberships", path: "/admin/dashboard/memberships" },
     { icon: UsersRound, label: "Team", path: "/admin/dashboard/team" },
     { icon: Settings, label: "Settings", path: "/admin/dashboard/settings" },
   ];
