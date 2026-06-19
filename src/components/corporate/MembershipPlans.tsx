@@ -311,8 +311,8 @@ export function MembershipPlans() {
 
                   <div className="flex items-center gap-3 mb-6 p-3 rounded-lg bg-muted/50 border border-border">
                     <Mail className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    <a href="mailto:care@hosla.in" className="text-sm text-[hsl(250,70%,45%)] hover:underline font-medium">
-                      care@hosla.in
+                    <a href="mailto:hoslacare@gmail.com" className="text-sm text-[hsl(250,70%,45%)] hover:underline font-medium">
+                      hoslacare@gmail.com
                     </a>
                   </div>
 
