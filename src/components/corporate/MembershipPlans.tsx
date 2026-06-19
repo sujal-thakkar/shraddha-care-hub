@@ -21,30 +21,30 @@ interface Benefit {
 }
 
 const hoslaBenefits: Benefit[] = [
-  { icon: Heart,          label: "Emotional Wellbeing — caring conversations, wellbeing check-ins & compassionate listening" },
-  { icon: Sparkles,       label: "Spiritual Growth — Satsang & Pathachakra twice a week (Bhagavad Gita, Upanishads, Ramayana & more)" },
-  { icon: Sun,            label: "Daily Self-Care Therapy — 45-min guided sessions at 6:30 AM & 8:45 PM (breathwork, meditation, brain-health)" },
-  { icon: Home,           label: "Trusted Household Support — priority access to maid, caregiver, cook, electrician, plumber + periodic home visits" },
-  { icon: Mic2,           label: "Talent Discovery — singing, recitation, storytelling, quiz, language learning & creative presentations" },
-  { icon: Users,          label: "Evening Companionship — 7 PM Senior Citizen Adda for friendship & laughter" },
-  { icon: PenTool,        label: "Create, Write & Be Heard — newsletter articles, artwork showcase, Hosla Radio podcasts" },
-  { icon: Globe,          label: "Purpose Beyond Retirement — volunteer & community service via Shraddha NGO" },
-  { icon: GraduationCap,  label: "Expert Sessions — Ramakrishna Mission, Chinmaya Mission, Brahma Kumaris, Art of Living & more" },
-  { icon: Bus,            label: "Trips, Celebrations & Get-togethers — mini trips, cultural outings, picnics & memorable events" },
-  { icon: Gift,           label: "Personalized Care for Parents — birthday surprises, festival celebrations, custom care plans" },
+  { icon: Heart, label: "Emotional Wellbeing — caring conversations, wellbeing check-ins & compassionate listening" },
+  { icon: Sparkles, label: "Spiritual Growth — Satsang & Pathachakra twice a week (Bhagavad Gita, Upanishads, Ramayana & more)" },
+  { icon: Sun, label: "Daily Self-Care Therapy — 45-min guided sessions at 6:30 AM & 8:45 PM (breathwork, meditation, brain-health)" },
+  { icon: Home, label: "Trusted Household Support — priority access to maid, caregiver, cook, electrician, plumber + periodic home visits" },
+  { icon: Mic2, label: "Talent Discovery — singing, recitation, storytelling, quiz, language learning & creative presentations" },
+  { icon: Users, label: "Evening Companionship — 7 PM Senior Citizen Adda for friendship & laughter" },
+  { icon: PenTool, label: "Create, Write & Be Heard — newsletter articles, artwork showcase, Hosla Radio podcasts" },
+  { icon: Globe, label: "Purpose Beyond Retirement — volunteer & community service via Shraddha NGO" },
+  { icon: GraduationCap, label: "Expert Sessions — Ramakrishna Mission, Chinmaya Mission, Brahma Kumaris, Art of Living & more" },
+  { icon: Bus, label: "Trips, Celebrations & Get-togethers — mini trips, cultural outings, picnics & memorable events" },
+  { icon: Gift, label: "Personalized Care for Parents — birthday surprises, festival celebrations, custom care plans" },
 ];
 
 const corporateExtraBenefits: Benefit[] = [
-  { icon: UserCog,   label: "Priority dedicated care consultants for each employee's parents (above 50 years of age)" },
-  { icon: BarChart3,  label: "Monthly wellness reports for HR & management" },
-  { icon: Target,     label: "Corporate wellness workshops & employee engagement sessions" },
-  { icon: Rocket,     label: "Priority onboarding & dedicated helpline" },
-  { icon: Briefcase,  label: "Tax benefits under CSR initiatives" },
+  { icon: UserCog, label: "Priority dedicated care consultants for each employee's parents (above 50 years of age)" },
+  { icon: BarChart3, label: "Monthly wellness reports for HR & management" },
+  { icon: Target, label: "Corporate wellness workshops & employee engagement sessions" },
+  { icon: Rocket, label: "Priority onboarding & dedicated helpline" },
+  { icon: Briefcase, label: "Tax benefits under CSR initiatives" },
 ];
 
 const personalizedExtraBenefits: Benefit[] = [
-  { icon: Target,     label: "Fully customized care plan designed around your elder ones" },
-  { icon: Gift,       label: "Bespoke family experiences — curated with personal attention" },
+  { icon: Target, label: "Fully customized care plan designed around your elder ones" },
+  { icon: Gift, label: "Bespoke family experiences — curated with personal attention" },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -52,8 +52,8 @@ const personalizedExtraBenefits: Benefit[] = [
 /* ------------------------------------------------------------------ */
 
 const hoslaPrice: Record<CityType, Record<BillingCycle, number>> = {
-  "non-metro": { monthly: 400,  yearly: 4000  },
-  "metro":     { monthly: 500,  yearly: 5000  },
+  "non-metro": { monthly: 400, yearly: 4000 },
+  "metro": { monthly: 500, yearly: 5000 },
 };
 
 /* ------------------------------------------------------------------ */
@@ -104,21 +104,19 @@ export function MembershipPlans() {
               <div className="inline-flex items-center gap-1 p-1 rounded-full bg-muted border border-border">
                 <button
                   onClick={() => setBilling("monthly")}
-                  className={`px-5 py-2 text-sm font-medium rounded-full transition-all duration-200 ${
-                    billing === "monthly"
+                  className={`px-5 py-2 text-sm font-medium rounded-full transition-all duration-200 ${billing === "monthly"
                       ? "bg-[hsl(250,70%,45%)] text-white shadow-md"
                       : "text-muted-foreground hover:text-foreground"
-                  }`}
+                    }`}
                 >
                   Monthly
                 </button>
                 <button
                   onClick={() => setBilling("yearly")}
-                  className={`px-5 py-2 text-sm font-medium rounded-full transition-all duration-200 flex items-center gap-2 ${
-                    billing === "yearly"
+                  className={`px-5 py-2 text-sm font-medium rounded-full transition-all duration-200 flex items-center gap-2 ${billing === "yearly"
                       ? "bg-[hsl(250,70%,45%)] text-white shadow-md"
                       : "text-muted-foreground hover:text-foreground"
-                  }`}
+                    }`}
                 >
                   Yearly
                   {billing !== "yearly" && (
@@ -133,22 +131,20 @@ export function MembershipPlans() {
               <div className="inline-flex items-center gap-1 p-1 rounded-full bg-muted border border-border">
                 <button
                   onClick={() => setCity("non-metro")}
-                  className={`px-4 py-2 text-sm font-medium rounded-full transition-all duration-200 flex items-center gap-1.5 ${
-                    city === "non-metro"
+                  className={`px-4 py-2 text-sm font-medium rounded-full transition-all duration-200 flex items-center gap-1.5 ${city === "non-metro"
                       ? "bg-foreground text-background shadow-md"
                       : "text-muted-foreground hover:text-foreground"
-                  }`}
+                    }`}
                 >
                   <MapPin className="h-3.5 w-3.5" />
                   Non‑Metro
                 </button>
                 <button
                   onClick={() => setCity("metro")}
-                  className={`px-4 py-2 text-sm font-medium rounded-full transition-all duration-200 flex items-center gap-1.5 ${
-                    city === "metro"
+                  className={`px-4 py-2 text-sm font-medium rounded-full transition-all duration-200 flex items-center gap-1.5 ${city === "metro"
                       ? "bg-foreground text-background shadow-md"
                       : "text-muted-foreground hover:text-foreground"
-                  }`}
+                    }`}
                 >
                   <Building2 className="h-3.5 w-3.5" />
                   Metro
