@@ -202,6 +202,63 @@ export type Database = {
           },
         ]
       }
+      membership_applications: {
+        Row: {
+          address: string
+          admin_notes: string | null
+          blood_group: string
+          child_contact: string
+          chronic_disease: string
+          created_at: string
+          date_of_birth: string
+          email: string
+          health_insurance: string
+          id: string
+          major_operation: string
+          name: string
+          photo_path: string | null
+          status: string
+          updated_at: string
+          voter_id: string
+        }
+        Insert: {
+          address: string
+          admin_notes?: string | null
+          blood_group: string
+          child_contact: string
+          chronic_disease: string
+          created_at?: string
+          date_of_birth: string
+          email: string
+          health_insurance: string
+          id?: string
+          major_operation: string
+          name: string
+          photo_path?: string | null
+          status?: string
+          updated_at?: string
+          voter_id: string
+        }
+        Update: {
+          address?: string
+          admin_notes?: string | null
+          blood_group?: string
+          child_contact?: string
+          chronic_disease?: string
+          created_at?: string
+          date_of_birth?: string
+          email?: string
+          health_insurance?: string
+          id?: string
+          major_operation?: string
+          name?: string
+          photo_path?: string | null
+          status?: string
+          updated_at?: string
+          voter_id?: string
+        }
+        Relationships: []
+      }
       notification_emails: {
         Row: {
           created_at: string
