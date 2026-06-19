@@ -29,13 +29,14 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import imageCompression from "browser-image-compression";
 import {
   Loader2, Send, User, Mail, IdCard, Phone, MapPin, CalendarDays, Droplet,
   Stethoscope, HeartPulse, ShieldCheck, Upload, X, FileText, ImageIcon, CheckCircle2,
 } from "lucide-react";
 
 const ACCENT = "hsl(250, 70%, 45%)";
-const MAX_FILE_BYTES = 100 * 1024 * 1024; // 100 MB
+const MAX_FILE_BYTES = 5 * 1024 * 1024; // 5 MB
 
 const bloodGroups = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-", "Don't know"];
 
@@ -95,13 +96,12 @@ export function HoslaMembershipModal({ open, onOpenChange }: Props) {
       return;
     }
     const isImage = selected.type.startsWith("image/");
-    const isPdf = selected.type === "application/pdf";
-    if (!isImage && !isPdf) {
-      setFileError("Please upload a PDF or an image file.");
+    if (!isImage) {
+      setFileError("Please upload an image file.");
       return;
     }
     if (selected.size > MAX_FILE_BYTES) {
-      setFileError("File is too large. Maximum size is 100 MB.");
+      setFileError("File is too large. Maximum size is 5 MB.");
       return;
     }
     setFile(selected);
@@ -130,11 +130,27 @@ export function HoslaMembershipModal({ open, onOpenChange }: Props) {
       let photoPath: string | null = null;
 
       if (file) {
-        const ext = file.name.split(".").pop() || "dat";
+        let fileToUpload = file;
+        
+        // Compress image before upload
+        if (file.type !== "image/gif") {
+          try {
+            const options = {
+              maxSizeMB: 1,
+              maxWidthOrHeight: 800,
+              useWebWorker: true,
+            };
+            fileToUpload = await imageCompression(file, options);
+          } catch (error) {
+            console.warn("Compression failed, using original:", error);
+          }
+        }
+
+        const ext = file.name.split(".").pop() || "jpeg";
         photoPath = `${applicationId}/photo.${ext}`;
         const { error: uploadError } = await supabase.storage
           .from("membership-photos")
-          .upload(photoPath, file, { upsert: true });
+          .upload(photoPath, fileToUpload, { upsert: false });
         if (uploadError) {
           console.error("Photo upload error:", uploadError);
           toast({
@@ -190,20 +206,34 @@ export function HoslaMembershipModal({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="p-0 gap-0 w-[calc(100vw-1.5rem)] sm:max-w-[560px] max-h-[92vh] overflow-hidden rounded-2xl">
+      <DialogContent className="p-0 gap-0 w-[calc(100vw-1.5rem)] sm:max-w-[560px] max-h-[92vh] overflow-hidden flex flex-col rounded-2xl [&>button:last-child]:hidden">
         {/* Header */}
-        <DialogHeader className="px-5 sm:px-6 pt-6 pb-4 text-left space-y-1.5 border-b border-border bg-card sticky top-0 z-10">
-          <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl font-serif">
-            <IdCard className="h-5 w-5 flex-shrink-0" style={{ color: ACCENT }} />
-            Hosla Membership Card
-          </DialogTitle>
-          <DialogDescription className="text-sm">
-            Fill in your details below. Our care team will reach out to you to complete your membership.
-          </DialogDescription>
+        <DialogHeader className="px-5 sm:px-6 pt-6 pb-4 text-left border-b border-border bg-card sticky top-0 z-10 shrink-0">
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-1.5">
+              <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl font-serif">
+                <IdCard className="h-5 w-5 flex-shrink-0" style={{ color: ACCENT }} />
+                Hosla Membership Card
+              </DialogTitle>
+              <DialogDescription className="text-sm">
+                Fill in your details below. Our care team will reach out to you to complete your membership.
+              </DialogDescription>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-full flex-shrink-0 text-muted-foreground hover:bg-muted"
+              onClick={() => handleClose(false)}
+            >
+              <X className="h-4 w-4" />
+              <span className="sr-only">Close</span>
+            </Button>
+          </div>
         </DialogHeader>
 
         {submitted ? (
-          <div className="px-6 py-10 text-center space-y-4">
+          <div className="px-6 py-10 text-center space-y-4 flex-1 overflow-y-auto min-h-0">
             <div
               className="mx-auto flex h-16 w-16 items-center justify-center rounded-full"
               style={{ backgroundColor: "hsl(250,70%,45%,0.1)" }}
@@ -224,7 +254,7 @@ export function HoslaMembershipModal({ open, onOpenChange }: Props) {
             </Button>
           </div>
         ) : (
-          <div className="overflow-y-auto px-5 sm:px-6 py-5">
+          <div className="overflow-y-auto flex-1 min-h-0 px-5 sm:px-6 py-5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/40">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                 {/* Personal details */}
@@ -408,7 +438,7 @@ export function HoslaMembershipModal({ open, onOpenChange }: Props) {
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/*,application/pdf"
+                    accept="image/*"
                     capture="environment"
                     className="hidden"
                     onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
@@ -417,15 +447,15 @@ export function HoslaMembershipModal({ open, onOpenChange }: Props) {
                   {file ? (
                     <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/40 p-3">
                       <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: "hsl(250,70%,45%,0.1)" }}>
-                        {file.type === "application/pdf" ? (
-                          <FileText className="h-5 w-5" style={{ color: ACCENT }} />
-                        ) : (
-                          <ImageIcon className="h-5 w-5" style={{ color: ACCENT }} />
-                        )}
+                        <ImageIcon className="h-5 w-5" style={{ color: ACCENT }} />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium text-foreground">{file.name}</p>
-                        <p className="text-xs text-muted-foreground">{(file.size / (1024 * 1024)).toFixed(1)} MB</p>
+                        <p className="text-xs text-muted-foreground">
+                          {file.size < 1024 * 1024
+                            ? `${(file.size / 1024).toFixed(1)} KB`
+                            : `${(file.size / (1024 * 1024)).toFixed(1)} MB`}
+                        </p>
                       </div>
                       <Button
                         type="button"
@@ -448,7 +478,7 @@ export function HoslaMembershipModal({ open, onOpenChange }: Props) {
                     >
                       <Upload className="h-6 w-6 text-muted-foreground" />
                       <span className="text-sm font-medium text-foreground">Tap to upload</span>
-                      <span className="text-xs text-muted-foreground">1 file — PDF or image. Max 100 MB.</span>
+                      <span className="text-xs text-muted-foreground">1 file — Image only. Max 5 MB.</span>
                     </button>
                   )}
                   {fileError && <p className="text-sm font-medium text-destructive">{fileError}</p>}
