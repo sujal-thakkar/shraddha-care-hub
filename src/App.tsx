@@ -29,7 +29,7 @@ const AdminReports = lazy(() => import("./pages/admin/Reports"));
 const AdminVolunteers = lazy(() => import("./pages/admin/Volunteers"));
 const AdminPartners = lazy(() => import("./pages/admin/Partners"));
 const AdminDonations = lazy(() => import("./pages/admin/Donations"));
-const AdminProjectsEvents = lazy(() => import("./pages/admin/ProjectsEvents"));
+
 const AdminSettings = lazy(() => import("./pages/admin/Settings"));
 const AdminTeamManagement = lazy(() => import("./pages/admin/TeamManagement"));
 const AdminRegistrations = lazy(() => import("./pages/admin/Registrations"));
