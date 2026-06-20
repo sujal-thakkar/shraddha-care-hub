@@ -308,8 +308,9 @@ export default function AdminEventManagement() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Event</TableHead>
+                    <TableHead>Status</TableHead>
                     <TableHead>Date</TableHead>
-                    <TableHead>Open</TableHead>
+                    <TableHead>Registration</TableHead>
                     <TableHead>Published</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -319,22 +320,38 @@ export default function AdminEventManagement() {
                     <TableRow key={ev.id}>
                       <TableCell className="font-medium max-w-[240px]">
                         <div className="truncate" title={ev.title}>{ev.title}</div>
-                        <button
-                          onClick={() => copyLink(ev.slug)}
-                          className="text-xs text-primary hover:underline flex items-center gap-1 mt-1"
-                        >
-                          <Copy className="h-3 w-3" />
-                          /register/{ev.slug}
-                        </button>
+                        {ev.enable_registration ? (
+                          <button
+                            onClick={() => copyLink(ev.slug)}
+                            className="text-xs text-primary hover:underline flex items-center gap-1 mt-1"
+                          >
+                            <Copy className="h-3 w-3" />
+                            /register/{ev.slug}
+                          </button>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">Display only</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={STATUS_BADGE[ev.status].className}>
+                          {STATUS_BADGE[ev.status].label}
+                        </Badge>
                       </TableCell>
                       <TableCell className="text-sm">
                         {ev.event_date ? format(new Date(ev.event_date), "MMM d, yyyy") : "—"}
                       </TableCell>
                       <TableCell>
-                        <Switch
-                          checked={ev.registration_open}
-                          onCheckedChange={(v) => toggleMutation.mutate({ id: ev.id, field: "registration_open", value: v })}
-                        />
+                        {ev.enable_registration ? (
+                          <div className="flex items-center gap-2">
+                            <Switch
+                              checked={ev.registration_open}
+                              onCheckedChange={(v) => toggleMutation.mutate({ id: ev.id, field: "registration_open", value: v })}
+                            />
+                            <span className="text-xs text-muted-foreground">{ev.registration_open ? "Open" : "Closed"}</span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">Off</span>
+                        )}
                       </TableCell>
                       <TableCell>
                         <Switch
