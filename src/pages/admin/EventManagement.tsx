@@ -38,6 +38,14 @@ const ORG_OPTIONS: { value: OrganizationType; label: string }[] = [
   { value: "both", label: "Both" },
 ];
 
+const STATUS_BADGE: Record<ProjectStatus, { className: string; label: string }> = {
+  upcoming: { className: "bg-purple-100 text-purple-800 border-purple-200", label: "Upcoming" },
+  ongoing: { className: "bg-blue-100 text-blue-800 border-blue-200", label: "Ongoing" },
+  completed: { className: "bg-gray-100 text-gray-800 border-gray-200", label: "Completed" },
+};
+
+
+
 type FieldKey = "mobile" | "age" | "area" | "medical_concerns" | "source";
 type FieldSetting = { enabled: boolean; required: boolean };
 type FieldConfig = Record<FieldKey, FieldSetting>;
