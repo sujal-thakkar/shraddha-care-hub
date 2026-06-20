@@ -62,7 +62,12 @@ interface FormState {
   slug: string;
   title: string;
   description: string;
+  status: ProjectStatus;
+  organization: OrganizationType;
+  resource_link: string;
+  location: string;
   event_date: string;
+  end_date: string;
   start_time: string;
   end_time: string;
   venue_name: string;
@@ -70,6 +75,7 @@ interface FormState {
   contact_phone: string;
   banner_url: string;
   field_config: FieldConfig;
+  enable_registration: boolean;
   registration_open: boolean;
   is_published: boolean;
   display_order: number;
@@ -79,7 +85,12 @@ const defaultForm: FormState = {
   slug: "",
   title: "",
   description: "",
+  status: "upcoming",
+  organization: "shraddha",
+  resource_link: "",
+  location: "",
   event_date: "",
+  end_date: "",
   start_time: "",
   end_time: "",
   venue_name: "",
@@ -87,6 +98,7 @@ const defaultForm: FormState = {
   contact_phone: "",
   banner_url: "",
   field_config: defaultFieldConfig,
+  enable_registration: false,
   registration_open: true,
   is_published: false,
   display_order: 0,
