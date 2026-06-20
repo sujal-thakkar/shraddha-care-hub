@@ -426,106 +426,55 @@ export default function AdminEventManagement() {
               />
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Status</Label>
+                <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v as ProjectStatus })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {STATUS_OPTIONS.map((o) => (
+                      <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Organization</Label>
+                <Select value={form.organization} onValueChange={(v) => setForm({ ...form, organization: v as OrganizationType })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {ORG_OPTIONS.map((o) => (
+                      <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label htmlFor="event_date">Date</Label>
                 <Input id="event_date" type="date" value={form.event_date} onChange={(e) => setForm({ ...form, event_date: e.target.value })} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="start_time">Start Time</Label>
-                <Input id="start_time" type="time" value={form.start_time} onChange={(e) => setForm({ ...form, start_time: e.target.value })} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="end_time">End Time</Label>
-                <Input id="end_time" type="time" value={form.end_time} onChange={(e) => setForm({ ...form, end_time: e.target.value })} />
+                <Label htmlFor="end_date">End Date</Label>
+                <Input id="end_date" type="date" value={form.end_date} onChange={(e) => setForm({ ...form, end_date: e.target.value })} />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="venue_name">Venue Name</Label>
-              <Input id="venue_name" value={form.venue_name} onChange={(e) => setForm({ ...form, venue_name: e.target.value })} placeholder="e.g. New Life Old Age Home" />
+              <Label htmlFor="location">Location (shown on cards)</Label>
+              <Input id="location" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="e.g. Mumbai, Maharashtra" />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="venue_address">Venue Address</Label>
-              <Textarea id="venue_address" value={form.venue_address} onChange={(e) => setForm({ ...form, venue_address: e.target.value })} rows={2} placeholder="Full address" />
+              <Label htmlFor="resource_link">"Know More" Link (optional)</Label>
+              <Input id="resource_link" value={form.resource_link} onChange={(e) => setForm({ ...form, resource_link: e.target.value })} placeholder="/hpl or https://…" />
+              <p className="text-xs text-muted-foreground">Shown when registration is off. Internal pages start with "/".</p>
             </div>
 
             <div className="space-y-2">
-              <Label>Contact Phone Numbers</Label>
-              {/* Phone tags */}
-              {form.contact_phone && (
-                <div className="flex flex-wrap gap-2">
-                  {form.contact_phone.split(",").map((phone, i) => {
-                    const trimmed = phone.trim();
-                    if (!trimmed) return null;
-                    return (
-                      <span key={i} className="inline-flex items-center gap-1 bg-primary/10 text-primary text-sm font-medium px-3 py-1 rounded-full border border-primary/20">
-                        {trimmed}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const phones = form.contact_phone.split(",").map((p) => p.trim()).filter(Boolean);
-                            phones.splice(i, 1);
-                            setForm({ ...form, contact_phone: phones.join(", ") });
-                          }}
-                          className="hover:bg-destructive/20 rounded-full p-0.5 transition-colors"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </span>
-                    );
-                  })}
-                </div>
-              )}
-              {/* Phone input */}
-              <Input
-                id="contact_phone"
-                value={phoneInput}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  // If user types a comma, add the number before it as a tag
-                  if (val.includes(",")) {
-                    const parts = val.split(",");
-                    const newPhone = parts[0].trim();
-                    if (newPhone) {
-                      const existing = form.contact_phone ? form.contact_phone.split(",").map((p) => p.trim()).filter(Boolean) : [];
-                      existing.push(newPhone);
-                      setForm({ ...form, contact_phone: existing.join(", ") });
-                    }
-                    setPhoneInput(parts.slice(1).join(","));
-                  } else {
-                    setPhoneInput(val);
-                  }
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    const newPhone = phoneInput.trim();
-                    if (newPhone) {
-                      const existing = form.contact_phone ? form.contact_phone.split(",").map((p) => p.trim()).filter(Boolean) : [];
-                      existing.push(newPhone);
-                      setForm({ ...form, contact_phone: existing.join(", ") });
-                      setPhoneInput("");
-                    }
-                  }
-                  // Backspace on empty input removes last tag
-                  if (e.key === "Backspace" && !phoneInput) {
-                    const phones = form.contact_phone ? form.contact_phone.split(",").map((p) => p.trim()).filter(Boolean) : [];
-                    if (phones.length) {
-                      const removed = phones.pop()!;
-                      setForm({ ...form, contact_phone: phones.join(", ") });
-                      setPhoneInput(removed);
-                    }
-                  }
-                }}
-                placeholder={form.contact_phone ? "Add another number…" : "e.g. 78110 09309"}
-              />
-              <p className="text-xs text-muted-foreground">Press comma or Enter after each number to add it.</p>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Banner Image</Label>
+              <Label>Banner / Poster Image</Label>
               <ImageUpload
                 value={form.banner_url}
                 onChange={(url) => setForm({ ...form, banner_url: url })}
@@ -534,49 +483,156 @@ export default function AdminEventManagement() {
               />
             </div>
 
-            <div className="space-y-3 rounded-lg border border-border p-4">
-              <div>
-                <Label className="text-base">Registration Form Fields</Label>
-                <p className="text-xs text-muted-foreground">Name and Email are always collected. Toggle the rest below.</p>
-              </div>
-              {(Object.keys(FIELD_LABELS) as FieldKey[]).map((key) => (
-                <div key={key} className="flex items-center justify-between gap-3 border-t border-border/60 pt-3 first:border-t-0 first:pt-0">
-                  <span className="text-sm font-medium text-foreground">{FIELD_LABELS[key]}</span>
-                  <div className="flex items-center gap-4">
-                    <label className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Switch
-                        checked={form.field_config[key].enabled}
-                        onCheckedChange={(v) => setFieldConfig(key, { enabled: v, required: v ? form.field_config[key].required : false })}
-                      />
-                      Show
-                    </label>
-                    <label className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Switch
-                        checked={form.field_config[key].required}
-                        disabled={!form.field_config[key].enabled}
-                        onCheckedChange={(v) => setFieldConfig(key, { required: v })}
-                      />
-                      Required
-                    </label>
-                  </div>
-                </div>
-              ))}
-            </div>
-
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center justify-between rounded-lg border border-border p-3">
-                <Label htmlFor="reg_open">Registration Open</Label>
-                <Switch id="reg_open" checked={form.registration_open} onCheckedChange={(v) => setForm({ ...form, registration_open: v })} />
-              </div>
               <div className="flex items-center justify-between rounded-lg border border-border p-3">
                 <Label htmlFor="published">Published</Label>
                 <Switch id="published" checked={form.is_published} onCheckedChange={(v) => setForm({ ...form, is_published: v })} />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="display_order">Display Order</Label>
+                <Input id="display_order" type="number" value={form.display_order} onChange={(e) => setForm({ ...form, display_order: parseInt(e.target.value) || 0 })} />
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="display_order">Display Order</Label>
-              <Input id="display_order" type="number" value={form.display_order} onChange={(e) => setForm({ ...form, display_order: parseInt(e.target.value) || 0 })} />
+            {/* Registration section */}
+            <div className="rounded-lg border border-border p-4 space-y-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <Label className="text-base">Accept Registrations</Label>
+                  <p className="text-xs text-muted-foreground">Turn on to collect sign-ups for this event.</p>
+                </div>
+                <Switch checked={form.enable_registration} onCheckedChange={(v) => setForm({ ...form, enable_registration: v })} />
+              </div>
+
+              {form.enable_registration && (
+                <div className="space-y-4 border-t border-border/60 pt-4">
+                  <div className="flex items-center justify-between rounded-lg border border-border p-3">
+                    <Label htmlFor="reg_open">Registration Open</Label>
+                    <Switch id="reg_open" checked={form.registration_open} onCheckedChange={(v) => setForm({ ...form, registration_open: v })} />
+                  </div>
+
+                  <p className="text-xs text-muted-foreground">Public link: /register/{form.slug || "your-slug"}</p>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="start_time">Start Time</Label>
+                      <Input id="start_time" type="time" value={form.start_time} onChange={(e) => setForm({ ...form, start_time: e.target.value })} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="end_time">End Time</Label>
+                      <Input id="end_time" type="time" value={form.end_time} onChange={(e) => setForm({ ...form, end_time: e.target.value })} />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="venue_name">Venue Name</Label>
+                    <Input id="venue_name" value={form.venue_name} onChange={(e) => setForm({ ...form, venue_name: e.target.value })} placeholder="e.g. New Life Old Age Home" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="venue_address">Venue Address</Label>
+                    <Textarea id="venue_address" value={form.venue_address} onChange={(e) => setForm({ ...form, venue_address: e.target.value })} rows={2} placeholder="Full address" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Contact Phone Numbers</Label>
+                    {form.contact_phone && (
+                      <div className="flex flex-wrap gap-2">
+                        {form.contact_phone.split(",").map((phone, i) => {
+                          const trimmed = phone.trim();
+                          if (!trimmed) return null;
+                          return (
+                            <span key={i} className="inline-flex items-center gap-1 bg-primary/10 text-primary text-sm font-medium px-3 py-1 rounded-full border border-primary/20">
+                              {trimmed}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const phones = form.contact_phone.split(",").map((p) => p.trim()).filter(Boolean);
+                                  phones.splice(i, 1);
+                                  setForm({ ...form, contact_phone: phones.join(", ") });
+                                }}
+                                className="hover:bg-destructive/20 rounded-full p-0.5 transition-colors"
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                            </span>
+                          );
+                        })}
+                      </div>
+                    )}
+                    <Input
+                      id="contact_phone"
+                      value={phoneInput}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val.includes(",")) {
+                          const parts = val.split(",");
+                          const newPhone = parts[0].trim();
+                          if (newPhone) {
+                            const existing = form.contact_phone ? form.contact_phone.split(",").map((p) => p.trim()).filter(Boolean) : [];
+                            existing.push(newPhone);
+                            setForm({ ...form, contact_phone: existing.join(", ") });
+                          }
+                          setPhoneInput(parts.slice(1).join(","));
+                        } else {
+                          setPhoneInput(val);
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          const newPhone = phoneInput.trim();
+                          if (newPhone) {
+                            const existing = form.contact_phone ? form.contact_phone.split(",").map((p) => p.trim()).filter(Boolean) : [];
+                            existing.push(newPhone);
+                            setForm({ ...form, contact_phone: existing.join(", ") });
+                            setPhoneInput("");
+                          }
+                        }
+                        if (e.key === "Backspace" && !phoneInput) {
+                          const phones = form.contact_phone ? form.contact_phone.split(",").map((p) => p.trim()).filter(Boolean) : [];
+                          if (phones.length) {
+                            const removed = phones.pop()!;
+                            setForm({ ...form, contact_phone: phones.join(", ") });
+                            setPhoneInput(removed);
+                          }
+                        }
+                      }}
+                      placeholder={form.contact_phone ? "Add another number…" : "e.g. 78110 09309"}
+                    />
+                    <p className="text-xs text-muted-foreground">Press comma or Enter after each number to add it.</p>
+                  </div>
+
+                  <div className="space-y-3 rounded-lg border border-border p-4">
+                    <div>
+                      <Label className="text-base">Registration Form Fields</Label>
+                      <p className="text-xs text-muted-foreground">Name and Email are always collected. Toggle the rest below.</p>
+                    </div>
+                    {(Object.keys(FIELD_LABELS) as FieldKey[]).map((key) => (
+                      <div key={key} className="flex items-center justify-between gap-3 border-t border-border/60 pt-3 first:border-t-0 first:pt-0">
+                        <span className="text-sm font-medium text-foreground">{FIELD_LABELS[key]}</span>
+                        <div className="flex items-center gap-4">
+                          <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Switch
+                              checked={form.field_config[key].enabled}
+                              onCheckedChange={(v) => setFieldConfig(key, { enabled: v, required: v ? form.field_config[key].required : false })}
+                            />
+                            Show
+                          </label>
+                          <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Switch
+                              checked={form.field_config[key].required}
+                              disabled={!form.field_config[key].enabled}
+                              onCheckedChange={(v) => setFieldConfig(key, { required: v })}
+                            />
+                            Required
+                          </label>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
