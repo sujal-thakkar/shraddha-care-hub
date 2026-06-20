@@ -5,12 +5,12 @@ import { Layout } from "@/components/layout/Layout";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Calendar, Loader2, MapPin, ChevronRight } from "lucide-react";
+import { ExternalLink, Calendar, Loader2, MapPin, ChevronRight, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import type { Database } from "@/integrations/supabase/types";
 
-type ProjectEvent = Database["public"]["Tables"]["projects_events"]["Row"];
+type EventRow = Database["public"]["Tables"]["registration_events"]["Row"];
 type ProjectStatus = Database["public"]["Enums"]["project_status"];
 type OrganizationType = Database["public"]["Enums"]["organization_type"];
 
@@ -36,19 +36,66 @@ function getOrgLabel(org: OrganizationType) {
   return labels[org];
 }
 
+function EventCta({ event }: { event: EventRow }) {
+  const canRegister = event.enable_registration && event.registration_open;
+  if (canRegister) {
+    return (
+      <Button
+        asChild
+        size="sm"
+        className="w-full mt-auto"
+      >
+        <Link to={`/register/${event.slug}`}>
+          <ArrowRight className="h-4 w-4 mr-2" />
+          Register
+        </Link>
+      </Button>
+    );
+  }
+  if (event.resource_link) {
+    return event.resource_link.startsWith("/") ? (
+      <Button
+        asChild
+        variant="outline"
+        size="sm"
+        className="w-full mt-auto border-[hsl(250,70%,45%)]/30 text-[hsl(250,70%,45%)] hover:bg-[hsl(250,70%,45%)] hover:text-white"
+      >
+        <Link to={event.resource_link}>
+          <ChevronRight className="h-4 w-4 mr-2" />
+          Know More
+        </Link>
+      </Button>
+    ) : (
+      <Button
+        asChild
+        variant="outline"
+        size="sm"
+        className="w-full mt-auto border-[hsl(250,70%,45%)]/30 text-[hsl(250,70%,45%)] hover:bg-[hsl(250,70%,45%)] hover:text-white"
+      >
+        <a href={event.resource_link} target="_blank" rel="noopener noreferrer">
+          <ExternalLink className="h-4 w-4 mr-2" />
+          Learn More
+        </a>
+      </Button>
+    );
+  }
+  return null;
+}
+
 export default function Events() {
   const [activeFilter, setActiveFilter] = useState<ProjectStatus | "all">("all");
 
   const { data: events = [], isLoading } = useQuery({
-    queryKey: ["all-projects-events"],
+    queryKey: ["all-registration-events"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("projects_events")
+        .from("registration_events")
         .select("*")
         .eq("is_published", true)
-        .order("start_date", { ascending: false });
+        .order("display_order", { ascending: true })
+        .order("event_date", { ascending: false });
       if (error) throw error;
-      return data as ProjectEvent[];
+      return data as EventRow[];
     },
   });
 
@@ -106,18 +153,18 @@ export default function Events() {
                       style={{ background: "linear-gradient(90deg, hsl(250, 70%, 45%), hsl(220, 70%, 50%))" }}
                     />
 
-                    {event.poster_url && (
+                    {event.banner_url && (
                       <div className="relative z-10 p-6 pb-0">
                         <div className="relative overflow-hidden rounded-xl border border-border/60 bg-background/70">
                           <img
-                            src={event.poster_url}
+                            src={event.banner_url}
                             alt=""
                             aria-hidden="true"
                             className="absolute inset-0 h-full w-full object-cover blur-sm scale-105 opacity-100"
                             loading="lazy"
                           />
                           <img
-                            src={event.poster_url}
+                            src={event.banner_url}
                             alt={event.title}
                             className="relative z-10 aspect-[16/9] w-full object-contain bg-transparent"
                             loading="lazy"
@@ -148,13 +195,15 @@ export default function Events() {
                         <p className="text-sm text-muted-foreground mb-4 line-clamp-3 flex-1">{event.description}</p>
                       )}
 
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-                        <Calendar className="h-4 w-4" style={{ color: "hsl(250, 70%, 45%)" }} />
-                        <span>
-                          {format(new Date(event.start_date), "MMM d, yyyy")}
-                          {event.end_date && ` - ${format(new Date(event.end_date), "MMM d, yyyy")}`}
-                        </span>
-                      </div>
+                      {event.event_date && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                          <Calendar className="h-4 w-4" style={{ color: "hsl(250, 70%, 45%)" }} />
+                          <span>
+                            {format(new Date(event.event_date), "MMM d, yyyy")}
+                            {event.end_date && ` - ${format(new Date(event.end_date), "MMM d, yyyy")}`}
+                          </span>
+                        </div>
+                      )}
 
                       {event.location && (
                         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
@@ -163,32 +212,7 @@ export default function Events() {
                         </div>
                       )}
 
-                      {event.resource_link &&
-                        (event.resource_link.startsWith("/") ? (
-                          <Button
-                            asChild
-                            variant="outline"
-                            size="sm"
-                            className="w-full mt-auto border-[hsl(250,70%,45%)]/30 text-[hsl(250,70%,45%)] hover:bg-[hsl(250,70%,45%)] hover:text-white"
-                          >
-                            <Link to={event.resource_link}>
-                              <ChevronRight className="h-4 w-4 mr-2" />
-                              Know More
-                            </Link>
-                          </Button>
-                        ) : (
-                          <Button
-                            asChild
-                            variant="outline"
-                            size="sm"
-                            className="w-full mt-auto border-[hsl(250,70%,45%)]/30 text-[hsl(250,70%,45%)] hover:bg-[hsl(250,70%,45%)] hover:text-white"
-                          >
-                            <a href={event.resource_link} target="_blank" rel="noopener noreferrer">
-                              <ExternalLink className="h-4 w-4 mr-2" />
-                              Learn More
-                            </a>
-                          </Button>
-                        ))}
+                      <EventCta event={event} />
                     </div>
                   </div>
                 </ScrollReveal>

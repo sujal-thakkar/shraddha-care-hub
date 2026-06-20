@@ -16,7 +16,7 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 
-type ProjectEvent = Database["public"]["Tables"]["projects_events"]["Row"];
+type ProjectEvent = Database["public"]["Tables"]["registration_events"]["Row"];
 type ProjectStatus = Database["public"]["Enums"]["project_status"];
 type OrganizationType = Database["public"]["Enums"]["organization_type"];
 
@@ -142,11 +142,11 @@ const ProjectEventCard = ({
           style={{ background: "linear-gradient(90deg, hsl(250, 70%, 45%), hsl(220, 70%, 50%))" }}
         />
 
-        {event.poster_url && (
+        {event.banner_url && (
           <div className="relative z-10 p-6 pb-0">
             <div className="relative overflow-hidden rounded-xl border border-border/60 bg-background/70">
               <img
-                src={event.poster_url}
+                src={event.banner_url}
                 alt=""
                 aria-hidden="true"
                 className="absolute inset-0 h-full w-full object-cover blur-sm scale-105 opacity-100"
@@ -154,7 +154,7 @@ const ProjectEventCard = ({
               />
               <img
                 ref={imageRef}
-                src={event.poster_url}
+                src={event.banner_url}
                 alt={event.title}
                 className="relative z-10 aspect-[16/9] w-full object-contain bg-transparent transition-transform duration-500"
                 loading="lazy"
@@ -187,13 +187,15 @@ const ProjectEventCard = ({
             </p>
           )}
 
-          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-            <Calendar className="h-4 w-4" style={{ color: "hsl(250, 70%, 45%)" }} />
-            <span>
-              {format(new Date(event.start_date), "MMM d, yyyy")}
-              {event.end_date && ` - ${format(new Date(event.end_date), "MMM d, yyyy")}`}
-            </span>
-          </div>
+          {event.event_date && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+              <Calendar className="h-4 w-4" style={{ color: "hsl(250, 70%, 45%)" }} />
+              <span>
+                {format(new Date(event.event_date), "MMM d, yyyy")}
+                {event.end_date && ` - ${format(new Date(event.end_date), "MMM d, yyyy")}`}
+              </span>
+            </div>
+          )}
 
           {event.location && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
@@ -202,7 +204,18 @@ const ProjectEventCard = ({
             </div>
           )}
 
-          {event.resource_link && (
+          {event.enable_registration && event.registration_open ? (
+            <Button
+              asChild
+              size="sm"
+              className="w-full mt-auto"
+            >
+              <Link to={`/register/${event.slug}`}>
+                <ArrowRight className="h-4 w-4 mr-2" />
+                Register
+              </Link>
+            </Button>
+          ) : event.resource_link ? (
             event.resource_link.startsWith("/") ? (
               <Button
                 asChild
@@ -228,7 +241,7 @@ const ProjectEventCard = ({
                 </a>
               </Button>
             )
-          )}
+          ) : null}
         </div>
       </div>
     </ScrollReveal>
@@ -247,18 +260,18 @@ export function ProjectsEventsSection({ limit, showViewAll = false }: ProjectsEv
   const [isPaused, setIsPaused] = useState(false);
 
   const { data: events = [], isLoading } = useQuery({
-    queryKey: ["public-projects-events", limit],
+    queryKey: ["public-registration-events", limit],
     queryFn: async () => {
       let query = supabase
-        .from("projects_events")
+        .from("registration_events")
         .select("*")
         .eq("is_published", true)
         .neq("status", "completed")
         .order("display_order", { ascending: true })
-        .order("start_date", { ascending: true });
-      
+        .order("event_date", { ascending: true });
+
       if (limit) query = query.limit(limit);
-      
+
       const { data, error } = await query;
       if (error) throw error;
       return data as ProjectEvent[];

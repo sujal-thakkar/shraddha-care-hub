@@ -1,44 +1,57 @@
 ## Goal
 
-Retire the one-off Mumbai Health Camp page and turn it into a reusable registration system. Admins create events from the dashboard; each event gets its own public registration page; registrations and emails work exactly like before but are scoped per-event. No code changes needed when a new event comes or goes.
+Today there are two disconnected systems:
 
-## Database
+- **`projects_events`** → shown on Home (`ProjectsEventsSection`) and `/events`, managed in admin "Projects & Events".
+- **`registration_events`** → shown on `/register` + `/register/:slug`, managed in admin "Manage Events", and is what registrations + confirmation emails attach to.
 
-New table `public.registration_events`:
-- `slug` (unique, used in the URL), `title`, `description`
-- `event_date`, `start_time`, `end_time`
-- `venue_name`, `venue_address`, `contact_phone`
-- `banner_url` (optional image)
-- `field_config` (JSONB) — per-field `{ enabled, required }` for the toggleable fields: mobile, age, area, medical_concerns, source. (Name + email are always on.)
-- `registration_open` (boolean), `is_published` (boolean), `display_order`
-- standard id/created_at/updated_at + update trigger
-- RLS: public can read published events; admins manage all. GRANTs for anon (read published), authenticated, service_role.
+Because they're separate, the **Belur Math** event (only in `registration_events`) is open for registration but missing from Home and `/events`. And "Senior Serenity Summit" / "Mumbai Health Camp" exist as duplicates in both tables.
 
-Alter `public.event_registrations`:
-- Add `event_id` UUID referencing `registration_events`.
-- Backfill: create one "Mumbai Senior Citizens' Health Camp" event row and attach all existing registrations to it, so old data stays visible.
+We'll make **`registration_events` the single source of truth**. One detailed entry will drive Home, `/events`, and `/register`. Admin gets **one** "Events" section.
 
-## Public pages
+## Database (one migration)
 
-- Remove `/mumbai-health-camp` route and `MumbaiHealthCamp.tsx` (plus its now-unused assets/components).
-- Add `/register` — lists open events (cards). If only one is open, it can deep-link straight in.
-- Add `/register/:slug` — dynamic registration page: shows event details (date, time, venue, banner) and renders only the enabled fields with the configured required flags. Submits to `event_registrations` with `event_id`, then triggers the confirmation email.
-- Keep a redirect from `/mumbai-health-camp` to the Mumbai event's `/register/:slug` so old links don't break.
+Extend `public.registration_events` with the display fields currently only on `projects_events`:
 
-## Admin
+- `status` (`project_status` enum: upcoming / ongoing / completed) — default `upcoming`
+- `organization` (`organization_type` enum: shraddha / hosla / both) — default `shraddha`
+- `resource_link` (text, nullable) — optional "Know More" link
+- `end_date` (date, nullable)
+- `location` (text, nullable) — short display location for cards
+- `enable_registration` (boolean, default false) — whether this event accepts sign-ups
 
-- New dashboard section "Events" (manage registration events): create/edit/delete, set details, toggle which fields appear/are required, open/close registration, publish, upload banner.
-- Registrations page: add an event selector (dropdown). Stats, search, check-in, CSV export, and the bulk email actions all scope to the selected event.
+Keep the existing `banner_url` as the single event image (no second image column).
 
-## Emails (edge function `send-event-email`)
+Data moves:
+- Enrich the 3 existing `registration_events` rows with sensible `status` / `organization` (Mumbai → completed/both, Senior Serenity → upcoming, Belur Math → upcoming) and set `enable_registration = true` for the two currently open.
+- Migrate the only non-duplicate project — **HOSLA PREMIER LEAGUE** — into `registration_events` (status completed, `resource_link = /hpl`, `enable_registration = false`).
+- Drop the now-redundant `projects_events` table.
 
-- Accept `eventId` and load that event's details from `registration_events`.
-- Build confirmation / reminder / thank-you / missed-followup templates dynamically from the event's title, date, time, venue, and phone (no hardcoded Mumbai text).
-- Bulk queries filter by `event_id`.
+GRANTs/RLS stay as they already are on `registration_events` (public reads published; admins manage all).
+
+## Visibility rules (single table)
+
+- **Home + `/events`**: `is_published = true`. Home/section keep showing non-completed; `/events` keeps its status filter tabs.
+- **`/register` list**: `is_published = true` AND `enable_registration = true` AND `registration_open = true`.
+- **Card CTA**: if registration is enabled & open → "Register" button → `/register/:slug`; else if `resource_link` set → "Know More" / "Learn More"; else no button.
+
+## Frontend changes
+
+- `src/components/corporate/ProjectsEventsSection.tsx` (Home) — read from `registration_events`; map `banner_url` to the card image; add Register CTA logic.
+- `src/pages/Events.tsx` — read from `registration_events`; same card/CTA logic; keep status tabs.
+- `src/pages/Register.tsx` / `src/pages/EventRegistration.tsx` — already on `registration_events`; just add the `enable_registration` filter to the list.
+- Type references switch from `projects_events` Row to `registration_events` Row (regenerated after migration).
+
+## Admin changes
+
+- Merge into **one** section. Expand `EventManagement.tsx` into the unified editor with grouped fields:
+  - **Details**: title, slug, image, description, status, organization, date + end date, location, resource link, display order, published.
+  - **Registration** (collapsible, gated by an `enable_registration` toggle): start/end time, venue name + address, contact phones, per-field config, registration open.
+- List view shows status + whether registration is on, with the copy-link and preview actions.
+- Remove the old **Projects & Events** admin page (`ProjectsEvents.tsx`), its route in `Dashboard.tsx` nav, and its lazy route in `App.tsx`. Keep the "Registrations" page (its event dropdown already uses `registration_events`).
 
 ## Notes
 
-- Field set stays fixed (toggle on/off per event) per your choice; emails auto-fill from event details.
-- Existing Mumbai registrations are preserved and attached to the seeded Mumbai event.
-
-I'll implement DB first, then the public pages, admin, and edge function.
+- `send-event-email` edge function already loads from `registration_events` — unaffected.
+- Old `/mumbai-health-camp` redirect stays working.
+- After the migration runs and types regenerate, I'll update all the frontend/admin code in one pass and verify the build, Home, `/events`, and `/register` all show Belur Math.

@@ -352,57 +352,6 @@ export type Database = {
         }
         Relationships: []
       }
-      projects_events: {
-        Row: {
-          created_at: string
-          description: string | null
-          display_order: number
-          end_date: string | null
-          id: string
-          is_published: boolean
-          location: string | null
-          organization: Database["public"]["Enums"]["organization_type"]
-          poster_url: string | null
-          resource_link: string | null
-          start_date: string
-          status: Database["public"]["Enums"]["project_status"]
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          display_order?: number
-          end_date?: string | null
-          id?: string
-          is_published?: boolean
-          location?: string | null
-          organization?: Database["public"]["Enums"]["organization_type"]
-          poster_url?: string | null
-          resource_link?: string | null
-          start_date: string
-          status?: Database["public"]["Enums"]["project_status"]
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          display_order?: number
-          end_date?: string | null
-          id?: string
-          is_published?: boolean
-          location?: string | null
-          organization?: Database["public"]["Enums"]["organization_type"]
-          poster_url?: string | null
-          resource_link?: string | null
-          start_date?: string
-          status?: Database["public"]["Enums"]["project_status"]
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       registration_events: {
         Row: {
           banner_url: string | null
@@ -410,14 +359,20 @@ export type Database = {
           created_at: string
           description: string | null
           display_order: number
+          enable_registration: boolean
+          end_date: string | null
           end_time: string | null
           event_date: string | null
           field_config: Json
           id: string
           is_published: boolean
+          location: string | null
+          organization: Database["public"]["Enums"]["organization_type"]
           registration_open: boolean
+          resource_link: string | null
           slug: string
           start_time: string | null
+          status: Database["public"]["Enums"]["project_status"]
           title: string
           updated_at: string
           venue_address: string | null
@@ -429,14 +384,20 @@ export type Database = {
           created_at?: string
           description?: string | null
           display_order?: number
+          enable_registration?: boolean
+          end_date?: string | null
           end_time?: string | null
           event_date?: string | null
           field_config?: Json
           id?: string
           is_published?: boolean
+          location?: string | null
+          organization?: Database["public"]["Enums"]["organization_type"]
           registration_open?: boolean
+          resource_link?: string | null
           slug: string
           start_time?: string | null
+          status?: Database["public"]["Enums"]["project_status"]
           title: string
           updated_at?: string
           venue_address?: string | null
@@ -448,14 +409,20 @@ export type Database = {
           created_at?: string
           description?: string | null
           display_order?: number
+          enable_registration?: boolean
+          end_date?: string | null
           end_time?: string | null
           event_date?: string | null
           field_config?: Json
           id?: string
           is_published?: boolean
+          location?: string | null
+          organization?: Database["public"]["Enums"]["organization_type"]
           registration_open?: boolean
+          resource_link?: string | null
           slug?: string
           start_time?: string | null
+          status?: Database["public"]["Enums"]["project_status"]
           title?: string
           updated_at?: string
           venue_address?: string | null
