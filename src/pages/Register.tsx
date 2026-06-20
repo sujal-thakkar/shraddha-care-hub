@@ -16,6 +16,7 @@ export default function Register() {
         .from("registration_events")
         .select("*")
         .eq("is_published", true)
+        .eq("enable_registration", true)
         .eq("registration_open", true)
         .order("display_order", { ascending: true })
         .order("event_date", { ascending: true });
