@@ -227,7 +227,7 @@ export default function EventRegistration() {
                 )}
               </div>
 
-              {event.registration_open && (
+              {event.enable_registration && event.registration_open && (
                 <Button
                   size="lg"
                   className="mt-2 group"
@@ -345,7 +345,7 @@ export default function EventRegistration() {
                   </div>
                 </CardContent>
               </Card>
-            ) : !event.registration_open ? (
+            ) : !(event.enable_registration && event.registration_open) ? (
               <Card className="shadow-lg">
                 <CardContent className="p-8 sm:p-12 text-center space-y-4">
                   <h2 className="font-serif text-2xl font-bold text-foreground">Registration is closed</h2>
