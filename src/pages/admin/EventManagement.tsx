@@ -283,8 +283,8 @@ export default function AdminEventManagement() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Manage Events</h1>
-          <p className="text-muted-foreground">Create and manage events people can register for.</p>
+          <h1 className="text-2xl font-bold text-foreground">Events</h1>
+          <p className="text-muted-foreground">One place to manage everything: cards on the home page, the Projects &amp; Events page, and event registrations.</p>
         </div>
         <Button onClick={() => setIsDialogOpen(true)} className="gap-2">
           <Plus className="h-4 w-4" />
