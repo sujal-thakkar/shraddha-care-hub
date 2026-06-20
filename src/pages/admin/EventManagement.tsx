@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
@@ -22,6 +23,20 @@ import { format } from "date-fns";
 import type { Database } from "@/integrations/supabase/types";
 
 type RegEvent = Database["public"]["Tables"]["registration_events"]["Row"];
+type ProjectStatus = Database["public"]["Enums"]["project_status"];
+type OrganizationType = Database["public"]["Enums"]["organization_type"];
+
+const STATUS_OPTIONS: { value: ProjectStatus; label: string }[] = [
+  { value: "upcoming", label: "Upcoming" },
+  { value: "ongoing", label: "Ongoing" },
+  { value: "completed", label: "Completed" },
+];
+
+const ORG_OPTIONS: { value: OrganizationType; label: string }[] = [
+  { value: "shraddha", label: "Shraddha" },
+  { value: "hosla", label: "Hosla" },
+  { value: "both", label: "Both" },
+];
 
 type FieldKey = "mobile" | "age" | "area" | "medical_concerns" | "source";
 type FieldSetting = { enabled: boolean; required: boolean };
