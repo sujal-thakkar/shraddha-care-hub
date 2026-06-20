@@ -260,18 +260,18 @@ export function ProjectsEventsSection({ limit, showViewAll = false }: ProjectsEv
   const [isPaused, setIsPaused] = useState(false);
 
   const { data: events = [], isLoading } = useQuery({
-    queryKey: ["public-projects-events", limit],
+    queryKey: ["public-registration-events", limit],
     queryFn: async () => {
       let query = supabase
-        .from("projects_events")
+        .from("registration_events")
         .select("*")
         .eq("is_published", true)
         .neq("status", "completed")
         .order("display_order", { ascending: true })
-        .order("start_date", { ascending: true });
-      
+        .order("event_date", { ascending: true });
+
       if (limit) query = query.limit(limit);
-      
+
       const { data, error } = await query;
       if (error) throw error;
       return data as ProjectEvent[];
