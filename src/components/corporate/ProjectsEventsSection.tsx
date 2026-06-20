@@ -16,7 +16,7 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 
-type ProjectEvent = Database["public"]["Tables"]["projects_events"]["Row"];
+type ProjectEvent = Database["public"]["Tables"]["registration_events"]["Row"];
 type ProjectStatus = Database["public"]["Enums"]["project_status"];
 type OrganizationType = Database["public"]["Enums"]["organization_type"];
 
