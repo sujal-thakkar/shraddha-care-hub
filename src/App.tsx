@@ -78,7 +78,7 @@ const App = () => (
               <Route path="volunteers" element={<AdminVolunteers />} />
               <Route path="partners" element={<AdminPartners />} />
               <Route path="donations" element={<AdminDonations />} />
-              <Route path="projects" element={<AdminProjectsEvents />} />
+              
               <Route path="team" element={<AdminTeamManagement />} />
               <Route path="events" element={<AdminEventManagement />} />
               <Route path="registrations" element={<AdminRegistrations />} />
