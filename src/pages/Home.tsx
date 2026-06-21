@@ -267,20 +267,36 @@ export default function Home() {
                   Partner with Shraddha to support the parents of your employees. We provide mental health support, companionship, and engagement programs for the senior family members of your workforce.
                 </p>
                 
-                <Button 
-                  asChild 
-                  size="lg" 
-                  className={`group transition-colors duration-300 ${
-                    isCorporateHovered 
-                      ? 'bg-white hover:bg-white/90 text-foreground' 
-                      : 'bg-foreground hover:bg-foreground/90 text-background'
-                  }`}
-                >
-                  <Link to="/corporate-care">
-                    Explore Corporate Care
-                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </Link>
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                  <Button 
+                    asChild 
+                    size="lg" 
+                    className={`group transition-colors duration-300 ${
+                      isCorporateHovered 
+                        ? 'bg-white hover:bg-white/90 text-foreground' 
+                        : 'bg-foreground hover:bg-foreground/90 text-background'
+                    }`}
+                  >
+                    <Link to="/corporate-care">
+                      Explore Corporate Care
+                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </Link>
+                  </Button>
+                  <Button 
+                    asChild 
+                    size="lg"
+                    variant="outline"
+                    className={`group transition-colors duration-300 bg-transparent ${
+                      isCorporateHovered 
+                        ? 'border-white text-white hover:bg-white/20' 
+                        : 'border-foreground/20 text-foreground hover:bg-foreground/5'
+                    }`}
+                  >
+                    <Link to="/membership-plans">
+                      View Individual Plans
+                    </Link>
+                  </Button>
+                </div>
               </div>
               
               {/* Illustration - right side with gradient overlay */}

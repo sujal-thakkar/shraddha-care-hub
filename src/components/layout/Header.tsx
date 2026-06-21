@@ -28,11 +28,17 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
+    name: "Explore Care Plans",
+    children: [
+      { name: "Membership Plans", path: "/membership-plans", description: "Explore our care plans and corporate initiatives", accent: "pink" },
+      { name: "Corporate Care", path: "/corporate-care", description: "Programs for your employees' parents", accent: "violet" },
+    ],
+  },
+  {
     name: "Projects & Events",
     children: [
       { name: "Events", path: "/events", description: "Upcoming & past initiatives" },
       { name: "Register for Events", path: "/register", description: "Sign up for our upcoming events", accent: "pink" },
-      { name: "Corporate Care", path: "/corporate-care", description: "Programs for your employees' parents", accent: "violet" },
       { name: "HPL", path: "/hpl", description: "Hosla Premier League" },
       { name: "Games", path: "/games", description: "Fun activities for seniors" },
     ],

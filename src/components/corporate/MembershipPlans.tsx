@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import {
@@ -241,15 +242,26 @@ export function MembershipPlans() {
                   </div>
 
                   {/* CTA */}
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="w-full mb-6 border-[hsl(250,70%,45%)]/40 text-[hsl(250,70%,45%)] hover:bg-[hsl(250,70%,45%)] hover:text-white group"
-                    onClick={() => setPartnerModal(true)}
-                  >
-                    Request a Quote
-                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </Button>
+                  <div className="flex flex-col gap-3 mb-6">
+                    <Button
+                      asChild
+                      size="lg"
+                      className="w-full bg-[hsl(250,70%,45%)] hover:bg-[hsl(250,70%,40%)] text-white group"
+                    >
+                      <Link to="/corporate-care">
+                        Know More
+                        <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                      </Link>
+                    </Button>
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="w-full border-[hsl(250,70%,45%)]/40 text-[hsl(250,70%,45%)] hover:bg-[hsl(250,70%,45%)] hover:text-white"
+                      onClick={() => setPartnerModal(true)}
+                    >
+                      Request a Quote
+                    </Button>
+                  </div>
 
                   {/* Benefits */}
                   <div className="space-y-3">

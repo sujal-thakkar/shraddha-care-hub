@@ -156,14 +156,17 @@ export default function AdminEventManagement() {
     },
   });
 
-  const buildPayload = (data: FormState) => ({
+  const buildPayload = (data: FormState) => {
+    const combinedLocation = [data.venue_name, data.venue_address].filter(Boolean).join(", ");
+    
+    return {
     slug: data.slug,
     title: data.title,
     description: data.description || null,
     status: data.status,
     organization: data.organization,
     resource_link: data.resource_link || null,
-    location: data.location || null,
+    location: combinedLocation || data.location || null,
     event_date: data.event_date || null,
     end_date: data.end_date || null,
     start_time: data.start_time || null,
@@ -177,7 +180,8 @@ export default function AdminEventManagement() {
     registration_open: data.registration_open,
     is_published: data.is_published,
     display_order: data.display_order,
-  });
+  };
+  };
 
   const saveMutation = useMutation({
     mutationFn: async (data: FormState) => {
@@ -488,8 +492,13 @@ export default function AdminEventManagement() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="location">Location (shown on cards)</Label>
-              <Input id="location" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="e.g. Mumbai, Maharashtra" />
+              <Label htmlFor="venue_name">Venue Name</Label>
+              <Input id="venue_name" value={form.venue_name} onChange={(e) => setForm({ ...form, venue_name: e.target.value })} placeholder="e.g. New Life Old Age Home" />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="venue_address">Venue Address</Label>
+              <Textarea id="venue_address" value={form.venue_address} onChange={(e) => setForm({ ...form, venue_address: e.target.value })} rows={2} placeholder="Full address" />
             </div>
 
             <div className="space-y-2">
@@ -547,16 +556,6 @@ export default function AdminEventManagement() {
                       <Label htmlFor="end_time">End Time</Label>
                       <Input id="end_time" type="time" value={form.end_time} onChange={(e) => setForm({ ...form, end_time: e.target.value })} />
                     </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="venue_name">Venue Name</Label>
-                    <Input id="venue_name" value={form.venue_name} onChange={(e) => setForm({ ...form, venue_name: e.target.value })} placeholder="e.g. New Life Old Age Home" />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="venue_address">Venue Address</Label>
-                    <Textarea id="venue_address" value={form.venue_address} onChange={(e) => setForm({ ...form, venue_address: e.target.value })} rows={2} placeholder="Full address" />
                   </div>
 
                   <div className="space-y-2">
