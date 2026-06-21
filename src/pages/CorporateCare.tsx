@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Marquee } from "@/components/ui/marquee";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { PartnerContactModal } from "@/components/corporate/PartnerContactModal";
-import { MembershipPlans } from "@/components/corporate/MembershipPlans";
+import { CorporatePlanSection } from "@/components/corporate/CorporatePlanSection";
 import { Building2, Phone, CheckCircle, ArrowRight, Mail } from "lucide-react";
 
 import corporateCareHeroBg from "@/assets/corporate-care-hero-bg.jpg";
@@ -275,8 +275,8 @@ export default function CorporateCare() {
         </div>
       </section>
 
-      {/* Membership Plans */}
-      <MembershipPlans />
+      {/* Corporate Plan */}
+      <CorporatePlanSection />
 
       {/* How It Works */}
       <section className="relative py-16 lg:py-24 bg-background overflow-hidden">

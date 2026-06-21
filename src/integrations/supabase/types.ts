@@ -217,6 +217,7 @@ export type Database = {
           major_operation: string
           name: string
           photo_path: string | null
+          plan: string
           status: string
           updated_at: string
           voter_id: string
@@ -235,6 +236,7 @@ export type Database = {
           major_operation: string
           name: string
           photo_path?: string | null
+          plan?: string
           status?: string
           updated_at?: string
           voter_id: string
@@ -253,6 +255,7 @@ export type Database = {
           major_operation?: string
           name?: string
           photo_path?: string | null
+          plan?: string
           status?: string
           updated_at?: string
           voter_id?: string

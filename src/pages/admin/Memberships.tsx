@@ -29,6 +29,7 @@ type MembershipApplication = {
   major_operation: string;
   chronic_disease: string;
   health_insurance: string;
+  plan: string;
   photo_path: string | null;
   status: string;
   admin_notes: string | null;
@@ -135,6 +136,20 @@ export default function AdminMemberships() {
     return <Badge variant="outline" className={styles[status] || styles.new}>{status.replace("_", " ")}</Badge>;
   };
 
+  const getPlanBadge = (plan: string) => {
+    const isPremium = plan === "premium";
+    return (
+      <Badge
+        variant="outline"
+        className={isPremium
+          ? "bg-amber-500/10 text-amber-600 border-amber-500/30 capitalize"
+          : "bg-primary/10 text-primary border-primary/20 capitalize"}
+      >
+        {plan || "standard"}
+      </Badge>
+    );
+  };
+
   const isPdf = photoUrl ? selected?.photo_path?.toLowerCase().endsWith(".pdf") : false;
 
   return (
@@ -186,6 +201,7 @@ export default function AdminMemberships() {
                   <TableHead>Name</TableHead>
                   <TableHead className="hidden md:table-cell">Email</TableHead>
                   <TableHead className="hidden sm:table-cell">Contact</TableHead>
+                  <TableHead>Plan</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="hidden lg:table-cell">Date</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -197,6 +213,7 @@ export default function AdminMemberships() {
                     <TableCell className="font-medium">{app.name}</TableCell>
                     <TableCell className="hidden md:table-cell">{app.email}</TableCell>
                     <TableCell className="hidden sm:table-cell">{app.child_contact}</TableCell>
+                    <TableCell>{getPlanBadge(app.plan)}</TableCell>
                     <TableCell>{getStatusBadge(app.status)}</TableCell>
                     <TableCell className="hidden lg:table-cell">{format(new Date(app.created_at), "MMM d, yyyy")}</TableCell>
                     <TableCell className="text-right">
@@ -229,7 +246,10 @@ export default function AdminMemberships() {
             <div className="space-y-6">
               {/* Applicant */}
               <div className="space-y-3">
-                <h3 className="text-lg font-semibold text-foreground">{selected.name}</h3>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="text-lg font-semibold text-foreground">{selected.name}</h3>
+                  {getPlanBadge(selected.plan)}
+                </div>
                 <div className="flex flex-col gap-2 text-sm">
                   <a href={`mailto:${selected.email}`} className="flex items-center gap-2 text-primary hover:underline">
                     <Mail className="h-4 w-4" /> {selected.email}

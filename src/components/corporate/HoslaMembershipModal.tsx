@@ -63,9 +63,15 @@ type FormValues = z.infer<typeof schema>;
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  plan?: "standard" | "premium";
 }
 
-export function HoslaMembershipModal({ open, onOpenChange }: Props) {
+const PLAN_LABELS: Record<string, string> = {
+  standard: "Standard Plan",
+  premium: "Premium Plan",
+};
+
+export function HoslaMembershipModal({ open, onOpenChange, plan = "standard" }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -176,6 +182,7 @@ export function HoslaMembershipModal({ open, onOpenChange }: Props) {
         chronic_disease: data.chronicDisease,
         health_insurance: data.healthInsurance,
         photo_path: photoPath,
+        plan,
       });
 
       if (error) throw error;
@@ -215,6 +222,14 @@ export function HoslaMembershipModal({ open, onOpenChange }: Props) {
                 <IdCard className="h-5 w-5 flex-shrink-0" style={{ color: ACCENT }} />
                 Hosla Membership Card
               </DialogTitle>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span
+                  className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold text-white"
+                  style={{ backgroundColor: ACCENT }}
+                >
+                  {PLAN_LABELS[plan]}
+                </span>
+              </div>
               <DialogDescription className="text-sm">
                 Fill in your details below. Our care team will reach out to you to complete your membership.
               </DialogDescription>

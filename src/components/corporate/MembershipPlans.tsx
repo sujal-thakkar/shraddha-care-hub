@@ -3,11 +3,11 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import {
-  Heart, Sparkles, Sun, Home, Mic2, Users, PenTool, Globe, GraduationCap,
-  Bus, Gift, Building2, BarChart3, Target, Rocket, Briefcase, Phone as PhoneIcon,
-  Handshake, UserCog, Mail, CheckCircle, Star, ArrowRight, MapPin,
+  Heart, Sparkles, Sun, Home, Mic2, Users, Globe, GraduationCap,
+  Bus, Gift, Building2, Target, Phone as PhoneIcon,
+  Handshake, Mail, CheckCircle, Star, ArrowRight, MapPin,
+  HeartHandshake, HousePlus, CalendarCheck, MessageCircleHeart, Crown,
 } from "lucide-react";
-import { PartnerContactModal } from "@/components/corporate/PartnerContactModal";
 import { HoslaMembershipModal } from "@/components/corporate/HoslaMembershipModal";
 
 /* ------------------------------------------------------------------ */
@@ -22,30 +22,31 @@ interface Benefit {
   label: string;
 }
 
-const hoslaBenefits: Benefit[] = [
-  { icon: Heart, label: "Emotional Wellbeing — caring conversations, wellbeing check-ins & compassionate listening" },
-  { icon: Sparkles, label: "Spiritual Growth — Satsang & Pathachakra twice a week (Bhagavad Gita, Upanishads, Ramayana & more)" },
-  { icon: Sun, label: "Daily Self-Care Therapy — 45-min guided sessions at 6:30 AM & 8:45 PM (breathwork, meditation, brain-health)" },
-  { icon: Home, label: "Trusted Household Support — priority access to maid, caregiver, cook, electrician, plumber + periodic home visits" },
-  { icon: Mic2, label: "Talent Discovery — singing, recitation, storytelling, quiz, language learning & creative presentations" },
-  { icon: Users, label: "Evening Companionship — 7 PM Senior Citizen Adda for friendship & laughter" },
-  { icon: PenTool, label: "Create, Write & Be Heard — newsletter articles, artwork showcase, Hosla Radio podcasts" },
-  { icon: Globe, label: "Purpose Beyond Retirement — volunteer & community service via Shraddha NGO" },
-  { icon: GraduationCap, label: "Expert Sessions — Ramakrishna Mission, Chinmaya Mission, Brahma Kumaris, Art of Living & more" },
-  { icon: Bus, label: "Trips, Celebrations & Get-togethers — mini trips, cultural outings, picnics & memorable events" },
-  { icon: Gift, label: "Personalized Care for Parents — birthday surprises, festival celebrations, custom care plans" },
+/* Standard — the recommended everyday care plan */
+const standardBenefits: Benefit[] = [
+  { icon: HeartHandshake, label: "Monthly home visit by Hosla volunteers (accessible areas) — or monthly check-in calls where visits aren't possible" },
+  { icon: Heart, label: "Emotional wellbeing — caring conversations & regular check-ins" },
+  { icon: Sparkles, label: "Spiritual growth — Satsang & Pathachakra twice a week" },
+  { icon: Sun, label: "Daily self-care therapy — guided morning & evening sessions" },
+  { icon: Home, label: "Trusted household support — priority access to maid, caregiver, cook, electrician & plumber" },
+  { icon: Mic2, label: "Weekly group sessions — singing, recitation, storytelling, quizzes & learning" },
+  { icon: Users, label: "Evening companionship — daily Senior Citizen Adda" },
+  { icon: Bus, label: "Trips, celebrations & community get-togethers" },
+  { icon: Globe, label: "Purpose beyond retirement — volunteer with Shraddha NGO" },
+  { icon: GraduationCap, label: "Expert sessions — Ramakrishna Mission, Chinmaya Mission, Art of Living & more" },
 ];
 
-const corporateExtraBenefits: Benefit[] = [
-  { icon: UserCog, label: "Priority dedicated care consultants for each employee's parents (above 50 years of age)" },
-  { icon: BarChart3, label: "Monthly wellness reports for HR & management" },
-  { icon: Target, label: "Corporate wellness workshops & employee engagement sessions" },
-  { icon: Rocket, label: "Priority onboarding & dedicated helpline" },
-  { icon: Briefcase, label: "Tax benefits under CSR initiatives" },
+/* Premium — everything in Standard, elevated with priority & on-demand care */
+const premiumBenefits: Benefit[] = [
+  { icon: HeartHandshake, label: "Multiple priority home visits every month — or priority regular check-in & reach-out calls for non-accessible areas" },
+  { icon: MessageCircleHeart, label: "Priority 1:1 emotional counselling & personalised self-care sessions" },
+  { icon: HousePlus, label: "Extensive on-demand household support — daily caretaker, grocery runs & more, exactly as you need" },
+  { icon: Mic2, label: "Dedicated personal instructor for singing & hobby classes, beyond the weekly group sessions" },
+  { icon: CalendarCheck, label: "Priority booking for sessions, trips, get-togethers & events" },
 ];
 
 const personalizedExtraBenefits: Benefit[] = [
-  { icon: Target, label: "Fully customized care plan designed around your elder ones" },
+  { icon: Target, label: "Fully customised care plan designed around your elder ones" },
   { icon: Gift, label: "Bespoke family experiences — curated with personal attention" },
 ];
 
@@ -53,7 +54,7 @@ const personalizedExtraBenefits: Benefit[] = [
 /*  Pricing lookup                                                    */
 /* ------------------------------------------------------------------ */
 
-const hoslaPrice: Record<CityType, Record<BillingCycle, number>> = {
+const standardPrice: Record<CityType, Record<BillingCycle, number>> = {
   "non-metro": { monthly: 400, yearly: 4000 },
   "metro": { monthly: 500, yearly: 5000 },
 };
@@ -65,11 +66,16 @@ const hoslaPrice: Record<CityType, Record<BillingCycle, number>> = {
 export function MembershipPlans() {
   const [billing, setBilling] = useState<BillingCycle>("monthly");
   const [city, setCity] = useState<CityType>("non-metro");
-  const [partnerModal, setPartnerModal] = useState(false);
   const [membershipModal, setMembershipModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<"standard" | "premium">("standard");
 
-  const price = hoslaPrice[city][billing];
-  const yearlySavings = hoslaPrice[city].monthly * 12 - hoslaPrice[city].yearly;
+  const price = standardPrice[city][billing];
+  const yearlySavings = standardPrice[city].monthly * 12 - standardPrice[city].yearly;
+
+  const openModal = (plan: "standard" | "premium") => {
+    setSelectedPlan(plan);
+    setMembershipModal(true);
+  };
 
   return (
     <>
@@ -102,7 +108,7 @@ export function MembershipPlans() {
 
           {/* Toggles */}
           <ScrollReveal delay={100}>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-12">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-4">
               {/* Billing toggle */}
               <div className="inline-flex items-center gap-1 p-1 rounded-full bg-muted border border-border">
                 <button
@@ -155,10 +161,15 @@ export function MembershipPlans() {
               </div>
             </div>
           </ScrollReveal>
+          <ScrollReveal delay={150}>
+            <p className="text-center text-xs text-muted-foreground mb-12">
+              Pricing shown applies to the <strong className="text-foreground">Standard</strong> plan. Premium &amp; Personalised plans are tailored to your needs.
+            </p>
+          </ScrollReveal>
 
           {/* Pricing Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto items-start">
-            {/* ── Hosla Care (Recommended) ── */}
+            {/* ── Standard (Recommended) ── */}
             <ScrollReveal delay={100}>
               <div className="relative rounded-2xl border-2 border-[hsl(250,70%,45%)] bg-card shadow-xl shadow-[hsl(250,70%,45%)]/10 md:scale-[1.03] md:-translate-y-2">
                 {/* Recommended badge */}
@@ -172,9 +183,12 @@ export function MembershipPlans() {
                 <div className="p-6 pt-8 lg:p-8 lg:pt-10">
                   {/* Tier name */}
                   <div className="mb-6">
-                    <h3 className="text-xl font-bold text-foreground mb-1">Hosla Care</h3>
+                    <div className="flex items-center gap-2 mb-1">
+                      <Heart className="h-5 w-5 text-[hsl(250,70%,45%)]" />
+                      <h3 className="text-xl font-bold text-foreground">Standard</h3>
+                    </div>
                     <p className="text-sm text-muted-foreground">
-                      For elder citizens &amp; families with parents living alone
+                      Complete everyday care, companionship &amp; purpose for your elders
                     </p>
                   </div>
 
@@ -198,7 +212,7 @@ export function MembershipPlans() {
                   <Button
                     size="lg"
                     className="w-full mb-6 bg-[hsl(250,70%,45%)] hover:bg-[hsl(250,70%,40%)] text-white group"
-                    onClick={() => setMembershipModal(true)}
+                    onClick={() => openModal("standard")}
                   >
                     Get Started
                     <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -207,7 +221,7 @@ export function MembershipPlans() {
                   {/* Benefits */}
                   <div className="space-y-3">
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Everything included:</p>
-                    {hoslaBenefits.map((b, i) => (
+                    {standardBenefits.map((b, i) => (
                       <div key={i} className="flex items-start gap-2.5">
                         <b.icon className="h-4 w-4 mt-0.5 flex-shrink-0 text-[hsl(250,70%,45%)]" />
                         <span className="text-sm text-muted-foreground leading-snug">{b.label}</span>
@@ -218,18 +232,19 @@ export function MembershipPlans() {
               </div>
             </ScrollReveal>
 
-            {/* ── Corporate Care ── */}
+            {/* ── Premium ── */}
             <ScrollReveal delay={200}>
-              <div className="relative rounded-2xl border border-border bg-card shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <div className="relative rounded-2xl border border-border bg-card shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                <div className="h-1 bg-gradient-to-r from-[hsl(38,92%,50%)] via-[hsl(250,70%,45%)] to-[hsl(38,92%,50%)]" />
                 <div className="p-6 lg:p-8">
                   {/* Tier name */}
                   <div className="mb-6">
                     <div className="flex items-center gap-2 mb-1">
-                      <Building2 className="h-5 w-5 text-[hsl(250,70%,45%)]" />
-                      <h3 className="text-xl font-bold text-foreground">Corporate Care</h3>
+                      <Crown className="h-5 w-5 text-[hsl(38,92%,50%)]" />
+                      <h3 className="text-xl font-bold text-foreground">Premium</h3>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      For companies — like Microsoft 365 for your employees' Parent and Grandparent
+                      Priority, on-demand &amp; personalised care for elders who need more
                     </p>
                   </div>
 
@@ -238,43 +253,31 @@ export function MembershipPlans() {
                     <div className="flex items-baseline gap-1">
                       <span className="text-3xl lg:text-4xl font-extrabold text-foreground">Custom</span>
                     </div>
-                    <p className="text-sm text-muted-foreground mt-1">Volume-based pricing tailored to your team size</p>
+                    <p className="text-sm text-muted-foreground mt-1">Standard plan + the priority add-ons you choose</p>
                   </div>
 
                   {/* CTA */}
-                  <div className="flex flex-col gap-3 mb-6">
-                    <Button
-                      asChild
-                      size="lg"
-                      className="w-full bg-[hsl(250,70%,45%)] hover:bg-[hsl(250,70%,40%)] text-white group"
-                    >
-                      <Link to="/corporate-care">
-                        Know More
-                        <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                      </Link>
-                    </Button>
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      className="w-full border-[hsl(250,70%,45%)]/40 text-[hsl(250,70%,45%)] hover:bg-[hsl(250,70%,45%)] hover:text-white"
-                      onClick={() => setPartnerModal(true)}
-                    >
-                      Request a Quote
-                    </Button>
-                  </div>
+                  <Button
+                    size="lg"
+                    className="w-full mb-6 bg-[hsl(250,70%,45%)] hover:bg-[hsl(250,70%,40%)] text-white group"
+                    onClick={() => openModal("premium")}
+                  >
+                    Get Started
+                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </Button>
 
                   {/* Benefits */}
                   <div className="space-y-3">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">All Hosla Care benefits, plus:</p>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Everything in Standard, elevated:</p>
                     <div className="flex items-start gap-2.5">
                       <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0 text-emerald-500" />
-                      <span className="text-sm text-muted-foreground leading-snug font-medium">Everything in Hosla Care</span>
+                      <span className="text-sm text-muted-foreground leading-snug font-medium">All Standard plan benefits</span>
                     </div>
                     <div className="h-px bg-border my-1" />
-                    {corporateExtraBenefits.map((b, i) => (
+                    {premiumBenefits.map((b, i) => (
                       <div key={i} className="flex items-start gap-2.5">
-                        <b.icon className="h-4 w-4 mt-0.5 flex-shrink-0 text-[hsl(250,70%,45%)]" />
-                        <span className="text-sm text-muted-foreground leading-snug">{b.label}</span>
+                        <b.icon className="h-4 w-4 mt-0.5 flex-shrink-0 text-[hsl(38,92%,50%)]" />
+                        <span className="text-sm text-foreground/90 leading-snug font-medium">{b.label}</span>
                       </div>
                     ))}
                   </div>
@@ -330,10 +333,10 @@ export function MembershipPlans() {
 
                   {/* Benefits */}
                   <div className="space-y-3">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">All Corporate Care benefits, plus:</p>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">All Premium benefits, plus:</p>
                     <div className="flex items-start gap-2.5">
                       <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0 text-emerald-500" />
-                      <span className="text-sm text-muted-foreground leading-snug font-medium">Everything in Corporate Care</span>
+                      <span className="text-sm text-muted-foreground leading-snug font-medium">Everything in Premium</span>
                     </div>
                     <div className="h-px bg-border my-1" />
                     {personalizedExtraBenefits.map((b, i) => (
@@ -347,6 +350,38 @@ export function MembershipPlans() {
               </div>
             </ScrollReveal>
           </div>
+
+          {/* Corporate redirect banner */}
+          <ScrollReveal delay={300}>
+            <div className="mt-14 max-w-5xl mx-auto">
+              <div className="relative overflow-hidden rounded-2xl border border-[hsl(250,70%,45%)]/30 bg-gradient-to-br from-[hsl(250,70%,45%)]/8 via-card to-[hsl(220,70%,50%)]/8 p-6 sm:p-8">
+                <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
+                  <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-[hsl(250,70%,45%)]/12">
+                    <Building2 className="h-7 w-7 text-[hsl(250,70%,45%)]" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-serif text-xl lg:text-2xl font-bold text-foreground mb-1.5">
+                      Working in a corporate? We've got plans for your team too.
+                    </h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed">
+                      Explore our exclusive <strong className="text-foreground">Corporate Parental Care</strong> services —
+                      thoughtful care for your employees' parents, with volume-based pricing and CSR benefits.
+                    </p>
+                  </div>
+                  <Button
+                    asChild
+                    size="lg"
+                    className="flex-shrink-0 bg-[hsl(250,70%,45%)] hover:bg-[hsl(250,70%,40%)] text-white group"
+                  >
+                    <Link to="/corporate-care">
+                      Explore Corporate Care
+                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </ScrollReveal>
 
           {/* Promise footer */}
           <ScrollReveal delay={400}>
@@ -364,8 +399,7 @@ export function MembershipPlans() {
         </div>
       </section>
 
-      <PartnerContactModal open={partnerModal} onOpenChange={setPartnerModal} />
-      <HoslaMembershipModal open={membershipModal} onOpenChange={setMembershipModal} />
+      <HoslaMembershipModal open={membershipModal} onOpenChange={setMembershipModal} plan={selectedPlan} />
     </>
   );
 }
