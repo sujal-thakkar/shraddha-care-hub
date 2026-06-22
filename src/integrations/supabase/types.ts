@@ -471,6 +471,57 @@ export type Database = {
           },
         ]
       }
+      routine_sessions: {
+        Row: {
+          created_at: string
+          day_of_week: number
+          display_order: number
+          end_time: string | null
+          facebook_url: string | null
+          id: string
+          is_active: boolean
+          meet_url: string | null
+          note: string | null
+          start_time: string
+          title: string
+          title_bn: string | null
+          updated_at: string
+          youtube_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: number
+          display_order?: number
+          end_time?: string | null
+          facebook_url?: string | null
+          id?: string
+          is_active?: boolean
+          meet_url?: string | null
+          note?: string | null
+          start_time: string
+          title: string
+          title_bn?: string | null
+          updated_at?: string
+          youtube_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number
+          display_order?: number
+          end_time?: string | null
+          facebook_url?: string | null
+          id?: string
+          is_active?: boolean
+          meet_url?: string | null
+          note?: string | null
+          start_time?: string
+          title?: string
+          title_bn?: string | null
+          updated_at?: string
+          youtube_url?: string | null
+        }
+        Relationships: []
+      }
       success_stories: {
         Row: {
           author_name: string | null
