@@ -21,6 +21,7 @@ const Events = lazy(() => import("./pages/Events"));
 const Register = lazy(() => import("./pages/Register"));
 const EventRegistration = lazy(() => import("./pages/EventRegistration"));
 const MembershipPlansPage = lazy(() => import("./pages/MembershipPlansPage"));
+const DailyRoutine = lazy(() => import("./pages/DailyRoutine"));
 const AdminLogin = lazy(() => import("./pages/admin/Login"));
 const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
 const AdminOverview = lazy(() => import("./pages/admin/Overview"));
@@ -34,6 +35,7 @@ const AdminSettings = lazy(() => import("./pages/admin/Settings"));
 const AdminTeamManagement = lazy(() => import("./pages/admin/TeamManagement"));
 const AdminRegistrations = lazy(() => import("./pages/admin/Registrations"));
 const AdminEventManagement = lazy(() => import("./pages/admin/EventManagement"));
+const AdminRoutineManagement = lazy(() => import("./pages/admin/RoutineManagement"));
 const AdminMemberships = lazy(() => import("./pages/admin/Memberships"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -69,6 +71,7 @@ const App = () => (
             <Route path="/register" element={<Register />} />
             <Route path="/register/:slug" element={<EventRegistration />} />
             <Route path="/membership-plans" element={<MembershipPlansPage />} />
+            <Route path="/daily-routine" element={<DailyRoutine />} />
             <Route path="/mumbai-health-camp" element={<Navigate to="/register/mumbai-senior-citizens-health-camp" replace />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />}>
@@ -81,6 +84,7 @@ const App = () => (
               
               <Route path="team" element={<AdminTeamManagement />} />
               <Route path="events" element={<AdminEventManagement />} />
+              <Route path="routine" element={<AdminRoutineManagement />} />
               <Route path="registrations" element={<AdminRegistrations />} />
               <Route path="memberships" element={<AdminMemberships />} />
               <Route path="settings" element={<AdminSettings />} />
