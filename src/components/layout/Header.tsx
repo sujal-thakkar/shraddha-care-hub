@@ -39,6 +39,7 @@ const navGroups: NavGroup[] = [
     children: [
       { name: "Events", path: "/events", description: "Upcoming & past initiatives" },
       { name: "Register for Events", path: "/register", description: "Sign up for our upcoming events", accent: "pink" },
+      { name: "Daily Routine", path: "/daily-routine", description: "Today's wellness schedule & join links" },
       { name: "HPL", path: "/hpl", description: "Hosla Premier League" },
       { name: "Games", path: "/games", description: "Fun activities for seniors" },
     ],
