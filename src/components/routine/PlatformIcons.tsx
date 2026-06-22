@@ -4,14 +4,35 @@ interface IconProps {
 
 export function GoogleMeetIcon({ className }: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" className={className} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path d="M13 6v3.5l3.5-2.7V6.6c0-.9-1-1.4-1.7-.9L13 6z" fill="#fff" opacity="0" />
-      <path d="M2 8.5A1.5 1.5 0 0 1 3.5 7H12v10H3.5A1.5 1.5 0 0 1 2 15.5v-7z" fill="#00832d" />
-      <path d="M12 7v10h4.5l3.5 2.7V4.3L16.5 7H12z" fill="#0066da" />
-      <path d="M12 7v3.5L16.5 7H12z" fill="#e94235" />
-      <path d="M12 17v-3.5L16.5 17H12z" fill="#2684fc" />
-      <path d="M20 4.3 16.5 7v10l3.5 2.7c.7.5 1.5 0 1.5-.8V5.1c0-.8-.8-1.3-1.5-.8z" fill="#00ac47" />
-      <path d="M16.5 7v10l3.5 2.7V4.3L16.5 7z" fill="#ffba00" opacity="0" />
+    <svg viewBox="0 0 176 138" className={className} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path fill="url(#gm-a)" d="M 102.015,81.88 C 95.186,77.162 95.094,67.102 101.836,62.26 L 157,22.643 c 7.94,-5.701 19,-0.038 19,9.737 v 77.755 c 0,9.675 -10.861,15.359 -18.821,9.859 z" />
+      <path fill="url(#gm-b)" d="M 0,44 C 0,19.7 19.7,0 44,0 h 64 c 11.046,0 20,8.954 20,20 v 98 c 0,11.046 -8.954,20 -20,20 H 20 C 8.9539999,138 0,129.046 0,118 Z" />
+      <mask id="gm-e" width="129" height="138" x="8" y="27" maskUnits="userSpaceOnUse">
+        <path fill="#ffffff" d="M 8,71 C 8,46.7 27.7,27 52,27 h 64 c 11.046,0 20,8.954 20,20 v 98 c 0,11.046 -8.954,20 -20,20 H 28 C 16.954,165 8,156.046 8,145 Z" />
+      </mask>
+      <g filter="url(#gm-c)" mask="url(#gm-e)" transform="translate(-8,-27)">
+        <path fill="url(#gm-f)" d="M 73.906,99.198 183.906,36 v 124 z" />
+      </g>
+      <circle cx="30" cy="108" r="14" fill="#ffffff" />
+      <defs>
+        <linearGradient id="gm-a" x1="128.8" x2="227.2" y1="104.44" y2="104.44" gradientUnits="userSpaceOnUse" gradientTransform="translate(-8,-27)">
+          <stop stopColor="#f6a100" />
+          <stop offset="1" stopColor="#ffbe00" />
+        </linearGradient>
+        <linearGradient id="gm-f" x1="136.22" x2="78.5" y1="91.32" y2="91.190002" gradientUnits="userSpaceOnUse">
+          <stop offset=".15" stopColor="#ffb5e8" />
+          <stop offset="1" stopColor="#ffdbf5" stopOpacity="0" />
+        </linearGradient>
+        <radialGradient id="gm-b" cx="0" cy="0" r="1" gradientTransform="matrix(-159.725,0,0,-135.852,152.325,69)" gradientUnits="userSpaceOnUse">
+          <stop offset=".15" stopColor="#ffe921" />
+          <stop offset="1" stopColor="#fec700" />
+        </radialGradient>
+        <filter id="gm-c" width="166" height="180" x="45.91" y="8" colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse">
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
+          <feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape" mode="normal" />
+          <feGaussianBlur result="effect1_foregroundBlur_37584_9338" stdDeviation="14" />
+        </filter>
+      </defs>
     </svg>
   );
 }
