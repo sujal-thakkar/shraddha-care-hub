@@ -193,6 +193,13 @@ export default function EventRegistration() {
     .map((t) => formatTime12(t!))
     .join(" – ");
 
+  const gallery = parseGallery(event.gallery);
+  const canRegister = event.enable_registration && event.registration_open;
+  // When registration is not active, the page becomes a "highlights" page.
+  const showHighlights = !canRegister;
+
+
+
   return (
     <Layout>
       {/* Hero */}
