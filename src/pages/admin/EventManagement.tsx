@@ -258,6 +258,7 @@ export default function AdminEventManagement() {
       venue_address: ev.venue_address || "",
       contact_phone: ev.contact_phone || "",
       banner_url: ev.banner_url || "",
+      gallery: parseGallery(ev.gallery),
       field_config: { ...defaultFieldConfig, ...((ev.field_config as Partial<FieldConfig>) || {}) },
       enable_registration: ev.enable_registration,
       registration_open: ev.registration_open,
