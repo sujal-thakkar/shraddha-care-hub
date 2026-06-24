@@ -84,6 +84,7 @@ interface FormState {
   venue_address: string;
   contact_phone: string;
   banner_url: string;
+  gallery: EventMediaItem[];
   field_config: FieldConfig;
   enable_registration: boolean;
   registration_open: boolean;
