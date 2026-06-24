@@ -20,7 +20,9 @@ import { ImageUpload } from "@/components/ui/image-upload";
 import { useImageUpload } from "@/hooks/use-image-upload";
 import { Plus, Pencil, Trash2, Loader2, ExternalLink, Copy, X } from "lucide-react";
 import { format } from "date-fns";
-import type { Database } from "@/integrations/supabase/types";
+import type { Database, Json } from "@/integrations/supabase/types";
+import { EventGalleryEditor } from "@/components/admin/EventGalleryEditor";
+import { parseGallery, type EventMediaItem } from "@/lib/event-media";
 
 type RegEvent = Database["public"]["Tables"]["registration_events"]["Row"];
 type ProjectStatus = Database["public"]["Enums"]["project_status"];
