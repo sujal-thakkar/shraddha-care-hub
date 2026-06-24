@@ -336,17 +336,20 @@ export function ProjectsEventsSection({ limit, showViewAll = false }: ProjectsEv
   const getStatusBadge = (status: ProjectStatus) => {
     if (status === "upcoming") {
       return (
-        <Badge 
-          className="bg-purple-100 text-purple-800 border-purple-300 hover:bg-purple-100"
-        >
+        <Badge className="bg-purple-100 text-purple-800 border-purple-300 hover:bg-purple-100">
           Upcoming
         </Badge>
       );
     }
+    if (status === "completed") {
+      return (
+        <Badge className="bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-100">
+          Past Event
+        </Badge>
+      );
+    }
     return (
-      <Badge 
-        className="bg-blue-100 text-blue-800 border-blue-300 hover:bg-blue-100"
-      >
+      <Badge className="bg-blue-100 text-blue-800 border-blue-300 hover:bg-blue-100">
         Ongoing
       </Badge>
     );
