@@ -194,8 +194,9 @@ export default function EventRegistration() {
     .join(" – ");
 
   const gallery = parseGallery(event.gallery);
-  const canRegister = event.enable_registration && event.registration_open;
-  // When registration is not active, the page becomes a "highlights" page.
+  // Completed events never accept registrations — they become a highlights page.
+  const canRegister =
+    event.enable_registration && event.registration_open && event.status !== "completed";
   const showHighlights = !canRegister;
 
 
