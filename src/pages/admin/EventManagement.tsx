@@ -108,6 +108,7 @@ const defaultForm: FormState = {
   venue_address: "",
   contact_phone: "",
   banner_url: "",
+  gallery: [],
   field_config: defaultFieldConfig,
   enable_registration: false,
   registration_open: true,
