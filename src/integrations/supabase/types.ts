@@ -367,6 +367,7 @@ export type Database = {
           end_time: string | null
           event_date: string | null
           field_config: Json
+          gallery: Json
           id: string
           is_published: boolean
           location: string | null
@@ -392,6 +393,7 @@ export type Database = {
           end_time?: string | null
           event_date?: string | null
           field_config?: Json
+          gallery?: Json
           id?: string
           is_published?: boolean
           location?: string | null
@@ -417,6 +419,7 @@ export type Database = {
           end_time?: string | null
           event_date?: string | null
           field_config?: Json
+          gallery?: Json
           id?: string
           is_published?: boolean
           location?: string | null
