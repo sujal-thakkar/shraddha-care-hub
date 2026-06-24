@@ -400,7 +400,7 @@ export function ProjectsEventsSection({ limit, showViewAll = false }: ProjectsEv
               Our Projects & Events
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Explore our upcoming and ongoing initiatives dedicated to elder care and community welfare.
+              Explore our upcoming initiatives and relive the moments from our past events dedicated to elder care and community welfare.
             </p>
           </div>
         </ScrollReveal>
