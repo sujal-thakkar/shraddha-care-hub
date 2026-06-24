@@ -53,6 +53,21 @@ function EventCta({ event }: { event: EventRow }) {
       </Button>
     );
   }
+  if (event.status === "completed" && parseGallery(event.gallery).length > 0) {
+    return (
+      <Button
+        asChild
+        variant="outline"
+        size="sm"
+        className="w-full mt-auto border-[hsl(250,70%,45%)]/30 text-[hsl(250,70%,45%)] hover:bg-[hsl(250,70%,45%)] hover:text-white"
+      >
+        <Link to={`/register/${event.slug}`}>
+          <Images className="h-4 w-4 mr-2" />
+          View Highlights
+        </Link>
+      </Button>
+    );
+  }
   if (event.resource_link) {
     return event.resource_link.startsWith("/") ? (
       <Button
