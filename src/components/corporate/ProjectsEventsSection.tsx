@@ -282,21 +282,21 @@ export function ProjectsEventsSection({ limit, showViewAll = false }: ProjectsEv
   const { data: events = [], isLoading } = useQuery({
     queryKey: ["public-registration-events", limit],
     queryFn: async () => {
-      let query = supabase
+      const { data, error } = await supabase
         .from("registration_events")
         .select("*")
         .eq("is_published", true)
-        .neq("status", "completed")
         .order("display_order", { ascending: true })
-        .order("event_date", { ascending: true });
-
-      if (limit) query = query.limit(limit);
-
-      const { data, error } = await query;
+        .order("event_date", { ascending: false });
       if (error) throw error;
-      return data as ProjectEvent[];
+
+      // Show upcoming & ongoing first, then completed (past) events to keep visitors engaged.
+      const rank: Record<ProjectStatus, number> = { upcoming: 0, ongoing: 1, completed: 2 };
+      const sorted = [...(data as ProjectEvent[])].sort((a, b) => rank[a.status] - rank[b.status]);
+      return limit ? sorted.slice(0, limit) : sorted;
     },
   });
+
 
   // Track current slide
   useEffect(() => {
