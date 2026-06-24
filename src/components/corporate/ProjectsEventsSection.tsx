@@ -206,7 +206,8 @@ const ProjectEventCard = ({
           )}
 
           {(() => {
-            const canRegister = event.enable_registration && event.registration_open;
+            const canRegister =
+              event.enable_registration && event.registration_open && event.status !== "completed";
             const hasGallery = parseGallery(event.gallery).length > 0;
             if (canRegister) {
               return (
