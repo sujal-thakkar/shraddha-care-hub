@@ -179,6 +179,7 @@ export default function AdminEventManagement() {
     venue_address: data.venue_address || null,
     contact_phone: data.contact_phone || null,
     banner_url: data.banner_url || null,
+    gallery: data.gallery as unknown as Json,
     field_config: data.field_config as unknown as Database["public"]["Tables"]["registration_events"]["Insert"]["field_config"],
     enable_registration: data.enable_registration,
     registration_open: data.registration_open,
