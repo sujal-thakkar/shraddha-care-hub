@@ -12,11 +12,14 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { checkRateLimit } from "@/lib/rate-limit";
 import {
-  CalendarDays, Clock, MapPin, Phone, Heart, CheckCircle, ArrowRight, Loader2, Star,
+  CalendarDays, Clock, MapPin, Phone, Heart, CheckCircle, ArrowRight, Loader2, Star, Images,
 } from "lucide-react";
 import { format } from "date-fns";
 import hoslaLogo from "@/assets/hosla-logo.png";
 import logoShraddha from "@/assets/logo-shraddha.png";
+import { parseGallery } from "@/lib/event-media";
+import { EventGallery } from "@/components/events/EventGallery";
+import { SocialShare } from "@/components/events/SocialShare";
 
 const sourceOptions = ["WhatsApp", "Facebook/Instagram", "Friend/Relative", "Website", "Other"];
 
