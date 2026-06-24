@@ -38,7 +38,8 @@ function getOrgLabel(org: OrganizationType) {
 }
 
 function EventCta({ event }: { event: EventRow }) {
-  const canRegister = event.enable_registration && event.registration_open;
+  const canRegister =
+    event.enable_registration && event.registration_open && event.status !== "completed";
   if (canRegister) {
     return (
       <Button
