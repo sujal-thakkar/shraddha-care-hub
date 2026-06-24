@@ -366,18 +366,6 @@ export default function EventRegistration() {
                   </div>
                 </CardContent>
               </Card>
-            ) : !(event.enable_registration && event.registration_open) ? (
-              <Card className="shadow-lg">
-                <CardContent className="p-8 sm:p-12 text-center space-y-4">
-                  <h2 className="font-serif text-2xl font-bold text-foreground">Registration is closed</h2>
-                  <p className="text-muted-foreground">
-                    Registration for this event is currently not open. Please check back later or explore our other events.
-                  </p>
-                  <Button asChild variant="outline">
-                    <Link to="/register">View open events</Link>
-                  </Button>
-                </CardContent>
-              </Card>
             ) : (
               <>
                 <div className="text-center mb-8">
