@@ -5,10 +5,11 @@ import { Layout } from "@/components/layout/Layout";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Calendar, Loader2, MapPin, ChevronRight, ArrowRight } from "lucide-react";
+import { ExternalLink, Calendar, Loader2, MapPin, ChevronRight, ArrowRight, Images } from "lucide-react";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import type { Database } from "@/integrations/supabase/types";
+import { parseGallery } from "@/lib/event-media";
 
 type EventRow = Database["public"]["Tables"]["registration_events"]["Row"];
 type ProjectStatus = Database["public"]["Enums"]["project_status"];
@@ -37,7 +38,8 @@ function getOrgLabel(org: OrganizationType) {
 }
 
 function EventCta({ event }: { event: EventRow }) {
-  const canRegister = event.enable_registration && event.registration_open;
+  const canRegister =
+    event.enable_registration && event.registration_open && event.status !== "completed";
   if (canRegister) {
     return (
       <Button
@@ -48,6 +50,21 @@ function EventCta({ event }: { event: EventRow }) {
         <Link to={`/register/${event.slug}`}>
           <ArrowRight className="h-4 w-4 mr-2" />
           Register
+        </Link>
+      </Button>
+    );
+  }
+  if (event.status === "completed" && parseGallery(event.gallery).length > 0) {
+    return (
+      <Button
+        asChild
+        variant="outline"
+        size="sm"
+        className="w-full mt-auto border-[hsl(250,70%,45%)]/30 text-[hsl(250,70%,45%)] hover:bg-[hsl(250,70%,45%)] hover:text-white"
+      >
+        <Link to={`/register/${event.slug}`}>
+          <Images className="h-4 w-4 mr-2" />
+          View Highlights
         </Link>
       </Button>
     );

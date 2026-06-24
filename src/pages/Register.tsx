@@ -18,6 +18,7 @@ export default function Register() {
         .eq("is_published", true)
         .eq("enable_registration", true)
         .eq("registration_open", true)
+        .neq("status", "completed")
         .order("display_order", { ascending: true })
         .order("event_date", { ascending: true });
       if (error) throw error;

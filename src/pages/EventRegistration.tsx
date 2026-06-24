@@ -12,11 +12,14 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { checkRateLimit } from "@/lib/rate-limit";
 import {
-  CalendarDays, Clock, MapPin, Phone, Heart, CheckCircle, ArrowRight, Loader2, Star,
+  CalendarDays, Clock, MapPin, Phone, Heart, CheckCircle, ArrowRight, Loader2, Star, Images,
 } from "lucide-react";
 import { format } from "date-fns";
 import hoslaLogo from "@/assets/hosla-logo.png";
 import logoShraddha from "@/assets/logo-shraddha.png";
+import { parseGallery } from "@/lib/event-media";
+import { EventGallery } from "@/components/events/EventGallery";
+import { SocialShare } from "@/components/events/SocialShare";
 
 const sourceOptions = ["WhatsApp", "Facebook/Instagram", "Friend/Relative", "Website", "Other"];
 
@@ -190,6 +193,14 @@ export default function EventRegistration() {
     .map((t) => formatTime12(t!))
     .join(" – ");
 
+  const gallery = parseGallery(event.gallery);
+  // Completed events never accept registrations — they become a highlights page.
+  const canRegister =
+    event.enable_registration && event.registration_open && event.status !== "completed";
+  const showHighlights = !canRegister;
+
+
+
   return (
     <Layout>
       {/* Hero */}
@@ -227,7 +238,7 @@ export default function EventRegistration() {
                 )}
               </div>
 
-              {event.enable_registration && event.registration_open && (
+              {canRegister && (
                 <Button
                   size="lg"
                   className="mt-2 group"
@@ -235,6 +246,17 @@ export default function EventRegistration() {
                 >
                   Register Now
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Button>
+              )}
+
+              {showHighlights && gallery.length > 0 && (
+                <Button
+                  size="lg"
+                  className="mt-2 group"
+                  onClick={() => document.getElementById("highlights")?.scrollIntoView({ behavior: "smooth" })}
+                >
+                  <Images className="mr-2 h-4 w-4" />
+                  View Highlights
                 </Button>
               )}
             </div>
@@ -301,6 +323,44 @@ export default function EventRegistration() {
       )}
 
       {/* Registration Form */}
+      {showHighlights ? (
+        <section id="highlights" className="py-16 lg:py-24 bg-background scroll-mt-20">
+          <div className="container px-4 sm:px-6 lg:px-8">
+            <div className="max-w-5xl mx-auto space-y-10">
+              <div className="text-center space-y-3">
+                <div className="flex items-center justify-center gap-2">
+                  <Star className="h-5 w-5 text-primary" />
+                  <span className="text-primary font-medium uppercase tracking-widest text-sm">Event Highlights</span>
+                  <Star className="h-5 w-5 text-primary" />
+                </div>
+                <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground">
+                  {gallery.length > 0 ? `Moments from ${event.title}` : "This event has concluded"}
+                </h2>
+                <p className="text-muted-foreground max-w-2xl mx-auto">
+                  {gallery.length > 0
+                    ? "Thank you to everyone who joined us and made this possible. Relive the moments below — and feel free to share them."
+                    : "Registration for this event is closed. Explore our other events to stay involved."}
+                </p>
+              </div>
+
+              {gallery.length > 0 && <EventGallery items={gallery} />}
+
+              <div className="pt-6 border-t border-border/60 space-y-4">
+                <p className="text-center text-sm text-muted-foreground">
+                  Help us spread the word — share with friends and family.
+                </p>
+                <SocialShare title={event.title} />
+              </div>
+
+              <div className="text-center">
+                <Button asChild variant="outline">
+                  <Link to="/events">Explore more events</Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : (
       <section id="register" className="py-16 lg:py-24 bg-background scroll-mt-20">
         <div className="container px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl mx-auto">
@@ -343,18 +403,6 @@ export default function EventRegistration() {
                     <span className="text-muted-foreground">&</span>
                     <img src={logoShraddha} alt="Shraddha" className="h-6" />
                   </div>
-                </CardContent>
-              </Card>
-            ) : !(event.enable_registration && event.registration_open) ? (
-              <Card className="shadow-lg">
-                <CardContent className="p-8 sm:p-12 text-center space-y-4">
-                  <h2 className="font-serif text-2xl font-bold text-foreground">Registration is closed</h2>
-                  <p className="text-muted-foreground">
-                    Registration for this event is currently not open. Please check back later or explore our other events.
-                  </p>
-                  <Button asChild variant="outline">
-                    <Link to="/register">View open events</Link>
-                  </Button>
                 </CardContent>
               </Card>
             ) : (
@@ -489,6 +537,7 @@ export default function EventRegistration() {
           </div>
         </div>
       </section>
+      )}
     </Layout>
   );
 }

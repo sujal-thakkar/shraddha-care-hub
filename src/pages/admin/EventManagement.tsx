@@ -20,7 +20,9 @@ import { ImageUpload } from "@/components/ui/image-upload";
 import { useImageUpload } from "@/hooks/use-image-upload";
 import { Plus, Pencil, Trash2, Loader2, ExternalLink, Copy, X } from "lucide-react";
 import { format } from "date-fns";
-import type { Database } from "@/integrations/supabase/types";
+import type { Database, Json } from "@/integrations/supabase/types";
+import { EventGalleryEditor } from "@/components/admin/EventGalleryEditor";
+import { parseGallery, type EventMediaItem } from "@/lib/event-media";
 
 type RegEvent = Database["public"]["Tables"]["registration_events"]["Row"];
 type ProjectStatus = Database["public"]["Enums"]["project_status"];
@@ -82,6 +84,7 @@ interface FormState {
   venue_address: string;
   contact_phone: string;
   banner_url: string;
+  gallery: EventMediaItem[];
   field_config: FieldConfig;
   enable_registration: boolean;
   registration_open: boolean;
@@ -105,6 +108,7 @@ const defaultForm: FormState = {
   venue_address: "",
   contact_phone: "",
   banner_url: "",
+  gallery: [],
   field_config: defaultFieldConfig,
   enable_registration: false,
   registration_open: true,
@@ -175,6 +179,7 @@ export default function AdminEventManagement() {
     venue_address: data.venue_address || null,
     contact_phone: data.contact_phone || null,
     banner_url: data.banner_url || null,
+    gallery: data.gallery as unknown as Json,
     field_config: data.field_config as unknown as Database["public"]["Tables"]["registration_events"]["Insert"]["field_config"],
     enable_registration: data.enable_registration,
     registration_open: data.registration_open,
@@ -253,6 +258,7 @@ export default function AdminEventManagement() {
       venue_address: ev.venue_address || "",
       contact_phone: ev.contact_phone || "",
       banner_url: ev.banner_url || "",
+      gallery: parseGallery(ev.gallery),
       field_config: { ...defaultFieldConfig, ...((ev.field_config as Partial<FieldConfig>) || {}) },
       enable_registration: ev.enable_registration,
       registration_open: ev.registration_open,
@@ -516,6 +522,11 @@ export default function AdminEventManagement() {
                 isUploading={isUploading}
               />
             </div>
+
+            <EventGalleryEditor
+              value={form.gallery}
+              onChange={(gallery) => setForm({ ...form, gallery })}
+            />
 
             <div className="grid grid-cols-2 gap-4">
               <div className="flex items-center justify-between rounded-lg border border-border p-3">
