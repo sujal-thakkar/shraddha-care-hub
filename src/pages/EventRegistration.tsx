@@ -322,6 +322,44 @@ export default function EventRegistration() {
       )}
 
       {/* Registration Form */}
+      {showHighlights ? (
+        <section id="highlights" className="py-16 lg:py-24 bg-background scroll-mt-20">
+          <div className="container px-4 sm:px-6 lg:px-8">
+            <div className="max-w-5xl mx-auto space-y-10">
+              <div className="text-center space-y-3">
+                <div className="flex items-center justify-center gap-2">
+                  <Star className="h-5 w-5 text-primary" />
+                  <span className="text-primary font-medium uppercase tracking-widest text-sm">Event Highlights</span>
+                  <Star className="h-5 w-5 text-primary" />
+                </div>
+                <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground">
+                  {gallery.length > 0 ? `Moments from ${event.title}` : "This event has concluded"}
+                </h2>
+                <p className="text-muted-foreground max-w-2xl mx-auto">
+                  {gallery.length > 0
+                    ? "Thank you to everyone who joined us and made this possible. Relive the moments below — and feel free to share them."
+                    : "Registration for this event is closed. Explore our other events to stay involved."}
+                </p>
+              </div>
+
+              {gallery.length > 0 && <EventGallery items={gallery} />}
+
+              <div className="pt-6 border-t border-border/60 space-y-4">
+                <p className="text-center text-sm text-muted-foreground">
+                  Help us spread the word — share with friends and family.
+                </p>
+                <SocialShare title={event.title} />
+              </div>
+
+              <div className="text-center">
+                <Button asChild variant="outline">
+                  <Link to="/events">Explore more events</Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : (
       <section id="register" className="py-16 lg:py-24 bg-background scroll-mt-20">
         <div className="container px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl mx-auto">
