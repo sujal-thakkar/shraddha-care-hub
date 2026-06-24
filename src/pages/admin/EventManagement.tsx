@@ -523,6 +523,11 @@ export default function AdminEventManagement() {
               />
             </div>
 
+            <EventGalleryEditor
+              value={form.gallery}
+              onChange={(gallery) => setForm({ ...form, gallery })}
+            />
+
             <div className="grid grid-cols-2 gap-4">
               <div className="flex items-center justify-between rounded-lg border border-border p-3">
                 <Label htmlFor="published">Published</Label>
