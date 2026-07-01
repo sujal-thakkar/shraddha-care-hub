@@ -49,6 +49,7 @@ export default function EventRegistration() {
     medical_concerns: "",
     source: "",
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { data: event, isLoading } = useQuery({
     queryKey: ["registration-event", slug],
@@ -71,36 +72,91 @@ export default function EventRegistration() {
   };
 
   const handleChange = (field: string, value: string) => {
+    // Mobile: keep digits only, cap at 10 for Indian numbers.
+    if (field === "mobile") {
+      value = value.replace(/\D/g, "").slice(0, 10);
+    }
+    // Name: strip characters that can't appear in a real name.
+    if (field === "full_name") {
+      value = value.replace(/[^A-Za-z\u00C0-\u024F\s.'-]/g, "");
+    }
     setFormData((prev) => ({ ...prev, [field]: value }));
+    // Clear a field's error as the user corrects it.
+    setErrors((prev) => (prev[field] ? { ...prev, [field]: "" } : prev));
+  };
+
+  // Returns a map of field -> error message. Empty map means valid.
+  const validate = (): Record<string, string> => {
+    const errs: Record<string, string> = {};
+    const name = formData.full_name.trim();
+    const email = formData.email.trim();
+
+    if (name.length < 2) {
+      errs.full_name = "Please enter your full name.";
+    } else if (!/[A-Za-z\u00C0-\u024F]{2,}/.test(name)) {
+      errs.full_name = "Name must contain letters.";
+    }
+
+    if (!email) {
+      errs.email = "Please enter your email.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+      errs.email = "Please enter a valid email address.";
+    }
+
+    if (fieldConfig.mobile.enabled) {
+      const mobile = formData.mobile.trim();
+      if (!mobile) {
+        if (fieldConfig.mobile.required) errs.mobile = "Please enter your mobile number.";
+      } else if (!/^[6-9]\d{9}$/.test(mobile)) {
+        errs.mobile = "Enter a valid 10-digit mobile number.";
+      }
+    }
+
+    if (fieldConfig.age.enabled) {
+      const raw = formData.age.trim();
+      if (!raw) {
+        if (fieldConfig.age.required) errs.age = "Please enter your age.";
+      } else {
+        const age = Number(raw);
+        if (!Number.isInteger(age) || age < 1 || age > 120) {
+          errs.age = "Enter a valid age (1–120).";
+        }
+      }
+    }
+
+    if (fieldConfig.area.enabled) {
+      const area = formData.area.trim();
+      if (!area) {
+        if (fieldConfig.area.required) errs.area = "Please enter your area / locality.";
+      } else if (area.length < 2) {
+        errs.area = "Please enter a valid area.";
+      }
+    }
+
+    if (fieldConfig.medical_concerns.enabled && fieldConfig.medical_concerns.required &&
+        !formData.medical_concerns.trim()) {
+      errs.medical_concerns = "Please share any medical concerns.";
+    }
+
+    if (fieldConfig.source.enabled && fieldConfig.source.required && !formData.source) {
+      errs.source = "Please select an option.";
+    }
+
+    return errs;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!event) return;
 
-    if (!formData.full_name || !formData.email) {
-      toast({ title: "Please fill all required fields", variant: "destructive" });
+    const errs = validate();
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      toast({ title: "Please fix the highlighted fields", variant: "destructive" });
       return;
     }
-    // Validate enabled+required toggleable fields
-    const reqKeys = (Object.keys(fieldConfig) as FieldKey[]).filter(
-      (k) => fieldConfig[k].enabled && fieldConfig[k].required
-    );
-    for (const k of reqKeys) {
-      if (!formData[k]) {
-        toast({ title: "Please fill all required fields", variant: "destructive" });
-        return;
-      }
-    }
 
-    let age: number | null = null;
-    if (fieldConfig.age.enabled && formData.age) {
-      age = parseInt(formData.age);
-      if (isNaN(age) || age < 1 || age > 120) {
-        toast({ title: "Please enter a valid age", variant: "destructive" });
-        return;
-      }
-    }
+    const age = fieldConfig.age.enabled && formData.age ? Number(formData.age) : null;
 
     setIsSubmitting(true);
     try {
