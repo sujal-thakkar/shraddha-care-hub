@@ -263,8 +263,8 @@ export default function DailyRoutine() {
           ) : (
             <div className="space-y-4">
               {daySessions.map((s) => {
-                const isLive = s.id === liveId;
-                const isNext = s.id === nextId;
+                const isLive = liveIdSet.has(s.id);
+                const isNext = nextIdSet.has(s.id);
                 const joinable = hasJoinLink(s);
                 return (
                   <div
