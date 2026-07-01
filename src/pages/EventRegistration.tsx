@@ -477,7 +477,7 @@ export default function EventRegistration() {
 
                 <Card className="shadow-lg">
                   <CardContent className="p-6 sm:p-8">
-                    <form onSubmit={handleSubmit} className="space-y-5">
+                    <form onSubmit={handleSubmit} className="space-y-5" noValidate>
                       <div className="space-y-2">
                         <Label htmlFor="full_name">Full Name *</Label>
                         <Input
@@ -485,8 +485,11 @@ export default function EventRegistration() {
                           value={formData.full_name}
                           onChange={(e) => handleChange("full_name", e.target.value)}
                           placeholder="Your full name"
-                          required
+                          autoComplete="name"
+                          aria-invalid={!!errors.full_name}
+                          className={errors.full_name ? "border-destructive focus-visible:ring-destructive" : ""}
                         />
+                        {errors.full_name && <p className="text-sm text-destructive">{errors.full_name}</p>}
                       </div>
 
                       <div className="grid sm:grid-cols-2 gap-5">
@@ -495,11 +498,15 @@ export default function EventRegistration() {
                           <Input
                             id="email"
                             type="email"
+                            inputMode="email"
                             value={formData.email}
                             onChange={(e) => handleChange("email", e.target.value)}
                             placeholder="you@example.com"
-                            required
+                            autoComplete="email"
+                            aria-invalid={!!errors.email}
+                            className={errors.email ? "border-destructive focus-visible:ring-destructive" : ""}
                           />
+                          {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
                         </div>
                         {fieldConfig.mobile.enabled && (
                           <div className="space-y-2">
@@ -507,11 +514,16 @@ export default function EventRegistration() {
                             <Input
                               id="mobile"
                               type="tel"
+                              inputMode="numeric"
                               value={formData.mobile}
                               onChange={(e) => handleChange("mobile", e.target.value)}
                               placeholder="10-digit mobile number"
-                              required={fieldConfig.mobile.required}
+                              autoComplete="tel-national"
+                              maxLength={10}
+                              aria-invalid={!!errors.mobile}
+                              className={errors.mobile ? "border-destructive focus-visible:ring-destructive" : ""}
                             />
+                            {errors.mobile && <p className="text-sm text-destructive">{errors.mobile}</p>}
                           </div>
                         )}
                       </div>
@@ -523,13 +535,16 @@ export default function EventRegistration() {
                             <Input
                               id="age"
                               type="number"
+                              inputMode="numeric"
                               min={1}
                               max={120}
                               value={formData.age}
                               onChange={(e) => handleChange("age", e.target.value)}
                               placeholder="Age"
-                              required={fieldConfig.age.required}
+                              aria-invalid={!!errors.age}
+                              className={errors.age ? "border-destructive focus-visible:ring-destructive" : ""}
                             />
+                            {errors.age && <p className="text-sm text-destructive">{errors.age}</p>}
                           </div>
                         )}
                         {fieldConfig.area.enabled && (
@@ -540,8 +555,11 @@ export default function EventRegistration() {
                               value={formData.area}
                               onChange={(e) => handleChange("area", e.target.value)}
                               placeholder="Your area"
-                              required={fieldConfig.area.required}
+                              autoComplete="address-level2"
+                              aria-invalid={!!errors.area}
+                              className={errors.area ? "border-destructive focus-visible:ring-destructive" : ""}
                             />
+                            {errors.area && <p className="text-sm text-destructive">{errors.area}</p>}
                           </div>
                         )}
                       </div>
@@ -550,7 +568,11 @@ export default function EventRegistration() {
                         <div className="space-y-2">
                           <Label htmlFor="source">How did you hear about us? {fieldConfig.source.required && "*"}</Label>
                           <Select value={formData.source} onValueChange={(v) => handleChange("source", v)}>
-                            <SelectTrigger id="source">
+                            <SelectTrigger
+                              id="source"
+                              aria-invalid={!!errors.source}
+                              className={errors.source ? "border-destructive focus:ring-destructive" : ""}
+                            >
                               <SelectValue placeholder="Select an option" />
                             </SelectTrigger>
                             <SelectContent>
@@ -559,13 +581,14 @@ export default function EventRegistration() {
                               ))}
                             </SelectContent>
                           </Select>
+                          {errors.source && <p className="text-sm text-destructive">{errors.source}</p>}
                         </div>
                       )}
 
                       {fieldConfig.medical_concerns.enabled && (
                         <div className="space-y-2">
                           <Label htmlFor="medical_concerns">
-                            Medical concerns (optional) {fieldConfig.medical_concerns.required && "*"}
+                            Medical concerns {fieldConfig.medical_concerns.required ? "*" : "(optional)"}
                           </Label>
                           <Textarea
                             id="medical_concerns"
@@ -573,8 +596,11 @@ export default function EventRegistration() {
                             onChange={(e) => handleChange("medical_concerns", e.target.value)}
                             placeholder="Any health conditions we should know about"
                             rows={3}
-                            required={fieldConfig.medical_concerns.required}
+                            maxLength={500}
+                            aria-invalid={!!errors.medical_concerns}
+                            className={errors.medical_concerns ? "border-destructive focus-visible:ring-destructive" : ""}
                           />
+                          {errors.medical_concerns && <p className="text-sm text-destructive">{errors.medical_concerns}</p>}
                         </div>
                       )}
 
