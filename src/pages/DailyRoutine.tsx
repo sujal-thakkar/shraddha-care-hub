@@ -9,7 +9,7 @@ import {
 import { Clock, MapPin, Radio, Loader2, CalendarDays, Sun } from "lucide-react";
 import { JoinButtons } from "@/components/routine/JoinButtons";
 import {
-  WEEK_DAYS, DAY_LABEL, getISTNow, formatTime12, getLiveSessionId,
+  WEEK_DAYS, DAY_LABEL, getISTNow, formatTime12, getLiveSessionIds, getNextSessionIds,
   hasJoinLink, timeToMinutes, type RoutineSession,
 } from "@/lib/routine";
 import { cn } from "@/lib/utils";
