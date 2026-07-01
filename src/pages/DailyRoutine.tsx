@@ -55,34 +55,43 @@ export default function DailyRoutine() {
     [sessions, selectedDay],
   );
 
-  const liveId = useMemo(
-    () => (isToday ? getLiveSessionId(daySessions, now.minutes) : null),
+  const liveIds = useMemo(
+    () => (isToday ? getLiveSessionIds(daySessions, now.minutes) : []),
     [daySessions, now.minutes, isToday],
   );
+  const liveIdSet = useMemo(() => new Set(liveIds), [liveIds]);
 
-  const liveSession = useMemo(
-    () => daySessions.find((s) => s.id === liveId) ?? null,
-    [daySessions, liveId],
+  const liveSessions = useMemo(
+    () => daySessions.filter((s) => liveIdSet.has(s.id)),
+    [daySessions, liveIdSet],
   );
 
-  // Next upcoming session for today (first session that hasn't started yet).
-  const nextId = useMemo(() => {
-    if (!isToday || liveId) return null;
-    const upcoming = daySessions.find(
-      (s) => (timeToMinutes(s.start_time) ?? 0) > now.minutes,
-    );
-    return upcoming?.id ?? null;
-  }, [daySessions, now.minutes, isToday, liveId]);
+  // Next upcoming session(s) for today (earliest start after now) — only when
+  // nothing is currently live, so users see what to join next without scrolling.
+  const nextIds = useMemo(
+    () => (isToday && liveIds.length === 0 ? getNextSessionIds(daySessions, now.minutes) : []),
+    [daySessions, now.minutes, isToday, liveIds.length],
+  );
+  const nextIdSet = useMemo(() => new Set(nextIds), [nextIds]);
 
-  // On first load, if a session is live today, gently scroll it into view.
+  const nextSessions = useMemo(
+    () => daySessions.filter((s) => nextIdSet.has(s.id)),
+    [daySessions, nextIdSet],
+  );
+
+  // Sessions shown in the top banner: live ones, otherwise the next upcoming.
+  const bannerSessions = liveSessions.length > 0 ? liveSessions : nextSessions;
+  const bannerIsLive = liveSessions.length > 0;
+
+  // On first load, gently scroll the banner (live or next) into view.
   useEffect(() => {
-    if (liveSession && liveRef.current && !hasScrolled.current) {
+    if (bannerSessions.length > 0 && liveRef.current && !hasScrolled.current) {
       hasScrolled.current = true;
       setTimeout(() => {
         liveRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       }, 400);
     }
-  }, [liveSession]);
+  }, [bannerSessions.length]);
 
   return (
     <Layout>
