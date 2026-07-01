@@ -171,44 +171,72 @@ export default function DailyRoutine() {
             </div>
           </div>
 
-          {/* Happening now banner */}
-          {liveSession && (
+          {/* Happening now / Up next banner */}
+          {bannerSessions.length > 0 && (
             <ScrollReveal>
               <div
                 ref={liveRef}
-                className="mb-8 rounded-3xl border-2 border-primary bg-primary/5 p-5 lg:p-7 shadow-lg"
+                className={cn(
+                  "mb-8 rounded-3xl border-2 p-5 lg:p-7 shadow-lg",
+                  bannerIsLive ? "border-primary bg-primary/5" : "border-accent bg-accent/30",
+                )}
               >
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="relative flex h-3 w-3">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-destructive opacity-75" />
-                    <span className="relative inline-flex h-3 w-3 rounded-full bg-destructive" />
-                  </span>
-                  <span className="text-sm font-bold uppercase tracking-wide text-destructive">
-                    Happening Now
-                  </span>
+                <div className="flex items-center gap-2 mb-4">
+                  {bannerIsLive ? (
+                    <>
+                      <span className="relative flex h-3 w-3">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-destructive opacity-75" />
+                        <span className="relative inline-flex h-3 w-3 rounded-full bg-destructive" />
+                      </span>
+                      <span className="text-sm font-bold uppercase tracking-wide text-destructive">
+                        {liveSessions.length > 1 ? "Happening Now · Multiple sessions" : "Happening Now"}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <Radio className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-bold uppercase tracking-wide text-primary">
+                        {nextSessions.length > 1 ? "Up Next · Starting together" : "Up Next"}
+                      </span>
+                    </>
+                  )}
                 </div>
-                <div className="flex items-center gap-2 text-primary font-semibold mb-1">
-                  <Clock className="h-5 w-5" />
-                  {formatTime12(liveSession.start_time)}
-                  {liveSession.end_time && ` – ${formatTime12(liveSession.end_time)}`}
+
+                <div className={cn("grid gap-4", bannerSessions.length > 1 && "sm:grid-cols-2")}>
+                  {bannerSessions.map((s, i) => (
+                    <div
+                      key={s.id}
+                      className={cn(
+                        bannerSessions.length > 1 &&
+                          "rounded-2xl border border-border/60 bg-background/60 p-4",
+                        bannerSessions.length > 1 && i > 0 && "sm:border-l",
+                      )}
+                    >
+                      <div className="flex items-center gap-2 text-primary font-semibold mb-1">
+                        <Clock className="h-5 w-5" />
+                        {formatTime12(s.start_time)}
+                        {s.end_time && ` – ${formatTime12(s.end_time)}`}
+                      </div>
+                      <h2 className="text-xl lg:text-2xl font-bold text-foreground mb-1">
+                        {s.title}
+                      </h2>
+                      {s.title_bn && (
+                        <p className="font-serif text-lg text-muted-foreground mb-2">{s.title_bn}</p>
+                      )}
+                      {s.note && (
+                        <p className="flex items-start gap-1.5 text-sm text-muted-foreground mb-4">
+                          <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
+                          {s.note}
+                        </p>
+                      )}
+                      {hasJoinLink(s) ? (
+                        <JoinButtons session={s} size={bannerSessions.length > 1 ? "default" : "lg"} />
+                      ) : (
+                        <p className="text-sm text-muted-foreground italic">This is an in-person / offline session.</p>
+                      )}
+                    </div>
+                  ))}
                 </div>
-                <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-1">
-                  {liveSession.title}
-                </h2>
-                {liveSession.title_bn && (
-                  <p className="font-serif text-lg text-muted-foreground mb-2">{liveSession.title_bn}</p>
-                )}
-                {liveSession.note && (
-                  <p className="flex items-start gap-1.5 text-sm text-muted-foreground mb-4">
-                    <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
-                    {liveSession.note}
-                  </p>
-                )}
-                {hasJoinLink(liveSession) ? (
-                  <JoinButtons session={liveSession} size="lg" />
-                ) : (
-                  <p className="text-sm text-muted-foreground italic">This is an in-person / offline session.</p>
-                )}
               </div>
             </ScrollReveal>
           )}
