@@ -230,7 +230,7 @@ export default function DailyRoutine() {
                         </p>
                       )}
                       {hasJoinLink(s) ? (
-                        <JoinButtons session={s} size={bannerSessions.length > 1 ? "default" : "lg"} />
+                        <JoinButtons session={s} size={bannerSessions.length > 1 ? "md" : "lg"} />
                       ) : (
                         <p className="text-sm text-muted-foreground italic">This is an in-person / offline session.</p>
                       )}
