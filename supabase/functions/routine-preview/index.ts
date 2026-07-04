@@ -100,6 +100,16 @@ Deno.serve(async (req) => {
     return new Response("ok", { headers: corsHeaders });
   }
 
+  // Detect link-preview crawlers/bots. Everyone else (real humans, including
+  // in-app browsers like WhatsApp/Instagram that don't run JS) gets a real
+  // server-side 302 redirect to the routine page.
+  const ua = (req.headers.get("user-agent") || "").toLowerCase();
+  const isBot =
+    /bot|crawler|spider|facebookexternalhit|whatsapp|telegram|slackbot|discordbot|twitterbot|linkedinbot|embedly|pinterest|vkshare|redditbot|skypeuripreview|googlebot|bingbot|preview|scraper|curl|wget|metainspector|quora|nuzzel|okhttp/i.test(
+      ua,
+    );
+
+
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
