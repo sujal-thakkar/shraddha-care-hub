@@ -109,6 +109,20 @@ Deno.serve(async (req) => {
       ua,
     );
 
+  // Real visitors: server-side 302 straight to the routine page (works even
+  // in webviews that don't execute JS or meta-refresh).
+  if (!isBot) {
+    return new Response(null, {
+      status: 302,
+      headers: {
+        ...corsHeaders,
+        Location: `${APP_URL}${ROUTINE_PATH}`,
+        "Cache-Control": "no-store",
+      },
+    });
+  }
+
+
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
