@@ -3,6 +3,8 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 const APP_URL = "https://shraddha.hosla.in";
 const ROUTINE_PATH = "/daily-routine";
+const OG_IMAGE =
+  "https://xnpnkltajezokttrofeh.supabase.co/storage/v1/object/public/project-posters/og%2Froutine-preview.jpg";
 const DEFAULT_DURATION = 60;
 
 const DAY_LABEL: Record<number, string> = {
@@ -194,9 +196,14 @@ Deno.serve(async (req) => {
 <meta property="og:description" content="${safeDesc}" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="${canonical}" />
+<meta property="og:image" content="${OG_IMAGE}" />
+<meta property="og:image:width" content="1216" />
+<meta property="og:image:height" content="640" />
+<meta property="og:image:alt" content="Shraddha Daily Routine — free live wellness sessions for elders" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="${safeTitle}" />
 <meta name="twitter:description" content="${safeDesc}" />
+<meta name="twitter:image" content="${OG_IMAGE}" />
 <meta http-equiv="refresh" content="0; url=${canonical}" />
 <script>window.location.replace(${JSON.stringify(canonical)});</script>
 </head>
