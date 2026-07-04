@@ -196,9 +196,14 @@ Deno.serve(async (req) => {
 <meta property="og:description" content="${safeDesc}" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="${canonical}" />
+<meta property="og:image" content="${OG_IMAGE}" />
+<meta property="og:image:width" content="1216" />
+<meta property="og:image:height" content="640" />
+<meta property="og:image:alt" content="Shraddha Daily Routine — free live wellness sessions for elders" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="${safeTitle}" />
 <meta name="twitter:description" content="${safeDesc}" />
+<meta name="twitter:image" content="${OG_IMAGE}" />
 <meta http-equiv="refresh" content="0; url=${canonical}" />
 <script>window.location.replace(${JSON.stringify(canonical)});</script>
 </head>
