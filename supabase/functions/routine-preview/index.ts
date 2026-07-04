@@ -3,6 +3,8 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 const APP_URL = "https://shraddha.hosla.in";
 const ROUTINE_PATH = "/daily-routine";
+const OG_IMAGE =
+  "https://xnpnkltajezokttrofeh.supabase.co/storage/v1/object/public/project-posters/og%2Froutine-preview.jpg";
 const DEFAULT_DURATION = 60;
 
 const DAY_LABEL: Record<number, string> = {
