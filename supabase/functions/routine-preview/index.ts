@@ -1,7 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
-const APP_URL = "https://shraddhango.lovable.app";
+const APP_URL = "https://shraddha.hosla.in";
 const ROUTINE_PATH = "/daily-routine";
 const DEFAULT_DURATION = 60;
 
