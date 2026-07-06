@@ -37,6 +37,7 @@ const AdminRegistrations = lazy(() => import("./pages/admin/Registrations"));
 const AdminEventManagement = lazy(() => import("./pages/admin/EventManagement"));
 const AdminRoutineManagement = lazy(() => import("./pages/admin/RoutineManagement"));
 const AdminMemberships = lazy(() => import("./pages/admin/Memberships"));
+const AdminPreviewInspector = lazy(() => import("./pages/admin/PreviewInspector"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
