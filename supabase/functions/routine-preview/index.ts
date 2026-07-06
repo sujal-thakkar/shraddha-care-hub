@@ -101,6 +101,9 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+  // `format=json` returns the resolved meta tags as JSON (used by the internal
+  // preview inspector). It bypasses the human 302 so the tags can be verified.
+  const debug = new URL(req.url).searchParams.get("format") === "json";
 
   // Detect link-preview crawlers/bots. Everyone else (real humans, including
   // in-app browsers like WhatsApp/Instagram that don't run JS) gets a real
@@ -113,7 +116,7 @@ Deno.serve(async (req) => {
 
   // Real visitors: server-side 302 straight to the routine page (works even
   // in webviews that don't execute JS or meta-refresh).
-  if (!isBot) {
+  if (!isBot && !debug) {
     return new Response(null, {
       status: 302,
       headers: {
@@ -180,6 +183,29 @@ Deno.serve(async (req) => {
   }
 
   const canonical = `${APP_URL}${ROUTINE_PATH}`;
+
+  if (debug) {
+    return new Response(
+      JSON.stringify({
+        canonical,
+        ogTitle: title,
+        ogDescription: description,
+        ogImage: OG_IMAGE,
+        twitterTitle: title,
+        twitterDescription: description,
+        twitterImage: OG_IMAGE,
+      }),
+      {
+        status: 200,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json; charset=utf-8",
+          "Cache-Control": "no-store",
+        },
+      },
+    );
+  }
+
   const safeTitle = escapeHtml(title);
   const safeDesc = escapeHtml(description);
 

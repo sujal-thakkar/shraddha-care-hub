@@ -59,6 +59,10 @@ Deno.serve(async (req) => {
   const slug = url.searchParams.get("slug")?.trim() || "";
   const target = slug ? `${APP_URL}/register/${slug}` : `${APP_URL}/events`;
 
+  // `format=json` returns the resolved meta tags as JSON (used by the internal
+  // preview inspector). It bypasses the human 302 so the tags can be verified.
+  const debug = url.searchParams.get("format") === "json";
+
   // Link-preview crawlers get OG HTML; real humans get a server-side 302 to the
   // clean app page (works even in webviews that don't run JS).
   const ua = (req.headers.get("user-agent") || "").toLowerCase();
@@ -67,12 +71,13 @@ Deno.serve(async (req) => {
       ua,
     );
 
-  if (!isBot) {
+  if (!isBot && !debug) {
     return new Response(null, {
       status: 302,
       headers: { ...corsHeaders, Location: target, "Cache-Control": "no-store" },
     });
   }
+
 
   let title = "Events — Shraddha Welfare Association";
   let description =
@@ -121,6 +126,29 @@ Deno.serve(async (req) => {
   }
 
   const canonical = target;
+
+  if (debug) {
+    return new Response(
+      JSON.stringify({
+        canonical,
+        ogTitle: title,
+        ogDescription: description,
+        ogImage,
+        twitterTitle: title,
+        twitterDescription: description,
+        twitterImage: ogImage,
+      }),
+      {
+        status: 200,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json; charset=utf-8",
+          "Cache-Control": "no-store",
+        },
+      },
+    );
+  }
+
   const safeTitle = escapeHtml(title);
   const safeDesc = escapeHtml(description);
   const safeImage = escapeHtml(ogImage);
