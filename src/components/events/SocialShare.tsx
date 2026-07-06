@@ -1,10 +1,16 @@
 import { Button } from "@/components/ui/button";
-import { Facebook, Twitter, Linkedin, Link2, Share2 } from "lucide-react";
+import { Facebook, Linkedin, Link2, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface SocialShareProps {
   title: string;
+  /** Clean URL copied / shared to humans (defaults to current page). */
   url?: string;
+  /**
+   * URL crawlers should scrape for the rich link preview (image + title).
+   * Falls back to `url`. Use the preview edge-function URL for per-item OG tags.
+   */
+  previewUrl?: string;
   className?: string;
 }
 
@@ -17,17 +23,27 @@ function WhatsAppIcon({ className }: { className?: string }) {
   );
 }
 
-export function SocialShare({ title, url, className }: SocialShareProps) {
+/** X (formerly Twitter) glyph — lucide's Twitter icon is the old bird. */
+function XIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231zm-1.161 17.52h1.833L7.084 4.126H5.117l11.966 15.644z" />
+    </svg>
+  );
+}
+
+export function SocialShare({ title, url, previewUrl, className }: SocialShareProps) {
   const { toast } = useToast();
   const shareUrl = url || (typeof window !== "undefined" ? window.location.href : "");
+  const crawlUrl = previewUrl || shareUrl;
   const text = `${title} — Shraddha Welfare Association`;
   const enc = encodeURIComponent;
 
   const links = {
-    whatsapp: `https://wa.me/?text=${enc(`${text} ${shareUrl}`)}`,
-    facebook: `https://www.facebook.com/sharer/sharer.php?u=${enc(shareUrl)}`,
-    twitter: `https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(shareUrl)}`,
-    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${enc(shareUrl)}`,
+    whatsapp: `https://wa.me/?text=${enc(`${text} ${crawlUrl}`)}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${enc(crawlUrl)}`,
+    twitter: `https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(crawlUrl)}`,
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${enc(crawlUrl)}`,
   };
 
   const copy = () => {
@@ -71,10 +87,10 @@ export function SocialShare({ title, url, className }: SocialShareProps) {
         </button>
         <button
           onClick={() => open(links.twitter)}
-          aria-label="Share on X (Twitter)"
+          aria-label="Share on X"
           className="h-11 w-11 rounded-full flex items-center justify-center bg-foreground text-background hover:opacity-90 transition-opacity shadow-sm"
         >
-          <Twitter className="h-5 w-5" />
+          <XIcon className="h-5 w-5" />
         </button>
         <button
           onClick={() => open(links.linkedin)}
