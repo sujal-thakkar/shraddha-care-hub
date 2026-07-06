@@ -409,7 +409,7 @@ export default function EventRegistration() {
                 <SocialShare
                   title={event.title}
                   url={`https://shraddha.hosla.in/register/${event.slug}`}
-                  previewUrl={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/event-preview?slug=${event.slug}`}
+                  previewUrl={eventPreviewUrl(event.slug, event.updated_at)}
                 />
               </div>
 
