@@ -126,6 +126,29 @@ Deno.serve(async (req) => {
   }
 
   const canonical = target;
+
+  if (debug) {
+    return new Response(
+      JSON.stringify({
+        canonical,
+        ogTitle: title,
+        ogDescription: description,
+        ogImage,
+        twitterTitle: title,
+        twitterDescription: description,
+        twitterImage: ogImage,
+      }),
+      {
+        status: 200,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json; charset=utf-8",
+          "Cache-Control": "no-store",
+        },
+      },
+    );
+  }
+
   const safeTitle = escapeHtml(title);
   const safeDesc = escapeHtml(description);
   const safeImage = escapeHtml(ogImage);
