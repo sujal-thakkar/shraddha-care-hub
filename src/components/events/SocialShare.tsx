@@ -87,10 +87,10 @@ export function SocialShare({ title, url, previewUrl, className }: SocialSharePr
         </button>
         <button
           onClick={() => open(links.twitter)}
-          aria-label="Share on X (Twitter)"
+          aria-label="Share on X"
           className="h-11 w-11 rounded-full flex items-center justify-center bg-foreground text-background hover:opacity-90 transition-opacity shadow-sm"
         >
-          <Twitter className="h-5 w-5" />
+          <XIcon className="h-5 w-5" />
         </button>
         <button
           onClick={() => open(links.linkedin)}
