@@ -405,7 +405,11 @@ export default function EventRegistration() {
                 <p className="text-center text-sm text-muted-foreground">
                   Help us spread the word — share with friends and family.
                 </p>
-                <SocialShare title={event.title} />
+                <SocialShare
+                  title={event.title}
+                  url={`https://shraddha.hosla.in/register/${event.slug}`}
+                  previewUrl={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/event-preview?slug=${event.slug}`}
+                />
               </div>
 
               <div className="text-center">
