@@ -20,6 +20,7 @@ import logoShraddha from "@/assets/logo-shraddha.png";
 import { parseGallery } from "@/lib/event-media";
 import { EventGallery } from "@/components/events/EventGallery";
 import { SocialShare } from "@/components/events/SocialShare";
+import { eventPreviewUrl } from "@/lib/preview";
 
 const sourceOptions = ["WhatsApp", "Facebook/Instagram", "Friend/Relative", "Website", "Other"];
 
