@@ -40,10 +40,10 @@ export function SocialShare({ title, url, previewUrl, className }: SocialSharePr
   const enc = encodeURIComponent;
 
   const links = {
-    whatsapp: `https://wa.me/?text=${enc(`${text} ${shareUrl}`)}`,
-    facebook: `https://www.facebook.com/sharer/sharer.php?u=${enc(shareUrl)}`,
-    twitter: `https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(shareUrl)}`,
-    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${enc(shareUrl)}`,
+    whatsapp: `https://wa.me/?text=${enc(`${text} ${crawlUrl}`)}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${enc(crawlUrl)}`,
+    twitter: `https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(crawlUrl)}`,
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${enc(crawlUrl)}`,
   };
 
   const copy = () => {
