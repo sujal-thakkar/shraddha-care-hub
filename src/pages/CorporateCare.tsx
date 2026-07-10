@@ -161,6 +161,12 @@ export default function CorporateCare() {
       {/* Past Collaborations & Impact */}
       <PastCollaborations />
 
+      {/* Testimonials & Outcomes */}
+      <PartnerTestimonials />
+
+      {/* Download Partnership Deck */}
+      <PartnershipDeck onCollaborate={() => setIsPartnerModalOpen(true)} />
+
       {/* Corporate Care Program band header */}
       <section className="relative pt-16 lg:pt-20 pb-0 bg-background overflow-hidden">
         <ScrollReveal>
