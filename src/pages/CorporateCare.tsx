@@ -8,7 +8,10 @@ import { PartnerContactModal } from "@/components/corporate/PartnerContactModal"
 import { CorporatePlanSection } from "@/components/corporate/CorporatePlanSection";
 import { PartnershipOpportunities } from "@/components/corporate/PartnershipOpportunities";
 import { PastCollaborations } from "@/components/corporate/PastCollaborations";
-import { Building2, Phone, CheckCircle, ArrowRight, Mail, Handshake } from "lucide-react";
+import { PartnerTestimonials } from "@/components/corporate/PartnerTestimonials";
+import { PartnershipDeck } from "@/components/corporate/PartnershipDeck";
+import { PartnershipFAQ } from "@/components/corporate/PartnershipFAQ";
+import { Building2, Phone, CheckCircle, ArrowRight, Mail, Handshake, Download } from "lucide-react";
 
 import corporateCareHeroBg from "@/assets/corporate-care-hero-bg.jpg";
 import corporateCtaBg from "@/assets/corporate-cta-bg.jpg";
@@ -135,9 +138,9 @@ export default function CorporateCare() {
                 Collaborate With Us
               </Button>
               <Button asChild variant="heroOutline" size="lg" className="hover:text-[hsl(250_70%_45%)]">
-                <a href="tel:7811009309">
-                  <Phone className="mr-2 h-4 w-4" />
-                  Call Us
+                <a href="/hosla-shraddha-partnership-deck.pdf" download="Hosla-Shraddha-Partnership-Deck.pdf" target="_blank" rel="noopener noreferrer">
+                  <Download className="mr-2 h-4 w-4" />
+                  Partnership Deck
                 </a>
               </Button>
             </div>
@@ -157,6 +160,12 @@ export default function CorporateCare() {
 
       {/* Past Collaborations & Impact */}
       <PastCollaborations />
+
+      {/* Testimonials & Outcomes */}
+      <PartnerTestimonials />
+
+      {/* Download Partnership Deck */}
+      <PartnershipDeck onCollaborate={() => setIsPartnerModalOpen(true)} />
 
       {/* Corporate Care Program band header */}
       <section className="relative pt-16 lg:pt-20 pb-0 bg-background overflow-hidden">
@@ -385,6 +394,9 @@ export default function CorporateCare() {
           </Button>
         </div>
       </section>
+
+      {/* Partnership FAQ */}
+      <PartnershipFAQ />
 
       {/* CTA */}
       <ScrollReveal>

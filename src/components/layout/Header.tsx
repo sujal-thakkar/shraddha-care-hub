@@ -31,7 +31,8 @@ const navGroups: NavGroup[] = [
     name: "Explore Care Plans",
     children: [
       { name: "Membership Plans", path: "/membership-plans", description: "Explore our care plans and corporate initiatives", accent: "pink" },
-      { name: "Corporate Care", path: "/corporate-care", description: "Programs for your employees' parents", accent: "violet" },
+      { name: "Collaborate / Partner", path: "/corporate-care", description: "Partner or collaborate with Hosla & Shraddha", accent: "violet" },
+      { name: "Corporate Care", path: "/corporate-care#corporate-plan", description: "Programs for your employees' parents", accent: "violet" },
     ],
   },
   {
@@ -64,6 +65,15 @@ function isGroupActive(group: NavGroup, pathname: string, hash: string): boolean
     }
     return pathname === c.path;
   }) ?? false;
+}
+
+function isChildActive(child: NavChild, pathname: string, hash: string): boolean {
+  if (child.path.includes('#')) {
+    const [p, h] = child.path.split('#');
+    return pathname === p && hash === `#${h}`;
+  }
+  // Plain path: active only when there is no hash (so hash siblings don't both light up)
+  return pathname === child.path && !hash;
 }
 
 const accentStyles = {
@@ -133,8 +143,8 @@ function DesktopDropdown({ group }: { group: NavGroup }) {
               className={cn(
                 "block px-3 py-2.5 rounded-lg transition-colors",
                 a
-                  ? location.pathname === child.path ? a.active : a.idle
-                  : location.pathname === child.path
+                  ? isChildActive(child, location.pathname, location.hash) ? a.active : a.idle
+                  : isChildActive(child, location.pathname, location.hash)
                     ? "bg-primary/10 text-primary"
                     : "text-foreground hover:bg-accent"
               )}
@@ -271,8 +281,8 @@ export function Header() {
                           className={cn(
                             "flex flex-col px-4 py-3 rounded-lg transition-colors touch-manipulation",
                             a
-                              ? location.pathname === child.path ? a.active : a.idle
-                              : location.pathname === child.path
+                              ? isChildActive(child, location.pathname, location.hash) ? a.active : a.idle
+                              : isChildActive(child, location.pathname, location.hash)
                                 ? "bg-primary/10 text-primary"
                                 : "text-foreground hover:bg-accent"
                           )}
