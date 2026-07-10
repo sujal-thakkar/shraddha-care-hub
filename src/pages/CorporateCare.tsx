@@ -138,9 +138,9 @@ export default function CorporateCare() {
                 Collaborate With Us
               </Button>
               <Button asChild variant="heroOutline" size="lg" className="hover:text-[hsl(250_70%_45%)]">
-                <a href="tel:7811009309">
-                  <Phone className="mr-2 h-4 w-4" />
-                  Call Us
+                <a href="/hosla-shraddha-partnership-deck.pdf" download="Hosla-Shraddha-Partnership-Deck.pdf" target="_blank" rel="noopener noreferrer">
+                  <Download className="mr-2 h-4 w-4" />
+                  Partnership Deck
                 </a>
               </Button>
             </div>
