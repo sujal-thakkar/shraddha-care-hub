@@ -143,8 +143,8 @@ function DesktopDropdown({ group }: { group: NavGroup }) {
               className={cn(
                 "block px-3 py-2.5 rounded-lg transition-colors",
                 a
-                  ? location.pathname === child.path ? a.active : a.idle
-                  : location.pathname === child.path
+                  ? isChildActive(child, location.pathname, location.hash) ? a.active : a.idle
+                  : isChildActive(child, location.pathname, location.hash)
                     ? "bg-primary/10 text-primary"
                     : "text-foreground hover:bg-accent"
               )}
