@@ -152,6 +152,31 @@ export default function CorporateCare() {
         </div>
       </section>
 
+      {/* Ways to Partner */}
+      <PartnershipOpportunities onCollaborate={() => setIsPartnerModalOpen(true)} />
+
+      {/* Past Collaborations & Impact */}
+      <PastCollaborations />
+
+      {/* Corporate Care Program band header */}
+      <section className="relative pt-16 lg:pt-20 pb-0 bg-background overflow-hidden">
+        <ScrollReveal>
+          <div className="container text-center max-w-3xl mx-auto">
+            <div className="inline-flex items-center gap-2 bg-[hsl(250,70%,45%)]/10 text-[hsl(250,70%,45%)] px-4 py-2 rounded-full text-sm font-medium mb-4">
+              <Building2 className="h-4 w-4" />
+              A Partnership Program for Companies
+            </div>
+            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground mb-3">
+              Corporate Parental Care
+            </h2>
+            <p className="text-muted-foreground text-lg leading-relaxed">
+              One of our flagship collaborations — helping companies care for their employees' parents, so teams work
+              with peace of mind while their families are looked after.
+            </p>
+          </div>
+        </ScrollReveal>
+      </section>
+
       {/* Value Proposition */}
       <section className="relative py-16 lg:py-24 bg-background overflow-hidden">
         {/* Subtle purple dot pattern */}
