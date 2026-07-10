@@ -13,6 +13,7 @@ serve(async (req) => {
 
   try {
     const { type, reportId, applicationId, inquiryId, email, name, companyName } = await req.json();
+    let partnerInquiry: any = null;
     
     // Validate required fields
     const validTypes = ["abuse_report", "volunteer_application", "partner_inquiry"];
