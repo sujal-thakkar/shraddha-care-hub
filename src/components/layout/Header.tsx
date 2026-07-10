@@ -31,10 +31,10 @@ const navGroups: NavGroup[] = [
     name: "Explore Care Plans",
     children: [
       { name: "Membership Plans", path: "/membership-plans", description: "Explore our care plans and corporate initiatives", accent: "pink" },
-      { name: "Corporate Care", path: "/corporate-care#corporate-plan", description: "Programs for your employees' parents", accent: "violet" },
+      { name: "Corporate Care", path: "/partner#corporate-plan", description: "Programs for your employees' parents", accent: "violet" },
     ],
   },
-  { name: "Collaborate / Partner", path: "/corporate-care" },
+  { name: "Collaborate / Partner", path: "/partner" },
   {
     name: "Projects & Events",
     children: [
