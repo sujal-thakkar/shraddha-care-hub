@@ -281,8 +281,8 @@ export function Header() {
                           className={cn(
                             "flex flex-col px-4 py-3 rounded-lg transition-colors touch-manipulation",
                             a
-                              ? location.pathname === child.path ? a.active : a.idle
-                              : location.pathname === child.path
+                              ? isChildActive(child, location.pathname, location.hash) ? a.active : a.idle
+                              : isChildActive(child, location.pathname, location.hash)
                                 ? "bg-primary/10 text-primary"
                                 : "text-foreground hover:bg-accent"
                           )}
