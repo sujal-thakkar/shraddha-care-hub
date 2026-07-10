@@ -395,6 +395,9 @@ export default function CorporateCare() {
         </div>
       </section>
 
+      {/* Partnership FAQ */}
+      <PartnershipFAQ />
+
       {/* CTA */}
       <ScrollReveal>
         <section className="relative overflow-hidden bg-card">
