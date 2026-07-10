@@ -77,7 +77,7 @@
 |-------|-----------|-------------|
 | `/` | `Home.tsx` | Landing page with hero carousel, services, impact gallery, stats |
 | `/about` | `About.tsx` | Organization story, mission, work gallery, success stories, team section |
-| `/corporate-care` | `CorporateCare.tsx` | B2B partnership program for employee parent care |
+| `/partner` | `CorporateCare.tsx` | B2B partnership program for employee parent care |
 | `/legal-resources` | `LegalResources.tsx` | Legal rights info + elder abuse reporting form |
 | `/volunteer` | `Volunteer.tsx` | Volunteer signup with benefits & activities info |
 | `/donate` | `Donate.tsx` | Donation page with UPI QR, bank details, impact tiers |
