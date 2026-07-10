@@ -67,6 +67,15 @@ function isGroupActive(group: NavGroup, pathname: string, hash: string): boolean
   }) ?? false;
 }
 
+function isChildActive(child: NavChild, pathname: string, hash: string): boolean {
+  if (child.path.includes('#')) {
+    const [p, h] = child.path.split('#');
+    return pathname === p && hash === `#${h}`;
+  }
+  // Plain path: active only when there is no hash (so hash siblings don't both light up)
+  return pathname === child.path && !hash;
+}
+
 const accentStyles = {
   pink: { active: "bg-pink-100 text-pink-700", idle: "text-pink-600 hover:bg-pink-50", desc: "text-pink-400" },
   violet: { active: "bg-violet-100 text-violet-700", idle: "text-violet-600 hover:bg-violet-50", desc: "text-violet-400" },
