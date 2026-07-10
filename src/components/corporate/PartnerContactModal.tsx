@@ -149,10 +149,10 @@ export function PartnerContactModal({ open, onOpenChange }: PartnerContactModalP
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl font-serif">
             <Building2 className="h-5 w-5" style={{ color: 'hsl(250, 70%, 45%)' }} />
-            Partner With Us
+            Partner & Collaborate With Us
           </DialogTitle>
           <DialogDescription>
-            Fill out the form below and our team will get back to you within 24-48 hours to discuss a customized Corporate Parental Care program.
+            Tell us about your organization and how you'd like to collaborate — hospitals, wellness groups, companies, NGOs, institutions or individuals are all welcome. Our team will get back to you within 24-48 hours.
           </DialogDescription>
         </DialogHeader>
 
