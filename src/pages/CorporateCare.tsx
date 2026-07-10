@@ -8,7 +8,10 @@ import { PartnerContactModal } from "@/components/corporate/PartnerContactModal"
 import { CorporatePlanSection } from "@/components/corporate/CorporatePlanSection";
 import { PartnershipOpportunities } from "@/components/corporate/PartnershipOpportunities";
 import { PastCollaborations } from "@/components/corporate/PastCollaborations";
-import { Building2, Phone, CheckCircle, ArrowRight, Mail, Handshake } from "lucide-react";
+import { PartnerTestimonials } from "@/components/corporate/PartnerTestimonials";
+import { PartnershipDeck } from "@/components/corporate/PartnershipDeck";
+import { PartnershipFAQ } from "@/components/corporate/PartnershipFAQ";
+import { Building2, Phone, CheckCircle, ArrowRight, Mail, Handshake, Download } from "lucide-react";
 
 import corporateCareHeroBg from "@/assets/corporate-care-hero-bg.jpg";
 import corporateCtaBg from "@/assets/corporate-cta-bg.jpg";
