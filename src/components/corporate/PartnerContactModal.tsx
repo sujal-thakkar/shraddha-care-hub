@@ -149,10 +149,10 @@ export function PartnerContactModal({ open, onOpenChange }: PartnerContactModalP
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl font-serif">
             <Building2 className="h-5 w-5" style={{ color: 'hsl(250, 70%, 45%)' }} />
-            Partner With Us
+            Partner & Collaborate With Us
           </DialogTitle>
           <DialogDescription>
-            Fill out the form below and our team will get back to you within 24-48 hours to discuss a customized Corporate Parental Care program.
+            Tell us about your organization and how you'd like to collaborate — hospitals, wellness groups, companies, NGOs, institutions or individuals are all welcome. Our team will get back to you within 24-48 hours.
           </DialogDescription>
         </DialogHeader>
 
@@ -165,10 +165,10 @@ export function PartnerContactModal({ open, onOpenChange }: PartnerContactModalP
                 <FormItem>
                   <FormLabel className="flex items-center gap-2">
                     <Building2 className="h-4 w-4 text-muted-foreground" />
-                    Company Name *
+                    Organization / Company Name *
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Your company name" {...field} />
+                    <Input placeholder="Your organization or company name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -233,7 +233,7 @@ export function PartnerContactModal({ open, onOpenChange }: PartnerContactModalP
               name="employeeCount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Number of Employees (Optional)</FormLabel>
+                  <FormLabel>Team / Organization Size (Optional)</FormLabel>
                   <FormControl>
                     <Input placeholder="e.g., 100-500" {...field} />
                   </FormControl>
