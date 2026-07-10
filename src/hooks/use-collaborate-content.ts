@@ -60,6 +60,8 @@ export interface CollaborationView {
   orgLogo: OrgLogo;
   collaboratorLogoUrl: string | null;
   collaboratorText: string | null;
+  eventSlug: string | null;
+  hasHighlights: boolean;
 }
 
 const FALLBACK_IMG =
@@ -72,7 +74,7 @@ export function useCollaborations() {
       const { data, error } = await supabase
         .from("collaborations")
         .select(
-          "*, event:registration_events(title, event_date, location, banner_url, gallery)"
+          "*, event:registration_events(title, slug, event_date, location, banner_url, gallery)"
         )
         .eq("is_published", true)
         .order("display_order", { ascending: true });
