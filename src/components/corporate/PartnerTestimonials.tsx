@@ -1,44 +1,15 @@
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import { Quote, Star, HeartPulse, Users, CalendarCheck } from "lucide-react";
-
-interface Testimonial {
-  quote: string;
-  name: string;
-  role: string;
-  org: string;
-}
-
-const testimonials: Testimonial[] = [
-  {
-    quote:
-      "Partnering with Shraddha & Hosla for the senior health camp was seamless. Their team handled outreach and coordination beautifully, and our doctors could focus on what matters — caring for the elders who came in.",
-    name: "Medical Team",
-    role: "Health Camp Partner",
-    org: "IQ City Hospital, Durgapur",
-  },
-  {
-    quote:
-      "The Senior Serenity Summit was deeply moving. Hosla brought together elders who truly needed peace and companionship, and together we created a space of calm and joy on the eve of Yoga Day.",
-    name: "Program Coordinators",
-    role: "Wellness Summit Partner",
-    org: "Brahma Kumaris",
-  },
-  {
-    quote:
-      "What stood out was their transparency and heart. Every step was clear, every outcome was shared, and the impact on seniors was real. A partner you can trust with your CSR goals.",
-    name: "CSR Lead",
-    role: "Corporate Collaborator",
-    org: "Partner Organization",
-  },
-];
-
-const outcomes = [
-  { icon: HeartPulse, value: "Free", label: "Health check-ups & consultations delivered" },
-  { icon: Users, value: "Elders", label: "reached with care, dignity & joy" },
-  { icon: CalendarCheck, value: "Multi-sector", label: "collaborations across health & wellness" },
-];
+import { Quote, Star, Loader2 } from "lucide-react";
+import { usePartnerTestimonials, usePartnerOutcomes, getOutcomeIcon } from "@/hooks/use-collaborate-content";
+import { format, parseISO } from "date-fns";
 
 export function PartnerTestimonials() {
+  const { data: testimonials = [], isLoading: loadingT } = usePartnerTestimonials();
+  const { data: outcomes = [], isLoading: loadingO } = usePartnerOutcomes();
+  const isLoading = loadingT || loadingO;
+
+  if (!isLoading && testimonials.length === 0 && outcomes.length === 0) return null;
+
   return (
     <section
       id="partner-testimonials"
@@ -63,44 +34,74 @@ export function PartnerTestimonials() {
           </div>
         </ScrollReveal>
 
-        {/* Outcome stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto mb-12">
-          {outcomes.map((o, i) => (
-            <ScrollReveal key={o.label} delay={i * 80} direction="up">
-              <div className="flex items-center gap-4 rounded-2xl border border-border bg-card p-5 shadow-sm h-full">
-                <div
-                  className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl"
-                  style={{ background: "linear-gradient(135deg, hsl(250, 70%, 45%), hsl(220, 70%, 50%))" }}
-                >
-                  <o.icon className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <p className="text-lg font-bold text-foreground leading-tight">{o.value}</p>
-                  <p className="text-xs text-muted-foreground leading-snug">{o.label}</p>
-                </div>
+        {isLoading ? (
+          <div className="flex justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-[hsl(250,70%,45%)]" />
+          </div>
+        ) : (
+          <>
+            {/* Outcome stats */}
+            {outcomes.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto mb-12">
+                {outcomes.map((o, i) => {
+                  const Icon = getOutcomeIcon(o.icon);
+                  return (
+                    <ScrollReveal key={o.id} delay={i * 80} direction="up">
+                      <div className="flex items-center gap-4 rounded-2xl border border-border bg-card p-5 shadow-sm h-full">
+                        <div
+                          className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl"
+                          style={{ background: "linear-gradient(135deg, hsl(250, 70%, 45%), hsl(220, 70%, 50%))" }}
+                        >
+                          <Icon className="h-6 w-6 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-lg font-bold text-foreground leading-tight">{o.value}</p>
+                          <p className="text-xs text-muted-foreground leading-snug">{o.label}</p>
+                        </div>
+                      </div>
+                    </ScrollReveal>
+                  );
+                })}
               </div>
-            </ScrollReveal>
-          ))}
-        </div>
+            )}
 
-        {/* Testimonials */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {testimonials.map((t, index) => (
-            <ScrollReveal key={t.org} delay={index * 120} direction="up">
-              <figure className="relative h-full flex flex-col rounded-2xl border border-border bg-card p-6 shadow-lg hover:shadow-xl transition-all duration-300">
-                <Quote className="h-8 w-8 text-[hsl(250,70%,45%)]/25 mb-3" />
-                <blockquote className="text-sm text-muted-foreground leading-relaxed flex-1">
-                  &ldquo;{t.quote}&rdquo;
-                </blockquote>
-                <figcaption className="mt-5 border-t border-border pt-4">
-                  <p className="text-sm font-semibold text-foreground">{t.name}</p>
-                  <p className="text-xs text-[hsl(250,70%,45%)] font-medium">{t.role}</p>
-                  <p className="text-xs text-muted-foreground">{t.org}</p>
-                </figcaption>
-              </figure>
-            </ScrollReveal>
-          ))}
-        </div>
+            {/* Testimonials */}
+            {testimonials.length > 0 && (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {testimonials.map((t, index) => (
+                  <ScrollReveal key={t.id} delay={index * 120} direction="up">
+                    <figure className="relative h-full flex flex-col rounded-2xl border border-border bg-card p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                      <Quote className="h-8 w-8 text-[hsl(250,70%,45%)]/25 mb-3" />
+                      <blockquote className="text-sm text-muted-foreground leading-relaxed flex-1">
+                        &ldquo;{t.quote}&rdquo;
+                      </blockquote>
+                      <figcaption className="mt-5 border-t border-border pt-4 flex items-center gap-3">
+                        {t.image_url && (
+                          <img
+                            src={t.image_url}
+                            alt={t.author_name}
+                            className="h-10 w-10 rounded-full object-cover flex-shrink-0"
+                            loading="lazy"
+                          />
+                        )}
+                        <div>
+                          <p className="text-sm font-semibold text-foreground">{t.author_name}</p>
+                          {t.author_role && <p className="text-xs text-[hsl(250,70%,45%)] font-medium">{t.author_role}</p>}
+                          {t.organization && <p className="text-xs text-muted-foreground">{t.organization}</p>}
+                          {t.event_date && (
+                            <p className="text-xs text-muted-foreground/70">
+                              {format(parseISO(t.event_date), "MMMM yyyy")}
+                            </p>
+                          )}
+                        </div>
+                      </figcaption>
+                    </figure>
+                  </ScrollReveal>
+                ))}
+              </div>
+            )}
+          </>
+        )}
       </div>
     </section>
   );
