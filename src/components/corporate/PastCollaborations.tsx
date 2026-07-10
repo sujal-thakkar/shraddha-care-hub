@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import { Calendar, MapPin, Users, Sparkles, CheckCircle, LayoutGrid, GitCommitVertical, Filter, Loader2 } from "lucide-react";
+import { Calendar, MapPin, Users, Sparkles, CheckCircle, LayoutGrid, GitCommitVertical, Filter, Loader2, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCollaborations, type CollaborationView } from "@/hooks/use-collaborate-content";
 import { CollabLogos } from "@/components/corporate/CollabLogos";
