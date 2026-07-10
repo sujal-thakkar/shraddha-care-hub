@@ -289,6 +289,7 @@ export type Database = {
       partner_inquiries: {
         Row: {
           admin_notes: string | null
+          collaboration_area: string | null
           company_name: string
           contact_name: string
           created_at: string
@@ -296,12 +297,16 @@ export type Database = {
           employee_count: string | null
           id: string
           message: string
+          organization_type: string | null
           phone: string
+          preferred_contact_time: string | null
           status: string
           updated_at: string
+          website: string | null
         }
         Insert: {
           admin_notes?: string | null
+          collaboration_area?: string | null
           company_name: string
           contact_name: string
           created_at?: string
@@ -309,12 +314,16 @@ export type Database = {
           employee_count?: string | null
           id?: string
           message: string
+          organization_type?: string | null
           phone: string
+          preferred_contact_time?: string | null
           status?: string
           updated_at?: string
+          website?: string | null
         }
         Update: {
           admin_notes?: string | null
+          collaboration_area?: string | null
           company_name?: string
           contact_name?: string
           created_at?: string
@@ -322,9 +331,12 @@ export type Database = {
           employee_count?: string | null
           id?: string
           message?: string
+          organization_type?: string | null
           phone?: string
+          preferred_contact_time?: string | null
           status?: string
           updated_at?: string
+          website?: string | null
         }
         Relationships: []
       }
