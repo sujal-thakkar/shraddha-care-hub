@@ -38,6 +38,7 @@ const AdminEventManagement = lazy(() => import("./pages/admin/EventManagement"))
 const AdminRoutineManagement = lazy(() => import("./pages/admin/RoutineManagement"));
 const AdminMemberships = lazy(() => import("./pages/admin/Memberships"));
 const AdminPreviewInspector = lazy(() => import("./pages/admin/PreviewInspector"));
+const AdminCollaborateContent = lazy(() => import("./pages/admin/CollaborateContent"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -89,6 +90,7 @@ const App = () => (
               <Route path="registrations" element={<AdminRegistrations />} />
               <Route path="memberships" element={<AdminMemberships />} />
               <Route path="preview-inspector" element={<AdminPreviewInspector />} />
+              <Route path="collaborate" element={<AdminCollaborateContent />} />
               <Route path="settings" element={<AdminSettings />} />
             </Route>
             <Route path="*" element={<NotFound />} />
