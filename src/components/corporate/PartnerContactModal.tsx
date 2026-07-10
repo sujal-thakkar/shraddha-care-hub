@@ -233,7 +233,7 @@ export function PartnerContactModal({ open, onOpenChange }: PartnerContactModalP
               name="employeeCount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Number of Employees (Optional)</FormLabel>
+                  <FormLabel>Team / Organization Size (Optional)</FormLabel>
                   <FormControl>
                     <Input placeholder="e.g., 100-500" {...field} />
                   </FormControl>
