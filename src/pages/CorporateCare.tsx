@@ -115,15 +115,15 @@ export default function CorporateCare() {
         <div className="container relative z-10">
           <div className="max-w-3xl mx-auto text-center space-y-6">
             <div className="inline-flex items-center gap-2 bg-primary-foreground/10 backdrop-blur-sm text-primary-foreground px-4 py-2 rounded-full text-sm font-medium border border-primary-foreground/20">
-              <Building2 className="h-4 w-4" />
-              B2B Partnership Program
+              <Handshake className="h-4 w-4" />
+              Partnerships & Collaborations
             </div>
             <h1 className="font-serif text-4xl lg:text-6xl font-bold text-primary-foreground drop-shadow-lg">
-              Corporate Parental Care
+              Partner & Collaborate With Us
             </h1>
             <p className="text-lg lg:text-xl text-primary-foreground/90 max-w-2xl mx-auto">
-              Partner with Shraddha to extend care to your employees' parents. 
-              Because when their families are supported, your team thrives.
+              Hospitals, wellness groups, companies, NGOs and changemakers — join hands with Shraddha &amp; Hosla to
+              bring health, dignity and joy to our elders. Together, we go further.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
               <Button 
@@ -132,7 +132,7 @@ export default function CorporateCare() {
                 onClick={() => setIsPartnerModalOpen(true)}
               >
                 <Mail className="mr-2 h-4 w-4" />
-                Partner With Us
+                Collaborate With Us
               </Button>
               <Button asChild variant="heroOutline" size="lg" className="hover:text-[hsl(250_70%_45%)]">
                 <a href="tel:7811009309">
