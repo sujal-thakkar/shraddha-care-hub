@@ -1,67 +1,14 @@
 import { useMemo, useState } from "react";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import { Calendar, MapPin, Users, Sparkles, CheckCircle, LayoutGrid, GitCommitVertical, Filter } from "lucide-react";
+import { Calendar, MapPin, Users, Sparkles, CheckCircle, LayoutGrid, GitCommitVertical, Filter, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import collabMedicalCamp from "@/assets/collab-medical-camp.jpg";
-import collabSerenitySummit from "@/assets/collab-serenity-summit.jpg";
-
-interface Collaboration {
-  image: string;
-  title: string;
-  date: string;
-  dateISO: string;
-  month: string;
-  sector: string;
-  type: string;
-  location: string;
-  partner: string;
-  description: string;
-  outcomes: string[];
-}
-
-const collaborations: Collaboration[] = [
-  {
-    image: collabMedicalCamp,
-    title: "Senior Health & Wellness Camp",
-    date: "7 July 2026",
-    dateISO: "2026-07-07",
-    month: "July 2026",
-    sector: "Hospital & Healthcare",
-    type: "Health Camp",
-    location: "Durgapur",
-    partner: "In collaboration with doctors, health professionals & management of IQ City Hospital, Durgapur",
-    description:
-      "A free health camp bringing specialist doctors and health professionals directly to our elders — check-ups, consultations and guidance, all in one caring space.",
-    outcomes: [
-      "Free health check-ups & doctor consultations",
-      "On-the-spot health guidance for seniors",
-      "Trusted hospital partnership for follow-up care",
-    ],
-  },
-  {
-    image: collabSerenitySummit,
-    title: "Senior Serenity Summit",
-    date: "20 June 2026",
-    dateISO: "2026-06-20",
-    month: "June 2026",
-    sector: "Faith Organization",
-    type: "Wellness Summit",
-    location: "On the eve of International Yoga Day",
-    partner: "In collaboration with Brahma Kumaris",
-    description:
-      "A soulful summit of meditation, yoga and inner peace — helping elders reconnect with calm, purpose and companionship on the eve of Yoga Day.",
-    outcomes: [
-      "Guided meditation & gentle yoga for elders",
-      "Mental peace and emotional well-being sessions",
-      "Joyful companionship and community bonding",
-    ],
-  },
-];
+import { useCollaborations, type CollaborationView } from "@/hooks/use-collaborate-content";
+import { CollabLogos } from "@/components/corporate/CollabLogos";
 
 const ALL = "All";
 
 function uniqueSorted(values: string[]) {
-  return [ALL, ...Array.from(new Set(values))];
+  return [ALL, ...Array.from(new Set(values.filter(Boolean)))];
 }
 
 function FilterRow({
@@ -96,12 +43,12 @@ function FilterRow({
   );
 }
 
-function CollabCard({ c }: { c: Collaboration }) {
+function CollabCard({ c }: { c: CollaborationView }) {
   return (
     <article className="group h-full flex flex-col rounded-2xl overflow-hidden bg-card border border-border shadow-lg hover:shadow-xl transition-all duration-300">
       <div className="relative overflow-hidden aspect-[16/10]">
         <img
-          src={c.image}
+          src={c.image ?? undefined}
           alt={c.title}
           width={1280}
           height={960}
@@ -109,14 +56,18 @@ function CollabCard({ c }: { c: Collaboration }) {
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-background/90 backdrop-blur-sm px-3 py-1 text-xs font-medium text-foreground shadow-sm">
-            <Calendar className="h-3.5 w-3.5" style={{ color: "hsl(250, 70%, 45%)" }} />
-            {c.date}
-          </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-background/90 backdrop-blur-sm px-3 py-1 text-xs font-medium text-foreground shadow-sm">
-            <MapPin className="h-3.5 w-3.5" style={{ color: "hsl(250, 70%, 45%)" }} />
-            {c.location}
-          </span>
+          {c.date && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-background/90 backdrop-blur-sm px-3 py-1 text-xs font-medium text-foreground shadow-sm">
+              <Calendar className="h-3.5 w-3.5" style={{ color: "hsl(250, 70%, 45%)" }} />
+              {c.date}
+            </span>
+          )}
+          {c.location && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-background/90 backdrop-blur-sm px-3 py-1 text-xs font-medium text-foreground shadow-sm">
+              <MapPin className="h-3.5 w-3.5" style={{ color: "hsl(250, 70%, 45%)" }} />
+              {c.location}
+            </span>
+          )}
         </div>
         <div className="absolute top-4 right-4">
           <span className="inline-flex items-center rounded-full bg-[hsl(250,70%,45%)] px-3 py-1 text-xs font-semibold text-white shadow-sm">
@@ -126,43 +77,57 @@ function CollabCard({ c }: { c: Collaboration }) {
       </div>
 
       <div className="flex-1 flex flex-col p-6">
-        <h3 className="font-serif text-xl lg:text-2xl font-bold text-foreground mb-2">{c.title}</h3>
-        <div className="flex items-start gap-2 mb-3">
-          <Users className="h-4 w-4 mt-0.5 flex-shrink-0 text-[hsl(250,70%,45%)]" />
-          <p className="text-sm font-medium text-[hsl(250,70%,45%)] leading-snug">{c.partner}</p>
-        </div>
-        <p className="text-sm text-muted-foreground leading-relaxed mb-4">{c.description}</p>
+        <h3 className="font-serif text-xl lg:text-2xl font-bold text-foreground mb-3">{c.title}</h3>
 
-        <div className="mt-auto space-y-2 border-t border-border pt-4">
-          {c.outcomes.map((o) => (
-            <div key={o} className="flex items-start gap-2.5">
-              <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0 text-emerald-500" />
-              <span className="text-sm text-muted-foreground leading-snug">{o}</span>
-            </div>
-          ))}
-        </div>
+        <CollabLogos
+          orgLogo={c.orgLogo}
+          collaboratorLogoUrl={c.collaboratorLogoUrl}
+          collaboratorText={c.collaboratorText}
+        />
+
+        {c.partner && (
+          <div className="flex items-start gap-2 mb-3">
+            <Users className="h-4 w-4 mt-0.5 flex-shrink-0 text-[hsl(250,70%,45%)]" />
+            <p className="text-sm font-medium text-[hsl(250,70%,45%)] leading-snug">{c.partner}</p>
+          </div>
+        )}
+        {c.description && <p className="text-sm text-muted-foreground leading-relaxed mb-4">{c.description}</p>}
+
+        {c.outcomes.length > 0 && (
+          <div className="mt-auto space-y-2 border-t border-border pt-4">
+            {c.outcomes.map((o) => (
+              <div key={o} className="flex items-start gap-2.5">
+                <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0 text-emerald-500" />
+                <span className="text-sm text-muted-foreground leading-snug">{o}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </article>
   );
 }
 
 export function PastCollaborations() {
+  const { data: collaborations = [], isLoading } = useCollaborations();
   const [sector, setSector] = useState(ALL);
   const [month, setMonth] = useState(ALL);
   const [type, setType] = useState(ALL);
   const [view, setView] = useState<"timeline" | "grid">("timeline");
 
-  const sectorOptions = useMemo(() => uniqueSorted(collaborations.map((c) => c.sector)), []);
-  const monthOptions = useMemo(() => uniqueSorted(collaborations.map((c) => c.month)), []);
-  const typeOptions = useMemo(() => uniqueSorted(collaborations.map((c) => c.type)), []);
+  const sectorOptions = useMemo(() => uniqueSorted(collaborations.map((c) => c.sector)), [collaborations]);
+  const monthOptions = useMemo(() => uniqueSorted(collaborations.map((c) => c.month)), [collaborations]);
+  const typeOptions = useMemo(() => uniqueSorted(collaborations.map((c) => c.type)), [collaborations]);
 
   const filtered = useMemo(() => {
     return collaborations
-      .filter((c) => (sector === ALL || c.sector === sector))
-      .filter((c) => (month === ALL || c.month === month))
-      .filter((c) => (type === ALL || c.type === type))
+      .filter((c) => sector === ALL || c.sector === sector)
+      .filter((c) => month === ALL || c.month === month)
+      .filter((c) => type === ALL || c.type === type)
       .sort((a, b) => (a.dateISO < b.dateISO ? 1 : -1));
-  }, [sector, month, type]);
+  }, [collaborations, sector, month, type]);
+
+  if (!isLoading && collaborations.length === 0) return null;
 
   return (
     <section
@@ -189,89 +154,95 @@ export function PastCollaborations() {
           </div>
         </ScrollReveal>
 
-        {/* Filters + view toggle */}
-        <ScrollReveal delay={80}>
-          <div className="max-w-4xl mx-auto mb-10 rounded-2xl border border-border bg-card/70 backdrop-blur-sm p-5 shadow-sm">
-            <div className="flex items-center justify-between gap-4 mb-4">
-              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                <Filter className="h-4 w-4 text-[hsl(250,70%,45%)]" />
-                Filter collaborations
-              </div>
-              <div className="inline-flex rounded-lg border border-border bg-background p-1">
-                <button
-                  onClick={() => setView("timeline")}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
-                    view === "timeline" ? "bg-[hsl(250,70%,45%)] text-white" : "text-muted-foreground hover:text-foreground"
-                  )}
-                  aria-pressed={view === "timeline"}
-                >
-                  <GitCommitVertical className="h-3.5 w-3.5" />
-                  Timeline
-                </button>
-                <button
-                  onClick={() => setView("grid")}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
-                    view === "grid" ? "bg-[hsl(250,70%,45%)] text-white" : "text-muted-foreground hover:text-foreground"
-                  )}
-                  aria-pressed={view === "grid"}
-                >
-                  <LayoutGrid className="h-3.5 w-3.5" />
-                  Grid
-                </button>
-              </div>
-            </div>
-            <div className="space-y-3">
-              <FilterRow label="Sector" options={sectorOptions} active={sector} onChange={setSector} />
-              <FilterRow label="Month" options={monthOptions} active={month} onChange={setMonth} />
-              <FilterRow label="Type" options={typeOptions} active={type} onChange={setType} />
-            </div>
-          </div>
-        </ScrollReveal>
-
-        {filtered.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">
-            No collaborations match these filters yet. Try clearing a filter.
-          </div>
-        ) : view === "grid" ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {filtered.map((c, index) => (
-              <ScrollReveal key={c.title} delay={index * 120} direction="up">
-                <CollabCard c={c} />
-              </ScrollReveal>
-            ))}
+        {isLoading ? (
+          <div className="flex justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-[hsl(250,70%,45%)]" />
           </div>
         ) : (
-          <div className="relative max-w-4xl mx-auto">
-            {/* vertical rail */}
-            <div className="absolute left-4 sm:left-1/2 top-0 bottom-0 w-px bg-[hsl(250,70%,45%)]/25 sm:-translate-x-1/2" aria-hidden="true" />
-            <div className="space-y-10">
-              {filtered.map((c, index) => (
-                <ScrollReveal key={c.title} delay={index * 100} direction="up">
-                  <div
-                    className={cn(
-                      "relative pl-12 sm:pl-0 sm:grid sm:grid-cols-2 sm:gap-8 sm:items-center",
-                    )}
-                  >
-                    {/* dot */}
-                    <div className="absolute left-4 sm:left-1/2 top-2 sm:top-1/2 z-10 flex h-8 w-8 -translate-x-1/2 sm:-translate-y-1/2 items-center justify-center rounded-full bg-[hsl(250,70%,45%)] text-white shadow-md ring-4 ring-background">
-                      <Calendar className="h-4 w-4" />
-                    </div>
-                    {/* date label side */}
-                    <div className={cn("mb-3 sm:mb-0", index % 2 === 0 ? "sm:order-1 sm:text-right sm:pr-12" : "sm:order-2 sm:pl-12")}>
-                      <p className="text-lg font-bold text-[hsl(250,70%,45%)]">{c.date}</p>
-                      <p className="text-sm text-muted-foreground">{c.sector} · {c.type}</p>
-                    </div>
-                    {/* card side */}
-                    <div className={cn(index % 2 === 0 ? "sm:order-2 sm:pl-12" : "sm:order-1 sm:pr-12")}>
-                      <CollabCard c={c} />
-                    </div>
+          <>
+            {/* Filters + view toggle */}
+            <ScrollReveal delay={80}>
+              <div className="max-w-4xl mx-auto mb-10 rounded-2xl border border-border bg-card/70 backdrop-blur-sm p-5 shadow-sm">
+                <div className="flex items-center justify-between gap-4 mb-4">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                    <Filter className="h-4 w-4 text-[hsl(250,70%,45%)]" />
+                    Filter collaborations
                   </div>
-                </ScrollReveal>
-              ))}
-            </div>
-          </div>
+                  <div className="inline-flex rounded-lg border border-border bg-background p-1">
+                    <button
+                      onClick={() => setView("timeline")}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+                        view === "timeline" ? "bg-[hsl(250,70%,45%)] text-white" : "text-muted-foreground hover:text-foreground"
+                      )}
+                      aria-pressed={view === "timeline"}
+                    >
+                      <GitCommitVertical className="h-3.5 w-3.5" />
+                      Timeline
+                    </button>
+                    <button
+                      onClick={() => setView("grid")}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+                        view === "grid" ? "bg-[hsl(250,70%,45%)] text-white" : "text-muted-foreground hover:text-foreground"
+                      )}
+                      aria-pressed={view === "grid"}
+                    >
+                      <LayoutGrid className="h-3.5 w-3.5" />
+                      Grid
+                    </button>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <FilterRow label="Sector" options={sectorOptions} active={sector} onChange={setSector} />
+                  <FilterRow label="Month" options={monthOptions} active={month} onChange={setMonth} />
+                  <FilterRow label="Type" options={typeOptions} active={type} onChange={setType} />
+                </div>
+              </div>
+            </ScrollReveal>
+
+            {filtered.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                No collaborations match these filters yet. Try clearing a filter.
+              </div>
+            ) : view === "grid" ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {filtered.map((c, index) => (
+                  <ScrollReveal key={c.id} delay={index * 120} direction="up">
+                    <CollabCard c={c} />
+                  </ScrollReveal>
+                ))}
+              </div>
+            ) : (
+              <div className="relative max-w-4xl mx-auto">
+                {/* vertical rail */}
+                <div className="absolute left-4 sm:left-1/2 top-0 bottom-0 w-px bg-[hsl(250,70%,45%)]/25 sm:-translate-x-1/2" aria-hidden="true" />
+                <div className="space-y-10">
+                  {filtered.map((c, index) => (
+                    <ScrollReveal key={c.id} delay={index * 100} direction="up">
+                      <div className={cn("relative pl-12 sm:pl-0 sm:grid sm:grid-cols-2 sm:gap-8 sm:items-center")}>
+                        {/* dot */}
+                        <div className="absolute left-4 sm:left-1/2 top-2 sm:top-1/2 z-10 flex h-8 w-8 -translate-x-1/2 sm:-translate-y-1/2 items-center justify-center rounded-full bg-[hsl(250,70%,45%)] text-white shadow-md ring-4 ring-background">
+                          <Calendar className="h-4 w-4" />
+                        </div>
+                        {/* date label side */}
+                        <div className={cn("mb-3 sm:mb-0", index % 2 === 0 ? "sm:order-1 sm:text-right sm:pr-12" : "sm:order-2 sm:pl-12")}>
+                          <p className="text-lg font-bold text-[hsl(250,70%,45%)]">{c.date}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {c.sector} · {c.type}
+                          </p>
+                        </div>
+                        {/* card side */}
+                        <div className={cn(index % 2 === 0 ? "sm:order-2 sm:pl-12" : "sm:order-1 sm:pr-12")}>
+                          <CollabCard c={c} />
+                        </div>
+                      </div>
+                    </ScrollReveal>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </section>
