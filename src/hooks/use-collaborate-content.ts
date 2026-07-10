@@ -116,6 +116,8 @@ export function useCollaborations() {
           orgLogo: (c.org_logo ?? "both") as OrgLogo,
           collaboratorLogoUrl: c.collaborator_logo_url ?? null,
           collaboratorText: c.collaborator_text ?? null,
+          eventSlug: ev.slug ?? null,
+          hasHighlights: gallery.length > 0,
         };
       });
     },
