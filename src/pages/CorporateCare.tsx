@@ -6,7 +6,9 @@ import { Marquee } from "@/components/ui/marquee";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { PartnerContactModal } from "@/components/corporate/PartnerContactModal";
 import { CorporatePlanSection } from "@/components/corporate/CorporatePlanSection";
-import { Building2, Phone, CheckCircle, ArrowRight, Mail } from "lucide-react";
+import { PartnershipOpportunities } from "@/components/corporate/PartnershipOpportunities";
+import { PastCollaborations } from "@/components/corporate/PastCollaborations";
+import { Building2, Phone, CheckCircle, ArrowRight, Mail, Handshake } from "lucide-react";
 
 import corporateCareHeroBg from "@/assets/corporate-care-hero-bg.jpg";
 import corporateCtaBg from "@/assets/corporate-cta-bg.jpg";
