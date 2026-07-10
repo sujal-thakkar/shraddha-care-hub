@@ -73,7 +73,7 @@ serve(async (req) => {
     } else if (type === "partner_inquiry" && inquiryId) {
       const { data: inquiry, error: inquiryError } = await supabase
         .from("partner_inquiries")
-        .select("id, created_at")
+        .select("*")
         .eq("id", inquiryId)
         .gte("created_at", fiveMinutesAgo)
         .single();
@@ -85,6 +85,7 @@ serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+      partnerInquiry = inquiry;
     } else {
       return new Response(JSON.stringify({ error: "Missing report, application, or inquiry ID" }), {
         status: 400,
