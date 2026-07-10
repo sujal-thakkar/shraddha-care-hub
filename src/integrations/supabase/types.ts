@@ -68,6 +68,65 @@ export type Database = {
         }
         Relationships: []
       }
+      collaborations: {
+        Row: {
+          collaborator_logo_url: string | null
+          collaborator_text: string | null
+          created_at: string
+          description: string | null
+          display_order: number
+          event_id: string
+          id: string
+          initiative_type: string
+          is_published: boolean
+          org_logo: string
+          outcomes: Json
+          partner_name: string
+          sector: string
+          updated_at: string
+        }
+        Insert: {
+          collaborator_logo_url?: string | null
+          collaborator_text?: string | null
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          event_id: string
+          id?: string
+          initiative_type?: string
+          is_published?: boolean
+          org_logo?: string
+          outcomes?: Json
+          partner_name: string
+          sector?: string
+          updated_at?: string
+        }
+        Update: {
+          collaborator_logo_url?: string | null
+          collaborator_text?: string | null
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          event_id?: string
+          id?: string
+          initiative_type?: string
+          is_published?: boolean
+          org_logo?: string
+          outcomes?: Json
+          partner_name?: string
+          sector?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collaborations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "registration_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_messages: {
         Row: {
           admin_notes: string | null
@@ -337,6 +396,111 @@ export type Database = {
           status?: string
           updated_at?: string
           website?: string | null
+        }
+        Relationships: []
+      }
+      partner_outcomes: {
+        Row: {
+          created_at: string
+          display_order: number
+          icon: string
+          id: string
+          is_published: boolean
+          label: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          icon?: string
+          id?: string
+          is_published?: boolean
+          label: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          icon?: string
+          id?: string
+          is_published?: boolean
+          label?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
+      partner_testimonials: {
+        Row: {
+          author_name: string
+          author_role: string | null
+          created_at: string
+          display_order: number
+          event_date: string | null
+          id: string
+          image_url: string | null
+          is_published: boolean
+          organization: string | null
+          quote: string
+          updated_at: string
+        }
+        Insert: {
+          author_name: string
+          author_role?: string | null
+          created_at?: string
+          display_order?: number
+          event_date?: string | null
+          id?: string
+          image_url?: string | null
+          is_published?: boolean
+          organization?: string | null
+          quote: string
+          updated_at?: string
+        }
+        Update: {
+          author_name?: string
+          author_role?: string | null
+          created_at?: string
+          display_order?: number
+          event_date?: string | null
+          id?: string
+          image_url?: string | null
+          is_published?: boolean
+          organization?: string | null
+          quote?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      partnership_faqs: {
+        Row: {
+          answer: string
+          created_at: string
+          display_order: number
+          id: string
+          is_published: boolean
+          question: string
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_published?: boolean
+          question: string
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_published?: boolean
+          question?: string
+          updated_at?: string
         }
         Relationships: []
       }
