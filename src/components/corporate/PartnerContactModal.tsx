@@ -165,10 +165,10 @@ export function PartnerContactModal({ open, onOpenChange }: PartnerContactModalP
                 <FormItem>
                   <FormLabel className="flex items-center gap-2">
                     <Building2 className="h-4 w-4 text-muted-foreground" />
-                    Company Name *
+                    Organization / Company Name *
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Your company name" {...field} />
+                    <Input placeholder="Your organization or company name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
