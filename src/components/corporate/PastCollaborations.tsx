@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import { Calendar, MapPin, Users, Sparkles, CheckCircle, LayoutGrid, GitCommitVertical, Filter, Loader2 } from "lucide-react";
+import { Calendar, MapPin, Users, Sparkles, CheckCircle, LayoutGrid, GitCommitVertical, Filter, Loader2, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCollaborations, type CollaborationView } from "@/hooks/use-collaborate-content";
 import { CollabLogos } from "@/components/corporate/CollabLogos";
@@ -93,16 +94,28 @@ function CollabCard({ c }: { c: CollaborationView }) {
         )}
         {c.description && <p className="text-sm text-muted-foreground leading-relaxed mb-4">{c.description}</p>}
 
-        {c.outcomes.length > 0 && (
-          <div className="mt-auto space-y-2 border-t border-border pt-4">
-            {c.outcomes.map((o) => (
-              <div key={o} className="flex items-start gap-2.5">
-                <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0 text-emerald-500" />
-                <span className="text-sm text-muted-foreground leading-snug">{o}</span>
-              </div>
-            ))}
-          </div>
-        )}
+        <div className="mt-auto">
+          {c.outcomes.length > 0 && (
+            <div className="space-y-2 border-t border-border pt-4">
+              {c.outcomes.map((o) => (
+                <div key={o} className="flex items-start gap-2.5">
+                  <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0 text-emerald-500" />
+                  <span className="text-sm text-muted-foreground leading-snug">{o}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {c.eventSlug && (
+            <Link
+              to={`/register/${c.eventSlug}${c.hasHighlights ? "#highlights" : ""}`}
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[hsl(250,70%,45%)] hover:gap-2.5 transition-all duration-200"
+            >
+              {c.hasHighlights ? "View event highlights" : "View event page"}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          )}
+        </div>
       </div>
     </article>
   );
