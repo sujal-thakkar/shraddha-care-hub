@@ -98,9 +98,8 @@ export default function EventRegistration() {
       errs.full_name = "Name must contain letters.";
     }
 
-    if (!email) {
-      errs.email = "Please enter your email.";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+    // Email is optional, but validate the format when provided.
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
       errs.email = "Please enter a valid email address.";
     }
 
@@ -158,14 +157,17 @@ export default function EventRegistration() {
     }
 
     const age = fieldConfig.age.enabled && formData.age ? Number(formData.age) : null;
+    const email = formData.email.trim().toLowerCase();
 
     setIsSubmitting(true);
     try {
-      const rateCheck = await checkRateLimit(formData.email, "contact_messages");
-      if (!rateCheck.allowed) {
-        toast({ title: "Too many submissions", description: rateCheck.message, variant: "destructive" });
-        setIsSubmitting(false);
-        return;
+      if (email) {
+        const rateCheck = await checkRateLimit(email, "contact_messages");
+        if (!rateCheck.allowed) {
+          toast({ title: "Too many submissions", description: rateCheck.message, variant: "destructive" });
+          setIsSubmitting(false);
+          return;
+        }
       }
 
       const registrationId = crypto.randomUUID();
@@ -174,7 +176,7 @@ export default function EventRegistration() {
         event_id: event.id,
         full_name: formData.full_name.trim(),
         mobile: formData.mobile.trim() || "—",
-        email: formData.email.trim().toLowerCase(),
+        email: email || null,
         age: age ?? 0,
         area: formData.area.trim() || "—",
         medical_concerns: formData.medical_concerns.trim() || null,
@@ -182,18 +184,20 @@ export default function EventRegistration() {
       });
       if (error) throw error;
 
-      try {
-        await supabase.functions.invoke("send-event-email", {
-          body: {
-            type: "registration_confirmation",
-            registrationId,
-            eventId: event.id,
-            name: formData.full_name.trim(),
-            email: formData.email.trim().toLowerCase(),
-          },
-        });
-      } catch {
-        // Don't block on email failure
+      if (email) {
+        try {
+          await supabase.functions.invoke("send-event-email", {
+            body: {
+              type: "registration_confirmation",
+              registrationId,
+              eventId: event.id,
+              name: formData.full_name.trim(),
+              email,
+            },
+          });
+        } catch {
+          // Don't block on email failure
+        }
       }
 
       setIsRegistered(true);
@@ -499,7 +503,7 @@ export default function EventRegistration() {
 
                       <div className="grid sm:grid-cols-2 gap-5">
                         <div className="space-y-2">
-                          <Label htmlFor="email">Email *</Label>
+                          <Label htmlFor="email">Email</Label>
                           <Input
                             id="email"
                             type="email"

@@ -212,7 +212,7 @@ export type Database = {
           checked_in: boolean
           checked_in_at: string | null
           created_at: string
-          email: string
+          email: string | null
           event_id: string | null
           full_name: string
           id: string
@@ -227,7 +227,7 @@ export type Database = {
           checked_in?: boolean
           checked_in_at?: string | null
           created_at?: string
-          email: string
+          email?: string | null
           event_id?: string | null
           full_name: string
           id?: string
@@ -242,7 +242,7 @@ export type Database = {
           checked_in?: boolean
           checked_in_at?: string | null
           created_at?: string
-          email?: string
+          email?: string | null
           event_id?: string | null
           full_name?: string
           id?: string
