@@ -98,9 +98,8 @@ export default function EventRegistration() {
       errs.full_name = "Name must contain letters.";
     }
 
-    if (!email) {
-      errs.email = "Please enter your email.";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+    // Email is optional, but validate the format when provided.
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
       errs.email = "Please enter a valid email address.";
     }
 
