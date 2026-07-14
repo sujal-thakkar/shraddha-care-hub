@@ -4,11 +4,18 @@ import {
   Stethoscope, Flower2, Building2, HeartHandshake,
   GraduationCap, HandCoins, Handshake, ArrowRight,
 } from "lucide-react";
+import healthcareIllus from "@/assets/collab/healthcare.png";
+import wellnessIllus from "@/assets/collab/wellness.png";
+import corporateIllus from "@/assets/collab/corporate.png";
+import ngoIllus from "@/assets/collab/ngo.png";
+import educationIllus from "@/assets/collab/education.png";
+import donorsIllus from "@/assets/collab/donors.png";
 
 interface Opportunity {
   icon: React.ElementType;
   title: string;
   description: string;
+  illustration: string;
 }
 
 const opportunities: Opportunity[] = [
