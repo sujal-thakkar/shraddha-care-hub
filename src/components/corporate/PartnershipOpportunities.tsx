@@ -24,36 +24,42 @@ const opportunities: Opportunity[] = [
     title: "Hospitals & Healthcare",
     description:
       "Host health camps, free check-ups, screenings and specialist consultations for seniors alongside our teams.",
+    illustration: healthcareIllus,
   },
   {
     icon: Flower2,
     title: "Spiritual & Wellness Groups",
     description:
       "Bring meditation, yoga, mental peace and companionship programs to elders through joint wellness summits.",
+    illustration: wellnessIllus,
   },
   {
     icon: Building2,
     title: "Corporates & CSR",
     description:
       "Extend our Corporate Parental Care plan to your employees' parents and channel CSR into elder welfare.",
+    illustration: corporateIllus,
   },
   {
     icon: HeartHandshake,
     title: "NGOs & Community Groups",
     description:
       "Team up on drives, awareness campaigns and community events that reach seniors who need us most.",
+    illustration: ngoIllus,
   },
   {
     icon: GraduationCap,
     title: "Educational Institutions",
     description:
       "Engage students as volunteers, run intergenerational programs and build a culture of care from a young age.",
+    illustration: educationIllus,
   },
   {
     icon: HandCoins,
     title: "Donors & Sponsors",
     description:
       "Sponsor an event, fund a camp or support ongoing care — every contribution creates lasting impact.",
+    illustration: donorsIllus,
   },
 ];
 
