@@ -106,8 +106,9 @@ export function PartnershipOpportunities({ onCollaborate }: PartnershipOpportuni
                   loading="lazy"
                   width={512}
                   height={512}
-                  className="pointer-events-none absolute -bottom-6 -right-6 h-40 w-40 object-contain opacity-[0.08] transition-all duration-500 ease-out group-hover:opacity-25 group-hover:scale-110 group-hover:-rotate-6"
+                  className="pointer-events-none absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 object-contain opacity-20 transition-all duration-500 ease-out group-hover:opacity-40 group-hover:scale-110 group-hover:-rotate-6"
                 />
+
                 <div className="relative z-10">
                   <div
                     className="flex h-12 w-12 items-center justify-center rounded-xl mb-4 transition-transform duration-300 group-hover:scale-110"
