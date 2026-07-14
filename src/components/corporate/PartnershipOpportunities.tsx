@@ -97,19 +97,32 @@ export function PartnershipOpportunities({ onCollaborate }: PartnershipOpportuni
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {opportunities.map((item, index) => (
             <ScrollReveal key={item.title} delay={index * 80} direction="up">
-              <div className="group h-full rounded-2xl border border-border bg-card p-6 hover:border-[hsl(250,70%,45%)]/40 hover:shadow-xl transition-all duration-300">
-                <div
-                  className="flex h-12 w-12 items-center justify-center rounded-xl mb-4 transition-transform duration-300 group-hover:scale-110"
-                  style={{ background: "linear-gradient(135deg, hsl(250, 70%, 45%), hsl(220, 70%, 50%))" }}
-                >
-                  <item.icon className="h-6 w-6 text-white" />
+              <div className="group relative h-full overflow-hidden rounded-2xl border border-border bg-card p-6 hover:border-[hsl(250,70%,45%)]/40 hover:shadow-xl transition-all duration-300">
+                {/* Background illustration overlay */}
+                <img
+                  src={item.illustration}
+                  alt=""
+                  aria-hidden="true"
+                  loading="lazy"
+                  width={512}
+                  height={512}
+                  className="pointer-events-none absolute -bottom-6 -right-6 h-40 w-40 object-contain opacity-[0.08] transition-all duration-500 ease-out group-hover:opacity-25 group-hover:scale-110 group-hover:-rotate-6"
+                />
+                <div className="relative z-10">
+                  <div
+                    className="flex h-12 w-12 items-center justify-center rounded-xl mb-4 transition-transform duration-300 group-hover:scale-110"
+                    style={{ background: "linear-gradient(135deg, hsl(250, 70%, 45%), hsl(220, 70%, 50%))" }}
+                  >
+                    <item.icon className="h-6 w-6 text-white" />
+                  </div>
+                  <h3 className="font-semibold text-lg text-foreground mb-2">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
                 </div>
-                <h3 className="font-semibold text-lg text-foreground mb-2">{item.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
               </div>
             </ScrollReveal>
           ))}
         </div>
+
 
         <ScrollReveal delay={200}>
           <div className="text-center mt-12">
