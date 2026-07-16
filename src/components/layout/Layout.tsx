@@ -52,6 +52,8 @@ const elderAbuseTranslations = [
 
 export function Layout({ children }: LayoutProps) {
   const [isQuickReportOpen, setIsQuickReportOpen] = useState(false);
+  const location = useLocation();
+  const hideReportFab = location.pathname.startsWith("/blog");
 
   return (
     <div className="min-h-screen flex flex-col">
