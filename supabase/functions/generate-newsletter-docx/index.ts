@@ -282,7 +282,7 @@ serve(async (req) => {
     });
 
     const bytes = await Packer.toBuffer(doc);
-    const filename = `${newsletter.title.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.docx`;
+    const filename = `${displayTitle.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.docx`;
 
     return new Response(bytes, {
       status: 200,
