@@ -57,7 +57,9 @@ const RouteLoader = () => (
   </div>
 );
 
-const App = () => (
+const App = () => {
+  useA11yBootstrap();
+  return (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
