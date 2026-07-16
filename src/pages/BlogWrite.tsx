@@ -401,11 +401,24 @@ export default function BlogWrite() {
           </button>
         )}
 
-        {status === "needs_changes" && adminNotes && (
-          <Card className="mb-6 border-amber-400 bg-amber-50">
-            <CardContent className="pt-6">
-              <div className="text-sm font-semibold text-amber-900 mb-1">Small edits needed</div>
-              <p className="text-sm text-amber-800">{adminNotes}</p>
+        {restorePrompt && (
+          <Card className="mb-4 border-primary bg-primary/5">
+            <CardContent className="pt-5">
+              <div className="flex items-start justify-between gap-3 flex-wrap">
+                <div className="flex items-start gap-2">
+                  <RotateCcw className="h-5 w-5 text-primary mt-0.5" />
+                  <div>
+                    <div className="font-semibold">Restore unsaved changes?</div>
+                    <div className="text-sm text-muted-foreground">
+                      We found a newer local backup from {new Date(restorePrompt.ts).toLocaleString()} that wasn't uploaded.
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button size="sm" onClick={applyRestore}>Restore</Button>
+                  <Button size="sm" variant="ghost" onClick={discardRestore}>Discard</Button>
+                </div>
+              </div>
             </CardContent>
           </Card>
         )}
@@ -440,9 +453,9 @@ export default function BlogWrite() {
             ))}
           </div>
 
-          <div className="flex flex-wrap gap-2 items-center border border-border rounded-lg p-2 bg-card">
-            <Button type="button" variant="ghost" size="sm" onClick={() => editorRef.current?.exec("bold")} className="h-11" aria-label="Bold"><Bold className="h-4 w-4 mr-1" />Bold</Button>
-            <Button type="button" variant="ghost" size="sm" onClick={() => editorRef.current?.exec("insertUnorderedList")} className="h-11" aria-label="Bullet"><List className="h-4 w-4 mr-1" />Bullet</Button>
+          <div className="hidden md:flex flex-wrap gap-2 items-center border border-border rounded-lg p-2 bg-card">
+            <Button type="button" variant={active.bold ? "default" : "ghost"} size="sm" onClick={() => editorRef.current?.exec("bold")} className="h-11" aria-pressed={active.bold} aria-label="Bold"><Bold className="h-4 w-4 mr-1" />Bold</Button>
+            <Button type="button" variant={active.list ? "default" : "ghost"} size="sm" onClick={() => editorRef.current?.exec("insertUnorderedList")} className="h-11" aria-pressed={active.list} aria-label="Bullet"><List className="h-4 w-4 mr-1" />Bullet</Button>
             <Button type="button" variant="ghost" size="sm" onClick={() => editorRef.current?.exec("insertParagraph")} className="h-11" aria-label="Paragraph">¶ Paragraph</Button>
             <div className="ml-auto flex items-center gap-3 text-sm text-muted-foreground">
               <span>{wordCount} words</span>
@@ -450,6 +463,14 @@ export default function BlogWrite() {
               {savingState === "saved" && <span>Saved{lastSavedAt ? ` · ${Math.max(1, Math.round((Date.now() - lastSavedAt) / 1000))}s ago` : ""}</span>}
               {savingState === "error" && <span className="text-destructive">Save failed</span>}
             </div>
+          </div>
+
+          {/* Mobile-only status row (toolbar lives in floating FAB) */}
+          <div className="md:hidden flex items-center justify-between text-xs text-muted-foreground px-1">
+            <span>{wordCount} words</span>
+            {savingState === "saving" && <span className="inline-flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> Saving…</span>}
+            {savingState === "saved" && <span>Saved</span>}
+            {savingState === "error" && <span className="text-destructive">Save failed</span>}
           </div>
 
           <RichEditor
@@ -461,9 +482,14 @@ export default function BlogWrite() {
               const marker = kind === "story" ? "" : `<!--kind:${kind}-->\n\n`;
               setBody(marker + md);
             }}
+            onActiveChange={(a) => {
+              setActive(a);
+              if (a.hasSelection) setFabOpen(true);
+            }}
             placeholder={kind === "poem" || kind === "recitation" ? "Write your poem here — every line break is preserved…" : "Write your blog here…"}
             fontSize={size}
           />
+
 
           <div className="flex flex-wrap gap-3">
             <Button type="button" variant="outline" onClick={() => document.getElementById("cover-upload")?.click()} className="h-12" disabled={isUploading}>
