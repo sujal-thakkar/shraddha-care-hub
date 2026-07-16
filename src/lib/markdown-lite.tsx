@@ -1,11 +1,26 @@
 import { Fragment } from "react";
 
-// Markdown-lite: **bold**, blank line = paragraph, "- " = bullet. Nothing else.
-// Renders safe React output (no HTML injection).
+// Markdown-lite: **bold**, single newline = <br>, blank line = paragraph, "- " = bullet.
+// Also supports an optional first-line marker: <!--kind:poem--> etc.
+
+export type BlogKind = "story" | "poem" | "recitation" | "essay" | "other";
 
 export interface RenderedBlock {
   type: "paragraph" | "bullet";
-  children: Array<{ text: string; bold?: boolean }>;
+  // Each child line is a list of inline spans; multiple lines = <br>-separated within one block.
+  lines: Array<Array<{ text: string; bold?: boolean }>>;
+}
+
+const KIND_RE = /^\s*<!--\s*kind:(story|poem|recitation|essay|other)\s*-->\s*\n?/i;
+
+export function extractKind(text: string): { kind: BlogKind; body: string } {
+  const m = (text || "").match(KIND_RE);
+  if (!m) return { kind: "story", body: text || "" };
+  return { kind: m[1].toLowerCase() as BlogKind, body: text.slice(m[0].length) };
+}
+
+export function stripKindMarker(text: string): string {
+  return (text || "").replace(KIND_RE, "");
 }
 
 function parseInline(line: string): Array<{ text: string; bold?: boolean }> {
@@ -23,25 +38,26 @@ function parseInline(line: string): Array<{ text: string; bold?: boolean }> {
 }
 
 export function parseMarkdownLite(text: string): RenderedBlock[] {
-  const lines = (text || "").replace(/\r\n/g, "\n").split("\n");
+  const { body } = extractKind(text);
+  const lines = body.replace(/\r\n/g, "\n").split("\n");
   const blocks: RenderedBlock[] = [];
   let paraBuffer: string[] = [];
 
   const flushPara = () => {
     if (!paraBuffer.length) return;
-    const merged = paraBuffer.join(" ").trim();
+    const paraLines = paraBuffer.map((l) => parseInline(l));
     paraBuffer = [];
-    if (!merged) return;
-    blocks.push({ type: "paragraph", children: parseInline(merged) });
+    if (!paraLines.length) return;
+    blocks.push({ type: "paragraph", lines: paraLines });
   };
 
   for (const raw of lines) {
-    const line = raw.trim();
-    if (!line) { flushPara(); continue; }
-    const b = line.match(/^-\s+(.*)$/);
+    const line = raw;
+    if (!line.trim()) { flushPara(); continue; }
+    const b = line.trim().match(/^-\s+(.*)$/);
     if (b) {
       flushPara();
-      blocks.push({ type: "bullet", children: parseInline(b[1]) });
+      blocks.push({ type: "bullet", lines: [parseInline(b[1])] });
     } else {
       paraBuffer.push(line);
     }
@@ -50,23 +66,30 @@ export function parseMarkdownLite(text: string): RenderedBlock[] {
   return blocks;
 }
 
-export function RenderMarkdownLite({ text, className }: { text: string; className?: string }) {
+function renderLine(parts: Array<{ text: string; bold?: boolean }>) {
+  return parts.map((c, j) => (
+    <Fragment key={j}>{c.bold ? <strong>{c.text}</strong> : c.text}</Fragment>
+  ));
+}
+
+export function RenderMarkdownLite({ text, className, kind }: { text: string; className?: string; kind?: BlogKind }) {
+  const parsed = extractKind(text);
+  const effectiveKind = kind ?? parsed.kind;
   const blocks = parseMarkdownLite(text);
   const bullets: RenderedBlock[] = [];
   const nodes: React.ReactNode[] = [];
+
+  const centered = effectiveKind === "poem" || effectiveKind === "recitation";
+  const paraClass = centered
+    ? "my-4 leading-relaxed text-center italic whitespace-pre-line font-serif"
+    : "my-4 leading-relaxed";
 
   const flushBullets = (key: string) => {
     if (!bullets.length) return;
     nodes.push(
       <ul key={`ul-${key}`} className="list-disc pl-6 space-y-2 my-4">
         {bullets.map((b, i) => (
-          <li key={i}>
-            {b.children.map((c, j) => (
-              <Fragment key={j}>
-                {c.bold ? <strong>{c.text}</strong> : c.text}
-              </Fragment>
-            ))}
-          </li>
+          <li key={i}>{renderLine(b.lines[0])}</li>
         ))}
       </ul>
     );
@@ -79,10 +102,11 @@ export function RenderMarkdownLite({ text, className }: { text: string; classNam
     } else {
       flushBullets(`b-${idx}`);
       nodes.push(
-        <p key={idx} className="my-4 leading-relaxed">
-          {block.children.map((c, j) => (
-            <Fragment key={j}>
-              {c.bold ? <strong>{c.text}</strong> : c.text}
+        <p key={idx} className={paraClass}>
+          {block.lines.map((ln, i) => (
+            <Fragment key={i}>
+              {renderLine(ln)}
+              {i < block.lines.length - 1 && <br />}
             </Fragment>
           ))}
         </p>
