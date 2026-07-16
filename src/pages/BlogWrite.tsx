@@ -110,7 +110,7 @@ export default function BlogWrite() {
   const [params] = useSearchParams();
   const editingId = params.get("id");
   const { toast } = useToast();
-  const { upload, isUploading } = useImageUpload({ bucket: "project-posters", folder: "blogs", maxSizeMB: 1, maxWidthOrHeight: 1600 });
+  const { upload, isUploading, progress: uploadProgress } = useImageUpload({ bucket: "project-posters", folder: "blogs", maxSizeMB: 1, maxWidthOrHeight: 1600 });
   const { size, setSize } = useFontSize();
 
   const [session, setSession] = useState<any>(null);
@@ -502,8 +502,8 @@ export default function BlogWrite() {
 
           <div className="flex flex-wrap gap-3">
             <Button type="button" variant="outline" onClick={() => document.getElementById("cover-upload")?.click()} className="h-12" disabled={isUploading}>
-              <ImagePlus className="mr-2 h-4 w-4" />
-              {cover ? "Change cover photo" : "Add cover photo"}
+              {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ImagePlus className="mr-2 h-4 w-4" />}
+              {isUploading ? `Uploading ${Math.round(uploadProgress)}%` : cover ? "Change cover photo" : "Add cover photo"}
             </Button>
             <input id="cover-upload" type="file" accept="image/*" hidden onChange={handleCoverUpload} />
             <Button type="button" variant="secondary" onClick={runAiCheck} disabled={checking} className="h-12">
@@ -512,7 +512,13 @@ export default function BlogWrite() {
             </Button>
           </div>
 
-          {cover && (
+          {isUploading && (
+            <div className="rounded-lg border border-border bg-card p-6 flex items-center justify-center">
+              <CircularWavesLoader progress={uploadProgress} label="Uploading cover photo" />
+            </div>
+          )}
+
+          {cover && !isUploading && (
             <div className="rounded-lg overflow-hidden border border-border">
               <img src={cover} alt="Cover" className="w-full max-h-64 object-cover" />
             </div>
