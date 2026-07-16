@@ -245,13 +245,18 @@ export default function BlogWrite() {
 
   const acceptSuggestion = (idx: number) => {
     const s = suggestions[idx];
-    setBody((prev) => prev.replace(s.original, s.suggestion));
+    const next = body.replace(s.original, s.suggestion);
+    setBody(next);
+    setInitialBody(stripKindMarker(next));
+    setEditorSyncKey((k) => k + 1);
     setSuggestions((prev) => prev.filter((_, i) => i !== idx));
   };
   const acceptAll = () => {
     let updated = body;
     suggestions.forEach((s) => { updated = updated.replace(s.original, s.suggestion); });
     setBody(updated);
+    setInitialBody(stripKindMarker(updated));
+    setEditorSyncKey((k) => k + 1);
     setSuggestions([]);
   };
   const rejectSuggestion = (idx: number) => setSuggestions((prev) => prev.filter((_, i) => i !== idx));
