@@ -132,9 +132,14 @@ export default function BlogWrite() {
   const [initialBody, setInitialBody] = useState<string>("");
 
   const [showTips, setShowTips] = useState<boolean>(() => localStorage.getItem("blog_tips_dismissed") !== "1");
+  const [active, setActive] = useState<ActiveFormats>({ bold: false, list: false, hasSelection: false });
+  const [fabOpen, setFabOpen] = useState(false);
+  const [restorePrompt, setRestorePrompt] = useState<null | { title: string; body: string; cover: string | null; ts: number }>(null);
 
   const editorRef = useRef<RichEditorHandle>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const backupKey = `blog_backup_${editingId || "new"}`;
 
   useEffect(() => {
     (async () => {
