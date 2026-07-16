@@ -104,6 +104,8 @@ const App = () => (
               <Route path="memberships" element={<AdminMemberships />} />
               <Route path="preview-inspector" element={<AdminPreviewInspector />} />
               <Route path="collaborate" element={<AdminCollaborateContent />} />
+              <Route path="blogs" element={<AdminBlogs />} />
+              <Route path="newsletters" element={<AdminNewsletters />} />
               <Route path="settings" element={<AdminSettings />} />
             </Route>
             <Route path="*" element={<NotFound />} />
