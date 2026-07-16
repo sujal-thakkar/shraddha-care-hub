@@ -8,13 +8,12 @@ interface Props {
 
 /**
  * Circular waves loading animation with animated percentage.
- * Water level rises based on `progress`. Waves animate continuously via CSS.
+ * Uses SVG wave shape; water level rises with progress.
  */
 export function CircularWavesLoader({ progress, label = "Uploading", size = 140 }: Props) {
   const clamped = Math.max(0, Math.min(100, Math.round(progress)));
   const [display, setDisplay] = useState(0);
 
-  // Smoothly animate the displayed number toward the actual progress.
   useEffect(() => {
     let raf = 0;
     const tick = () => {
@@ -32,47 +31,76 @@ export function CircularWavesLoader({ progress, label = "Uploading", size = 140 
     return () => cancelAnimationFrame(raf);
   }, [clamped]);
 
-  const waterY = 100 - clamped; // higher progress = lower translateY
+  const waterY = 100 - clamped;
 
   return (
     <div className="flex flex-col items-center justify-center gap-2" role="status" aria-live="polite">
+      {/* Shared SVG symbol */}
+      <svg xmlns="http://www.w3.org/2000/svg" style={{ display: "none" }}>
+        <symbol id="cwl-wave" viewBox="0 0 560 20">
+          <path d="M420,20c21.5-0.4,38.8-2.5,51.1-4.5c13.4-2.2,26.5-5.2,27.3-5.4C514,6.5,518,4.7,528.5,2.7c7.1-1.3,17.9-2.8,31.5-2.7c0,0,0,0,0,0v20H420z" />
+          <path d="M420,20c-21.5-0.4-38.8-2.5-51.1-4.5c-13.4-2.2-26.5-5.2-27.3-5.4C326,6.5,322,4.7,311.5,2.7C304.3,1.4,293.6-0.1,280,0c0,0,0,0,0,0v20H420z" />
+          <path d="M140,20c21.5-0.4,38.8-2.5,51.1-4.5c13.4-2.2,26.5-5.2,27.3-5.4C234,6.5,238,4.7,248.5,2.7c7.1-1.3,17.9-2.8,31.5-2.7c0,0,0,0,0,0v20H140z" />
+          <path d="M140,20c-21.5-0.4-38.8-2.5-51.1-4.5c-13.4-2.2-26.5-5.2-27.3-5.4C46,6.5,42,4.7,31.5,2.7C24.3,1.4,13.6-0.1,0,0c0,0,0,0,0,0l0,20H140z" />
+        </symbol>
+      </svg>
+
       <div
-        className="relative rounded-full overflow-hidden border-4 border-primary/30 bg-background shadow-lg"
+        className="relative rounded-full overflow-hidden bg-background border-4 border-primary/30 shadow-lg"
         style={{ width: size, height: size }}
       >
-        {/* Water fill */}
+        {/* Water body */}
         <div
-          className="absolute inset-x-0 bottom-0 top-0 transition-transform duration-300 ease-out"
-          style={{ transform: `translateY(${waterY}%)` }}
+          className="absolute inset-0 z-[2] transition-transform duration-300 ease-out"
+          style={{
+            transform: `translate(0, ${waterY}%)`,
+            background: "hsl(var(--primary))",
+          }}
         >
           {/* Back wave */}
-          <div
-            className="absolute left-1/2 top-0 h-[200%] w-[200%] -translate-x-1/2 -translate-y-1/2 rounded-[40%] bg-primary/40"
-            style={{ animation: "cwl-wave-back 7s linear infinite" }}
-          />
+          <svg
+            viewBox="0 0 560 20"
+            preserveAspectRatio="none"
+            className="absolute bottom-full right-0 w-[200%]"
+            style={{
+              height: size * 0.28,
+              fill: "hsl(var(--primary) / 0.45)",
+              animation: "cwl-wave-back 1.4s infinite linear",
+            }}
+          >
+            <use href="#cwl-wave" />
+          </svg>
           {/* Front wave */}
-          <div
-            className="absolute left-1/2 top-0 h-[200%] w-[200%] -translate-x-1/2 -translate-y-[48%] rounded-[42%] bg-primary/80"
-            style={{ animation: "cwl-wave-front 5s linear infinite" }}
-          />
+          <svg
+            viewBox="0 0 560 20"
+            preserveAspectRatio="none"
+            className="absolute bottom-full left-0 w-[200%]"
+            style={{
+              height: size * 0.28,
+              marginBottom: -1,
+              fill: "hsl(var(--primary))",
+              animation: "cwl-wave-front 0.7s infinite linear",
+            }}
+          >
+            <use href="#cwl-wave" />
+          </svg>
         </div>
 
         {/* Percentage text */}
-        <div className="absolute inset-0 flex items-center justify-center font-bold text-foreground mix-blend-difference text-white select-none pointer-events-none" style={{ fontSize: size * 0.22 }}>
-          {display}%
+        <div
+          className="absolute inset-0 z-[3] flex items-center justify-center font-bold text-white mix-blend-difference select-none pointer-events-none"
+          style={{ fontSize: size * 0.22 }}
+        >
+          {display}
+          <span style={{ fontSize: size * 0.14, marginLeft: 2 }}>%</span>
         </div>
       </div>
+
       {label && <div className="text-sm text-muted-foreground">{label}…</div>}
 
       <style>{`
-        @keyframes cwl-wave-front {
-          0%   { transform: translate(-50%, -48%) rotate(0deg); }
-          100% { transform: translate(-50%, -48%) rotate(360deg); }
-        }
-        @keyframes cwl-wave-back {
-          0%   { transform: translate(-50%, -50%) rotate(360deg); }
-          100% { transform: translate(-50%, -50%) rotate(0deg); }
-        }
+        @keyframes cwl-wave-front { 100% { transform: translate(-50%, 0); } }
+        @keyframes cwl-wave-back  { 100% { transform: translate(50%, 0); } }
       `}</style>
     </div>
   );
