@@ -7,7 +7,7 @@ import { QuickReportModal } from "@/components/QuickReportModal";
 import { TextFlip } from "@/components/ui/text-flip";
 import { LayoutTextFlip } from "@/components/ui/layout-text-flip";
 import { StickyBanner } from "@/components/ui/sticky-banner";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 interface LayoutProps {
   children: ReactNode;
