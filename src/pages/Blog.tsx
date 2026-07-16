@@ -88,7 +88,7 @@ export default function Blog() {
         <div className="flex flex-col sm:flex-row gap-3 mb-8">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search stories" className="pl-10 h-12" />
+            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search blogs" className="pl-10 h-12" />
           </div>
           <div className="flex gap-2 flex-wrap">
             <Button variant={lang === "all" ? "default" : "outline"} onClick={() => setLang("all")} className="h-12">All</Button>
