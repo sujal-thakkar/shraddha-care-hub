@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PenLine, Search, Loader2 } from "lucide-react";
-import { useDocumentTitle } from "@/hooks/use-document-title";
+import { useEffect as useMetaEffect } from "react";
 
 interface BlogRow {
   id: string;
