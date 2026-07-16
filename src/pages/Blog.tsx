@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PenLine, Search, Loader2 } from "lucide-react";
-import { Helmet } from "react-helmet-async";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 
 interface BlogRow {
   id: string;
