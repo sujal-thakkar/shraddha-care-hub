@@ -204,27 +204,12 @@ export default function BlogWrite() {
     return () => document.removeEventListener("visibilitychange", handler);
   }, [saveDraft]);
 
-  const insertToken = (before: string, after: string = "") => {
-    const el = bodyRef.current;
-    if (!el) return;
-    const start = el.selectionStart ?? body.length;
-    const end = el.selectionEnd ?? body.length;
-    const sel = body.slice(start, end);
-    const next = body.slice(0, start) + before + sel + after + body.slice(end);
-    setBody(next);
-    setTimeout(() => { el.focus(); el.selectionStart = start + before.length; el.selectionEnd = end + before.length; }, 0);
-  };
-
   const applyPrompt = (seed: string) => {
     const nextBody = body.trim() ? `${body.replace(/\s+$/, "")}\n\n${seed}` : seed;
     setBody(nextBody);
-    setTimeout(() => {
-      const el = bodyRef.current;
-      if (!el) return;
-      el.focus();
-      el.selectionStart = el.selectionEnd = nextBody.length;
-      el.scrollTop = el.scrollHeight;
-    }, 50);
+    setInitialBody(stripKindMarker(nextBody));
+    setEditorSyncKey((k) => k + 1);
+    setTimeout(() => editorRef.current?.focus(), 50);
   };
 
   const dismissTips = () => {
