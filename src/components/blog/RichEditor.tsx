@@ -76,18 +76,21 @@ export interface RichEditorHandle {
   exec: (cmd: "bold" | "insertUnorderedList" | "insertParagraph") => void;
 }
 
+export interface ActiveFormats { bold: boolean; list: boolean; hasSelection: boolean; }
+
 interface Props {
   initialMd: string;
   onChange: (md: string) => void;
   placeholder?: string;
   fontSize: number;
   className?: string;
-  syncKey?: number; // bump to force resync from external body (e.g. after AI accept)
-  currentMd: string; // used when syncKey changes to render fresh HTML
+  syncKey?: number;
+  currentMd: string;
+  onActiveChange?: (active: ActiveFormats) => void;
 }
 
 export const RichEditor = forwardRef<RichEditorHandle, Props>(function RichEditor(
-  { initialMd, onChange, placeholder, fontSize, className, syncKey = 0, currentMd },
+  { initialMd, onChange, placeholder, fontSize, className, syncKey = 0, currentMd, onActiveChange },
   ref
 ) {
   const elRef = useRef<HTMLDivElement>(null);
@@ -102,13 +105,35 @@ export const RichEditor = forwardRef<RichEditorHandle, Props>(function RichEdito
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialMd]);
 
-  // External sync (e.g. AI Accept replaced body): update editor only when syncKey changes.
   useEffect(() => {
     if (syncKey !== lastSyncKey.current && elRef.current) {
       elRef.current.innerHTML = mdToHtml(currentMd);
       lastSyncKey.current = syncKey;
     }
   }, [syncKey, currentMd]);
+
+  const emitActive = () => {
+    if (!onActiveChange || !elRef.current) return;
+    const sel = window.getSelection();
+    if (!sel || !sel.anchorNode || !elRef.current.contains(sel.anchorNode)) return;
+    let list = false;
+    let node: Node | null = sel.anchorNode;
+    while (node && node !== elRef.current) {
+      const tag = (node as HTMLElement).tagName;
+      if (tag === "LI" || tag === "UL" || tag === "OL") { list = true; break; }
+      node = node.parentNode;
+    }
+    let bold = false;
+    try { bold = document.queryCommandState("bold"); } catch {}
+    onActiveChange({ bold, list, hasSelection: !sel.isCollapsed });
+  };
+
+  useEffect(() => {
+    const handler = () => emitActive();
+    document.addEventListener("selectionchange", handler);
+    return () => document.removeEventListener("selectionchange", handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onActiveChange]);
 
   useImperativeHandle(ref, () => ({
     focus: () => elRef.current?.focus(),
@@ -119,6 +144,7 @@ export const RichEditor = forwardRef<RichEditorHandle, Props>(function RichEdito
       el.focus();
       document.execCommand("insertText", false, text);
       onChange(htmlToMd(el));
+      emitActive();
     },
     exec: (cmd) => {
       const el = elRef.current;
@@ -126,20 +152,22 @@ export const RichEditor = forwardRef<RichEditorHandle, Props>(function RichEdito
       el.focus();
       document.execCommand(cmd);
       onChange(htmlToMd(el));
+      emitActive();
     },
   }));
 
   const handleInput = () => {
     if (!elRef.current) return;
     onChange(htmlToMd(elRef.current));
+    emitActive();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    // Bold shortcut
     if ((e.ctrlKey || e.metaKey) && (e.key === "b" || e.key === "B")) {
       e.preventDefault();
       document.execCommand("bold");
       if (elRef.current) onChange(htmlToMd(elRef.current));
+      emitActive();
     }
   };
 

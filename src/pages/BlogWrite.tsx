@@ -7,12 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Loader2, Save, Send, ImagePlus, Wand2, Check, X, Bold, List,
-  ArrowLeft, Sparkles, Lightbulb,
+  ArrowLeft, Sparkles, Lightbulb, Type, RotateCcw,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useImageUpload } from "@/hooks/use-image-upload";
 import { useFontSize, FontSizeToggle } from "@/hooks/use-font-size";
-import { RichEditor, type RichEditorHandle } from "@/components/blog/RichEditor";
+import { RichEditor, type RichEditorHandle, type ActiveFormats } from "@/components/blog/RichEditor";
 import { extractKind, stripKindMarker, type BlogKind } from "@/lib/markdown-lite";
 
 interface Suggestion { original: string; suggestion: string; reason: string; }
@@ -132,15 +132,21 @@ export default function BlogWrite() {
   const [initialBody, setInitialBody] = useState<string>("");
 
   const [showTips, setShowTips] = useState<boolean>(() => localStorage.getItem("blog_tips_dismissed") !== "1");
+  const [active, setActive] = useState<ActiveFormats>({ bold: false, list: false, hasSelection: false });
+  const [fabOpen, setFabOpen] = useState(false);
+  const [restorePrompt, setRestorePrompt] = useState<null | { title: string; body: string; cover: string | null; ts: number }>(null);
 
   const editorRef = useRef<RichEditorHandle>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const backupKey = `blog_backup_${editingId || "new"}`;
 
   useEffect(() => {
     (async () => {
       const { data } = await supabase.auth.getSession();
       if (!data.session) { navigate("/auth?next=/blog/write", { replace: true }); return; }
       setSession(data.session);
+      let dbUpdatedAt = 0;
       if (editingId) {
         const { data: row } = await supabase.from("blogs").select("*").eq("id", editingId).maybeSingle();
         if (row && row.author_id === data.session.user.id) {
@@ -153,11 +159,39 @@ export default function BlogWrite() {
           setCover(row.cover_image_url);
           setStatus(row.status);
           setAdminNotes(row.admin_notes);
+          dbUpdatedAt = row.updated_at ? new Date(row.updated_at).getTime() : 0;
         }
       }
+      // Restore from local backup if it's newer than the DB version
+      try {
+        const raw = localStorage.getItem(backupKey);
+        if (raw) {
+          const b = JSON.parse(raw);
+          if (b && typeof b.ts === "number" && b.ts > dbUpdatedAt + 1500 && (b.title || b.body)) {
+            setRestorePrompt(b);
+          }
+        }
+      } catch {}
       setPageLoading(false);
     })();
-  }, [editingId, navigate]);
+  }, [editingId, navigate, backupKey]);
+
+  const applyRestore = () => {
+    if (!restorePrompt) return;
+    setTitle(restorePrompt.title);
+    setBody(restorePrompt.body);
+    setCover(restorePrompt.cover);
+    const { kind: k, body: b } = extractKind(restorePrompt.body);
+    setKind(k);
+    setInitialBody(b);
+    setEditorSyncKey((k2) => k2 + 1);
+    setRestorePrompt(null);
+    toast({ title: "Restored", description: "Your unsaved changes are back." });
+  };
+  const discardRestore = () => {
+    localStorage.removeItem(backupKey);
+    setRestorePrompt(null);
+  };
 
   const saveDraft = useCallback(async (silent = false) => {
     if (!session?.user) return;
@@ -182,12 +216,17 @@ export default function BlogWrite() {
       }
       setSavingState("saved");
       setLastSavedAt(Date.now());
+      // Successfully persisted — clear local backup(s)
+      try {
+        localStorage.removeItem(backupKey);
+        if (!editingId) localStorage.removeItem("blog_backup_new");
+      } catch {}
     } catch (e: any) {
       console.error("save error", e);
       setSavingState("error");
       if (!silent) toast({ title: "Couldn't save", description: e.message, variant: "destructive" });
     }
-  }, [session, title, body, cover, status, blogId, toast]);
+  }, [session, title, body, cover, status, blogId, toast, backupKey, editingId]);
 
   useEffect(() => {
     if (!session) return;
@@ -197,6 +236,15 @@ export default function BlogWrite() {
     saveTimer.current = setTimeout(() => saveDraft(true), 5000);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
   }, [title, body, cover, session, saveDraft]);
+
+  // Local backup on every change — survives refresh/logout even before the server save runs.
+  useEffect(() => {
+    if (!session || restorePrompt) return;
+    if (!title.trim() && !body.trim()) return;
+    try {
+      localStorage.setItem(backupKey, JSON.stringify({ title, body, cover, ts: Date.now() }));
+    } catch {}
+  }, [title, body, cover, session, backupKey, restorePrompt]);
 
   useEffect(() => {
     const handler = () => { if (document.visibilityState === "hidden") saveDraft(true); };
@@ -362,6 +410,28 @@ export default function BlogWrite() {
           </Card>
         )}
 
+        {restorePrompt && (
+          <Card className="mb-4 border-primary bg-primary/5">
+            <CardContent className="pt-5">
+              <div className="flex items-start justify-between gap-3 flex-wrap">
+                <div className="flex items-start gap-2">
+                  <RotateCcw className="h-5 w-5 text-primary mt-0.5" />
+                  <div>
+                    <div className="font-semibold">Restore unsaved changes?</div>
+                    <div className="text-sm text-muted-foreground">
+                      We found a newer local backup from {new Date(restorePrompt.ts).toLocaleString()} that wasn't uploaded.
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button size="sm" onClick={applyRestore}>Restore</Button>
+                  <Button size="sm" variant="ghost" onClick={discardRestore}>Discard</Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <div className="space-y-4">
           <Input
             value={title}
@@ -392,9 +462,9 @@ export default function BlogWrite() {
             ))}
           </div>
 
-          <div className="flex flex-wrap gap-2 items-center border border-border rounded-lg p-2 bg-card">
-            <Button type="button" variant="ghost" size="sm" onClick={() => editorRef.current?.exec("bold")} className="h-11" aria-label="Bold"><Bold className="h-4 w-4 mr-1" />Bold</Button>
-            <Button type="button" variant="ghost" size="sm" onClick={() => editorRef.current?.exec("insertUnorderedList")} className="h-11" aria-label="Bullet"><List className="h-4 w-4 mr-1" />Bullet</Button>
+          <div className="hidden md:flex flex-wrap gap-2 items-center border border-border rounded-lg p-2 bg-card">
+            <Button type="button" variant={active.bold ? "default" : "ghost"} size="sm" onClick={() => editorRef.current?.exec("bold")} className="h-11" aria-pressed={active.bold} aria-label="Bold"><Bold className="h-4 w-4 mr-1" />Bold</Button>
+            <Button type="button" variant={active.list ? "default" : "ghost"} size="sm" onClick={() => editorRef.current?.exec("insertUnorderedList")} className="h-11" aria-pressed={active.list} aria-label="Bullet"><List className="h-4 w-4 mr-1" />Bullet</Button>
             <Button type="button" variant="ghost" size="sm" onClick={() => editorRef.current?.exec("insertParagraph")} className="h-11" aria-label="Paragraph">¶ Paragraph</Button>
             <div className="ml-auto flex items-center gap-3 text-sm text-muted-foreground">
               <span>{wordCount} words</span>
@@ -402,6 +472,14 @@ export default function BlogWrite() {
               {savingState === "saved" && <span>Saved{lastSavedAt ? ` · ${Math.max(1, Math.round((Date.now() - lastSavedAt) / 1000))}s ago` : ""}</span>}
               {savingState === "error" && <span className="text-destructive">Save failed</span>}
             </div>
+          </div>
+
+          {/* Mobile-only status row (toolbar lives in floating FAB) */}
+          <div className="md:hidden flex items-center justify-between text-xs text-muted-foreground px-1">
+            <span>{wordCount} words</span>
+            {savingState === "saving" && <span className="inline-flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> Saving…</span>}
+            {savingState === "saved" && <span>Saved</span>}
+            {savingState === "error" && <span className="text-destructive">Save failed</span>}
           </div>
 
           <RichEditor
@@ -413,9 +491,14 @@ export default function BlogWrite() {
               const marker = kind === "story" ? "" : `<!--kind:${kind}-->\n\n`;
               setBody(marker + md);
             }}
+            onActiveChange={(a) => {
+              setActive(a);
+              if (a.hasSelection) setFabOpen(true);
+            }}
             placeholder={kind === "poem" || kind === "recitation" ? "Write your poem here — every line break is preserved…" : "Write your blog here…"}
             fontSize={size}
           />
+
 
           <div className="flex flex-wrap gap-3">
             <Button type="button" variant="outline" onClick={() => document.getElementById("cover-upload")?.click()} className="h-12" disabled={isUploading}>
@@ -516,6 +599,65 @@ export default function BlogWrite() {
             </CardContent>
           </Card>
         </div>
+      </div>
+
+      {/* Mobile-only floating formatting toolbar. Collapsed = single icon; expanded = full row. */}
+      <div className="md:hidden fixed bottom-4 right-4 z-40">
+        {fabOpen ? (
+          <div className="flex items-center gap-1 rounded-full bg-card border border-border shadow-lg pl-1 pr-1 py-1 animate-in fade-in slide-in-from-bottom-2">
+            <Button
+              type="button"
+              size="sm"
+              variant={active.bold ? "default" : "ghost"}
+              onClick={() => editorRef.current?.exec("bold")}
+              aria-pressed={active.bold}
+              aria-label="Bold"
+              className="h-11 w-11 rounded-full p-0"
+            >
+              <Bold className="h-5 w-5" />
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={active.list ? "default" : "ghost"}
+              onClick={() => editorRef.current?.exec("insertUnorderedList")}
+              aria-pressed={active.list}
+              aria-label="Bullet list"
+              className="h-11 w-11 rounded-full p-0"
+            >
+              <List className="h-5 w-5" />
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              onClick={() => editorRef.current?.exec("insertParagraph")}
+              aria-label="New paragraph"
+              className="h-11 w-11 rounded-full p-0 text-lg"
+            >
+              ¶
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              onClick={() => setFabOpen(false)}
+              aria-label="Close toolbar"
+              className="h-11 w-11 rounded-full p-0"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+        ) : (
+          <Button
+            type="button"
+            onClick={() => setFabOpen(true)}
+            aria-label="Open formatting toolbar"
+            className="h-14 w-14 rounded-full shadow-lg p-0"
+          >
+            <Type className="h-6 w-6" />
+          </Button>
+        )}
       </div>
     </Layout>
   );

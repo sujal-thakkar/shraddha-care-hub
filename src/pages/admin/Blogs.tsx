@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Loader2, CheckCircle2, MessageSquareWarning, Archive, EyeOff, Send } from "lucide-react";
+import { Loader2, CheckCircle2, MessageSquareWarning, Archive, EyeOff, Send, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { RenderMarkdownLite } from "@/lib/markdown-lite";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -70,6 +70,15 @@ export default function AdminBlogs() {
       setExpanded(null);
       load();
     }
+  };
+
+  const deleteBlog = async (row: any) => {
+    if (!confirm(`Permanently delete "${row.title || "Untitled"}"? This removes it from the database and cannot be undone.`)) return;
+    setBusy(true);
+    const { error } = await supabase.from("blogs").delete().eq("id", row.id);
+    setBusy(false);
+    if (error) toast({ title: "Delete failed", description: error.message, variant: "destructive" });
+    else { toast({ title: "Deleted" }); setExpanded(null); load(); }
   };
 
   return (
@@ -138,6 +147,7 @@ export default function AdminBlogs() {
                     <Button variant="outline" onClick={() => runAction(row, "request_changes")} disabled={busy || !notes.trim()}><MessageSquareWarning className="h-4 w-4 mr-1" />Request changes</Button>
                     {row.status === "published" && <Button variant="outline" onClick={() => runAction(row, "unpublish")} disabled={busy}><EyeOff className="h-4 w-4 mr-1" />Unpublish</Button>}
                     <Button variant="ghost" onClick={() => runAction(row, "archive")} disabled={busy}><Archive className="h-4 w-4 mr-1" />Archive</Button>
+                    <Button variant="destructive" onClick={() => deleteBlog(row)} disabled={busy} className="ml-auto"><Trash2 className="h-4 w-4 mr-1" />Delete permanently</Button>
                   </div>
                 </CardContent>
               )}
