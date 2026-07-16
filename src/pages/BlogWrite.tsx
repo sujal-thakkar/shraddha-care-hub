@@ -600,6 +600,65 @@ export default function BlogWrite() {
           </Card>
         </div>
       </div>
+
+      {/* Mobile-only floating formatting toolbar. Collapsed = single icon; expanded = full row. */}
+      <div className="md:hidden fixed bottom-4 right-4 z-40">
+        {fabOpen ? (
+          <div className="flex items-center gap-1 rounded-full bg-card border border-border shadow-lg pl-1 pr-1 py-1 animate-in fade-in slide-in-from-bottom-2">
+            <Button
+              type="button"
+              size="sm"
+              variant={active.bold ? "default" : "ghost"}
+              onClick={() => editorRef.current?.exec("bold")}
+              aria-pressed={active.bold}
+              aria-label="Bold"
+              className="h-11 w-11 rounded-full p-0"
+            >
+              <Bold className="h-5 w-5" />
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={active.list ? "default" : "ghost"}
+              onClick={() => editorRef.current?.exec("insertUnorderedList")}
+              aria-pressed={active.list}
+              aria-label="Bullet list"
+              className="h-11 w-11 rounded-full p-0"
+            >
+              <List className="h-5 w-5" />
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              onClick={() => editorRef.current?.exec("insertParagraph")}
+              aria-label="New paragraph"
+              className="h-11 w-11 rounded-full p-0 text-lg"
+            >
+              ¶
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              onClick={() => setFabOpen(false)}
+              aria-label="Close toolbar"
+              className="h-11 w-11 rounded-full p-0"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+        ) : (
+          <Button
+            type="button"
+            onClick={() => setFabOpen(true)}
+            aria-label="Open formatting toolbar"
+            className="h-14 w-14 rounded-full shadow-lg p-0"
+          >
+            <Type className="h-6 w-6" />
+          </Button>
+        )}
+      </div>
     </Layout>
   );
 }
