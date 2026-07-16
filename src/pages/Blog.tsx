@@ -120,7 +120,7 @@ export default function Blog() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-muted-foreground line-clamp-3">
-                      {b.body.replace(/\*\*/g, "").slice(0, 180)}
+                      {stripKindMarker(b.body).replace(/\*\*/g, "").slice(0, 180)}
                     </p>
                     <div className="mt-4 text-xs text-muted-foreground">
                       By {authors[b.author_id] || "Anonymous"}
