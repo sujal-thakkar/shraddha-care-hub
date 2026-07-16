@@ -102,7 +102,7 @@ export default function Blog() {
           <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-16 text-muted-foreground">
-            <p className="text-lg">No stories yet. Be the first to share yours!</p>
+            <p className="text-lg">No blogs yet. Be the first to share yours!</p>
           </div>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
