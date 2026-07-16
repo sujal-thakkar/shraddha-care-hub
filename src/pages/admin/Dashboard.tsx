@@ -71,6 +71,8 @@ export default function AdminDashboard() {
     { icon: CalendarClock, label: "Daily Routine", path: "/admin/dashboard/routine" },
     { icon: ClipboardList, label: "Event Registrations", path: "/admin/dashboard/registrations" },
     { icon: IdCard, label: "Memberships", path: "/admin/dashboard/memberships" },
+    { icon: BookOpen, label: "Blog Moderation", path: "/admin/dashboard/blogs" },
+    { icon: Newspaper, label: "Newsletters", path: "/admin/dashboard/newsletters" },
     { icon: Handshake, label: "Collaborate Page", path: "/admin/dashboard/collaborate" },
     { icon: Share2, label: "Preview Inspector", path: "/admin/dashboard/preview-inspector" },
     { icon: UsersRound, label: "Team", path: "/admin/dashboard/team" },
