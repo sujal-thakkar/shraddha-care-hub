@@ -46,6 +46,7 @@ const AdminMemberships = lazy(() => import("./pages/admin/Memberships"));
 const AdminPreviewInspector = lazy(() => import("./pages/admin/PreviewInspector"));
 const AdminCollaborateContent = lazy(() => import("./pages/admin/CollaborateContent"));
 const AdminBlogs = lazy(() => import("./pages/admin/Blogs"));
+const AdminWriters = lazy(() => import("./pages/admin/Writers"));
 const AdminNewsletters = lazy(() => import("./pages/admin/Newsletters"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -108,6 +109,7 @@ const App = () => {
               <Route path="preview-inspector" element={<AdminPreviewInspector />} />
               <Route path="collaborate" element={<AdminCollaborateContent />} />
               <Route path="blogs" element={<AdminBlogs />} />
+              <Route path="writers" element={<AdminWriters />} />
               <Route path="newsletters" element={<AdminNewsletters />} />
               <Route path="settings" element={<AdminSettings />} />
             </Route>
