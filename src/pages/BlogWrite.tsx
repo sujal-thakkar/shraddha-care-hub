@@ -401,6 +401,15 @@ export default function BlogWrite() {
           </button>
         )}
 
+        {status === "needs_changes" && adminNotes && (
+          <Card className="mb-6 border-amber-400 bg-amber-50">
+            <CardContent className="pt-6">
+              <div className="text-sm font-semibold text-amber-900 mb-1">Small edits needed</div>
+              <p className="text-sm text-amber-800">{adminNotes}</p>
+            </CardContent>
+          </Card>
+        )}
+
         {restorePrompt && (
           <Card className="mb-4 border-primary bg-primary/5">
             <CardContent className="pt-5">
