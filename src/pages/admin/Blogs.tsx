@@ -72,6 +72,15 @@ export default function AdminBlogs() {
     }
   };
 
+  const deleteBlog = async (row: any) => {
+    if (!confirm(`Permanently delete "${row.title || "Untitled"}"? This removes it from the database and cannot be undone.`)) return;
+    setBusy(true);
+    const { error } = await supabase.from("blogs").delete().eq("id", row.id);
+    setBusy(false);
+    if (error) toast({ title: "Delete failed", description: error.message, variant: "destructive" });
+    else { toast({ title: "Deleted" }); setExpanded(null); load(); }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
