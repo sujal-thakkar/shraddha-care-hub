@@ -35,6 +35,7 @@ const navGroups: NavGroup[] = [
     ],
   },
   { name: "Collaborate / Partner", path: "/partner" },
+  { name: "Stories", path: "/blog" },
   {
     name: "Projects & Events",
     children: [
