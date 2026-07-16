@@ -12,6 +12,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useImageUpload } from "@/hooks/use-image-upload";
 import { useFontSize, FontSizeToggle } from "@/hooks/use-font-size";
+import { RichEditor, type RichEditorHandle } from "@/components/blog/RichEditor";
+import { extractKind, stripKindMarker, type BlogKind } from "@/lib/markdown-lite";
 
 interface Suggestion { original: string; suggestion: string; reason: string; }
 
