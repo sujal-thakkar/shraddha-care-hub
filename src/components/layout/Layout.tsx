@@ -83,7 +83,8 @@ export function Layout({ children }: LayoutProps) {
       <Footer />
       <ScrollToTopButton />
       
-      {/* Floating Report Elder Abuse Button */}
+      {/* Floating Report Elder Abuse Button (hidden on blog routes to reduce reading distraction) */}
+      {!hideReportFab && (
       <button
         onClick={() => setIsQuickReportOpen(true)}
         className="fixed bottom-24 right-4 sm:right-6 z-50 group"
@@ -107,6 +108,7 @@ export function Layout({ children }: LayoutProps) {
           </div>
         </div>
       </button>
+      )}
 
       {/* Quick Report Modal */}
       <QuickReportModal 
