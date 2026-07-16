@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Heart, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { AccessibilityMenu } from "@/hooks/use-a11y";
 import logoShraddha from "@/assets/logo-shraddha.png";
 
 interface NavChild {
