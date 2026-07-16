@@ -427,7 +427,25 @@ export default function BlogWrite() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-center flex-wrap">
+                    <div className="inline-flex rounded-md border border-border overflow-hidden" role="tablist" aria-label="Diff view mode">
+                      <button
+                        type="button"
+                        onClick={() => setDiffMode("full")}
+                        className={`px-3 py-1.5 text-xs font-medium transition-colors ${diffMode === "full" ? "bg-primary text-primary-foreground" : "bg-background hover:bg-muted"}`}
+                        aria-pressed={diffMode === "full"}
+                      >
+                        Full compare
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDiffMode("highlights")}
+                        className={`px-3 py-1.5 text-xs font-medium transition-colors ${diffMode === "highlights" ? "bg-primary text-primary-foreground" : "bg-background hover:bg-muted"}`}
+                        aria-pressed={diffMode === "highlights"}
+                      >
+                        Changes only
+                      </button>
+                    </div>
                     <Button size="sm" variant="outline" onClick={() => setSuggestions([])}>Reject all</Button>
                     <Button size="sm" onClick={acceptAll}>Accept all</Button>
                   </div>
@@ -435,7 +453,7 @@ export default function BlogWrite() {
                 <ul className="space-y-5">
                   {suggestions.map((s, idx) => (
                     <li key={idx} className="border-b border-border pb-5 last:border-0">
-                      <DiffLine original={s.original} suggestion={s.suggestion} />
+                      <DiffLine original={s.original} suggestion={s.suggestion} mode={diffMode} />
                       {s.reason && (
                         <div className="mt-2 text-xs text-muted-foreground italic">
                           Why: {s.reason}
