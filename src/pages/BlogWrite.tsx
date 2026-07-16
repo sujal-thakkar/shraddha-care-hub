@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Loader2, Save, Send, ImagePlus, Wand2, Check, X, Bold, List,
-  ArrowLeft, Sparkles, Lightbulb, ChevronDown, ChevronUp,
+  ArrowLeft, Sparkles, Lightbulb,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useImageUpload } from "@/hooks/use-image-upload";
