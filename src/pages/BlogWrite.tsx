@@ -146,6 +146,7 @@ export default function BlogWrite() {
       const { data } = await supabase.auth.getSession();
       if (!data.session) { navigate("/auth?next=/blog/write", { replace: true }); return; }
       setSession(data.session);
+      let dbUpdatedAt = 0;
       if (editingId) {
         const { data: row } = await supabase.from("blogs").select("*").eq("id", editingId).maybeSingle();
         if (row && row.author_id === data.session.user.id) {
@@ -158,11 +159,39 @@ export default function BlogWrite() {
           setCover(row.cover_image_url);
           setStatus(row.status);
           setAdminNotes(row.admin_notes);
+          dbUpdatedAt = row.updated_at ? new Date(row.updated_at).getTime() : 0;
         }
       }
+      // Restore from local backup if it's newer than the DB version
+      try {
+        const raw = localStorage.getItem(backupKey);
+        if (raw) {
+          const b = JSON.parse(raw);
+          if (b && typeof b.ts === "number" && b.ts > dbUpdatedAt + 1500 && (b.title || b.body)) {
+            setRestorePrompt(b);
+          }
+        }
+      } catch {}
       setPageLoading(false);
     })();
-  }, [editingId, navigate]);
+  }, [editingId, navigate, backupKey]);
+
+  const applyRestore = () => {
+    if (!restorePrompt) return;
+    setTitle(restorePrompt.title);
+    setBody(restorePrompt.body);
+    setCover(restorePrompt.cover);
+    const { kind: k, body: b } = extractKind(restorePrompt.body);
+    setKind(k);
+    setInitialBody(b);
+    setEditorSyncKey((k2) => k2 + 1);
+    setRestorePrompt(null);
+    toast({ title: "Restored", description: "Your unsaved changes are back." });
+  };
+  const discardRestore = () => {
+    localStorage.removeItem(backupKey);
+    setRestorePrompt(null);
+  };
 
   const saveDraft = useCallback(async (silent = false) => {
     if (!session?.user) return;
