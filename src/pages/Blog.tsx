@@ -64,12 +64,12 @@ export default function Blog() {
 
   const languages = Array.from(new Set(blogs.map((b) => b.language).filter(Boolean))) as string[];
 
+  useEffect(() => {
+    document.title = "Stories from our community — Shraddha";
+  }, []);
+
   return (
     <Layout>
-      <Helmet>
-        <title>Stories from our community — Shraddha</title>
-        <meta name="description" content="Read stories, memories, and reflections shared by our elderly community." />
-      </Helmet>
 
       <section className="container max-w-6xl px-4 py-12 md:py-16">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
