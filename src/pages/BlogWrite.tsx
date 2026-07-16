@@ -7,12 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Loader2, Save, Send, ImagePlus, Wand2, Check, X, Bold, List,
-  ArrowLeft, Sparkles, Lightbulb,
+  ArrowLeft, Sparkles, Lightbulb, Type, RotateCcw,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useImageUpload } from "@/hooks/use-image-upload";
 import { useFontSize, FontSizeToggle } from "@/hooks/use-font-size";
-import { RichEditor, type RichEditorHandle } from "@/components/blog/RichEditor";
+import { RichEditor, type RichEditorHandle, type ActiveFormats } from "@/components/blog/RichEditor";
 import { extractKind, stripKindMarker, type BlogKind } from "@/lib/markdown-lite";
 
 interface Suggestion { original: string; suggestion: string; reason: string; }
