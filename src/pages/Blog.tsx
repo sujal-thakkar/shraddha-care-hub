@@ -80,7 +80,7 @@ export default function Blog() {
           <Button asChild size="lg" className="h-12">
             <Link to={session ? "/blog/write" : "/auth?next=/blog/write"}>
               <PenLine className="mr-2 h-5 w-5" />
-              Write your story
+              Write a blog
             </Link>
           </Button>
         </div>
