@@ -60,13 +60,13 @@ export default function BlogMyStories() {
     <Layout>
       <div className="container max-w-3xl px-4 py-10">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="font-serif text-3xl font-bold">My stories</h1>
+          <h1 className="font-serif text-3xl font-bold">My blogs</h1>
           <Button asChild size="lg" className="h-12"><Link to="/blog/write"><PenLine className="mr-2 h-4 w-4" />Write new</Link></Button>
         </div>
 
         {rows.length === 0 ? (
           <Card><CardContent className="py-16 text-center">
-            <p className="text-muted-foreground mb-4">You haven't written any stories yet.</p>
+            <p className="text-muted-foreground mb-4">You haven't written any blogs yet.</p>
             <Button asChild size="lg" className="h-12"><Link to="/blog/write"><PenLine className="mr-2 h-4 w-4" />Start writing</Link></Button>
           </CardContent></Card>
         ) : (

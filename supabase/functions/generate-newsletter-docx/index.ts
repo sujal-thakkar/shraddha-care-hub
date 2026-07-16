@@ -21,26 +21,47 @@ const corsHeaders = {
 };
 
 type LayoutMode = "standard" | "compact" | "magazine";
+type BlogKind = "story" | "poem" | "recitation" | "essay" | "other";
+
+const KIND_RE = /^\s*<!--\s*kind:(story|poem|recitation|essay|other)\s*-->\s*\n?/i;
+
+function extractKind(text: string): { kind: BlogKind; body: string } {
+  const m = (text || "").match(KIND_RE);
+  if (!m) return { kind: "story", body: text || "" };
+  return { kind: m[1].toLowerCase() as BlogKind, body: text.slice(m[0].length) };
+}
 
 // Parse markdown-lite into an array of docx Paragraphs.
-// Supports: **bold**, blank lines = paragraph break, "- " line = bullet.
+// Supports: **bold**, blank lines = paragraph break, single newline = line break within paragraph, "- " line = bullet.
+// Poem / recitation kinds are centered and italicized, preserving every line break.
 function parseBody(text: string, layout: LayoutMode = "standard"): Paragraph[] {
+  const { kind, body } = extractKind(text);
   const paragraphs: Paragraph[] = [];
-  const lines = text.replace(/\r\n/g, "\n").split("\n");
+  const lines = body.replace(/\r\n/g, "\n").split("\n");
   let paragraphBuffer: string[] = [];
   const spacing = layout === "compact"
     ? { before: 60, after: 60, line: 280 }
     : { before: 120, after: 120, line: 340 };
   let firstParagraphSeen = false;
+  const isVerse = kind === "poem" || kind === "recitation";
+
+  const buildRunsWithBreaks = (linesArr: string[], italic = false): TextRun[] => {
+    const runs: TextRun[] = [];
+    linesArr.forEach((ln, idx) => {
+      if (idx > 0) runs.push(new TextRun({ break: 1, font: "Calibri", size: 24 }));
+      runs.push(...parseInlineBold(ln, italic));
+    });
+    return runs;
+  };
 
   const flushParagraph = () => {
     if (!paragraphBuffer.length) return;
-    const merged = paragraphBuffer.join(" ").trim();
+    const linesArr = [...paragraphBuffer];
     paragraphBuffer = [];
-    if (!merged) return;
-    const runs = parseInlineBold(merged);
-    // Magazine layout: enlarge the first letter of the first paragraph
-    if (layout === "magazine" && !firstParagraphSeen && runs.length > 0) {
+    if (linesArr.every((l) => !l.trim())) return;
+    const runs = buildRunsWithBreaks(linesArr, isVerse);
+    // Magazine layout: enlarge the first letter of the first paragraph (prose only)
+    if (!isVerse && layout === "magazine" && !firstParagraphSeen && runs.length > 0) {
       firstParagraphSeen = true;
       const first = runs[0];
       const firstText = (first as any).options?.text ?? "";
@@ -51,17 +72,18 @@ function parseBody(text: string, layout: LayoutMode = "standard"): Paragraph[] {
       }
     }
     paragraphs.push(new Paragraph({
-      alignment: AlignmentType.JUSTIFIED,
+      alignment: isVerse ? AlignmentType.CENTER : AlignmentType.JUSTIFIED,
       spacing,
       children: runs,
     }));
   };
 
   for (const rawLine of lines) {
-    const line = rawLine.trim();
-    if (!line) { flushParagraph(); continue; }
-    const bulletMatch = line.match(/^-\s+(.*)$/);
-    if (bulletMatch) {
+    // Preserve blank lines as paragraph breaks; otherwise keep the raw line (with leading spaces trimmed) so it stays a line break.
+    const line = rawLine.replace(/\s+$/, "");
+    if (!line.trim()) { flushParagraph(); continue; }
+    const bulletMatch = line.trim().match(/^-\s+(.*)$/);
+    if (bulletMatch && !isVerse) {
       flushParagraph();
       paragraphs.push(new Paragraph({
         numbering: { reference: "story-bullets", level: 0 },
@@ -76,22 +98,22 @@ function parseBody(text: string, layout: LayoutMode = "standard"): Paragraph[] {
   return paragraphs;
 }
 
-function parseInlineBold(input: string): TextRun[] {
+function parseInlineBold(input: string, italic = false): TextRun[] {
   const runs: TextRun[] = [];
   const regex = /\*\*(.+?)\*\*/g;
   let last = 0;
   let match: RegExpExecArray | null;
   while ((match = regex.exec(input)) !== null) {
     if (match.index > last) {
-      runs.push(new TextRun({ text: input.slice(last, match.index), size: 24, font: "Calibri" }));
+      runs.push(new TextRun({ text: input.slice(last, match.index), size: 24, font: "Calibri", italics: italic }));
     }
-    runs.push(new TextRun({ text: match[1], bold: true, size: 24, font: "Calibri" }));
+    runs.push(new TextRun({ text: match[1], bold: true, size: 24, font: "Calibri", italics: italic }));
     last = match.index + match[0].length;
   }
   if (last < input.length) {
-    runs.push(new TextRun({ text: input.slice(last), size: 24, font: "Calibri" }));
+    runs.push(new TextRun({ text: input.slice(last), size: 24, font: "Calibri", italics: italic }));
   }
-  return runs.length ? runs : [new TextRun({ text: input, size: 24, font: "Calibri" })];
+  return runs.length ? runs : [new TextRun({ text: input, size: 24, font: "Calibri", italics: italic })];
 }
 
 function formatDate(iso: string | null): string {

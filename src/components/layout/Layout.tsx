@@ -7,7 +7,7 @@ import { QuickReportModal } from "@/components/QuickReportModal";
 import { TextFlip } from "@/components/ui/text-flip";
 import { LayoutTextFlip } from "@/components/ui/layout-text-flip";
 import { StickyBanner } from "@/components/ui/sticky-banner";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 interface LayoutProps {
   children: ReactNode;
@@ -52,6 +52,8 @@ const elderAbuseTranslations = [
 
 export function Layout({ children }: LayoutProps) {
   const [isQuickReportOpen, setIsQuickReportOpen] = useState(false);
+  const location = useLocation();
+  const hideReportFab = location.pathname.startsWith("/blog");
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -81,7 +83,8 @@ export function Layout({ children }: LayoutProps) {
       <Footer />
       <ScrollToTopButton />
       
-      {/* Floating Report Elder Abuse Button */}
+      {/* Floating Report Elder Abuse Button (hidden on blog routes to reduce reading distraction) */}
+      {!hideReportFab && (
       <button
         onClick={() => setIsQuickReportOpen(true)}
         className="fixed bottom-24 right-4 sm:right-6 z-50 group"
@@ -105,6 +108,7 @@ export function Layout({ children }: LayoutProps) {
           </div>
         </div>
       </button>
+      )}
 
       {/* Quick Report Modal */}
       <QuickReportModal 
