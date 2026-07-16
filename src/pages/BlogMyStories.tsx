@@ -60,7 +60,7 @@ export default function BlogMyStories() {
     <Layout>
       <div className="container max-w-3xl px-4 py-10">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="font-serif text-3xl font-bold">My stories</h1>
+          <h1 className="font-serif text-3xl font-bold">My blogs</h1>
           <Button asChild size="lg" className="h-12"><Link to="/blog/write"><PenLine className="mr-2 h-4 w-4" />Write new</Link></Button>
         </div>
 
