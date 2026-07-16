@@ -371,10 +371,31 @@ export default function BlogWrite() {
             style={{ fontSize: `${Math.max(size, 20)}px` }}
           />
 
+          {/* Kind selector — determines formatting (poems/recitations are centered & keep line breaks) */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm text-muted-foreground mr-1">This is a:</span>
+            {(["story", "poem", "recitation", "essay", "other"] as BlogKind[]).map((k) => (
+              <button
+                key={k}
+                type="button"
+                onClick={() => {
+                  setKind(k);
+                  const stripped = stripKindMarker(body);
+                  const marker = k === "story" ? "" : `<!--kind:${k}-->\n\n`;
+                  setBody(marker + stripped);
+                }}
+                className={`rounded-full border px-3 py-1.5 text-sm min-h-[36px] transition-colors ${kind === k ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted border-border"}`}
+                aria-pressed={kind === k}
+              >
+                {k === "story" ? "Story" : k === "poem" ? "Poem" : k === "recitation" ? "Recitation" : k === "essay" ? "Essay" : "Other"}
+              </button>
+            ))}
+          </div>
+
           <div className="flex flex-wrap gap-2 items-center border border-border rounded-lg p-2 bg-card">
-            <Button type="button" variant="ghost" size="sm" onClick={() => insertToken("**", "**")} className="h-11" aria-label="Bold"><Bold className="h-4 w-4 mr-1" />Bold</Button>
-            <Button type="button" variant="ghost" size="sm" onClick={() => insertToken("\n- ")} className="h-11" aria-label="Bullet"><List className="h-4 w-4 mr-1" />Bullet</Button>
-            <Button type="button" variant="ghost" size="sm" onClick={() => insertToken("\n\n")} className="h-11" aria-label="Paragraph">¶ Paragraph</Button>
+            <Button type="button" variant="ghost" size="sm" onClick={() => editorRef.current?.exec("bold")} className="h-11" aria-label="Bold"><Bold className="h-4 w-4 mr-1" />Bold</Button>
+            <Button type="button" variant="ghost" size="sm" onClick={() => editorRef.current?.exec("insertUnorderedList")} className="h-11" aria-label="Bullet"><List className="h-4 w-4 mr-1" />Bullet</Button>
+            <Button type="button" variant="ghost" size="sm" onClick={() => editorRef.current?.exec("insertParagraph")} className="h-11" aria-label="Paragraph">¶ Paragraph</Button>
             <div className="ml-auto flex items-center gap-3 text-sm text-muted-foreground">
               <span>{wordCount} words</span>
               {savingState === "saving" && <span className="inline-flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> Saving…</span>}
@@ -383,13 +404,17 @@ export default function BlogWrite() {
             </div>
           </div>
 
-          <textarea
-            ref={bodyRef}
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            placeholder="Write your story here…"
-            className="w-full min-h-[400px] rounded-lg border border-border bg-background p-4 leading-relaxed focus:outline-none focus:ring-2 focus:ring-primary"
-            style={{ fontSize: `${size}px`, lineHeight: 1.7 }}
+          <RichEditor
+            ref={editorRef}
+            initialMd={initialBody}
+            currentMd={stripKindMarker(body)}
+            syncKey={editorSyncKey}
+            onChange={(md) => {
+              const marker = kind === "story" ? "" : `<!--kind:${kind}-->\n\n`;
+              setBody(marker + md);
+            }}
+            placeholder={kind === "poem" || kind === "recitation" ? "Write your poem here — every line break is preserved…" : "Write your blog here…"}
+            fontSize={size}
           />
 
           <div className="flex flex-wrap gap-3">
