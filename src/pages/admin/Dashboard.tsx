@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link, Outlet, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, FileText, Users, Settings, LogOut, Loader2, Menu, X, UsersRound, Building2, MessageSquare, Heart, CalendarDays, ClipboardList, IdCard, CalendarClock, Share2, Handshake, BookOpen, Newspaper } from "lucide-react";
+import { LayoutDashboard, FileText, Users, Settings, LogOut, Loader2, Menu, X, UsersRound, Building2, MessageSquare, Heart, CalendarDays, ClipboardList, IdCard, CalendarClock, Share2, Handshake, BookOpen, Newspaper, UserCheck } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -13,6 +14,25 @@ export default function AdminDashboard() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [pendingWriters, setPendingWriters] = useState(0);
+  const [pendingBlogs, setPendingBlogs] = useState(0);
+
+  const loadBadges = async () => {
+    const [{ count: writers }, { count: blogs }] = await Promise.all([
+      supabase.from("profiles").select("*", { count: "exact", head: true }).eq("status", "pending"),
+      supabase.from("blogs").select("*", { count: "exact", head: true }).eq("status", "submitted"),
+    ]);
+    setPendingWriters(writers ?? 0);
+    setPendingBlogs(blogs ?? 0);
+  };
+
+  useEffect(() => {
+    const onFocus = () => loadBadges();
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, []);
+
+  useEffect(() => { if (!isLoading) loadBadges(); }, [isLoading, location.pathname]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -60,8 +80,10 @@ export default function AdminDashboard() {
     navigate("/admin/login");
   };
 
-  const navItems = [
+  const navItems: { icon: any; label: string; path: string; badge?: number }[] = [
     { icon: LayoutDashboard, label: "Overview", path: "/admin/dashboard" },
+    { icon: UserCheck, label: "Writers", path: "/admin/dashboard/writers", badge: pendingWriters },
+    { icon: BookOpen, label: "Blog Moderation", path: "/admin/dashboard/blogs", badge: pendingBlogs },
     { icon: MessageSquare, label: "Messages", path: "/admin/dashboard/messages" },
     { icon: FileText, label: "Abuse Reports", path: "/admin/dashboard/reports" },
     { icon: Users, label: "Volunteers", path: "/admin/dashboard/volunteers" },
@@ -71,7 +93,6 @@ export default function AdminDashboard() {
     { icon: CalendarClock, label: "Daily Routine", path: "/admin/dashboard/routine" },
     { icon: ClipboardList, label: "Event Registrations", path: "/admin/dashboard/registrations" },
     { icon: IdCard, label: "Memberships", path: "/admin/dashboard/memberships" },
-    { icon: BookOpen, label: "Blog Moderation", path: "/admin/dashboard/blogs" },
     { icon: Newspaper, label: "Newsletters", path: "/admin/dashboard/newsletters" },
     { icon: Handshake, label: "Collaborate Page", path: "/admin/dashboard/collaborate" },
     { icon: Share2, label: "Preview Inspector", path: "/admin/dashboard/preview-inspector" },
@@ -126,7 +147,10 @@ export default function AdminDashboard() {
                   )}
                 >
                   <item.icon className="h-5 w-5" />
-                  {item.label}
+                  <span className="flex-1">{item.label}</span>
+                  {item.badge && item.badge > 0 ? (
+                    <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-xs">{item.badge}</Badge>
+                  ) : null}
                 </Link>
               ))}
             </nav>

@@ -667,6 +667,8 @@ export type Database = {
       }
       profiles: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
           country_code: string | null
           created_at: string
           email: string | null
@@ -674,10 +676,14 @@ export type Database = {
           id: string
           phone_e164: string | null
           preferred_font_size: number
+          rejected_reason: string | null
+          status: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
           country_code?: string | null
           created_at?: string
           email?: string | null
@@ -685,10 +691,14 @@ export type Database = {
           id?: string
           phone_e164?: string | null
           preferred_font_size?: number
+          rejected_reason?: string | null
+          status?: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
           country_code?: string | null
           created_at?: string
           email?: string | null
@@ -696,6 +706,8 @@ export type Database = {
           id?: string
           phone_e164?: string | null
           preferred_font_size?: number
+          rejected_reason?: string | null
+          status?: string
           updated_at?: string
           user_id?: string
         }
@@ -1026,6 +1038,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_approve_writer: { Args: { _user_id: string }; Returns: undefined }
+      admin_reject_writer: {
+        Args: { _reason?: string; _user_id: string }
+        Returns: undefined
+      }
       check_rate_limit: {
         Args: {
           p_email: string
@@ -1050,6 +1067,8 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      is_approved_writer: { Args: { _uid: string }; Returns: boolean }
+      is_phone_available: { Args: { _phone: string }; Returns: boolean }
     }
     Enums: {
       abuse_type: "physical" | "emotional" | "financial" | "neglect" | "other"

@@ -1,176 +1,107 @@
-# Elder-Friendly AI Blog + Newsletter Platform
+# Elder-friendly writer accounts + moderated publishing
 
-Mobile-first story submission for 50–70+ authors, with Gemini-powered grammar assistant, Murf Falcon read-aloud, admin moderation, and DOCX newsletter export. Uses your own API keys (no Lovable AI credits consumed).
+Two goals in one pass:
+1. Replace magic-link auth with **name + phone + 4-digit PIN** for blog writers, gated by admin approval.
+2. Make **every blog post require admin approval before it goes live**, and add **social share icons** on the blog reader.
 
-## Secrets to store
+Existing test accounts will be wiped clean.
 
-- `GEMINI_API_KEY` = `AQ.Ab8RN6...` (Google AI Studio — grammar suggestions, language detect)
-- `MURF_API_KEY` = `ap2_f0e1...` (Murf Falcon — read-aloud TTS)
+---
 
-Stored via `set_secret` in Supabase Edge Function env. Never exposed to the browser.
+## User-facing flow
 
-## v1 Scope
+**Signup** (`/auth`)
+- Fields: Full name, country code + phone (unique), 4-digit PIN, confirm PIN
+- After submit: "Your account is being reviewed. We'll let you know once approved."
+- Account created with status = `pending`. User cannot log in yet.
 
-1. Mobile-first story editor (title, body, cover image, bold/paragraph/bullet only)
-2. Login required (Supabase auth: email/password + Google)
-3. Gemini grammar/spelling suggestions on demand — accept/reject individually, never auto-rewrite
-4. Auto-save drafts (debounced 5 s + on blur + on tab-hide)
-5. Admin moderation workflow: draft → submitted → under_review → needs_changes → approved → published (+ admin_notes back to author)
-6. Public `/blog` listing + `/blog/:slug` reader page (multilingual)
-7. Admin newsletter builder: pick + drag-reorder blogs → export DOCX
-8. Large-font accessibility toggle (18 / 22 / 26 px), persisted per user
-9. Murf Falcon "Read aloud" button on reader page (streams MP3, auto-picks voice by detected language)
+**Login** (`/auth`)
+- Fields: country code + phone, 4-digit PIN
+- If approved → signed in, land on `/blog/write`
+- If pending → "Your account is still under review"
+- If rejected → "Account not approved. Contact us."
 
-Deferred to v2 (UI placeholders reserved, no build now): voice-to-blog (STT), WhatsApp intake, PDF export, translation, headline suggestions, "writer's block" continuation, sentiment tagging.
+**Writing a blog**
+- Same editor as today (autosave, rich toolbar, cover upload — all unchanged).
+- Pressing "Publish" now submits for review → status becomes `pending_review`. User sees "Sent for admin review. You'll see it live once approved."
+- My Stories page shows each post's status: Draft / Under review / Published / Rejected.
 
-## Elder-Friendly UX Principles
+**Reading a blog** (`/blog/:slug`)
+- Adds social share row (WhatsApp, Facebook, X, LinkedIn, Copy link) below title — reuses the existing `SocialShare` component from events.
 
-- One column. No toolbar clutter. Flow: Title → Story → Cover photo → Save draft / Submit.
-- Only three formatting controls: **Bold**, • Bullet, ¶ Paragraph. No H1/H2/quotes/embeds/SEO/tags shown to author.
-- Buttons ≥ 48 px, black-on-white, no gradients on the writer surface. High contrast.
-- Reassuring progress card: "Title ✓ · Story ✓ · Photo optional · Ready to submit".
-- Visible "Save draft" AND autosave with "Saved 2s ago" pill — user feels in control.
-- Slug, tags, category, SEO — admin-only. Author never sees them.
-- Font-size toggle persists in `profiles.preferred_font_size` + localStorage.
+**Admin panel** — new **Writers** tab
+- Two sections: Pending writers, All writers
+- Approve / Reject buttons; rejection reason optional
+- Reset PIN button (for the "I forgot my PIN" case)
 
-## Gemini Grammar Assistant (critical behavior)
+**Admin panel** — existing **Blogs** tab, upgraded
+- Posts default view shows "Pending review" first
+- Approve → status `published` (goes live)
+- Reject → status `rejected` with note back to author
+- Delete stays as-is
 
-- Edge Function `check-blog-writing` calls `gemini-2.5-flash` via Google AI Studio REST (`generativelanguage.googleapis.com/v1beta`), using `GEMINI_API_KEY`.
-- Prompt strictly enforces: fix spelling + grammar + minor readability only; **preserve tone, emotion, storytelling style, and local expressions**; return corrected text in the SAME language the author wrote in; never sound AI-generated.
-- Response shape (JSON mode): `{ language: "bn|hi|en|...", suggestions: [{ original, suggestion, reason, offsetStart, offsetEnd }] }`.
-- UI shows "We found 8 improvements" with per-item Accept / Reject and Accept all. **Nothing is applied until the author accepts.** Author can submit without ever running AI — help, not a gate.
-- Rate limit: 3 checks per user per minute (in-memory table `ai_check_log`), so a stuck user can't burn quota.
+**Admin sidebar badges**
+- Small red count next to Writers = pending writer applications
+- Small red count next to Blogs = posts awaiting review
+- Refreshes on tab focus. No emails.
 
-## Murf Falcon Read-Aloud
+---
 
-- Edge Function `read-blog-aloud` receives `{ blogId }`, loads body, calls `POST https://global.api.murf.ai/v1/speech/stream` with `model: "FALCON"`, `format: "MP3"`, `sampleRate: 24000`, `channelType: "MONO"`, and a voice/locale chosen from the blog's `language`:
-  - `bn` → voiceId `hi-IN-ayushi` (falcon best-match — will confirm on first run) locale `bn-IN`
-  - `hi` → `Aman`, locale `hi-IN`
-  - `en` → `Gordon`, locale `en-US`
-  - default → English fallback
-- Response streamed straight back to the browser as `audio/mpeg`; reader page uses a plain `<audio>` element with big Play/Pause + speed 0.9× / 1× / 1.2×.
-- Result cached in Supabase Storage bucket `blog-audio` keyed by `${blogId}-${contentHash}.mp3` so re-plays don't burn Murf credits. Regenerated when body changes.
+## What gets wiped
 
-## Database Schema
+- All rows in `auth.users` (test accounts)
+- All rows in `profiles`, `blogs`, `blog_ai_suggestions`
+- Admin role will be re-seeded: after migration runs, the user creates a new admin account through the new signup form, then I run a one-line insert to grant `admin` role to that user_id.
 
-```
-blogs
-  id uuid pk
-  author_id uuid → auth.users
-  title text
-  body text                       -- markdown-lite: **bold**, blank lines, "- " bullets
-  cover_image_url text
-  language text                   -- detected by Gemini or user pick
-  status text                     -- draft|submitted|under_review|needs_changes|approved|published|archived
-  admin_notes text
-  slug text unique
-  content_hash text               -- for TTS cache invalidation
-  published_at timestamptz
-  created_at, updated_at timestamptz
+---
 
-blog_ai_suggestions               -- audit trail (optional but cheap)
-  id, blog_id, suggestions jsonb, created_at
+## Technical details
 
-newsletters
-  id uuid pk
-  title text
-  issue_number int
-  status text                     -- draft|exported
-  created_by uuid, created_at, updated_at
+### Auth mechanism
+Supabase Auth requires an email under the hood. We map phone → synthetic email so we keep all the session, RLS, and JWT plumbing:
 
-newsletter_blogs                  -- ordered join
-  newsletter_id, blog_id, position int
-  primary key (newsletter_id, blog_id)
+- Synthetic email: `{e164_digits_only}@writers.shraddha.local` (never shown to user, never emailable)
+- Password: `{e164}:{pin}` (phone + PIN combined — bcrypt-hashed by Supabase server-side)
+- `auto_confirm_email = true` so no email verification step
+- Signup disabled in Supabase config for email confirmations; we use `signUp()` server-side flow with confirmed=true via the admin-side of the client? — no: we call `supabase.auth.signUp` with the synthetic email; the `handle_new_user` trigger creates the profile row with `status='pending'`. RLS on `blogs` requires `profiles.status = 'approved'` for insert/update.
 
-ai_check_log                      -- rate limiter for /check-blog-writing
-  user_id, created_at
-```
+### Schema changes (single migration)
+- `profiles`: add `phone_e164 TEXT UNIQUE NOT NULL`, `pin_hash TEXT` (optional — Supabase stores the real hash, but we keep a flag), `status TEXT NOT NULL DEFAULT 'pending' CHECK IN (pending, approved, rejected)`, `rejected_reason TEXT`, `approved_at TIMESTAMPTZ`, `approved_by UUID`
+- `blogs`: ensure `status` column supports `draft`, `pending_review`, `published`, `rejected`; publish action now sets `pending_review`
+- RLS updated:
+  - `blogs` INSERT/UPDATE requires `profiles.status = 'approved'` for the author
+  - Public SELECT on `blogs` only for `status = 'published'`
+  - Admins bypass via `has_role(auth.uid(), 'admin')`
+- New RPCs:
+  - `check_phone_available(phone TEXT)` — returns bool, used at signup
+  - `admin_approve_writer(user_id UUID)`, `admin_reject_writer(user_id UUID, reason TEXT)`, `admin_reset_writer_pin(user_id UUID, new_pin TEXT)` — all `security definer`, gated on `is_admin()`
+  - `admin_approve_blog(blog_id UUID)`, `admin_reject_blog(blog_id UUID, reason TEXT)`
+- `handle_new_user` trigger updated: reads `phone_e164` and `full_name` from `raw_user_meta_data`, inserts profile with `status='pending'`
 
-Column added to `profiles`: `preferred_font_size int default 18`.
+### Files to edit
+- `src/pages/Auth.tsx` — replace tabs with Login (phone + PIN) and Signup (name + phone + PIN + confirm)
+- `src/pages/admin/Dashboard.tsx` — add Writers link with badge, add pending count to Blogs link
+- `src/pages/admin/Writers.tsx` — **new** page for pending/approved writer list
+- `src/pages/admin/Blogs.tsx` — add Approve/Reject buttons, filter tabs
+- `src/pages/BlogWrite.tsx` — publish button copy + status set to `pending_review`
+- `src/pages/BlogMyStories.tsx` — show status pill per post
+- `src/pages/BlogRead.tsx` — add `<SocialShare>` row
+- `src/pages/Blog.tsx` — filter to `status = 'published'` (probably already does; verify)
 
-Storage buckets: `blog-covers` (public), `blog-audio` (public, cache).
+### Country codes
+Reuse the existing `COUNTRY_CODES` array already in `Auth.tsx` (India, US, UK, etc.). Phone is normalized to `+91XXXXXXXXXX` E.164 for the uniqueness check.
 
-RLS (with GRANTs in the same migration):
-- `blogs`: author can SELECT/INSERT/UPDATE/DELETE own rows only while `status IN ('draft','submitted','needs_changes')`; `anon` + `authenticated` SELECT rows where `status = 'published'`; admins full access via `is_admin()`.
-- `newsletters` / `newsletter_blogs`: admin-only.
-- `ai_check_log`: user can insert/select own, admin all.
+### Security notes
+- PIN is 4 digits (elder-friendly). Combined with phone in the bcrypt input, brute-force on a stolen hash is still bounded, and admin gates publishing so worst case is a rejected draft. Documented as an accepted tradeoff.
+- Rate-limit login attempts client-side (5 failures → 60s cooldown) to slow guessing.
+- No email is ever sent — the synthetic domain is non-routable.
 
-## Routes
+---
 
-Public:
-- `/blog` — published listing, search, language filter
-- `/blog/:slug` — reader (font-toggle + Read aloud)
-- `/blog/write` — editor (requires login)
-- `/blog/my-stories` — author's drafts + status + admin notes
+## Out of scope (not doing)
+- SMS OTP (deferred — costs money, user chose not to)
+- Password reset by user (admin resets PIN instead)
+- Migrating existing accounts (wiping)
+- Email notifications to admin (badges only)
 
-Admin (nested in `/admin/dashboard`):
-- `/admin/dashboard/blogs` — moderation queue with status filters, inline edit, publish, note-back-to-author
-- `/admin/dashboard/newsletters` — build, drag-reorder (`@dnd-kit`), export DOCX
-
-Header nav: add "Stories".
-
-## Editor Component
-
-- Plain `<textarea>` based (no TipTap in v1). Lighter on old phones, zero learning curve. Three toolbar buttons: **B**, • bullet, ¶ paragraph — insert the tokens into the text.
-- Autosave: debounce 5 s + on blur + on `visibilitychange`. Status pill: "Saving… / Saved 2s ago / Error — retrying".
-- "Check my writing" button → calls edge function → renders suggestion list with per-item Accept/Reject.
-- Cover image via existing `use-image-upload` hook, bucket `blog-covers` (already-compressed ≤1 MB / 1200 px).
-- Font-size toggle (A · A+ · A++) top-right on editor AND reader.
-- Reserved but disabled: `🎤 Speak instead` button (tooltip "Coming soon") so v2 slots in without redesign.
-
-## Edge Functions
-
-1. **`check-blog-writing`** — validates rate-limit + Zod body, calls Gemini `generateContent` with the preservation prompt, returns structured suggestions. `GEMINI_API_KEY` server-side.
-2. **`publish-blog`** (admin-guarded via `is_admin()`) — flips status, generates slug (transliterate + `-<id6>` fallback for Bengali/Hindi), sets `published_at`, notifies author via existing `send-notification` Resend flow.
-3. **`read-blog-aloud`** — checks `blog-audio` cache by `content_hash`; on miss, streams from Murf and mirrors bytes to Storage + response. Falls back gracefully if Murf 402/403.
-4. **`generate-newsletter-docx`** (admin-guarded) — reads a newsletter + ordered blogs, generates DOCX with the format below using `docx` npm lib (via Deno `npm:docx`), returns as attachment download.
-
-All edge functions: CORS via `npm:@supabase/supabase-js@2/cors`, Zod input validation, structured error responses.
-
-## DOCX Export Spec (v1)
-
-Per your note: **no cover page, no blog thumbnails** — you'll design the cover yourself.
-
-Per-blog section:
-- Blog title (24 pt bold, primary sage green `#0A8F6B`)
-- "By {author name} · {published date, DD Month YYYY}" — 11 pt italic secondary grey
-- Blank line
-- Body paragraphs — 12 pt, 1.4 line height, justified; markdown-lite parsed into runs (bold), Paragraph nodes, and `LevelFormat.BULLET` lists
-- Page break between blogs
-- From blog 2 onward: header = newsletter title, right-aligned
-- Footer: page number, centered
-
-US Letter (12240×15840 DXA), 1" margins. Font: Calibri (universally rendered — Work Sans falls back cleanly). Follows DOCX skill rules: no `\n` inside runs, `PageBreak` in a Paragraph, `LevelFormat.BULLET` for lists, no tables used.
-
-## Notifications
-
-Piggyback existing `send-notification` + `notification_emails` table:
-- Author gets email on: submission received, needs changes (with `admin_notes`), approved & published.
-- Admin routing gets notified on new submissions (existing pattern).
-
-## Performance & Scalability
-
-- Blog list paginated with `.range()` + index on `(status, published_at desc)`, index on `language`.
-- Cover images ≤ 1 MB / 1200 px via existing compression hook.
-- Gemini call only on button press (never per keystroke) — cost bounded by rate limit.
-- Murf audio cached in Storage by content hash — repeat plays = free.
-- Body stored as markdown-lite text (single source of truth) → renders to reader HTML, DOCX, and future PDF/HTML email from the same field.
-- Slug generation server-side with unicode-safe transliteration + `-<id6>` fallback.
-
-## Non-goals (v2 backlog, not built now)
-
-Voice-to-blog (STT), WhatsApp intake, PDF export, translation between languages, headline generator, sentiment/category auto-tagging, in-app comment threads. UI placeholders exist so v2 doesn't require redesign.
-
-## Build Order
-
-1. Migration: 3 tables + `profiles.preferred_font_size` + 2 buckets + RLS + GRANTs
-2. Store `GEMINI_API_KEY` and `MURF_API_KEY` via `set_secret`
-3. Public listing + reader page (works before AI is wired)
-4. Editor + autosave + cover upload + my-stories
-5. `check-blog-writing` edge function + suggestion UI
-6. Admin blogs moderation page + `publish-blog` function + Resend notifications
-7. `read-blog-aloud` edge function + reader Play/Pause + storage cache
-8. Admin newsletters page + `@dnd-kit` reorder + `generate-newsletter-docx`
-9. Header nav "Stories", font-size toggle everywhere, docs update in `DOCUMENTATION.md`
-
-If this looks right, I'll implement in this order and test each stage (edge functions via `curl_edge_functions`, UI via preview).
+Approve this and I'll ship it in one pass.
