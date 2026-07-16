@@ -20,37 +20,52 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+type LayoutMode = "standard" | "compact" | "magazine";
+
 // Parse markdown-lite into an array of docx Paragraphs.
 // Supports: **bold**, blank lines = paragraph break, "- " line = bullet.
-function parseBody(text: string): Paragraph[] {
+function parseBody(text: string, layout: LayoutMode = "standard"): Paragraph[] {
   const paragraphs: Paragraph[] = [];
   const lines = text.replace(/\r\n/g, "\n").split("\n");
   let paragraphBuffer: string[] = [];
+  const spacing = layout === "compact"
+    ? { before: 60, after: 60, line: 280 }
+    : { before: 120, after: 120, line: 340 };
+  let firstParagraphSeen = false;
 
   const flushParagraph = () => {
     if (!paragraphBuffer.length) return;
     const merged = paragraphBuffer.join(" ").trim();
     paragraphBuffer = [];
     if (!merged) return;
+    const runs = parseInlineBold(merged);
+    // Magazine layout: enlarge the first letter of the first paragraph
+    if (layout === "magazine" && !firstParagraphSeen && runs.length > 0) {
+      firstParagraphSeen = true;
+      const first = runs[0];
+      const firstText = (first as any).options?.text ?? "";
+      if (firstText.length > 1) {
+        const dropCap = new TextRun({ text: firstText[0], size: 56, bold: true, color: "0A8F6B", font: "Calibri" });
+        const rest = new TextRun({ text: firstText.slice(1), size: 24, font: "Calibri" });
+        runs.splice(0, 1, dropCap, rest);
+      }
+    }
     paragraphs.push(new Paragraph({
       alignment: AlignmentType.JUSTIFIED,
-      spacing: { before: 120, after: 120, line: 340 },
-      children: parseInlineBold(merged),
+      spacing,
+      children: runs,
     }));
   };
 
   for (const rawLine of lines) {
     const line = rawLine.trim();
-    if (!line) {
-      flushParagraph();
-      continue;
-    }
+    if (!line) { flushParagraph(); continue; }
     const bulletMatch = line.match(/^-\s+(.*)$/);
     if (bulletMatch) {
       flushParagraph();
       paragraphs.push(new Paragraph({
         numbering: { reference: "story-bullets", level: 0 },
-        spacing: { before: 60, after: 60 },
+        spacing: { before: 40, after: 40 },
         children: parseInlineBold(bulletMatch[1]),
       }));
     } else {
@@ -102,13 +117,31 @@ serve(async (req) => {
     const { data: isAdmin } = await userClient.rpc("is_admin");
     if (!isAdmin) return new Response("Admin access required", { status: 403, headers: corsHeaders });
 
-    const { newsletterId } = await req.json().catch(() => ({}));
+    const payload = await req.json().catch(() => ({}));
+    const {
+      newsletterId,
+      layout: layoutRaw,
+      intro_text,
+      title_override,
+      blog_overrides,
+    } = payload as {
+      newsletterId?: string;
+      layout?: string;
+      intro_text?: string | null;
+      title_override?: string | null;
+      blog_overrides?: Array<{ blog_id: string; title?: string; body?: string }>;
+    };
     if (!newsletterId) {
       return new Response(JSON.stringify({ error: "newsletterId required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    const layout: LayoutMode =
+      layoutRaw === "compact" ? "compact" : layoutRaw === "magazine" ? "magazine" : "standard";
+    const overrides = new Map(
+      (blog_overrides ?? []).map((o) => [o.blog_id, { title: o.title, body: o.body }])
+    );
 
     const service = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
     const { data: newsletter, error: nlErr } = await service
@@ -122,6 +155,7 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    const displayTitle = (title_override && title_override.trim()) || newsletter.title;
 
     const { data: items } = await service
       .from("newsletter_blogs")
@@ -137,17 +171,32 @@ serve(async (req) => {
     const authorMap = new Map((authorProfiles ?? []).map((p: any) => [p.user_id, p.full_name || "Anonymous"]));
 
     const sections: Paragraph[] = [];
+
+    // Optional editor's intro at the top
+    if (intro_text && intro_text.trim()) {
+      sections.push(new Paragraph({
+        heading: HeadingLevel.HEADING_2,
+        spacing: { before: 120, after: 120 },
+        children: [new TextRun({ text: "From the editor", bold: true, size: 30, color: "0A8F6B", font: "Calibri" })],
+      }));
+      sections.push(...parseBody(intro_text.trim(), layout));
+      sections.push(new Paragraph({ children: [new PageBreak()] }));
+    }
+
     (items ?? []).forEach((item: any, idx: number) => {
       const b = item.blog;
       if (!b) return;
+      const ov = overrides.get(b.id);
+      const title = ov?.title ?? b.title;
+      const body = ov?.body ?? b.body ?? "";
       if (idx > 0) sections.push(new Paragraph({ children: [new PageBreak()] }));
       sections.push(new Paragraph({
         heading: HeadingLevel.HEADING_1,
         spacing: { before: 240, after: 120 },
-        children: [new TextRun({ text: b.title, bold: true, size: 48, color: "0A8F6B", font: "Calibri" })],
+        children: [new TextRun({ text: title, bold: true, size: layout === "compact" ? 40 : 48, color: "0A8F6B", font: "Calibri" })],
       }));
       sections.push(new Paragraph({
-        spacing: { after: 240 },
+        spacing: { after: layout === "compact" ? 160 : 240 },
         children: [
           new TextRun({
             text: `By ${authorMap.get(b.author_id) || "Anonymous"} · ${formatDate(b.published_at)}`,
@@ -158,7 +207,7 @@ serve(async (req) => {
           }),
         ],
       }));
-      sections.push(...parseBody(b.body || ""));
+      sections.push(...parseBody(body, layout));
     });
 
     if (sections.length === 0) {
@@ -202,8 +251,8 @@ serve(async (req) => {
                   children: [
                     new TextRun({
                       text: newsletter.issue_number
-                        ? `${newsletter.title} — Issue ${newsletter.issue_number}`
-                        : newsletter.title,
+                        ? `${displayTitle} — Issue ${newsletter.issue_number}`
+                        : displayTitle,
                       italics: true,
                       size: 20,
                       color: "6b7280",
@@ -233,7 +282,7 @@ serve(async (req) => {
     });
 
     const bytes = await Packer.toBuffer(doc);
-    const filename = `${newsletter.title.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.docx`;
+    const filename = `${displayTitle.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.docx`;
 
     return new Response(bytes, {
       status: 200,

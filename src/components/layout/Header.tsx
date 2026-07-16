@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Heart, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { AccessibilityMenu } from "@/hooks/use-a11y";
 import logoShraddha from "@/assets/logo-shraddha.png";
 
 interface NavChild {
@@ -193,24 +194,28 @@ export function Header() {
             {navGroups.map((group) => (
               <DesktopDropdown key={group.name} group={group} />
             ))}
+            <AccessibilityMenu />
             <Button asChild size="sm">
               <Link to="/donate">Support Us</Link>
             </Button>
           </nav>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="lg:hidden relative z-[60] w-12 h-12 flex items-center justify-center rounded-lg transition-colors hover:bg-accent active:bg-accent/80 touch-manipulation"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-            aria-expanded={isMenuOpen}
-          >
-            <div className="relative w-6 h-5 flex flex-col justify-between">
-              <span className={cn("block h-0.5 w-6 bg-foreground rounded-full transition-all duration-300 ease-in-out origin-center", isMenuOpen && "rotate-45 translate-y-[9px]")} />
-              <span className={cn("block h-0.5 w-6 bg-foreground rounded-full transition-all duration-300 ease-in-out", isMenuOpen && "opacity-0 scale-x-0")} />
-              <span className={cn("block h-0.5 w-6 bg-foreground rounded-full transition-all duration-300 ease-in-out origin-center", isMenuOpen && "-rotate-45 -translate-y-[9px]")} />
-            </div>
-          </button>
+          {/* Mobile actions */}
+          <div className="lg:hidden flex items-center gap-1">
+            <AccessibilityMenu />
+            <button
+              className="relative z-[60] w-12 h-12 flex items-center justify-center rounded-lg transition-colors hover:bg-accent active:bg-accent/80 touch-manipulation"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={isMenuOpen}
+            >
+              <div className="relative w-6 h-5 flex flex-col justify-between">
+                <span className={cn("block h-0.5 w-6 bg-foreground rounded-full transition-all duration-300 ease-in-out origin-center", isMenuOpen && "rotate-45 translate-y-[9px]")} />
+                <span className={cn("block h-0.5 w-6 bg-foreground rounded-full transition-all duration-300 ease-in-out", isMenuOpen && "opacity-0 scale-x-0")} />
+                <span className={cn("block h-0.5 w-6 bg-foreground rounded-full transition-all duration-300 ease-in-out origin-center", isMenuOpen && "-rotate-45 -translate-y-[9px]")} />
+              </div>
+            </button>
+          </div>
         </div>
       </header>
 

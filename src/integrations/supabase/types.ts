@@ -667,28 +667,34 @@ export type Database = {
       }
       profiles: {
         Row: {
+          country_code: string | null
           created_at: string
           email: string | null
           full_name: string | null
           id: string
+          phone_e164: string | null
           preferred_font_size: number
           updated_at: string
           user_id: string
         }
         Insert: {
+          country_code?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
           id?: string
+          phone_e164?: string | null
           preferred_font_size?: number
           updated_at?: string
           user_id: string
         }
         Update: {
+          country_code?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
           id?: string
+          phone_e164?: string | null
           preferred_font_size?: number
           updated_at?: string
           user_id?: string

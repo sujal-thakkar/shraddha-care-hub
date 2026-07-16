@@ -5,12 +5,76 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Save, Send, ImagePlus, Wand2, Check, X, Bold, List, ArrowLeft, Mic } from "lucide-react";
+import {
+  Loader2, Save, Send, ImagePlus, Wand2, Check, X, Bold, List,
+  ArrowLeft, Sparkles, Lightbulb,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useImageUpload } from "@/hooks/use-image-upload";
 import { useFontSize, FontSizeToggle } from "@/hooks/use-font-size";
 
 interface Suggestion { original: string; suggestion: string; reason: string; }
+
+const QUICK_PROMPTS = [
+  { label: "A memory from my youth", seed: "One memory from my youth that still makes me smile is " },
+  { label: "A person who shaped me", seed: "The person who shaped me most is " },
+  { label: "A day I'll never forget", seed: "There's one day I'll never forget. It was " },
+  { label: "What Hosla means to me", seed: "Being part of Hosla means " },
+  { label: "Advice for younger people", seed: "If I could tell my younger self one thing, it would be " },
+  { label: "Something I'm proud of", seed: "One thing I'm truly proud of is " },
+];
+
+const TIPS = [
+  "Write like you're telling a friend. Simple words are best.",
+  "Don't worry about spelling — you can fix it later with one tap.",
+  "Pick one memory and describe what you saw, heard, or felt.",
+  "You can save and come back anytime. Nothing is lost.",
+];
+
+// Word-level diff for a suggestion pair — highlights what changed.
+function diffWords(a: string, b: string): { removed: string[]; added: string[] } {
+  const A = a.split(/(\s+)/);
+  const B = b.split(/(\s+)/);
+  const setA = new Set(A);
+  const setB = new Set(B);
+  return {
+    removed: A.filter((t) => t.trim() && !setB.has(t)),
+    added: B.filter((t) => t.trim() && !setA.has(t)),
+  };
+}
+
+function DiffLine({ original, suggestion }: { original: string; suggestion: string }) {
+  const { removed, added } = diffWords(original, suggestion);
+  const renderMarked = (text: string, marks: string[], variant: "removed" | "added") => {
+    const cls = variant === "removed"
+      ? "bg-destructive/15 text-destructive line-through decoration-2 px-1 rounded"
+      : "bg-primary/15 text-primary font-semibold px-1 rounded";
+    if (marks.length === 0) return <span>{text}</span>;
+    // Build a case-sensitive regex that matches any of the changed tokens as whole words
+    const escaped = marks.map((m) => m.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+    const re = new RegExp(`(${escaped.join("|")})`, "g");
+    const parts = text.split(re);
+    return (
+      <span>
+        {parts.map((p, i) =>
+          marks.includes(p) ? <mark key={i} className={cls}>{p}</mark> : <span key={i}>{p}</span>
+        )}
+      </span>
+    );
+  };
+  return (
+    <div className="grid gap-2 md:grid-cols-2">
+      <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3">
+        <div className="text-[11px] uppercase tracking-wide font-semibold text-destructive/80 mb-1">Before</div>
+        <div className="text-sm leading-relaxed">{renderMarked(original, removed, "removed")}</div>
+      </div>
+      <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
+        <div className="text-[11px] uppercase tracking-wide font-semibold text-primary/80 mb-1">After</div>
+        <div className="text-sm leading-relaxed">{renderMarked(suggestion, added, "added")}</div>
+      </div>
+    </div>
+  );
+}
 
 export default function BlogWrite() {
   const navigate = useNavigate();
@@ -34,17 +98,15 @@ export default function BlogWrite() {
   const [submitting, setSubmitting] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
 
+  const [showTips, setShowTips] = useState<boolean>(() => localStorage.getItem("blog_tips_dismissed") !== "1");
+
   const bodyRef = useRef<HTMLTextAreaElement>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Auth check
   useEffect(() => {
     (async () => {
       const { data } = await supabase.auth.getSession();
-      if (!data.session) {
-        navigate("/auth?next=/blog/write", { replace: true });
-        return;
-      }
+      if (!data.session) { navigate("/auth?next=/blog/write", { replace: true }); return; }
       setSession(data.session);
       if (editingId) {
         const { data: row } = await supabase.from("blogs").select("*").eq("id", editingId).maybeSingle();
@@ -91,7 +153,6 @@ export default function BlogWrite() {
     }
   }, [session, title, body, cover, status, blogId, toast]);
 
-  // Autosave: debounced
   useEffect(() => {
     if (!session) return;
     if (saveTimer.current) clearTimeout(saveTimer.current);
@@ -101,7 +162,6 @@ export default function BlogWrite() {
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
   }, [title, body, cover, session, saveDraft]);
 
-  // Save on visibility change / beforeunload
   useEffect(() => {
     const handler = () => { if (document.visibilityState === "hidden") saveDraft(true); };
     document.addEventListener("visibilitychange", handler);
@@ -119,6 +179,23 @@ export default function BlogWrite() {
     setTimeout(() => { el.focus(); el.selectionStart = start + before.length; el.selectionEnd = end + before.length; }, 0);
   };
 
+  const applyPrompt = (seed: string) => {
+    const nextBody = body.trim() ? `${body.replace(/\s+$/, "")}\n\n${seed}` : seed;
+    setBody(nextBody);
+    setTimeout(() => {
+      const el = bodyRef.current;
+      if (!el) return;
+      el.focus();
+      el.selectionStart = el.selectionEnd = nextBody.length;
+      el.scrollTop = el.scrollHeight;
+    }, 50);
+  };
+
+  const dismissTips = () => {
+    setShowTips(false);
+    localStorage.setItem("blog_tips_dismissed", "1");
+  };
+
   const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -128,10 +205,7 @@ export default function BlogWrite() {
   };
 
   const runAiCheck = async () => {
-    if (!body.trim()) {
-      toast({ title: "Nothing to check yet", description: "Write something first." });
-      return;
-    }
+    if (!body.trim()) { toast({ title: "Nothing to check yet", description: "Write something first." }); return; }
     setChecking(true);
     setSuggestions([]);
     const { data, error } = await supabase.functions.invoke("check-blog-writing", { body: { text: body } });
@@ -141,10 +215,7 @@ export default function BlogWrite() {
       toast({ title: "AI check failed", description: message || "Please try again.", variant: "destructive" });
       return;
     }
-    if (data?.error) {
-      toast({ title: "AI check failed", description: data.error, variant: "destructive" });
-      return;
-    }
+    if (data?.error) { toast({ title: "AI check failed", description: data.error, variant: "destructive" }); return; }
     setSuggestions(data?.suggestions ?? []);
     if ((data?.suggestions ?? []).length === 0) {
       toast({ title: "Your writing looks great!", description: "No suggestions." });
@@ -156,14 +227,12 @@ export default function BlogWrite() {
     setBody((prev) => prev.replace(s.original, s.suggestion));
     setSuggestions((prev) => prev.filter((_, i) => i !== idx));
   };
-
   const acceptAll = () => {
     let updated = body;
     suggestions.forEach((s) => { updated = updated.replace(s.original, s.suggestion); });
     setBody(updated);
     setSuggestions([]);
   };
-
   const rejectSuggestion = (idx: number) => setSuggestions((prev) => prev.filter((_, i) => i !== idx));
 
   const submitStory = async () => {
@@ -176,9 +245,8 @@ export default function BlogWrite() {
     if (!blogId) { setSubmitting(false); return; }
     const { error } = await supabase.from("blogs").update({ status: "submitted", admin_notes: null }).eq("id", blogId);
     setSubmitting(false);
-    if (error) {
-      toast({ title: "Submit failed", description: error.message, variant: "destructive" });
-    } else {
+    if (error) toast({ title: "Submit failed", description: error.message, variant: "destructive" });
+    else {
       toast({ title: "Story submitted!", description: "We'll review it shortly and let you know." });
       navigate("/blog/my-stories");
     }
@@ -189,6 +257,7 @@ export default function BlogWrite() {
   }
 
   const ready = title.trim() && body.trim();
+  const wordCount = body.trim() ? body.trim().split(/\s+/).length : 0;
 
   return (
     <Layout>
@@ -204,6 +273,59 @@ export default function BlogWrite() {
 
         <h1 className="font-serif text-2xl md:text-3xl font-bold mb-2">Tell your story</h1>
         <p className="text-muted-foreground mb-6">Write in whichever language feels natural. We'll take care of the rest.</p>
+
+        {/* Guided walkthrough: tips + quick prompts */}
+        {showTips && (
+          <Card className="mb-4 border-primary/30 bg-primary/5">
+            <CardContent className="pt-5">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-2 font-semibold text-primary">
+                  <Lightbulb className="h-5 w-5" />
+                  Not sure where to start? Try one of these.
+                </div>
+                <button
+                  type="button"
+                  onClick={dismissTips}
+                  aria-label="Hide tips"
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                {QUICK_PROMPTS.map((p) => (
+                  <button
+                    key={p.label}
+                    type="button"
+                    onClick={() => applyPrompt(p.seed)}
+                    className="text-sm rounded-full border border-primary/40 bg-background hover:bg-primary hover:text-primary-foreground transition-colors px-3 py-2 min-h-[44px]"
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+
+              <ul className="mt-4 space-y-1.5 text-sm text-foreground/80">
+                {TIPS.map((t, i) => (
+                  <li key={i} className="flex gap-2">
+                    <span className="text-primary mt-0.5">•</span>
+                    <span>{t}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        )}
+        {!showTips && (
+          <button
+            type="button"
+            onClick={() => setShowTips(true)}
+            className="mb-4 inline-flex items-center gap-1 text-sm text-primary hover:underline"
+          >
+            <Lightbulb className="h-4 w-4" /> Show writing tips & prompts
+          </button>
+        )}
 
         {status === "needs_changes" && adminNotes && (
           <Card className="mb-6 border-amber-400 bg-amber-50">
@@ -227,9 +349,10 @@ export default function BlogWrite() {
             <Button type="button" variant="ghost" size="sm" onClick={() => insertToken("**", "**")} className="h-11" aria-label="Bold"><Bold className="h-4 w-4 mr-1" />Bold</Button>
             <Button type="button" variant="ghost" size="sm" onClick={() => insertToken("\n- ")} className="h-11" aria-label="Bullet"><List className="h-4 w-4 mr-1" />Bullet</Button>
             <Button type="button" variant="ghost" size="sm" onClick={() => insertToken("\n\n")} className="h-11" aria-label="Paragraph">¶ Paragraph</Button>
-            <div className="ml-auto flex items-center gap-2 text-sm text-muted-foreground">
-              {savingState === "saving" && <><Loader2 className="h-3 w-3 animate-spin" /> Saving…</>}
-              {savingState === "saved" && <>Saved{lastSavedAt ? ` · ${Math.max(1, Math.round((Date.now() - lastSavedAt) / 1000))}s ago` : ""}</>}
+            <div className="ml-auto flex items-center gap-3 text-sm text-muted-foreground">
+              <span>{wordCount} words</span>
+              {savingState === "saving" && <span className="inline-flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> Saving…</span>}
+              {savingState === "saved" && <span>Saved{lastSavedAt ? ` · ${Math.max(1, Math.round((Date.now() - lastSavedAt) / 1000))}s ago` : ""}</span>}
               {savingState === "error" && <span className="text-destructive">Save failed</span>}
             </div>
           </div>
@@ -249,9 +372,6 @@ export default function BlogWrite() {
               {cover ? "Change cover photo" : "Add cover photo"}
             </Button>
             <input id="cover-upload" type="file" accept="image/*" hidden onChange={handleCoverUpload} />
-            <Button type="button" variant="outline" disabled title="Coming soon" className="h-12">
-              <Mic className="mr-2 h-4 w-4" /> Speak instead (coming soon)
-            </Button>
             <Button type="button" variant="secondary" onClick={runAiCheck} disabled={checking} className="h-12">
               {checking ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Wand2 className="h-4 w-4 mr-2" />}
               Check my writing
@@ -265,24 +385,41 @@ export default function BlogWrite() {
           )}
 
           {suggestions.length > 0 && (
-            <Card>
+            <Card className="border-primary/40">
               <CardContent className="pt-6">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="font-semibold">We found {suggestions.length} suggestion{suggestions.length === 1 ? "" : "s"}</div>
-                  <Button size="sm" onClick={acceptAll}>Accept all</Button>
-                </div>
-                <ul className="space-y-3">
-                  {suggestions.map((s, idx) => (
-                    <li key={idx} className="border-b border-border pb-3 last:border-0">
-                      <div className="text-sm">
-                        <span className="line-through text-destructive/80">{s.original}</span>
-                        {" → "}
-                        <span className="text-primary font-medium">{s.suggestion}</span>
+                <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-primary" />
+                    <div>
+                      <div className="font-semibold">
+                        {suggestions.length} suggestion{suggestions.length === 1 ? "" : "s"} to review
                       </div>
-                      {s.reason && <div className="text-xs text-muted-foreground mt-1">{s.reason}</div>}
-                      <div className="flex gap-2 mt-2">
-                        <Button size="sm" variant="outline" onClick={() => acceptSuggestion(idx)} className="h-9"><Check className="h-3 w-3 mr-1" />Accept</Button>
-                        <Button size="sm" variant="ghost" onClick={() => rejectSuggestion(idx)} className="h-9"><X className="h-3 w-3 mr-1" />Ignore</Button>
+                      <div className="text-xs text-muted-foreground">
+                        Your original words stay unless you accept a change. Compare before and after below.
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={() => setSuggestions([])}>Reject all</Button>
+                    <Button size="sm" onClick={acceptAll}>Accept all</Button>
+                  </div>
+                </div>
+                <ul className="space-y-5">
+                  {suggestions.map((s, idx) => (
+                    <li key={idx} className="border-b border-border pb-5 last:border-0">
+                      <DiffLine original={s.original} suggestion={s.suggestion} />
+                      {s.reason && (
+                        <div className="mt-2 text-xs text-muted-foreground italic">
+                          Why: {s.reason}
+                        </div>
+                      )}
+                      <div className="flex gap-2 mt-3">
+                        <Button size="sm" onClick={() => acceptSuggestion(idx)} className="h-10 min-w-[110px]">
+                          <Check className="h-4 w-4 mr-1" /> Use this
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => rejectSuggestion(idx)} className="h-10">
+                          <X className="h-4 w-4 mr-1" /> Keep mine
+                        </Button>
                       </div>
                     </li>
                   ))}
