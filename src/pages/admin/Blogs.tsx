@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Loader2, CheckCircle2, MessageSquareWarning, Archive, EyeOff, Send } from "lucide-react";
+import { Loader2, CheckCircle2, MessageSquareWarning, Archive, EyeOff, Send, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { RenderMarkdownLite } from "@/lib/markdown-lite";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
