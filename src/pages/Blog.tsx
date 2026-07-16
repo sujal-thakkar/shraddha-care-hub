@@ -65,7 +65,7 @@ export default function Blog() {
   const languages = Array.from(new Set(blogs.map((b) => b.language).filter(Boolean))) as string[];
 
   useEffect(() => {
-    document.title = "Stories from our community — Shraddha";
+    document.title = "Blogs from our community — Shraddha";
   }, []);
 
   return (
@@ -74,8 +74,8 @@ export default function Blog() {
       <section className="container max-w-6xl px-4 py-12 md:py-16">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
           <div>
-            <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground">Stories</h1>
-            <p className="text-muted-foreground mt-2 text-lg">Voices, memories and reflections from our community.</p>
+            <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground">Blogs</h1>
+            <p className="text-muted-foreground mt-2 text-lg">Stories, poems, recitations & reflections from our community.</p>
           </div>
           <Button asChild size="lg" className="h-12">
             <Link to={session ? "/blog/write" : "/auth?next=/blog/write"}>
