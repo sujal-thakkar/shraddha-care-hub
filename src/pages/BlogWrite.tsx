@@ -117,6 +117,7 @@ export default function BlogWrite() {
   const [blogId, setBlogId] = useState<string | null>(editingId);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const [kind, setKind] = useState<BlogKind>("story");
   const [cover, setCover] = useState<string | null>(null);
   const [status, setStatus] = useState<string>("draft");
   const [adminNotes, setAdminNotes] = useState<string | null>(null);
@@ -127,10 +128,12 @@ export default function BlogWrite() {
   const [diffMode, setDiffMode] = useState<"full" | "highlights">("full");
   const [submitting, setSubmitting] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
+  const [editorSyncKey, setEditorSyncKey] = useState(0);
+  const [initialBody, setInitialBody] = useState<string>("");
 
   const [showTips, setShowTips] = useState<boolean>(() => localStorage.getItem("blog_tips_dismissed") !== "1");
 
-  const bodyRef = useRef<HTMLTextAreaElement>(null);
+  const editorRef = useRef<RichEditorHandle>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
