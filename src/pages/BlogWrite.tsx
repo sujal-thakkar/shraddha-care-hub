@@ -122,6 +122,7 @@ export default function BlogWrite() {
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
   const [checking, setChecking] = useState(false);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [diffMode, setDiffMode] = useState<"full" | "highlights">("full");
   const [submitting, setSubmitting] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
 
