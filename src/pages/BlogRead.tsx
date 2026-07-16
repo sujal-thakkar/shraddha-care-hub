@@ -7,6 +7,7 @@ import { Loader2, Volume2, Pause, Play, ArrowLeft } from "lucide-react";
 import { RenderMarkdownLite } from "@/lib/markdown-lite";
 import { useFontSize, FontSizeToggle } from "@/hooks/use-font-size";
 import { useToast } from "@/hooks/use-toast";
+import { SocialShare } from "@/components/events/SocialShare";
 
 interface BlogRow {
   id: string;
@@ -134,6 +135,10 @@ export default function BlogRead() {
           className="prose prose-lg max-w-none text-foreground"
         />
         <style>{`article .prose p, article .prose li { font-size: ${size}px; line-height: 1.7; }`}</style>
+
+        <div className="mt-12 pt-8 border-t border-border">
+          <SocialShare title={blog.title} />
+        </div>
       </article>
     </Layout>
   );
