@@ -251,8 +251,8 @@ serve(async (req) => {
                   children: [
                     new TextRun({
                       text: newsletter.issue_number
-                        ? `${newsletter.title} — Issue ${newsletter.issue_number}`
-                        : newsletter.title,
+                        ? `${displayTitle} — Issue ${newsletter.issue_number}`
+                        : displayTitle,
                       italics: true,
                       size: 20,
                       color: "6b7280",
