@@ -216,12 +216,17 @@ export default function BlogWrite() {
       }
       setSavingState("saved");
       setLastSavedAt(Date.now());
+      // Successfully persisted — clear local backup(s)
+      try {
+        localStorage.removeItem(backupKey);
+        if (!editingId) localStorage.removeItem("blog_backup_new");
+      } catch {}
     } catch (e: any) {
       console.error("save error", e);
       setSavingState("error");
       if (!silent) toast({ title: "Couldn't save", description: e.message, variant: "destructive" });
     }
-  }, [session, title, body, cover, status, blogId, toast]);
+  }, [session, title, body, cover, status, blogId, toast, backupKey, editingId]);
 
   useEffect(() => {
     if (!session) return;
@@ -231,6 +236,15 @@ export default function BlogWrite() {
     saveTimer.current = setTimeout(() => saveDraft(true), 5000);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
   }, [title, body, cover, session, saveDraft]);
+
+  // Local backup on every change — survives refresh/logout even before the server save runs.
+  useEffect(() => {
+    if (!session || restorePrompt) return;
+    if (!title.trim() && !body.trim()) return;
+    try {
+      localStorage.setItem(backupKey, JSON.stringify({ title, body, cover, ts: Date.now() }));
+    } catch {}
+  }, [title, body, cover, session, backupKey, restorePrompt]);
 
   useEffect(() => {
     const handler = () => { if (document.visibilityState === "hidden") saveDraft(true); };
