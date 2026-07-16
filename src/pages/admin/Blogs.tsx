@@ -147,6 +147,7 @@ export default function AdminBlogs() {
                     <Button variant="outline" onClick={() => runAction(row, "request_changes")} disabled={busy || !notes.trim()}><MessageSquareWarning className="h-4 w-4 mr-1" />Request changes</Button>
                     {row.status === "published" && <Button variant="outline" onClick={() => runAction(row, "unpublish")} disabled={busy}><EyeOff className="h-4 w-4 mr-1" />Unpublish</Button>}
                     <Button variant="ghost" onClick={() => runAction(row, "archive")} disabled={busy}><Archive className="h-4 w-4 mr-1" />Archive</Button>
+                    <Button variant="destructive" onClick={() => deleteBlog(row)} disabled={busy} className="ml-auto"><Trash2 className="h-4 w-4 mr-1" />Delete permanently</Button>
                   </div>
                 </CardContent>
               )}
