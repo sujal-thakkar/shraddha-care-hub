@@ -43,14 +43,13 @@ function diffWords(a: string, b: string): { removed: string[]; added: string[] }
   };
 }
 
-function DiffLine({ original, suggestion }: { original: string; suggestion: string }) {
+function DiffLine({ original, suggestion, mode }: { original: string; suggestion: string; mode: "full" | "highlights" }) {
   const { removed, added } = diffWords(original, suggestion);
   const renderMarked = (text: string, marks: string[], variant: "removed" | "added") => {
     const cls = variant === "removed"
       ? "bg-destructive/15 text-destructive line-through decoration-2 px-1 rounded"
       : "bg-primary/15 text-primary font-semibold px-1 rounded";
     if (marks.length === 0) return <span>{text}</span>;
-    // Build a case-sensitive regex that matches any of the changed tokens as whole words
     const escaped = marks.map((m) => m.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
     const re = new RegExp(`(${escaped.join("|")})`, "g");
     const parts = text.split(re);
@@ -62,6 +61,34 @@ function DiffLine({ original, suggestion }: { original: string; suggestion: stri
       </span>
     );
   };
+
+  if (mode === "highlights") {
+    // Compact: show only the changed chunks, no unchanged prose.
+    const noChanges = removed.length === 0 && added.length === 0;
+    return (
+      <div className="rounded-lg border border-border bg-muted/40 p-3">
+        <div className="text-[11px] uppercase tracking-wide font-semibold text-muted-foreground mb-2">
+          Changed only
+        </div>
+        {noChanges ? (
+          <div className="text-sm text-muted-foreground italic">Only formatting or order changed — open full view to compare.</div>
+        ) : (
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm leading-relaxed">
+            {removed.map((w, i) => (
+              <mark key={`r-${i}`} className="bg-destructive/15 text-destructive line-through decoration-2 px-1 rounded">{w}</mark>
+            ))}
+            {removed.length > 0 && added.length > 0 && (
+              <span className="text-muted-foreground">→</span>
+            )}
+            {added.map((w, i) => (
+              <mark key={`a-${i}`} className="bg-primary/15 text-primary font-semibold px-1 rounded">{w}</mark>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="grid gap-2 md:grid-cols-2">
       <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3">
