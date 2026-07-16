@@ -68,6 +68,104 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_check_log: {
+        Row: {
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      blog_ai_suggestions: {
+        Row: {
+          blog_id: string | null
+          created_at: string
+          id: string
+          suggestions: Json
+          user_id: string
+        }
+        Insert: {
+          blog_id?: string | null
+          created_at?: string
+          id?: string
+          suggestions: Json
+          user_id: string
+        }
+        Update: {
+          blog_id?: string | null
+          created_at?: string
+          id?: string
+          suggestions?: Json
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_ai_suggestions_blog_id_fkey"
+            columns: ["blog_id"]
+            isOneToOne: false
+            referencedRelation: "blogs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blogs: {
+        Row: {
+          admin_notes: string | null
+          author_id: string
+          body: string
+          content_hash: string | null
+          cover_image_url: string | null
+          created_at: string
+          id: string
+          language: string | null
+          published_at: string | null
+          slug: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          author_id: string
+          body?: string
+          content_hash?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          id?: string
+          language?: string | null
+          published_at?: string | null
+          slug?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          author_id?: string
+          body?: string
+          content_hash?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          id?: string
+          language?: string | null
+          published_at?: string | null
+          slug?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       collaborations: {
         Row: {
           collaborator_logo_url: string | null
@@ -321,6 +419,69 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_blogs: {
+        Row: {
+          blog_id: string
+          newsletter_id: string
+          position: number
+        }
+        Insert: {
+          blog_id: string
+          newsletter_id: string
+          position?: number
+        }
+        Update: {
+          blog_id?: string
+          newsletter_id?: string
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "newsletter_blogs_blog_id_fkey"
+            columns: ["blog_id"]
+            isOneToOne: false
+            referencedRelation: "blogs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "newsletter_blogs_newsletter_id_fkey"
+            columns: ["newsletter_id"]
+            isOneToOne: false
+            referencedRelation: "newsletters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      newsletters: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          issue_number: number | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          issue_number?: number | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          issue_number?: number | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notification_emails: {
         Row: {
           created_at: string
@@ -510,6 +671,7 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          preferred_font_size: number
           updated_at: string
           user_id: string
         }
@@ -518,6 +680,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          preferred_font_size?: number
           updated_at?: string
           user_id: string
         }
@@ -526,6 +689,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          preferred_font_size?: number
           updated_at?: string
           user_id?: string
         }

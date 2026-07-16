@@ -22,6 +22,11 @@ const Register = lazy(() => import("./pages/Register"));
 const EventRegistration = lazy(() => import("./pages/EventRegistration"));
 const MembershipPlansPage = lazy(() => import("./pages/MembershipPlansPage"));
 const DailyRoutine = lazy(() => import("./pages/DailyRoutine"));
+const Auth = lazy(() => import("./pages/Auth"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogRead = lazy(() => import("./pages/BlogRead"));
+const BlogWrite = lazy(() => import("./pages/BlogWrite"));
+const BlogMyStories = lazy(() => import("./pages/BlogMyStories"));
 const AdminLogin = lazy(() => import("./pages/admin/Login"));
 const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
 const AdminOverview = lazy(() => import("./pages/admin/Overview"));
@@ -39,6 +44,8 @@ const AdminRoutineManagement = lazy(() => import("./pages/admin/RoutineManagemen
 const AdminMemberships = lazy(() => import("./pages/admin/Memberships"));
 const AdminPreviewInspector = lazy(() => import("./pages/admin/PreviewInspector"));
 const AdminCollaborateContent = lazy(() => import("./pages/admin/CollaborateContent"));
+const AdminBlogs = lazy(() => import("./pages/admin/Blogs"));
+const AdminNewsletters = lazy(() => import("./pages/admin/Newsletters"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -76,6 +83,11 @@ const App = () => (
             <Route path="/membership-plans" element={<MembershipPlansPage />} />
             <Route path="/daily-routine" element={<DailyRoutine />} />
             <Route path="/mumbai-health-camp" element={<Navigate to="/register/mumbai-senior-citizens-health-camp" replace />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/write" element={<BlogWrite />} />
+            <Route path="/blog/my-stories" element={<BlogMyStories />} />
+            <Route path="/blog/:slug" element={<BlogRead />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />}>
               <Route index element={<AdminOverview />} />
@@ -92,6 +104,8 @@ const App = () => (
               <Route path="memberships" element={<AdminMemberships />} />
               <Route path="preview-inspector" element={<AdminPreviewInspector />} />
               <Route path="collaborate" element={<AdminCollaborateContent />} />
+              <Route path="blogs" element={<AdminBlogs />} />
+              <Route path="newsletters" element={<AdminNewsletters />} />
               <Route path="settings" element={<AdminSettings />} />
             </Route>
             <Route path="*" element={<NotFound />} />

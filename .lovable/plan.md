@@ -1,57 +1,176 @@
-## Goal
+# Elder-Friendly AI Blog + Newsletter Platform
 
-Today there are two disconnected systems:
+Mobile-first story submission for 50–70+ authors, with Gemini-powered grammar assistant, Murf Falcon read-aloud, admin moderation, and DOCX newsletter export. Uses your own API keys (no Lovable AI credits consumed).
 
-- **`projects_events`** → shown on Home (`ProjectsEventsSection`) and `/events`, managed in admin "Projects & Events".
-- **`registration_events`** → shown on `/register` + `/register/:slug`, managed in admin "Manage Events", and is what registrations + confirmation emails attach to.
+## Secrets to store
 
-Because they're separate, the **Belur Math** event (only in `registration_events`) is open for registration but missing from Home and `/events`. And "Senior Serenity Summit" / "Mumbai Health Camp" exist as duplicates in both tables.
+- `GEMINI_API_KEY` = `AQ.Ab8RN6...` (Google AI Studio — grammar suggestions, language detect)
+- `MURF_API_KEY` = `ap2_f0e1...` (Murf Falcon — read-aloud TTS)
 
-We'll make **`registration_events` the single source of truth**. One detailed entry will drive Home, `/events`, and `/register`. Admin gets **one** "Events" section.
+Stored via `set_secret` in Supabase Edge Function env. Never exposed to the browser.
 
-## Database (one migration)
+## v1 Scope
 
-Extend `public.registration_events` with the display fields currently only on `projects_events`:
+1. Mobile-first story editor (title, body, cover image, bold/paragraph/bullet only)
+2. Login required (Supabase auth: email/password + Google)
+3. Gemini grammar/spelling suggestions on demand — accept/reject individually, never auto-rewrite
+4. Auto-save drafts (debounced 5 s + on blur + on tab-hide)
+5. Admin moderation workflow: draft → submitted → under_review → needs_changes → approved → published (+ admin_notes back to author)
+6. Public `/blog` listing + `/blog/:slug` reader page (multilingual)
+7. Admin newsletter builder: pick + drag-reorder blogs → export DOCX
+8. Large-font accessibility toggle (18 / 22 / 26 px), persisted per user
+9. Murf Falcon "Read aloud" button on reader page (streams MP3, auto-picks voice by detected language)
 
-- `status` (`project_status` enum: upcoming / ongoing / completed) — default `upcoming`
-- `organization` (`organization_type` enum: shraddha / hosla / both) — default `shraddha`
-- `resource_link` (text, nullable) — optional "Know More" link
-- `end_date` (date, nullable)
-- `location` (text, nullable) — short display location for cards
-- `enable_registration` (boolean, default false) — whether this event accepts sign-ups
+Deferred to v2 (UI placeholders reserved, no build now): voice-to-blog (STT), WhatsApp intake, PDF export, translation, headline suggestions, "writer's block" continuation, sentiment tagging.
 
-Keep the existing `banner_url` as the single event image (no second image column).
+## Elder-Friendly UX Principles
 
-Data moves:
-- Enrich the 3 existing `registration_events` rows with sensible `status` / `organization` (Mumbai → completed/both, Senior Serenity → upcoming, Belur Math → upcoming) and set `enable_registration = true` for the two currently open.
-- Migrate the only non-duplicate project — **HOSLA PREMIER LEAGUE** — into `registration_events` (status completed, `resource_link = /hpl`, `enable_registration = false`).
-- Drop the now-redundant `projects_events` table.
+- One column. No toolbar clutter. Flow: Title → Story → Cover photo → Save draft / Submit.
+- Only three formatting controls: **Bold**, • Bullet, ¶ Paragraph. No H1/H2/quotes/embeds/SEO/tags shown to author.
+- Buttons ≥ 48 px, black-on-white, no gradients on the writer surface. High contrast.
+- Reassuring progress card: "Title ✓ · Story ✓ · Photo optional · Ready to submit".
+- Visible "Save draft" AND autosave with "Saved 2s ago" pill — user feels in control.
+- Slug, tags, category, SEO — admin-only. Author never sees them.
+- Font-size toggle persists in `profiles.preferred_font_size` + localStorage.
 
-GRANTs/RLS stay as they already are on `registration_events` (public reads published; admins manage all).
+## Gemini Grammar Assistant (critical behavior)
 
-## Visibility rules (single table)
+- Edge Function `check-blog-writing` calls `gemini-2.5-flash` via Google AI Studio REST (`generativelanguage.googleapis.com/v1beta`), using `GEMINI_API_KEY`.
+- Prompt strictly enforces: fix spelling + grammar + minor readability only; **preserve tone, emotion, storytelling style, and local expressions**; return corrected text in the SAME language the author wrote in; never sound AI-generated.
+- Response shape (JSON mode): `{ language: "bn|hi|en|...", suggestions: [{ original, suggestion, reason, offsetStart, offsetEnd }] }`.
+- UI shows "We found 8 improvements" with per-item Accept / Reject and Accept all. **Nothing is applied until the author accepts.** Author can submit without ever running AI — help, not a gate.
+- Rate limit: 3 checks per user per minute (in-memory table `ai_check_log`), so a stuck user can't burn quota.
 
-- **Home + `/events`**: `is_published = true`. Home/section keep showing non-completed; `/events` keeps its status filter tabs.
-- **`/register` list**: `is_published = true` AND `enable_registration = true` AND `registration_open = true`.
-- **Card CTA**: if registration is enabled & open → "Register" button → `/register/:slug`; else if `resource_link` set → "Know More" / "Learn More"; else no button.
+## Murf Falcon Read-Aloud
 
-## Frontend changes
+- Edge Function `read-blog-aloud` receives `{ blogId }`, loads body, calls `POST https://global.api.murf.ai/v1/speech/stream` with `model: "FALCON"`, `format: "MP3"`, `sampleRate: 24000`, `channelType: "MONO"`, and a voice/locale chosen from the blog's `language`:
+  - `bn` → voiceId `hi-IN-ayushi` (falcon best-match — will confirm on first run) locale `bn-IN`
+  - `hi` → `Aman`, locale `hi-IN`
+  - `en` → `Gordon`, locale `en-US`
+  - default → English fallback
+- Response streamed straight back to the browser as `audio/mpeg`; reader page uses a plain `<audio>` element with big Play/Pause + speed 0.9× / 1× / 1.2×.
+- Result cached in Supabase Storage bucket `blog-audio` keyed by `${blogId}-${contentHash}.mp3` so re-plays don't burn Murf credits. Regenerated when body changes.
 
-- `src/components/corporate/ProjectsEventsSection.tsx` (Home) — read from `registration_events`; map `banner_url` to the card image; add Register CTA logic.
-- `src/pages/Events.tsx` — read from `registration_events`; same card/CTA logic; keep status tabs.
-- `src/pages/Register.tsx` / `src/pages/EventRegistration.tsx` — already on `registration_events`; just add the `enable_registration` filter to the list.
-- Type references switch from `projects_events` Row to `registration_events` Row (regenerated after migration).
+## Database Schema
 
-## Admin changes
+```
+blogs
+  id uuid pk
+  author_id uuid → auth.users
+  title text
+  body text                       -- markdown-lite: **bold**, blank lines, "- " bullets
+  cover_image_url text
+  language text                   -- detected by Gemini or user pick
+  status text                     -- draft|submitted|under_review|needs_changes|approved|published|archived
+  admin_notes text
+  slug text unique
+  content_hash text               -- for TTS cache invalidation
+  published_at timestamptz
+  created_at, updated_at timestamptz
 
-- Merge into **one** section. Expand `EventManagement.tsx` into the unified editor with grouped fields:
-  - **Details**: title, slug, image, description, status, organization, date + end date, location, resource link, display order, published.
-  - **Registration** (collapsible, gated by an `enable_registration` toggle): start/end time, venue name + address, contact phones, per-field config, registration open.
-- List view shows status + whether registration is on, with the copy-link and preview actions.
-- Remove the old **Projects & Events** admin page (`ProjectsEvents.tsx`), its route in `Dashboard.tsx` nav, and its lazy route in `App.tsx`. Keep the "Registrations" page (its event dropdown already uses `registration_events`).
+blog_ai_suggestions               -- audit trail (optional but cheap)
+  id, blog_id, suggestions jsonb, created_at
 
-## Notes
+newsletters
+  id uuid pk
+  title text
+  issue_number int
+  status text                     -- draft|exported
+  created_by uuid, created_at, updated_at
 
-- `send-event-email` edge function already loads from `registration_events` — unaffected.
-- Old `/mumbai-health-camp` redirect stays working.
-- After the migration runs and types regenerate, I'll update all the frontend/admin code in one pass and verify the build, Home, `/events`, and `/register` all show Belur Math.
+newsletter_blogs                  -- ordered join
+  newsletter_id, blog_id, position int
+  primary key (newsletter_id, blog_id)
+
+ai_check_log                      -- rate limiter for /check-blog-writing
+  user_id, created_at
+```
+
+Column added to `profiles`: `preferred_font_size int default 18`.
+
+Storage buckets: `blog-covers` (public), `blog-audio` (public, cache).
+
+RLS (with GRANTs in the same migration):
+- `blogs`: author can SELECT/INSERT/UPDATE/DELETE own rows only while `status IN ('draft','submitted','needs_changes')`; `anon` + `authenticated` SELECT rows where `status = 'published'`; admins full access via `is_admin()`.
+- `newsletters` / `newsletter_blogs`: admin-only.
+- `ai_check_log`: user can insert/select own, admin all.
+
+## Routes
+
+Public:
+- `/blog` — published listing, search, language filter
+- `/blog/:slug` — reader (font-toggle + Read aloud)
+- `/blog/write` — editor (requires login)
+- `/blog/my-stories` — author's drafts + status + admin notes
+
+Admin (nested in `/admin/dashboard`):
+- `/admin/dashboard/blogs` — moderation queue with status filters, inline edit, publish, note-back-to-author
+- `/admin/dashboard/newsletters` — build, drag-reorder (`@dnd-kit`), export DOCX
+
+Header nav: add "Stories".
+
+## Editor Component
+
+- Plain `<textarea>` based (no TipTap in v1). Lighter on old phones, zero learning curve. Three toolbar buttons: **B**, • bullet, ¶ paragraph — insert the tokens into the text.
+- Autosave: debounce 5 s + on blur + on `visibilitychange`. Status pill: "Saving… / Saved 2s ago / Error — retrying".
+- "Check my writing" button → calls edge function → renders suggestion list with per-item Accept/Reject.
+- Cover image via existing `use-image-upload` hook, bucket `blog-covers` (already-compressed ≤1 MB / 1200 px).
+- Font-size toggle (A · A+ · A++) top-right on editor AND reader.
+- Reserved but disabled: `🎤 Speak instead` button (tooltip "Coming soon") so v2 slots in without redesign.
+
+## Edge Functions
+
+1. **`check-blog-writing`** — validates rate-limit + Zod body, calls Gemini `generateContent` with the preservation prompt, returns structured suggestions. `GEMINI_API_KEY` server-side.
+2. **`publish-blog`** (admin-guarded via `is_admin()`) — flips status, generates slug (transliterate + `-<id6>` fallback for Bengali/Hindi), sets `published_at`, notifies author via existing `send-notification` Resend flow.
+3. **`read-blog-aloud`** — checks `blog-audio` cache by `content_hash`; on miss, streams from Murf and mirrors bytes to Storage + response. Falls back gracefully if Murf 402/403.
+4. **`generate-newsletter-docx`** (admin-guarded) — reads a newsletter + ordered blogs, generates DOCX with the format below using `docx` npm lib (via Deno `npm:docx`), returns as attachment download.
+
+All edge functions: CORS via `npm:@supabase/supabase-js@2/cors`, Zod input validation, structured error responses.
+
+## DOCX Export Spec (v1)
+
+Per your note: **no cover page, no blog thumbnails** — you'll design the cover yourself.
+
+Per-blog section:
+- Blog title (24 pt bold, primary sage green `#0A8F6B`)
+- "By {author name} · {published date, DD Month YYYY}" — 11 pt italic secondary grey
+- Blank line
+- Body paragraphs — 12 pt, 1.4 line height, justified; markdown-lite parsed into runs (bold), Paragraph nodes, and `LevelFormat.BULLET` lists
+- Page break between blogs
+- From blog 2 onward: header = newsletter title, right-aligned
+- Footer: page number, centered
+
+US Letter (12240×15840 DXA), 1" margins. Font: Calibri (universally rendered — Work Sans falls back cleanly). Follows DOCX skill rules: no `\n` inside runs, `PageBreak` in a Paragraph, `LevelFormat.BULLET` for lists, no tables used.
+
+## Notifications
+
+Piggyback existing `send-notification` + `notification_emails` table:
+- Author gets email on: submission received, needs changes (with `admin_notes`), approved & published.
+- Admin routing gets notified on new submissions (existing pattern).
+
+## Performance & Scalability
+
+- Blog list paginated with `.range()` + index on `(status, published_at desc)`, index on `language`.
+- Cover images ≤ 1 MB / 1200 px via existing compression hook.
+- Gemini call only on button press (never per keystroke) — cost bounded by rate limit.
+- Murf audio cached in Storage by content hash — repeat plays = free.
+- Body stored as markdown-lite text (single source of truth) → renders to reader HTML, DOCX, and future PDF/HTML email from the same field.
+- Slug generation server-side with unicode-safe transliteration + `-<id6>` fallback.
+
+## Non-goals (v2 backlog, not built now)
+
+Voice-to-blog (STT), WhatsApp intake, PDF export, translation between languages, headline generator, sentiment/category auto-tagging, in-app comment threads. UI placeholders exist so v2 doesn't require redesign.
+
+## Build Order
+
+1. Migration: 3 tables + `profiles.preferred_font_size` + 2 buckets + RLS + GRANTs
+2. Store `GEMINI_API_KEY` and `MURF_API_KEY` via `set_secret`
+3. Public listing + reader page (works before AI is wired)
+4. Editor + autosave + cover upload + my-stories
+5. `check-blog-writing` edge function + suggestion UI
+6. Admin blogs moderation page + `publish-blog` function + Resend notifications
+7. `read-blog-aloud` edge function + reader Play/Pause + storage cache
+8. Admin newsletters page + `@dnd-kit` reorder + `generate-newsletter-docx`
+9. Header nav "Stories", font-size toggle everywhere, docs update in `DOCUMENTATION.md`
+
+If this looks right, I'll implement in this order and test each stage (edge functions via `curl_edge_functions`, UI via preview).

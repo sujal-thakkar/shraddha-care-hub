@@ -1,0 +1,253 @@
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  Document,
+  Packer,
+  Paragraph,
+  TextRun,
+  AlignmentType,
+  HeadingLevel,
+  LevelFormat,
+  PageBreak,
+  PageNumber,
+  Header,
+  Footer,
+  BorderStyle,
+} from "npm:docx@9.7.1";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+// Parse markdown-lite into an array of docx Paragraphs.
+// Supports: **bold**, blank lines = paragraph break, "- " line = bullet.
+function parseBody(text: string): Paragraph[] {
+  const paragraphs: Paragraph[] = [];
+  const lines = text.replace(/\r\n/g, "\n").split("\n");
+  let paragraphBuffer: string[] = [];
+
+  const flushParagraph = () => {
+    if (!paragraphBuffer.length) return;
+    const merged = paragraphBuffer.join(" ").trim();
+    paragraphBuffer = [];
+    if (!merged) return;
+    paragraphs.push(new Paragraph({
+      alignment: AlignmentType.JUSTIFIED,
+      spacing: { before: 120, after: 120, line: 340 },
+      children: parseInlineBold(merged),
+    }));
+  };
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (!line) {
+      flushParagraph();
+      continue;
+    }
+    const bulletMatch = line.match(/^-\s+(.*)$/);
+    if (bulletMatch) {
+      flushParagraph();
+      paragraphs.push(new Paragraph({
+        numbering: { reference: "story-bullets", level: 0 },
+        spacing: { before: 60, after: 60 },
+        children: parseInlineBold(bulletMatch[1]),
+      }));
+    } else {
+      paragraphBuffer.push(line);
+    }
+  }
+  flushParagraph();
+  return paragraphs;
+}
+
+function parseInlineBold(input: string): TextRun[] {
+  const runs: TextRun[] = [];
+  const regex = /\*\*(.+?)\*\*/g;
+  let last = 0;
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(input)) !== null) {
+    if (match.index > last) {
+      runs.push(new TextRun({ text: input.slice(last, match.index), size: 24, font: "Calibri" }));
+    }
+    runs.push(new TextRun({ text: match[1], bold: true, size: 24, font: "Calibri" }));
+    last = match.index + match[0].length;
+  }
+  if (last < input.length) {
+    runs.push(new TextRun({ text: input.slice(last), size: 24, font: "Calibri" }));
+  }
+  return runs.length ? runs : [new TextRun({ text: input, size: 24, font: "Calibri" })];
+}
+
+function formatDate(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return d.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
+}
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  try {
+    const auth = req.headers.get("Authorization");
+    if (!auth) return new Response("Not authenticated", { status: 401, headers: corsHeaders });
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const userClient = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: auth } },
+    });
+    const { data: { user } } = await userClient.auth.getUser();
+    if (!user) return new Response("Not authenticated", { status: 401, headers: corsHeaders });
+    const { data: isAdmin } = await userClient.rpc("is_admin");
+    if (!isAdmin) return new Response("Admin access required", { status: 403, headers: corsHeaders });
+
+    const { newsletterId } = await req.json().catch(() => ({}));
+    if (!newsletterId) {
+      return new Response(JSON.stringify({ error: "newsletterId required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const service = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const { data: newsletter, error: nlErr } = await service
+      .from("newsletters")
+      .select("id, title, issue_number")
+      .eq("id", newsletterId)
+      .maybeSingle();
+    if (nlErr || !newsletter) {
+      return new Response(JSON.stringify({ error: "Newsletter not found" }), {
+        status: 404,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const { data: items } = await service
+      .from("newsletter_blogs")
+      .select("position, blog:blogs(id, title, body, author_id, published_at, language)")
+      .eq("newsletter_id", newsletterId)
+      .order("position", { ascending: true });
+
+    // Fetch author names
+    const authorIds = Array.from(new Set((items ?? []).map((i: any) => i.blog?.author_id).filter(Boolean)));
+    const { data: authorProfiles } = authorIds.length
+      ? await service.from("profiles").select("user_id, full_name").in("user_id", authorIds)
+      : { data: [] as Array<{ user_id: string; full_name: string | null }> };
+    const authorMap = new Map((authorProfiles ?? []).map((p: any) => [p.user_id, p.full_name || "Anonymous"]));
+
+    const sections: Paragraph[] = [];
+    (items ?? []).forEach((item: any, idx: number) => {
+      const b = item.blog;
+      if (!b) return;
+      if (idx > 0) sections.push(new Paragraph({ children: [new PageBreak()] }));
+      sections.push(new Paragraph({
+        heading: HeadingLevel.HEADING_1,
+        spacing: { before: 240, after: 120 },
+        children: [new TextRun({ text: b.title, bold: true, size: 48, color: "0A8F6B", font: "Calibri" })],
+      }));
+      sections.push(new Paragraph({
+        spacing: { after: 240 },
+        children: [
+          new TextRun({
+            text: `By ${authorMap.get(b.author_id) || "Anonymous"} · ${formatDate(b.published_at)}`,
+            italics: true,
+            size: 22,
+            color: "6b7280",
+            font: "Calibri",
+          }),
+        ],
+      }));
+      sections.push(...parseBody(b.body || ""));
+    });
+
+    if (sections.length === 0) {
+      sections.push(new Paragraph({ children: [new TextRun({ text: "No stories selected.", font: "Calibri", size: 24 })] }));
+    }
+
+    const doc = new Document({
+      styles: {
+        default: { document: { run: { font: "Calibri", size: 24 } } },
+      },
+      numbering: {
+        config: [
+          {
+            reference: "story-bullets",
+            levels: [
+              {
+                level: 0,
+                format: LevelFormat.BULLET,
+                text: "•",
+                alignment: AlignmentType.LEFT,
+                style: { paragraph: { indent: { left: 720, hanging: 360 } } },
+              },
+            ],
+          },
+        ],
+      },
+      sections: [
+        {
+          properties: {
+            page: {
+              size: { width: 12240, height: 15840 },
+              margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 },
+            },
+          },
+          headers: {
+            default: new Header({
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.RIGHT,
+                  border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: "0A8F6B", space: 4 } },
+                  children: [
+                    new TextRun({
+                      text: newsletter.issue_number
+                        ? `${newsletter.title} — Issue ${newsletter.issue_number}`
+                        : newsletter.title,
+                      italics: true,
+                      size: 20,
+                      color: "6b7280",
+                      font: "Calibri",
+                    }),
+                  ],
+                }),
+              ],
+            }),
+          },
+          footers: {
+            default: new Footer({
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [
+                    new TextRun({ text: "Page ", size: 20, color: "6b7280", font: "Calibri" }),
+                    new TextRun({ children: [PageNumber.CURRENT], size: 20, color: "6b7280", font: "Calibri" }),
+                  ],
+                }),
+              ],
+            }),
+          },
+          children: sections,
+        },
+      ],
+    });
+
+    const bytes = await Packer.toBuffer(doc);
+    const filename = `${newsletter.title.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.docx`;
+
+    return new Response(bytes, {
+      status: 200,
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "Content-Disposition": `attachment; filename="${filename}"`,
+      },
+    });
+  } catch (err: any) {
+    console.error("generate-newsletter-docx error:", err);
+    return new Response(JSON.stringify({ error: "Failed to generate DOCX" }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});
