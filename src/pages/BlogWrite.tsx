@@ -602,7 +602,7 @@ export default function BlogWrite() {
       </div>
 
       {/* Mobile-only floating formatting toolbar. Collapsed = single icon; expanded = full row. */}
-      <div className="md:hidden fixed bottom-4 right-4 z-40">
+      <div className="md:hidden fixed bottom-24 right-4 z-40">
         {fabOpen ? (
           <div className="flex items-center gap-1 rounded-full bg-card border border-border shadow-lg pl-1 pr-1 py-1 animate-in fade-in slide-in-from-bottom-2">
             <Button
