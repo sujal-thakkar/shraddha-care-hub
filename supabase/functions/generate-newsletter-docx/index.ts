@@ -117,13 +117,31 @@ serve(async (req) => {
     const { data: isAdmin } = await userClient.rpc("is_admin");
     if (!isAdmin) return new Response("Admin access required", { status: 403, headers: corsHeaders });
 
-    const { newsletterId } = await req.json().catch(() => ({}));
+    const payload = await req.json().catch(() => ({}));
+    const {
+      newsletterId,
+      layout: layoutRaw,
+      intro_text,
+      title_override,
+      blog_overrides,
+    } = payload as {
+      newsletterId?: string;
+      layout?: string;
+      intro_text?: string | null;
+      title_override?: string | null;
+      blog_overrides?: Array<{ blog_id: string; title?: string; body?: string }>;
+    };
     if (!newsletterId) {
       return new Response(JSON.stringify({ error: "newsletterId required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    const layout: LayoutMode =
+      layoutRaw === "compact" ? "compact" : layoutRaw === "magazine" ? "magazine" : "standard";
+    const overrides = new Map(
+      (blog_overrides ?? []).map((o) => [o.blog_id, { title: o.title, body: o.body }])
+    );
 
     const service = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
     const { data: newsletter, error: nlErr } = await service
@@ -137,6 +155,7 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    const displayTitle = (title_override && title_override.trim()) || newsletter.title;
 
     const { data: items } = await service
       .from("newsletter_blogs")
@@ -152,17 +171,32 @@ serve(async (req) => {
     const authorMap = new Map((authorProfiles ?? []).map((p: any) => [p.user_id, p.full_name || "Anonymous"]));
 
     const sections: Paragraph[] = [];
+
+    // Optional editor's intro at the top
+    if (intro_text && intro_text.trim()) {
+      sections.push(new Paragraph({
+        heading: HeadingLevel.HEADING_2,
+        spacing: { before: 120, after: 120 },
+        children: [new TextRun({ text: "From the editor", bold: true, size: 30, color: "0A8F6B", font: "Calibri" })],
+      }));
+      sections.push(...parseBody(intro_text.trim(), layout));
+      sections.push(new Paragraph({ children: [new PageBreak()] }));
+    }
+
     (items ?? []).forEach((item: any, idx: number) => {
       const b = item.blog;
       if (!b) return;
+      const ov = overrides.get(b.id);
+      const title = ov?.title ?? b.title;
+      const body = ov?.body ?? b.body ?? "";
       if (idx > 0) sections.push(new Paragraph({ children: [new PageBreak()] }));
       sections.push(new Paragraph({
         heading: HeadingLevel.HEADING_1,
         spacing: { before: 240, after: 120 },
-        children: [new TextRun({ text: b.title, bold: true, size: 48, color: "0A8F6B", font: "Calibri" })],
+        children: [new TextRun({ text: title, bold: true, size: layout === "compact" ? 40 : 48, color: "0A8F6B", font: "Calibri" })],
       }));
       sections.push(new Paragraph({
-        spacing: { after: 240 },
+        spacing: { after: layout === "compact" ? 160 : 240 },
         children: [
           new TextRun({
             text: `By ${authorMap.get(b.author_id) || "Anonymous"} · ${formatDate(b.published_at)}`,
@@ -173,7 +207,7 @@ serve(async (req) => {
           }),
         ],
       }));
-      sections.push(...parseBody(b.body || ""));
+      sections.push(...parseBody(body, layout));
     });
 
     if (sections.length === 0) {
