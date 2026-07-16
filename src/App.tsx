@@ -83,6 +83,11 @@ const App = () => (
             <Route path="/membership-plans" element={<MembershipPlansPage />} />
             <Route path="/daily-routine" element={<DailyRoutine />} />
             <Route path="/mumbai-health-camp" element={<Navigate to="/register/mumbai-senior-citizens-health-camp" replace />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/write" element={<BlogWrite />} />
+            <Route path="/blog/my-stories" element={<BlogMyStories />} />
+            <Route path="/blog/:slug" element={<BlogRead />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />}>
               <Route index element={<AdminOverview />} />
