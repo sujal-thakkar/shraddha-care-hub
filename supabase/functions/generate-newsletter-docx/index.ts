@@ -20,37 +20,52 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+type LayoutMode = "standard" | "compact" | "magazine";
+
 // Parse markdown-lite into an array of docx Paragraphs.
 // Supports: **bold**, blank lines = paragraph break, "- " line = bullet.
-function parseBody(text: string): Paragraph[] {
+function parseBody(text: string, layout: LayoutMode = "standard"): Paragraph[] {
   const paragraphs: Paragraph[] = [];
   const lines = text.replace(/\r\n/g, "\n").split("\n");
   let paragraphBuffer: string[] = [];
+  const spacing = layout === "compact"
+    ? { before: 60, after: 60, line: 280 }
+    : { before: 120, after: 120, line: 340 };
+  let firstParagraphSeen = false;
 
   const flushParagraph = () => {
     if (!paragraphBuffer.length) return;
     const merged = paragraphBuffer.join(" ").trim();
     paragraphBuffer = [];
     if (!merged) return;
+    const runs = parseInlineBold(merged);
+    // Magazine layout: enlarge the first letter of the first paragraph
+    if (layout === "magazine" && !firstParagraphSeen && runs.length > 0) {
+      firstParagraphSeen = true;
+      const first = runs[0];
+      const firstText = (first as any).options?.text ?? "";
+      if (firstText.length > 1) {
+        const dropCap = new TextRun({ text: firstText[0], size: 56, bold: true, color: "0A8F6B", font: "Calibri" });
+        const rest = new TextRun({ text: firstText.slice(1), size: 24, font: "Calibri" });
+        runs.splice(0, 1, dropCap, rest);
+      }
+    }
     paragraphs.push(new Paragraph({
       alignment: AlignmentType.JUSTIFIED,
-      spacing: { before: 120, after: 120, line: 340 },
-      children: parseInlineBold(merged),
+      spacing,
+      children: runs,
     }));
   };
 
   for (const rawLine of lines) {
     const line = rawLine.trim();
-    if (!line) {
-      flushParagraph();
-      continue;
-    }
+    if (!line) { flushParagraph(); continue; }
     const bulletMatch = line.match(/^-\s+(.*)$/);
     if (bulletMatch) {
       flushParagraph();
       paragraphs.push(new Paragraph({
         numbering: { reference: "story-bullets", level: 0 },
-        spacing: { before: 60, after: 60 },
+        spacing: { before: 40, after: 40 },
         children: parseInlineBold(bulletMatch[1]),
       }));
     } else {
