@@ -1,17 +1,26 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Plus, Trash2, Download, GripVertical } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Loader2, Plus, Trash2, Download, GripVertical, Eye } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from "@/components/ui/dialog";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { RenderMarkdownLite } from "@/lib/markdown-lite";
 
 interface Newsletter { id: string; title: string; issue_number: number | null; status: string; created_at: string; }
 interface BlogRow { id: string; title: string; author_id: string; published_at: string | null; }
+interface FullBlog { id: string; title: string; body: string; author_id: string; published_at: string | null; language: string | null; }
+
+type Layout = "standard" | "compact" | "magazine";
 
 function SortableItem({ id, title, onRemove }: { id: string; title: string; onRemove: () => void }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
@@ -37,6 +46,17 @@ export default function AdminNewsletters() {
   const [saving, setSaving] = useState(false);
   const [exporting, setExporting] = useState(false);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+
+  // Preview state
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [fullBlogs, setFullBlogs] = useState<FullBlog[]>([]);
+  const [authorMap, setAuthorMap] = useState<Record<string, string>>({});
+  const [editedTitles, setEditedTitles] = useState<Record<string, string>>({});
+  const [editedBodies, setEditedBodies] = useState<Record<string, string>>({});
+  const [introText, setIntroText] = useState("");
+  const [overrideTitle, setOverrideTitle] = useState("");
+  const [layout, setLayout] = useState<Layout>("standard");
 
   const load = async () => {
     setLoading(true);
@@ -112,28 +132,71 @@ export default function AdminNewsletters() {
     load();
   };
 
+  const openPreview = async () => {
+    if (!selectedId || items.length === 0) return;
+    const selected = newsletters.find((n) => n.id === selectedId);
+    setOverrideTitle(selected?.title || "");
+    setPreviewOpen(true);
+    setPreviewLoading(true);
+    // Fetch full bodies + author names in one pass
+    const blogIds = items.map((i) => i.blog_id);
+    const { data: fullData } = await supabase
+      .from("blogs")
+      .select("id, title, body, author_id, published_at, language")
+      .in("id", blogIds);
+    const ordered = blogIds
+      .map((id) => (fullData ?? []).find((b: any) => b.id === id))
+      .filter(Boolean) as FullBlog[];
+    setFullBlogs(ordered);
+    const authorIds = Array.from(new Set(ordered.map((b) => b.author_id)));
+    const { data: profs } = authorIds.length
+      ? await supabase.from("profiles").select("user_id, full_name").in("user_id", authorIds)
+      : { data: [] as any[] };
+    const map: Record<string, string> = {};
+    (profs ?? []).forEach((p: any) => { map[p.user_id] = p.full_name || "Anonymous"; });
+    setAuthorMap(map);
+    // Reset overrides
+    setEditedTitles({});
+    setEditedBodies({});
+    setIntroText("");
+    setPreviewLoading(false);
+  };
+
   const exportDocx = async () => {
     if (!selectedId) return;
     setExporting(true);
     try {
       const { data: session } = await supabase.auth.getSession();
       const projectRef = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const overrides = fullBlogs.map((b) => ({
+        blog_id: b.id,
+        title: editedTitles[b.id] ?? b.title,
+        body: editedBodies[b.id] ?? b.body,
+      }));
       const res = await fetch(`https://${projectRef}.supabase.co/functions/v1/generate-newsletter-docx`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.session?.access_token ?? ""}`,
         },
-        body: JSON.stringify({ newsletterId: selectedId }),
+        body: JSON.stringify({
+          newsletterId: selectedId,
+          layout,
+          intro_text: introText || null,
+          title_override: overrideTitle || null,
+          blog_overrides: overrides,
+        }),
       });
       if (!res.ok) throw new Error(await res.text());
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = url; a.download = `newsletter-${selectedId}.docx`;
+      const safe = (overrideTitle || "newsletter").replace(/[^a-z0-9]+/gi, "-").toLowerCase();
+      a.href = url; a.download = `${safe}.docx`;
       document.body.appendChild(a); a.click(); a.remove();
       URL.revokeObjectURL(url);
       toast({ title: "Downloaded", description: "Open the file in Word or Google Docs to review." });
+      setPreviewOpen(false);
     } catch (e: any) {
       toast({ title: "Export failed", description: e.message, variant: "destructive" });
     } finally {
@@ -141,16 +204,22 @@ export default function AdminNewsletters() {
     }
   };
 
-  if (loading) return <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
-
   const selected = newsletters.find((n) => n.id === selectedId);
-  const usedIds = new Set(items.map((i) => i.blog_id));
+  const usedIds = useMemo(() => new Set(items.map((i) => i.blog_id)), [items]);
+
+  const layoutClasses: Record<Layout, string> = {
+    standard: "prose max-w-none",
+    compact: "prose prose-sm max-w-none",
+    magazine: "prose max-w-none first-letter:font-serif first-letter:text-5xl first-letter:font-bold first-letter:text-primary first-letter:mr-2 first-letter:float-left first-letter:leading-none",
+  };
+
+  if (loading) return <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="font-serif text-3xl font-bold">Newsletters</h1>
-        <p className="text-muted-foreground">Bundle published stories and export a formatted DOCX.</p>
+        <p className="text-muted-foreground">Bundle published stories, preview the layout, then export a formatted DOCX.</p>
       </div>
 
       <Card>
@@ -183,8 +252,8 @@ export default function AdminNewsletters() {
             <div className="flex items-center justify-between gap-2 flex-wrap">
               <CardTitle>{selected ? selected.title : "Select a newsletter"}</CardTitle>
               {selected && (
-                <Button onClick={exportDocx} disabled={exporting || items.length === 0}>
-                  {exporting ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Download className="h-4 w-4 mr-1" />}Export DOCX
+                <Button onClick={openPreview} disabled={items.length === 0}>
+                  <Eye className="h-4 w-4 mr-1" /> Preview & Export
                 </Button>
               )}
             </div>
@@ -221,6 +290,96 @@ export default function AdminNewsletters() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Preview + Layout dialog */}
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle>Preview & Export</DialogTitle>
+            <DialogDescription>
+              Edit any story's title or wording just for this issue. The original stays untouched.
+            </DialogDescription>
+          </DialogHeader>
+
+          {previewLoading ? (
+            <div className="flex-1 flex items-center justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+          ) : (
+            <div className="flex-1 overflow-y-auto pr-2">
+              <div className="grid md:grid-cols-3 gap-4 mb-4">
+                <div className="md:col-span-2 space-y-3">
+                  <div>
+                    <Label htmlFor="nl-title">Newsletter title (for this export)</Label>
+                    <Input id="nl-title" value={overrideTitle} onChange={(e) => setOverrideTitle(e.target.value)} />
+                  </div>
+                  <div>
+                    <Label htmlFor="nl-intro">Editor's note / intro (optional)</Label>
+                    <Textarea id="nl-intro" rows={3} placeholder="A short note that opens the issue…" value={introText} onChange={(e) => setIntroText(e.target.value)} />
+                  </div>
+                </div>
+                <div>
+                  <Label className="mb-2 block">Layout</Label>
+                  <RadioGroup value={layout} onValueChange={(v) => setLayout(v as Layout)} className="space-y-2">
+                    {([
+                      { v: "standard", label: "Standard", desc: "Comfortable reading" },
+                      { v: "compact", label: "Compact", desc: "Tighter spacing, more per page" },
+                      { v: "magazine", label: "Magazine", desc: "Drop-cap first letter" },
+                    ] as { v: Layout; label: string; desc: string }[]).map((o) => (
+                      <label key={o.v} className={`flex items-start gap-2 p-2 border rounded cursor-pointer ${layout === o.v ? "border-primary bg-primary/5" : "border-border"}`}>
+                        <RadioGroupItem value={o.v} className="mt-1" />
+                        <div>
+                          <div className="text-sm font-medium">{o.label}</div>
+                          <div className="text-xs text-muted-foreground">{o.desc}</div>
+                        </div>
+                      </label>
+                    ))}
+                  </RadioGroup>
+                </div>
+              </div>
+
+              {/* Live preview */}
+              <div className="border border-border rounded-lg bg-card p-6 space-y-8">
+                <header className="border-b border-border pb-4">
+                  <div className="text-xs uppercase tracking-widest text-primary font-semibold">{selected?.issue_number ? `Issue ${selected.issue_number}` : "Newsletter"}</div>
+                  <h2 className="font-serif text-3xl font-bold mt-1">{overrideTitle || selected?.title}</h2>
+                  {introText && <p className="mt-3 italic text-muted-foreground leading-relaxed">{introText}</p>}
+                </header>
+
+                {fullBlogs.map((b, idx) => {
+                  const t = editedTitles[b.id] ?? b.title;
+                  const bd = editedBodies[b.id] ?? b.body;
+                  return (
+                    <article key={b.id} className={idx > 0 ? "pt-6 border-t border-border" : ""}>
+                      <div className="mb-3">
+                        <Label className="text-[11px] uppercase tracking-wide text-muted-foreground">Story title</Label>
+                        <Input value={t} onChange={(e) => setEditedTitles((prev) => ({ ...prev, [b.id]: e.target.value }))} className="mt-1 font-serif text-xl h-11" />
+                      </div>
+                      <div className="text-sm text-muted-foreground italic mb-3">
+                        By {authorMap[b.author_id] || "Anonymous"}
+                        {b.published_at && <> · {new Date(b.published_at).toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" })}</>}
+                      </div>
+                      <details className="mb-2">
+                        <summary className="text-xs text-primary cursor-pointer hover:underline">Edit story text</summary>
+                        <Textarea rows={8} className="mt-2 font-mono text-xs" value={bd} onChange={(e) => setEditedBodies((prev) => ({ ...prev, [b.id]: e.target.value }))} />
+                      </details>
+                      <div className={layoutClasses[layout]}>
+                        <RenderMarkdownLite text={bd} className="text-foreground" />
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="mt-4 gap-2">
+            <Button variant="outline" onClick={() => setPreviewOpen(false)}>Cancel</Button>
+            <Button onClick={exportDocx} disabled={exporting}>
+              {exporting ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Download className="h-4 w-4 mr-1" />}
+              Export DOCX
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
