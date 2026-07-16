@@ -146,7 +146,10 @@ export default function BlogWrite() {
         if (row && row.author_id === data.session.user.id) {
           setBlogId(row.id);
           setTitle(row.title || "");
+          const { kind: k, body: b } = extractKind(row.body || "");
+          setKind(k);
           setBody(row.body || "");
+          setInitialBody(b);
           setCover(row.cover_image_url);
           setStatus(row.status);
           setAdminNotes(row.admin_notes);
