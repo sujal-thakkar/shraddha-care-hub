@@ -11,7 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import { RenderMarkdownLite } from "@/lib/markdown-lite";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const STATUSES = ["submitted", "under_review", "needs_changes", "approved", "published", "archived", "draft"] as const;
+// Drafts are private to each writer — admins only see stories once submitted for review.
+const STATUSES = ["submitted", "under_review", "needs_changes", "approved", "published", "archived"] as const;
 
 export default function AdminBlogs() {
   const { toast } = useToast();
@@ -27,7 +28,7 @@ export default function AdminBlogs() {
 
   const load = async () => {
     setLoading(true);
-    const { data } = await supabase.from("blogs").select("*").order("updated_at", { ascending: false }).limit(200);
+    const { data } = await supabase.from("blogs").select("*").neq("status", "draft").order("updated_at", { ascending: false }).limit(200);
     setRows(data ?? []);
     const ids = Array.from(new Set((data ?? []).map((r: any) => r.author_id)));
     if (ids.length) {

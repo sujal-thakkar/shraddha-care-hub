@@ -214,14 +214,16 @@ serve(async (req) => {
       if (idx > 0) sections.push(new Paragraph({ children: [new PageBreak()] }));
       sections.push(new Paragraph({
         heading: HeadingLevel.HEADING_1,
+        alignment: AlignmentType.CENTER,
         spacing: { before: 240, after: 120 },
         children: [new TextRun({ text: title, bold: true, size: layout === "compact" ? 40 : 48, color: "0A8F6B", font: "Calibri" })],
       }));
       sections.push(new Paragraph({
-        spacing: { after: layout === "compact" ? 160 : 240 },
+        alignment: AlignmentType.CENTER,
+        spacing: { after: layout === "compact" ? 480 : 600 },
         children: [
           new TextRun({
-            text: `By ${authorMap.get(b.author_id) || "Anonymous"} · ${formatDate(b.published_at)}`,
+            text: `${authorMap.get(b.author_id) || "Anonymous"} · ${formatDate(b.published_at)}`,
             italics: true,
             size: 22,
             color: "6b7280",

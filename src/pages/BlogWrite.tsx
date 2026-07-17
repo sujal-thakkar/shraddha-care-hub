@@ -229,12 +229,14 @@ export default function BlogWrite() {
     }
   }, [session, title, body, cover, status, blogId, toast, backupKey, editingId]);
 
+  // Single autosave path: debounce 2s of inactivity, silent DB save. Also flushes
+  // when the tab is hidden or unloaded so a phone call / close never loses work.
   useEffect(() => {
     if (!session) return;
     if (saveTimer.current) clearTimeout(saveTimer.current);
     if (!title.trim() && !body.trim()) return;
     setSavingState("saving");
-    saveTimer.current = setTimeout(() => saveDraft(true), 5000);
+    saveTimer.current = setTimeout(() => saveDraft(true), 2000);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
   }, [title, body, cover, session, saveDraft]);
 
@@ -247,10 +249,16 @@ export default function BlogWrite() {
     } catch {}
   }, [title, body, cover, session, backupKey, restorePrompt]);
 
+  // Flush on tab hide / close (covers phone call, app switch, browser close).
   useEffect(() => {
-    const handler = () => { if (document.visibilityState === "hidden") saveDraft(true); };
-    document.addEventListener("visibilitychange", handler);
-    return () => document.removeEventListener("visibilitychange", handler);
+    const flush = () => { if (document.visibilityState === "hidden") saveDraft(true); };
+    const onUnload = () => { saveDraft(true); };
+    document.addEventListener("visibilitychange", flush);
+    window.addEventListener("beforeunload", onUnload);
+    return () => {
+      document.removeEventListener("visibilitychange", flush);
+      window.removeEventListener("beforeunload", onUnload);
+    };
   }, [saveDraft]);
 
   const applyPrompt = (seed: string) => {
@@ -323,7 +331,7 @@ export default function BlogWrite() {
     if (error) toast({ title: "Submit failed", description: error.message, variant: "destructive" });
     else {
       toast({ title: "Story submitted!", description: "We'll review it shortly and let you know." });
-      navigate("/blog/my-stories");
+      navigate("/profile");
     }
   };
 
@@ -338,8 +346,8 @@ export default function BlogWrite() {
     <Layout>
       <div className="container max-w-3xl px-4 py-6 md:py-10">
         <div className="flex items-center justify-between mb-4">
-          <Link to="/blog/my-stories" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-4 w-4" /> My stories
+          <Link to="/profile" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="h-4 w-4" /> My profile
           </Link>
           <div className="flex items-center gap-2">
             <FontSizeToggle size={size} onChange={setSize} />
