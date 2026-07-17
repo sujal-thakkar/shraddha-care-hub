@@ -52,6 +52,7 @@ Deno.serve(async (req) => {
 
   const url = new URL(req.url);
   const slug = url.searchParams.get("slug")?.trim() || "";
+  const version = url.searchParams.get("v")?.trim() || "";
   const target = slug ? `${APP_URL}/blog/${slug}` : `${APP_URL}/blog`;
   const debug = url.searchParams.get("format") === "json";
 
@@ -72,6 +73,8 @@ Deno.serve(async (req) => {
   let description =
     "Read stories, reflections and updates from our community — elder care, volunteers and welfare work.";
   let ogImage = DEFAULT_OG_IMAGE;
+  let lastModified: string | null = null;
+  let etagBasis = `default:${version}`;
 
   if (slug) {
     const supabase = createClient(
