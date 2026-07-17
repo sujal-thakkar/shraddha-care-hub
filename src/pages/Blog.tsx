@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PenLine, Search, Loader2 } from "lucide-react";
+import { PenLine, Search, Loader2, UserPlus, User as UserIcon, Clock } from "lucide-react";
 import { stripKindMarker } from "@/lib/markdown-lite";
 
 
@@ -27,10 +27,22 @@ export default function Blog() {
   const [lang, setLang] = useState<string>("all");
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<any>(null);
+  const [profileStatus, setProfileStatus] = useState<string | null>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setSession(data.session));
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
+    const loadStatus = async (uid: string | undefined) => {
+      if (!uid) { setProfileStatus(null); return; }
+      const { data } = await supabase.from("profiles").select("status").eq("user_id", uid).maybeSingle();
+      setProfileStatus((data as any)?.status ?? null);
+    };
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      loadStatus(data.session?.user.id);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+      setSession(s);
+      loadStatus(s?.user.id);
+    });
     return () => sub.subscription.unsubscribe();
   }, []);
 
@@ -78,12 +90,40 @@ export default function Blog() {
             <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground">Blogs</h1>
             <p className="text-muted-foreground mt-2 text-lg">Stories, poems, recitations & reflections from our community.</p>
           </div>
-          <Button asChild size="lg" className="h-12">
-            <Link to={session ? "/blog/write" : "/auth?next=/blog/write"}>
-              <PenLine className="mr-2 h-5 w-5" />
-              Write a blog
-            </Link>
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            {!session ? (
+              <Button asChild size="lg" className="h-12">
+                <Link to="/auth?next=/blog/write">
+                  <UserPlus className="mr-2 h-5 w-5" />
+                  Become a writer
+                </Link>
+              </Button>
+            ) : profileStatus === "approved" ? (
+              <>
+                <Button asChild size="lg" className="h-12">
+                  <Link to="/blog/write">
+                    <PenLine className="mr-2 h-5 w-5" />
+                    Write a blog
+                  </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="h-12">
+                  <Link to="/profile">
+                    <UserIcon className="mr-2 h-5 w-5" />
+                    My profile
+                  </Link>
+                </Button>
+              </>
+            ) : profileStatus === "rejected" ? (
+              <div className="flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/10 text-destructive px-4 py-2 text-sm">
+                Your writer application was declined. Contact an admin for details.
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 rounded-md border border-amber-300 bg-amber-50 text-amber-800 px-4 py-2 text-sm">
+                <Clock className="h-4 w-4" />
+                Writer application pending admin approval.
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 mb-8">
