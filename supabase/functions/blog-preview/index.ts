@@ -12,6 +12,14 @@ interface BlogRow {
   body: string | null;
   cover_image_url: string | null;
   published_at: string | null;
+  updated_at: string | null;
+}
+
+/** Cheap deterministic string hash → short ETag body. */
+function shortHash(s: string): string {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(36);
 }
 
 function escapeHtml(s: string): string {
