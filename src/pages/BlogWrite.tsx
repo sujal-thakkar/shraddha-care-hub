@@ -331,7 +331,7 @@ export default function BlogWrite() {
     if (error) toast({ title: "Submit failed", description: error.message, variant: "destructive" });
     else {
       toast({ title: "Story submitted!", description: "We'll review it shortly and let you know." });
-      navigate("/blog/my-stories");
+      navigate("/profile");
     }
   };
 
