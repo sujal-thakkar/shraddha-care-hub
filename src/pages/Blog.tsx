@@ -90,12 +90,40 @@ export default function Blog() {
             <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground">Blogs</h1>
             <p className="text-muted-foreground mt-2 text-lg">Stories, poems, recitations & reflections from our community.</p>
           </div>
-          <Button asChild size="lg" className="h-12">
-            <Link to={session ? "/blog/write" : "/auth?next=/blog/write"}>
-              <PenLine className="mr-2 h-5 w-5" />
-              Write a blog
-            </Link>
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            {!session ? (
+              <Button asChild size="lg" className="h-12">
+                <Link to="/auth?next=/blog/write">
+                  <UserPlus className="mr-2 h-5 w-5" />
+                  Become a writer
+                </Link>
+              </Button>
+            ) : profileStatus === "approved" ? (
+              <>
+                <Button asChild size="lg" className="h-12">
+                  <Link to="/blog/write">
+                    <PenLine className="mr-2 h-5 w-5" />
+                    Write a blog
+                  </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="h-12">
+                  <Link to="/profile">
+                    <UserIcon className="mr-2 h-5 w-5" />
+                    My profile
+                  </Link>
+                </Button>
+              </>
+            ) : profileStatus === "rejected" ? (
+              <div className="flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/10 text-destructive px-4 py-2 text-sm">
+                Your writer application was declined. Contact an admin for details.
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 rounded-md border border-amber-300 bg-amber-50 text-amber-800 px-4 py-2 text-sm">
+                <Clock className="h-4 w-4" />
+                Writer application pending admin approval.
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 mb-8">
