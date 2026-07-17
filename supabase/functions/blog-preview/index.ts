@@ -12,6 +12,14 @@ interface BlogRow {
   body: string | null;
   cover_image_url: string | null;
   published_at: string | null;
+  updated_at: string | null;
+}
+
+/** Cheap deterministic string hash → short ETag body. */
+function shortHash(s: string): string {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(36);
 }
 
 function escapeHtml(s: string): string {
@@ -44,6 +52,7 @@ Deno.serve(async (req) => {
 
   const url = new URL(req.url);
   const slug = url.searchParams.get("slug")?.trim() || "";
+  const version = url.searchParams.get("v")?.trim() || "";
   const target = slug ? `${APP_URL}/blog/${slug}` : `${APP_URL}/blog`;
   const debug = url.searchParams.get("format") === "json";
 
@@ -64,6 +73,8 @@ Deno.serve(async (req) => {
   let description =
     "Read stories, reflections and updates from our community — elder care, volunteers and welfare work.";
   let ogImage = DEFAULT_OG_IMAGE;
+  let lastModified: string | null = null;
+  let etagBasis = `default:${version}`;
 
   if (slug) {
     const supabase = createClient(
@@ -71,16 +82,17 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
     // Try slug first, then id (BlogRead accepts either).
+    const cols = "id, slug, title, body, cover_image_url, published_at, updated_at";
     let { data } = await supabase
       .from("blogs")
-      .select("id, slug, title, body, cover_image_url, published_at")
+      .select(cols)
       .eq("status", "published")
       .eq("slug", slug)
       .maybeSingle();
     if (!data) {
       const byId = await supabase
         .from("blogs")
-        .select("id, slug, title, body, cover_image_url, published_at")
+        .select(cols)
         .eq("status", "published")
         .eq("id", slug)
         .maybeSingle();
@@ -92,10 +104,53 @@ Deno.serve(async (req) => {
       title = blog.title || title;
       if (blog.body) description = excerpt(blog.body) || description;
       if (blog.cover_image_url) ogImage = blog.cover_image_url;
+      const stamp = blog.updated_at || blog.published_at;
+      if (stamp) {
+        const d = new Date(stamp);
+        if (!isNaN(d.getTime())) lastModified = d.toUTCString();
+      }
+      etagBasis = `${blog.id}:${stamp || ""}:${ogImage}`;
+    } else {
+      etagBasis = `missing:${slug}`;
     }
   }
 
   const canonical = target;
+
+  // Content is fully addressed by (slug, v, resolved fields) → strong ETag.
+  const etag = `"${shortHash(`${slug}|${version}|${debug ? "j" : "h"}|${etagBasis}`)}"`;
+
+  // Versioned URLs (?v=...) point at an immutable snapshot — cache aggressively.
+  // Un-versioned URLs may drift as the blog is edited — keep them short-lived
+  // with stale-while-revalidate so crawlers still get a fast response while
+  // shared cards refresh in the background.
+  const cacheControl = version
+    ? "public, max-age=86400, s-maxage=604800, immutable"
+    : "public, max-age=300, s-maxage=600, stale-while-revalidate=86400";
+
+  const revalidationHeaders: Record<string, string> = {
+    ETag: etag,
+    "Cache-Control": cacheControl,
+    Vary: "User-Agent, Accept",
+  };
+  if (lastModified) revalidationHeaders["Last-Modified"] = lastModified;
+
+  // Honour conditional GETs from crawlers / CDNs.
+  const ifNoneMatch = req.headers.get("if-none-match");
+  const ifModifiedSince = req.headers.get("if-modified-since");
+  const etagMatches = ifNoneMatch
+    ? ifNoneMatch.split(",").some((t) => t.trim() === etag || t.trim() === "*")
+    : false;
+  const notModifiedByDate =
+    lastModified && ifModifiedSince
+      ? new Date(ifModifiedSince).getTime() >= new Date(lastModified).getTime()
+      : false;
+  if (etagMatches || notModifiedByDate) {
+    return new Response(null, {
+      status: 304,
+      headers: { ...corsHeaders, ...revalidationHeaders },
+    });
+  }
 
   if (debug) {
     return new Response(
@@ -112,8 +167,8 @@ Deno.serve(async (req) => {
         status: 200,
         headers: {
           ...corsHeaders,
+          ...revalidationHeaders,
           "Content-Type": "application/json; charset=utf-8",
-          "Cache-Control": "no-store",
         },
       },
     );
@@ -153,8 +208,8 @@ Deno.serve(async (req) => {
     status: 200,
     headers: {
       ...corsHeaders,
+      ...revalidationHeaders,
       "Content-Type": "text/html; charset=utf-8",
-      "Cache-Control": "public, max-age=60",
     },
   });
 });
