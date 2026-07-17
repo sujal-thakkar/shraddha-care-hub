@@ -13,6 +13,7 @@ interface BlogRow {
   cover_image_url: string | null;
   published_at: string | null;
   updated_at: string | null;
+  author_id: string | null;
 }
 
 /** Cheap deterministic string hash → short ETag body. */
