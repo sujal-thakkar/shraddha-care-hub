@@ -28,6 +28,7 @@ const Blog = lazy(() => import("./pages/Blog"));
 const BlogRead = lazy(() => import("./pages/BlogRead"));
 const BlogWrite = lazy(() => import("./pages/BlogWrite"));
 const BlogMyStories = lazy(() => import("./pages/BlogMyStories"));
+const Profile = lazy(() => import("./pages/Profile"));
 const AdminLogin = lazy(() => import("./pages/admin/Login"));
 const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
 const AdminOverview = lazy(() => import("./pages/admin/Overview"));
