@@ -419,6 +419,14 @@ export default function BlogWrite() {
           </Card>
         )}
 
+        {status === "published" && (
+          <Card className="mb-6 border-primary/40 bg-primary/5">
+            <CardContent className="pt-5 text-sm">
+              You're editing a published blog. Saving will take it off the public site and send it back for admin review before it can be republished.
+            </CardContent>
+          </Card>
+        )}
+
         {restorePrompt && (
           <Card className="mb-4 border-primary bg-primary/5">
             <CardContent className="pt-5">
