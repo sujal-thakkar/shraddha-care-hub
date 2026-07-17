@@ -28,7 +28,7 @@ export default function AdminBlogs() {
 
   const load = async () => {
     setLoading(true);
-    const { data } = await supabase.from("blogs").select("*").order("updated_at", { ascending: false }).limit(200);
+    const { data } = await supabase.from("blogs").select("*").neq("status", "draft").order("updated_at", { ascending: false }).limit(200);
     setRows(data ?? []);
     const ids = Array.from(new Set((data ?? []).map((r: any) => r.author_id)));
     if (ids.length) {
