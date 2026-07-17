@@ -138,7 +138,10 @@ export default function BlogRead() {
         <style>{`article .prose p, article .prose li { font-size: ${size}px; line-height: 1.7; }`}</style>
 
         <div className="mt-12 pt-8 border-t border-border">
-          <SocialShare title={blog.title} />
+          <SocialShare
+            title={blog.title}
+            previewUrl={blogPreviewUrl(blog.slug || blog.id, (blog as any).updated_at || blog.published_at)}
+          />
         </div>
       </article>
     </Layout>
