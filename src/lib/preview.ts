@@ -31,6 +31,11 @@ export function eventPreviewUrl(slug: string, updatedAt?: string | null): string
   return `${FUNCTIONS_BASE}/event-preview?slug=${encodeURIComponent(slug)}&v=${versionFromTimestamp(updatedAt)}`;
 }
 
+/** Shareable blog preview URL — crawlers get OG tags (including cover image). */
+export function blogPreviewUrl(slugOrId: string, updatedAt?: string | null): string {
+  return `${FUNCTIONS_BASE}/blog-preview?slug=${encodeURIComponent(slugOrId)}&v=${versionFromTimestamp(updatedAt)}`;
+}
+
 /** Shareable routine preview URL. */
 export function routinePreviewUrl(): string {
   return `${FUNCTIONS_BASE}/routine-preview?v=${routineVersion()}`;
