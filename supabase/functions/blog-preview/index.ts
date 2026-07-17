@@ -117,6 +117,41 @@ Deno.serve(async (req) => {
 
   const canonical = target;
 
+  // Content is fully addressed by (slug, v, resolved fields) → strong ETag.
+  const etag = `"${shortHash(`${slug}|${version}|${debug ? "j" : "h"}|${etagBasis}`)}"`;
+
+  // Versioned URLs (?v=...) point at an immutable snapshot — cache aggressively.
+  // Un-versioned URLs may drift as the blog is edited — keep them short-lived
+  // with stale-while-revalidate so crawlers still get a fast response while
+  // shared cards refresh in the background.
+  const cacheControl = version
+    ? "public, max-age=86400, s-maxage=604800, immutable"
+    : "public, max-age=300, s-maxage=600, stale-while-revalidate=86400";
+
+  const revalidationHeaders: Record<string, string> = {
+    ETag: etag,
+    "Cache-Control": cacheControl,
+    Vary: "User-Agent, Accept",
+  };
+  if (lastModified) revalidationHeaders["Last-Modified"] = lastModified;
+
+  // Honour conditional GETs from crawlers / CDNs.
+  const ifNoneMatch = req.headers.get("if-none-match");
+  const ifModifiedSince = req.headers.get("if-modified-since");
+  const etagMatches = ifNoneMatch
+    ? ifNoneMatch.split(",").some((t) => t.trim() === etag || t.trim() === "*")
+    : false;
+  const notModifiedByDate =
+    lastModified && ifModifiedSince
+      ? new Date(ifModifiedSince).getTime() >= new Date(lastModified).getTime()
+      : false;
+  if (etagMatches || notModifiedByDate) {
+    return new Response(null, {
+      status: 304,
+      headers: { ...corsHeaders, ...revalidationHeaders },
+    });
+  }
+
   if (debug) {
     return new Response(
       JSON.stringify({
@@ -132,8 +167,8 @@ Deno.serve(async (req) => {
         status: 200,
         headers: {
           ...corsHeaders,
+          ...revalidationHeaders,
           "Content-Type": "application/json; charset=utf-8",
-          "Cache-Control": "no-store",
         },
       },
     );
@@ -173,8 +208,8 @@ Deno.serve(async (req) => {
     status: 200,
     headers: {
       ...corsHeaders,
+      ...revalidationHeaders,
       "Content-Type": "text/html; charset=utf-8",
-      "Cache-Control": "public, max-age=60",
     },
   });
 });
