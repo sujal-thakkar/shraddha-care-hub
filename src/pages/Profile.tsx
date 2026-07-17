@@ -1,15 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, LogOut, PenLine, KeyRound, User, Trash2, Save } from "lucide-react";
+import { Loader2, LogOut, PenLine, KeyRound, User, Trash2, Save, Camera } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { composePassword, isValidPin } from "@/lib/phone-auth";
+import { AuthorAvatar } from "@/components/blog/AuthorAvatar";
 
 const STATUS_LABEL: Record<string, string> = {
   draft: "Draft",
@@ -37,7 +39,10 @@ export default function Profile() {
   const [profile, setProfile] = useState<any>(null);
   const [blogs, setBlogs] = useState<any[]>([]);
   const [fullName, setFullName] = useState("");
+  const [bio, setBio] = useState("");
   const [savingName, setSavingName] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // PIN change
   const [currentPin, setCurrentPin] = useState("");
@@ -62,6 +67,7 @@ export default function Profile() {
     ]);
     setProfile(p);
     setFullName(p?.full_name || "");
+    setBio(p?.bio || "");
     setBlogs(b ?? []);
     setLoading(false);
   };
@@ -70,7 +76,7 @@ export default function Profile() {
     load();
   }, []);
 
-  const saveName = async () => {
+  const saveProfile = async () => {
     if (!fullName.trim()) {
       toast({ title: "Name can't be empty", variant: "destructive" });
       return;
@@ -78,14 +84,42 @@ export default function Profile() {
     setSavingName(true);
     const { error } = await supabase
       .from("profiles")
-      .update({ full_name: fullName.trim() })
+      .update({ full_name: fullName.trim(), bio: bio.trim() || null })
       .eq("user_id", profile.user_id);
     setSavingName(false);
     if (error) toast({ title: "Save failed", description: error.message, variant: "destructive" });
     else {
-      toast({ title: "Name updated" });
+      toast({ title: "Profile updated" });
       load();
     }
+  };
+
+  const uploadAvatar = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast({ title: "Please pick an image file", variant: "destructive" });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "Image too large", description: "Please pick an image under 5 MB.", variant: "destructive" });
+      return;
+    }
+    setUploadingAvatar(true);
+    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+    const path = `${profile.user_id}/avatar-${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true, contentType: file.type });
+    if (upErr) {
+      setUploadingAvatar(false);
+      toast({ title: "Upload failed", description: upErr.message, variant: "destructive" });
+      return;
+    }
+    // Best-effort cleanup of previous avatar
+    if (profile.avatar_url && profile.avatar_url !== path && !/^https?:\/\//i.test(profile.avatar_url)) {
+      await supabase.storage.from("avatars").remove([profile.avatar_url]);
+    }
+    const { error: updErr } = await supabase.from("profiles").update({ avatar_url: path }).eq("user_id", profile.user_id);
+    setUploadingAvatar(false);
+    if (updErr) toast({ title: "Save failed", description: updErr.message, variant: "destructive" });
+    else { toast({ title: "Photo updated" }); load(); }
   };
 
   const changePin = async () => {
@@ -231,20 +265,55 @@ export default function Profile() {
               Basic info
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label>Full name</Label>
-              <div className="flex gap-2 mt-1">
-                <Input
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="h-11"
+          <CardContent className="space-y-5">
+            {/* Avatar */}
+            <div className="flex items-center gap-4">
+              <AuthorAvatar avatarPath={profile?.avatar_url} name={fullName} className="h-20 w-20 text-xl" />
+              <div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadAvatar(f); e.currentTarget.value = ""; }}
                 />
-                <Button onClick={saveName} disabled={savingName || fullName === profile?.full_name} className="h-11">
-                  {savingName ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                <Button
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingAvatar}
+                  className="h-10"
+                >
+                  {uploadingAvatar ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Camera className="h-4 w-4 mr-2" />}
+                  {profile?.avatar_url ? "Change photo" : "Add photo"}
                 </Button>
+                <p className="text-xs text-muted-foreground mt-1.5">JPG or PNG, up to 5 MB.</p>
               </div>
             </div>
+
+            <div>
+              <Label>Full name</Label>
+              <Input value={fullName} onChange={(e) => setFullName(e.target.value)} className="h-11 mt-1" />
+            </div>
+            <div>
+              <Label>Short bio (optional)</Label>
+              <Textarea
+                value={bio}
+                onChange={(e) => setBio(e.target.value.slice(0, 280))}
+                placeholder="A line or two about yourself — this appears on your author page."
+                rows={3}
+                className="mt-1 resize-y"
+              />
+              <p className="text-xs text-muted-foreground mt-1">{bio.length}/280</p>
+            </div>
+            <Button
+              onClick={saveProfile}
+              disabled={savingName || (fullName === profile?.full_name && (bio || "") === (profile?.bio || ""))}
+              className="h-11"
+            >
+              {savingName ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+              Save changes
+            </Button>
+
             <div>
               <Label>Phone (used to log in)</Label>
               <Input value={profile?.phone_e164 || "—"} disabled className="h-11 mt-1 bg-muted" />

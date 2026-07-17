@@ -118,6 +118,85 @@ export type Database = {
           },
         ]
       }
+      blog_comments: {
+        Row: {
+          blog_id: string
+          body: string
+          created_at: string
+          email: string
+          id: string
+          name: string
+          status: string
+          updated_at: string
+          user_id: string | null
+          website: string | null
+        }
+        Insert: {
+          blog_id: string
+          body: string
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+          website?: string | null
+        }
+        Update: {
+          blog_id?: string
+          body?: string
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_comments_blog_id_fkey"
+            columns: ["blog_id"]
+            isOneToOne: false
+            referencedRelation: "blogs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_likes: {
+        Row: {
+          anon_key: string | null
+          blog_id: string
+          created_at: string
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          anon_key?: string | null
+          blog_id: string
+          created_at?: string
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          anon_key?: string | null
+          blog_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_likes_blog_id_fkey"
+            columns: ["blog_id"]
+            isOneToOne: false
+            referencedRelation: "blogs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blogs: {
         Row: {
           admin_notes: string | null
@@ -669,6 +748,8 @@ export type Database = {
         Row: {
           approved_at: string | null
           approved_by: string | null
+          avatar_url: string | null
+          bio: string | null
           country_code: string | null
           created_at: string
           email: string | null
@@ -684,6 +765,8 @@ export type Database = {
         Insert: {
           approved_at?: string | null
           approved_by?: string | null
+          avatar_url?: string | null
+          bio?: string | null
           country_code?: string | null
           created_at?: string
           email?: string | null
@@ -699,6 +782,8 @@ export type Database = {
         Update: {
           approved_at?: string | null
           approved_by?: string | null
+          avatar_url?: string | null
+          bio?: string | null
           country_code?: string | null
           created_at?: string
           email?: string | null
@@ -1051,6 +1136,15 @@ export type Database = {
           p_time_window_minutes?: number
         }
         Returns: boolean
+      }
+      get_author_public: {
+        Args: { _user_id: string }
+        Returns: {
+          avatar_url: string
+          bio: string
+          full_name: string
+          user_id: string
+        }[]
       }
       get_consented_donors: {
         Args: never
