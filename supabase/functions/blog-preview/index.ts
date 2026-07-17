@@ -13,6 +13,7 @@ interface BlogRow {
   cover_image_url: string | null;
   published_at: string | null;
   updated_at: string | null;
+  author_id: string | null;
 }
 
 /** Cheap deterministic string hash → short ETag body. */
@@ -82,7 +83,7 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
     // Try slug first, then id (BlogRead accepts either).
-    const cols = "id, slug, title, body, cover_image_url, published_at, updated_at";
+    const cols = "id, slug, title, body, cover_image_url, published_at, updated_at, author_id";
     let { data } = await supabase
       .from("blogs")
       .select(cols)
@@ -101,7 +102,19 @@ Deno.serve(async (req) => {
 
     const blog = data as BlogRow | null;
     if (blog) {
-      title = blog.title || title;
+      let authorName = "";
+      if (blog.author_id) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("user_id", blog.author_id)
+          .maybeSingle();
+        if (profile?.full_name) authorName = profile.full_name;
+      }
+      const baseTitle = blog.title || "Story";
+      title = authorName
+        ? `${baseTitle} — ${authorName} — Shraddha Welfare Association`
+        : `${baseTitle} — Shraddha Welfare Association`;
       if (blog.body) description = excerpt(blog.body) || description;
       if (blog.cover_image_url) ogImage = blog.cover_image_url;
       const stamp = blog.updated_at || blog.published_at;
@@ -109,7 +122,7 @@ Deno.serve(async (req) => {
         const d = new Date(stamp);
         if (!isNaN(d.getTime())) lastModified = d.toUTCString();
       }
-      etagBasis = `${blog.id}:${stamp || ""}:${ogImage}`;
+      etagBasis = `${blog.id}:${stamp || ""}:${ogImage}:${authorName}`;
     } else {
       etagBasis = `missing:${slug}`;
     }
