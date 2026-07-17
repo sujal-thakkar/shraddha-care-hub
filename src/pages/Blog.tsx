@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PenLine, Search, Loader2 } from "lucide-react";
+import { PenLine, Search, Loader2, UserPlus, User as UserIcon, Clock } from "lucide-react";
 import { stripKindMarker } from "@/lib/markdown-lite";
 
 
@@ -27,10 +27,22 @@ export default function Blog() {
   const [lang, setLang] = useState<string>("all");
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<any>(null);
+  const [profileStatus, setProfileStatus] = useState<string | null>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setSession(data.session));
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
+    const loadStatus = async (uid: string | undefined) => {
+      if (!uid) { setProfileStatus(null); return; }
+      const { data } = await supabase.from("profiles").select("status").eq("user_id", uid).maybeSingle();
+      setProfileStatus((data as any)?.status ?? null);
+    };
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      loadStatus(data.session?.user.id);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+      setSession(s);
+      loadStatus(s?.user.id);
+    });
     return () => sub.subscription.unsubscribe();
   }, []);
 
