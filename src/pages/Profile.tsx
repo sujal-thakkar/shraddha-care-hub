@@ -265,20 +265,55 @@ export default function Profile() {
               Basic info
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label>Full name</Label>
-              <div className="flex gap-2 mt-1">
-                <Input
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="h-11"
+          <CardContent className="space-y-5">
+            {/* Avatar */}
+            <div className="flex items-center gap-4">
+              <AuthorAvatar avatarPath={profile?.avatar_url} name={fullName} className="h-20 w-20 text-xl" />
+              <div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadAvatar(f); e.currentTarget.value = ""; }}
                 />
-                <Button onClick={saveName} disabled={savingName || fullName === profile?.full_name} className="h-11">
-                  {savingName ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                <Button
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingAvatar}
+                  className="h-10"
+                >
+                  {uploadingAvatar ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Camera className="h-4 w-4 mr-2" />}
+                  {profile?.avatar_url ? "Change photo" : "Add photo"}
                 </Button>
+                <p className="text-xs text-muted-foreground mt-1.5">JPG or PNG, up to 5 MB.</p>
               </div>
             </div>
+
+            <div>
+              <Label>Full name</Label>
+              <Input value={fullName} onChange={(e) => setFullName(e.target.value)} className="h-11 mt-1" />
+            </div>
+            <div>
+              <Label>Short bio (optional)</Label>
+              <Textarea
+                value={bio}
+                onChange={(e) => setBio(e.target.value.slice(0, 280))}
+                placeholder="A line or two about yourself — this appears on your author page."
+                rows={3}
+                className="mt-1 resize-y"
+              />
+              <p className="text-xs text-muted-foreground mt-1">{bio.length}/280</p>
+            </div>
+            <Button
+              onClick={saveProfile}
+              disabled={savingName || (fullName === profile?.full_name && (bio || "") === (profile?.bio || ""))}
+              className="h-11"
+            >
+              {savingName ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+              Save changes
+            </Button>
+
             <div>
               <Label>Phone (used to log in)</Label>
               <Input value={profile?.phone_e164 || "—"} disabled className="h-11 mt-1 bg-muted" />
