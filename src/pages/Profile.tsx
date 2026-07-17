@@ -1,0 +1,372 @@
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Layout } from "@/components/layout/Layout";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, LogOut, PenLine, KeyRound, User, Trash2, Save } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { composePassword, isValidPin } from "@/lib/phone-auth";
+
+const STATUS_LABEL: Record<string, string> = {
+  draft: "Draft",
+  submitted: "Under review",
+  under_review: "Under review",
+  needs_changes: "Edits needed",
+  approved: "Approved",
+  published: "Published",
+  archived: "Archived",
+};
+const STATUS_COLOR: Record<string, string> = {
+  draft: "bg-muted text-muted-foreground",
+  submitted: "bg-blue-100 text-blue-800",
+  under_review: "bg-purple-100 text-purple-800",
+  needs_changes: "bg-amber-100 text-amber-800",
+  approved: "bg-emerald-100 text-emerald-800",
+  published: "bg-primary/20 text-primary",
+  archived: "bg-slate-200 text-slate-700",
+};
+
+export default function Profile() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<any>(null);
+  const [blogs, setBlogs] = useState<any[]>([]);
+  const [fullName, setFullName] = useState("");
+  const [savingName, setSavingName] = useState(false);
+
+  // PIN change
+  const [currentPin, setCurrentPin] = useState("");
+  const [newPin, setNewPin] = useState("");
+  const [confirmPin, setConfirmPin] = useState("");
+  const [changingPin, setChangingPin] = useState(false);
+
+  const load = async () => {
+    const { data: sess } = await supabase.auth.getSession();
+    if (!sess.session) {
+      navigate("/auth?next=/profile", { replace: true });
+      return;
+    }
+    const uid = sess.session.user.id;
+    const [{ data: p }, { data: b }] = await Promise.all([
+      supabase.from("profiles").select("*").eq("user_id", uid).maybeSingle(),
+      supabase
+        .from("blogs")
+        .select("id, title, status, admin_notes, slug, updated_at, published_at")
+        .eq("author_id", uid)
+        .order("updated_at", { ascending: false }),
+    ]);
+    setProfile(p);
+    setFullName(p?.full_name || "");
+    setBlogs(b ?? []);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  const saveName = async () => {
+    if (!fullName.trim()) {
+      toast({ title: "Name can't be empty", variant: "destructive" });
+      return;
+    }
+    setSavingName(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ full_name: fullName.trim() })
+      .eq("user_id", profile.user_id);
+    setSavingName(false);
+    if (error) toast({ title: "Save failed", description: error.message, variant: "destructive" });
+    else {
+      toast({ title: "Name updated" });
+      load();
+    }
+  };
+
+  const changePin = async () => {
+    if (!isValidPin(currentPin) || !isValidPin(newPin) || !isValidPin(confirmPin)) {
+      toast({ title: "PINs must be 4 digits", variant: "destructive" });
+      return;
+    }
+    if (newPin !== confirmPin) {
+      toast({ title: "New PINs don't match", variant: "destructive" });
+      return;
+    }
+    if (newPin === currentPin) {
+      toast({ title: "Pick a different new PIN", variant: "destructive" });
+      return;
+    }
+    if (!profile?.phone_e164) {
+      toast({ title: "No phone on file", variant: "destructive" });
+      return;
+    }
+    setChangingPin(true);
+    // Re-authenticate to verify current PIN
+    const { data: sess } = await supabase.auth.getSession();
+    const email = sess.session?.user.email;
+    if (!email) {
+      setChangingPin(false);
+      toast({ title: "Session expired — please sign in again", variant: "destructive" });
+      return;
+    }
+    const { error: verifyErr } = await supabase.auth.signInWithPassword({
+      email,
+      password: composePassword(profile.phone_e164, currentPin),
+    });
+    if (verifyErr) {
+      setChangingPin(false);
+      toast({ title: "Current PIN is wrong", variant: "destructive" });
+      return;
+    }
+    const { error: updateErr } = await supabase.auth.updateUser({
+      password: composePassword(profile.phone_e164, newPin),
+    });
+    setChangingPin(false);
+    if (updateErr) {
+      toast({ title: "Couldn't change PIN", description: updateErr.message, variant: "destructive" });
+      return;
+    }
+    setCurrentPin("");
+    setNewPin("");
+    setConfirmPin("");
+    toast({ title: "PIN updated", description: "Use your new PIN next time you log in." });
+  };
+
+  const logout = async () => {
+    await supabase.auth.signOut();
+    toast({ title: "Signed out" });
+    navigate("/", { replace: true });
+  };
+
+  const deleteBlog = async (id: string) => {
+    if (!confirm("Delete this draft? This cannot be undone.")) return;
+    const { error } = await supabase.from("blogs").delete().eq("id", id);
+    if (error) toast({ title: "Delete failed", description: error.message, variant: "destructive" });
+    else {
+      toast({ title: "Deleted" });
+      load();
+    }
+  };
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="min-h-[50vh] flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </Layout>
+    );
+  }
+
+  const drafts = blogs.filter((b) => b.status === "draft" || b.status === "needs_changes");
+  const inReview = blogs.filter((b) => b.status === "submitted" || b.status === "under_review" || b.status === "approved");
+  const live = blogs.filter((b) => b.status === "published");
+
+  const BlogRow = ({ r }: { r: any }) => (
+    <div className="flex items-start justify-between gap-3 py-3 border-b last:border-0">
+      <div className="min-w-0 flex-1">
+        <div className="font-serif text-base font-semibold truncate">{r.title || "Untitled"}</div>
+        <div className="flex items-center gap-2 mt-1 flex-wrap">
+          <Badge className={STATUS_COLOR[r.status] || ""}>{STATUS_LABEL[r.status] || r.status}</Badge>
+          <span className="text-xs text-muted-foreground">
+            Updated {new Date(r.updated_at).toLocaleDateString()}
+          </span>
+        </div>
+        {r.status === "needs_changes" && r.admin_notes && (
+          <p className="text-sm text-amber-800 mt-2 bg-amber-50 border border-amber-200 rounded p-2">
+            {r.admin_notes}
+          </p>
+        )}
+      </div>
+      <div className="flex gap-2 flex-wrap shrink-0">
+        {r.status === "published" ? (
+          <Button asChild variant="outline" size="sm" className="h-9">
+            <Link to={`/blog/${r.slug ?? r.id}`}>View</Link>
+          </Button>
+        ) : (
+          <Button asChild variant="outline" size="sm" className="h-9">
+            <Link to={`/blog/write?id=${r.id}`}>Edit</Link>
+          </Button>
+        )}
+        {(r.status === "draft" || r.status === "needs_changes") && (
+          <Button variant="ghost" size="icon" onClick={() => deleteBlog(r.id)} className="h-9 w-9">
+            <Trash2 className="h-4 w-4 text-destructive" />
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <Layout>
+      <div className="container max-w-3xl px-4 py-8 md:py-12 space-y-8">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="font-serif text-3xl md:text-4xl font-bold">My profile</h1>
+            <p className="text-muted-foreground mt-1">Manage your details, PIN and blogs.</p>
+          </div>
+          <div className="flex gap-2">
+            <Button asChild size="lg" className="h-11">
+              <Link to="/blog/write">
+                <PenLine className="mr-2 h-4 w-4" />
+                Write blog
+              </Link>
+            </Button>
+            <Button variant="outline" size="lg" className="h-11" onClick={logout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Log out
+            </Button>
+          </div>
+        </div>
+
+        {/* Basic info */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <User className="h-5 w-5 text-primary" />
+              Basic info
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label>Full name</Label>
+              <div className="flex gap-2 mt-1">
+                <Input
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="h-11"
+                />
+                <Button onClick={saveName} disabled={savingName || fullName === profile?.full_name} className="h-11">
+                  {savingName ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                </Button>
+              </div>
+            </div>
+            <div>
+              <Label>Phone (used to log in)</Label>
+              <Input value={profile?.phone_e164 || "—"} disabled className="h-11 mt-1 bg-muted" />
+              <p className="text-xs text-muted-foreground mt-1">
+                Phone can't be changed. Contact an admin if you need to update it.
+              </p>
+            </div>
+            <div>
+              <Label>Account status</Label>
+              <div className="mt-1">
+                <Badge
+                  className={
+                    profile?.status === "approved"
+                      ? "bg-emerald-100 text-emerald-800"
+                      : profile?.status === "rejected"
+                      ? "bg-destructive/20 text-destructive"
+                      : "bg-amber-100 text-amber-800"
+                  }
+                >
+                  {profile?.status || "unknown"}
+                </Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Change PIN */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <KeyRound className="h-5 w-5 text-primary" />
+              Change PIN
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div>
+                <Label>Current PIN</Label>
+                <Input
+                  inputMode="numeric"
+                  maxLength={4}
+                  type="password"
+                  value={currentPin}
+                  onChange={(e) => setCurrentPin(e.target.value.replace(/\D/g, ""))}
+                  className="h-11 mt-1 tracking-[0.5em] text-center text-lg"
+                />
+              </div>
+              <div>
+                <Label>New PIN</Label>
+                <Input
+                  inputMode="numeric"
+                  maxLength={4}
+                  type="password"
+                  value={newPin}
+                  onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ""))}
+                  className="h-11 mt-1 tracking-[0.5em] text-center text-lg"
+                />
+              </div>
+              <div>
+                <Label>Confirm new PIN</Label>
+                <Input
+                  inputMode="numeric"
+                  maxLength={4}
+                  type="password"
+                  value={confirmPin}
+                  onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ""))}
+                  className="h-11 mt-1 tracking-[0.5em] text-center text-lg"
+                />
+              </div>
+            </div>
+            <Button onClick={changePin} disabled={changingPin} className="h-11">
+              {changingPin ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <KeyRound className="h-4 w-4 mr-2" />}
+              Update PIN
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* My blogs */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <PenLine className="h-5 w-5 text-primary" />
+              My blogs
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {blogs.length === 0 ? (
+              <div className="py-8 text-center text-muted-foreground">
+                <p className="mb-3">You haven't written any blogs yet.</p>
+                <Button asChild>
+                  <Link to="/blog/write">
+                    <PenLine className="mr-2 h-4 w-4" />
+                    Start writing
+                  </Link>
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {drafts.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold mb-1">Drafts & edits needed ({drafts.length})</h3>
+                    <div>{drafts.map((r) => <BlogRow key={r.id} r={r} />)}</div>
+                  </div>
+                )}
+                {inReview.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold mb-1">Awaiting review ({inReview.length})</h3>
+                    <div>{inReview.map((r) => <BlogRow key={r.id} r={r} />)}</div>
+                  </div>
+                )}
+                {live.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold mb-1">Published ({live.length})</h3>
+                    <div>{live.map((r) => <BlogRow key={r.id} r={r} />)}</div>
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </Layout>
+  );
+}
