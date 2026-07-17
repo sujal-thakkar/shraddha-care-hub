@@ -8,6 +8,7 @@ import { RenderMarkdownLite } from "@/lib/markdown-lite";
 import { useFontSize, FontSizeToggle } from "@/hooks/use-font-size";
 import { useToast } from "@/hooks/use-toast";
 import { SocialShare } from "@/components/events/SocialShare";
+import { blogPreviewUrl } from "@/lib/preview";
 
 interface BlogRow {
   id: string;
