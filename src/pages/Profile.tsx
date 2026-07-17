@@ -1,15 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, LogOut, PenLine, KeyRound, User, Trash2, Save } from "lucide-react";
+import { Loader2, LogOut, PenLine, KeyRound, User, Trash2, Save, Camera } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { composePassword, isValidPin } from "@/lib/phone-auth";
+import { AuthorAvatar } from "@/components/blog/AuthorAvatar";
 
 const STATUS_LABEL: Record<string, string> = {
   draft: "Draft",
@@ -37,7 +39,10 @@ export default function Profile() {
   const [profile, setProfile] = useState<any>(null);
   const [blogs, setBlogs] = useState<any[]>([]);
   const [fullName, setFullName] = useState("");
+  const [bio, setBio] = useState("");
   const [savingName, setSavingName] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // PIN change
   const [currentPin, setCurrentPin] = useState("");
@@ -62,6 +67,7 @@ export default function Profile() {
     ]);
     setProfile(p);
     setFullName(p?.full_name || "");
+    setBio(p?.bio || "");
     setBlogs(b ?? []);
     setLoading(false);
   };
@@ -70,7 +76,7 @@ export default function Profile() {
     load();
   }, []);
 
-  const saveName = async () => {
+  const saveProfile = async () => {
     if (!fullName.trim()) {
       toast({ title: "Name can't be empty", variant: "destructive" });
       return;
@@ -78,14 +84,42 @@ export default function Profile() {
     setSavingName(true);
     const { error } = await supabase
       .from("profiles")
-      .update({ full_name: fullName.trim() })
+      .update({ full_name: fullName.trim(), bio: bio.trim() || null })
       .eq("user_id", profile.user_id);
     setSavingName(false);
     if (error) toast({ title: "Save failed", description: error.message, variant: "destructive" });
     else {
-      toast({ title: "Name updated" });
+      toast({ title: "Profile updated" });
       load();
     }
+  };
+
+  const uploadAvatar = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast({ title: "Please pick an image file", variant: "destructive" });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "Image too large", description: "Please pick an image under 5 MB.", variant: "destructive" });
+      return;
+    }
+    setUploadingAvatar(true);
+    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+    const path = `${profile.user_id}/avatar-${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true, contentType: file.type });
+    if (upErr) {
+      setUploadingAvatar(false);
+      toast({ title: "Upload failed", description: upErr.message, variant: "destructive" });
+      return;
+    }
+    // Best-effort cleanup of previous avatar
+    if (profile.avatar_url && profile.avatar_url !== path && !/^https?:\/\//i.test(profile.avatar_url)) {
+      await supabase.storage.from("avatars").remove([profile.avatar_url]);
+    }
+    const { error: updErr } = await supabase.from("profiles").update({ avatar_url: path }).eq("user_id", profile.user_id);
+    setUploadingAvatar(false);
+    if (updErr) toast({ title: "Save failed", description: updErr.message, variant: "destructive" });
+    else { toast({ title: "Photo updated" }); load(); }
   };
 
   const changePin = async () => {
