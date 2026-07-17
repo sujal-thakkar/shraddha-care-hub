@@ -82,16 +82,17 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
     // Try slug first, then id (BlogRead accepts either).
+    const cols = "id, slug, title, body, cover_image_url, published_at, updated_at";
     let { data } = await supabase
       .from("blogs")
-      .select("id, slug, title, body, cover_image_url, published_at")
+      .select(cols)
       .eq("status", "published")
       .eq("slug", slug)
       .maybeSingle();
     if (!data) {
       const byId = await supabase
         .from("blogs")
-        .select("id, slug, title, body, cover_image_url, published_at")
+        .select(cols)
         .eq("status", "published")
         .eq("id", slug)
         .maybeSingle();
@@ -103,6 +104,14 @@ Deno.serve(async (req) => {
       title = blog.title || title;
       if (blog.body) description = excerpt(blog.body) || description;
       if (blog.cover_image_url) ogImage = blog.cover_image_url;
+      const stamp = blog.updated_at || blog.published_at;
+      if (stamp) {
+        const d = new Date(stamp);
+        if (!isNaN(d.getTime())) lastModified = d.toUTCString();
+      }
+      etagBasis = `${blog.id}:${stamp || ""}:${ogImage}`;
+    } else {
+      etagBasis = `missing:${slug}`;
     }
   }
 
