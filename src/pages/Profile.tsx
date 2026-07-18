@@ -218,20 +218,22 @@ export default function Profile() {
         )}
       </div>
       <div className="flex gap-2 flex-wrap shrink-0">
-        {r.status === "published" && (
+        {r.status === "published" ? (
           <Button asChild variant="outline" size="sm" className="h-9">
             <Link to={`/blog/${r.slug ?? r.id}`}>View</Link>
           </Button>
+        ) : (
+          <Button asChild variant="outline" size="sm" className="h-9">
+            <Link to={`/blog/write?id=${r.id}`}>Edit</Link>
+          </Button>
         )}
-        <Button asChild variant="outline" size="sm" className="h-9">
-          <Link to={`/blog/write?id=${r.id}`}>Edit</Link>
-        </Button>
         {(r.status === "draft" || r.status === "needs_changes") && (
           <Button variant="ghost" size="icon" onClick={() => deleteBlog(r.id)} className="h-9 w-9">
             <Trash2 className="h-4 w-4 text-destructive" />
           </Button>
         )}
       </div>
+
     </div>
   );
 
