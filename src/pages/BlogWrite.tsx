@@ -151,6 +151,11 @@ export default function BlogWrite() {
       if (editingId) {
         const { data: row } = await supabase.from("blogs").select("*").eq("id", editingId).maybeSingle();
         if (row && row.author_id === data.session.user.id) {
+          if (row.status === "published") {
+            toast({ title: "Published blogs can't be edited", description: "Contact an admin if this blog needs changes." });
+            navigate(`/blog/${row.slug ?? row.id}`, { replace: true });
+            return;
+          }
           setBlogId(row.id);
           setTitle(row.title || "");
           const { kind: k, body: b } = extractKind(row.body || "");
@@ -162,6 +167,7 @@ export default function BlogWrite() {
           setAdminNotes(row.admin_notes);
           dbUpdatedAt = row.updated_at ? new Date(row.updated_at).getTime() : 0;
         }
+
       }
       // Restore from local backup if it's newer than the DB version
       try {
