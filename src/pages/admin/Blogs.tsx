@@ -25,8 +25,17 @@ export default function AdminBlogs() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [editBody, setEditBody] = useState("");
   const [editTitle, setEditTitle] = useState("");
+  const [editCover, setEditCover] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
   const [busy, setBusy] = useState(false);
+  const coverInputRef = useRef<HTMLInputElement | null>(null);
+  const { upload: uploadCover, isUploading: coverUploading, progress: coverProgress } = useImageUpload({
+    bucket: "project-posters",
+    folder: "blogs",
+    maxSizeMB: 1,
+    maxWidthOrHeight: 1600,
+  });
+
 
   const load = async () => {
     setLoading(true);
