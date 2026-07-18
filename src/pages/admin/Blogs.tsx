@@ -140,7 +140,48 @@ export default function AdminBlogs() {
               </CardHeader>
               {expanded === row.id && (
                 <CardContent className="space-y-4 border-t">
-                  {row.cover_image_url && <img src={row.cover_image_url} alt="cover" className="w-full max-h-64 object-cover rounded" />}
+                  <div>
+                    <Label>Cover image</Label>
+                    <div className="mt-2 space-y-2">
+                      {editCover ? (
+                        <div className="relative">
+                          <img src={editCover} alt="cover" className="w-full max-h-64 object-cover rounded border" />
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="destructive"
+                            className="absolute top-2 right-2 h-8 w-8"
+                            onClick={() => setEditCover(null)}
+                            disabled={coverUploading}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="border-2 border-dashed border-border rounded p-6 text-center text-sm text-muted-foreground">
+                          No cover image
+                        </div>
+                      )}
+                      <input
+                        ref={coverInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCoverFile(f); e.currentTarget.value = ""; }}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => coverInputRef.current?.click()}
+                        disabled={coverUploading}
+                      >
+                        {coverUploading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Uploading {coverProgress}%</> : <><ImagePlus className="h-4 w-4 mr-2" />{editCover ? "Replace cover" : "Add cover"}</>}
+                      </Button>
+                      <p className="text-xs text-muted-foreground">Click "Save edits" below to apply the new cover.</p>
+                    </div>
+                  </div>
+
                   <div>
                     <Label>Title</Label>
                     <Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
