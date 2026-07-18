@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,10 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Loader2, CheckCircle2, MessageSquareWarning, Archive, EyeOff, Send, Trash2 } from "lucide-react";
+import { Loader2, CheckCircle2, MessageSquareWarning, Archive, EyeOff, Send, Trash2, ImagePlus, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { RenderMarkdownLite } from "@/lib/markdown-lite";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useImageUpload } from "@/hooks/use-image-upload";
+
 
 // Drafts are private to each writer — admins only see stories once submitted for review.
 const STATUSES = ["submitted", "under_review", "needs_changes", "approved", "published", "archived"] as const;
@@ -23,8 +25,17 @@ export default function AdminBlogs() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [editBody, setEditBody] = useState("");
   const [editTitle, setEditTitle] = useState("");
+  const [editCover, setEditCover] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
   const [busy, setBusy] = useState(false);
+  const coverInputRef = useRef<HTMLInputElement | null>(null);
+  const { upload: uploadCover, isUploading: coverUploading, progress: coverProgress } = useImageUpload({
+    bucket: "project-posters",
+    folder: "blogs",
+    maxSizeMB: 1,
+    maxWidthOrHeight: 1600,
+  });
+
 
   const load = async () => {
     setLoading(true);
@@ -49,16 +60,23 @@ export default function AdminBlogs() {
     setExpanded(row.id);
     setEditTitle(row.title || "");
     setEditBody(row.body || "");
+    setEditCover(row.cover_image_url || null);
     setNotes(row.admin_notes || "");
   };
 
   const saveEdits = async (row: any) => {
     setBusy(true);
-    const { error } = await supabase.from("blogs").update({ title: editTitle, body: editBody }).eq("id", row.id);
+    const { error } = await supabase.from("blogs").update({ title: editTitle, body: editBody, cover_image_url: editCover }).eq("id", row.id);
     setBusy(false);
     if (error) toast({ title: "Save failed", description: error.message, variant: "destructive" });
     else { toast({ title: "Saved" }); load(); }
   };
+
+  const handleCoverFile = async (file: File) => {
+    const url = await uploadCover(file);
+    if (url) setEditCover(url);
+  };
+
 
   const runAction = async (row: any, action: string, notesOverride?: string) => {
     setBusy(true);
@@ -122,7 +140,48 @@ export default function AdminBlogs() {
               </CardHeader>
               {expanded === row.id && (
                 <CardContent className="space-y-4 border-t">
-                  {row.cover_image_url && <img src={row.cover_image_url} alt="cover" className="w-full max-h-64 object-cover rounded" />}
+                  <div>
+                    <Label>Cover image</Label>
+                    <div className="mt-2 space-y-2">
+                      {editCover ? (
+                        <div className="relative">
+                          <img src={editCover} alt="cover" className="w-full max-h-64 object-cover rounded border" />
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="destructive"
+                            className="absolute top-2 right-2 h-8 w-8"
+                            onClick={() => setEditCover(null)}
+                            disabled={coverUploading}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="border-2 border-dashed border-border rounded p-6 text-center text-sm text-muted-foreground">
+                          No cover image
+                        </div>
+                      )}
+                      <input
+                        ref={coverInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCoverFile(f); e.currentTarget.value = ""; }}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => coverInputRef.current?.click()}
+                        disabled={coverUploading}
+                      >
+                        {coverUploading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Uploading {coverProgress}%</> : <><ImagePlus className="h-4 w-4 mr-2" />{editCover ? "Replace cover" : "Add cover"}</>}
+                      </Button>
+                      <p className="text-xs text-muted-foreground">Click "Save edits" below to apply the new cover.</p>
+                    </div>
+                  </div>
+
                   <div>
                     <Label>Title</Label>
                     <Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
