@@ -60,16 +60,23 @@ export default function AdminBlogs() {
     setExpanded(row.id);
     setEditTitle(row.title || "");
     setEditBody(row.body || "");
+    setEditCover(row.cover_image_url || null);
     setNotes(row.admin_notes || "");
   };
 
   const saveEdits = async (row: any) => {
     setBusy(true);
-    const { error } = await supabase.from("blogs").update({ title: editTitle, body: editBody }).eq("id", row.id);
+    const { error } = await supabase.from("blogs").update({ title: editTitle, body: editBody, cover_image_url: editCover }).eq("id", row.id);
     setBusy(false);
     if (error) toast({ title: "Save failed", description: error.message, variant: "destructive" });
     else { toast({ title: "Saved" }); load(); }
   };
+
+  const handleCoverFile = async (file: File) => {
+    const url = await uploadCover(file);
+    if (url) setEditCover(url);
+  };
+
 
   const runAction = async (row: any, action: string, notesOverride?: string) => {
     setBusy(true);
