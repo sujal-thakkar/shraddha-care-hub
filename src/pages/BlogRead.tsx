@@ -248,6 +248,7 @@ export default function BlogRead() {
           <div className="mt-12 pt-8 border-t border-border">
             <SocialShare
               title={blog.title}
+              author={author.full_name}
               previewUrl={blogPreviewUrl(blog.slug || blog.id, blog.updated_at || blog.published_at)}
             />
           </div>

@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 
 interface SocialShareProps {
   title: string;
+  author?: string;
   /** Clean URL copied / shared to humans (defaults to current page). */
   url?: string;
   /**
@@ -32,11 +33,13 @@ function XIcon({ className }: { className?: string }) {
   );
 }
 
-export function SocialShare({ title, url, previewUrl, className }: SocialShareProps) {
+export function SocialShare({ title, author, url, previewUrl, className }: SocialShareProps) {
   const { toast } = useToast();
   const shareUrl = url || (typeof window !== "undefined" ? window.location.href : "");
   const crawlUrl = previewUrl || shareUrl;
-  const text = `${title} — Shraddha Welfare Association`;
+  const text = author 
+    ? `${title} - ${author} - Shraddha Welfare Association`
+    : `${title} - Shraddha Welfare Association`;
   const enc = encodeURIComponent;
 
   const links = {
