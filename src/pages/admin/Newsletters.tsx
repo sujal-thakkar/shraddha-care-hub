@@ -62,7 +62,7 @@ export default function AdminNewsletters() {
     setLoading(true);
     const [{ data: nl }, { data: blogs }] = await Promise.all([
       supabase.from("newsletters").select("*").order("created_at", { ascending: false }),
-      supabase.from("blogs").select("id, title, author_id, published_at").eq("status", "published").order("published_at", { ascending: false }),
+      supabase.from("blogs").select("id, title, author_id, published_at, status").in("status", ["published", "approved"]).order("published_at", { ascending: false, nullsFirst: false }),
     ]);
     setNewsletters((nl ?? []) as Newsletter[]);
     setAvailable((blogs ?? []) as BlogRow[]);
