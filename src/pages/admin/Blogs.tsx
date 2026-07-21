@@ -192,7 +192,7 @@ export default function AdminBlogs() {
                       >
                         {coverUploading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Uploading {coverProgress}%</> : <><ImagePlus className="h-4 w-4 mr-2" />{editCover ? "Replace cover" : "Add cover"}</>}
                       </Button>
-                      <p className="text-xs text-muted-foreground">Click "Save edits" below to apply the new cover.</p>
+                      <p className="text-xs text-muted-foreground">Cover updates save automatically.</p>
                     </div>
                   </div>
 
