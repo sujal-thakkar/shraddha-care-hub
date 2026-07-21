@@ -274,15 +274,18 @@ export default function AdminNewsletters() {
                   )}
                 </div>
                 <div>
-                  <Label className="mb-2 block">Add published stories</Label>
+                  <Label className="mb-2 block">Add stories (published & approved)</Label>
                   <div className="space-y-2 max-h-64 overflow-y-auto border border-border rounded p-2">
                     {available.filter((b) => !usedIds.has(b.id)).map((b) => (
                       <button key={b.id} onClick={() => addBlog(b.id)} className="w-full text-left p-2 rounded hover:bg-accent flex items-center justify-between gap-2">
-                        <span className="truncate">{b.title}</span>
+                        <span className="truncate flex-1">{b.title}</span>
+                        <span className={`text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded ${b.status === "published" ? "bg-primary/10 text-primary" : "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"}`}>
+                          {b.status === "published" ? "Published" : "Approved"}
+                        </span>
                         <Plus className="h-4 w-4 text-muted-foreground" />
                       </button>
                     ))}
-                    {available.filter((b) => !usedIds.has(b.id)).length === 0 && <p className="text-sm text-muted-foreground p-2">All published stories are already in this newsletter.</p>}
+                    {available.filter((b) => !usedIds.has(b.id)).length === 0 && <p className="text-sm text-muted-foreground p-2">All eligible stories are already in this newsletter.</p>}
                   </div>
                 </div>
               </div>
