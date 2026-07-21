@@ -1120,27 +1120,7 @@ export type Database = {
       }
     }
     Views: {
-      authors_public: {
-        Row: {
-          avatar_url: string | null
-          bio: string | null
-          full_name: string | null
-          user_id: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          bio?: string | null
-          full_name?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          bio?: string | null
-          full_name?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       admin_approve_writer: { Args: { _user_id: string }; Returns: undefined }
@@ -1159,6 +1139,15 @@ export type Database = {
       }
       get_author_public: {
         Args: { _user_id: string }
+        Returns: {
+          avatar_url: string
+          bio: string
+          full_name: string
+          user_id: string
+        }[]
+      }
+      get_authors_public: {
+        Args: { _user_ids: string[] }
         Returns: {
           avatar_url: string
           bio: string
