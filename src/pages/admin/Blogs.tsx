@@ -165,7 +165,7 @@ export default function AdminBlogs() {
                             size="icon"
                             variant="destructive"
                             className="absolute top-2 right-2 h-8 w-8"
-                            onClick={() => setEditCover(null)}
+                            onClick={() => clearCover(row)}
                             disabled={coverUploading}
                           >
                             <X className="h-4 w-4" />
