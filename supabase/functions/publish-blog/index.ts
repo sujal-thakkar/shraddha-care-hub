@@ -64,7 +64,7 @@ serve(async (req) => {
     const service = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
     const { data: blog, error: blogErr } = await service
       .from("blogs")
-      .select("id, title, slug, status, author_id")
+      .select("id, title, slug, status, author_id, published_at")
       .eq("id", blogId)
       .maybeSingle();
     if (blogErr || !blog) {
