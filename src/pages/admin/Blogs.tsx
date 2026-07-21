@@ -74,7 +74,21 @@ export default function AdminBlogs() {
 
   const handleCoverFile = async (file: File) => {
     const url = await uploadCover(file);
-    if (url) setEditCover(url);
+    if (!url) return;
+    setEditCover(url);
+    // Persist immediately so admins don't lose the cover if they click Publish/Approve next.
+    if (expanded) {
+      const { error } = await supabase.from("blogs").update({ cover_image_url: url }).eq("id", expanded);
+      if (error) toast({ title: "Cover saved locally only", description: error.message, variant: "destructive" });
+      else { toast({ title: "Cover updated" }); setRows((rs) => rs.map((r) => r.id === expanded ? { ...r, cover_image_url: url } : r)); }
+    }
+  };
+
+  const clearCover = async (row: any) => {
+    setEditCover(null);
+    const { error } = await supabase.from("blogs").update({ cover_image_url: null }).eq("id", row.id);
+    if (error) toast({ title: "Couldn't remove cover", description: error.message, variant: "destructive" });
+    else setRows((rs) => rs.map((r) => r.id === row.id ? { ...r, cover_image_url: null } : r));
   };
 
 
