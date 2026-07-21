@@ -1146,6 +1146,15 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_authors_public: {
+        Args: { _user_ids: string[] }
+        Returns: {
+          avatar_url: string
+          bio: string
+          full_name: string
+          user_id: string
+        }[]
+      }
       get_consented_donors: {
         Args: never
         Returns: {

@@ -59,7 +59,7 @@ export default function Blog() {
       setBlogs(rows);
       const ids = Array.from(new Set(rows.map((r) => r.author_id)));
       if (ids.length) {
-        const { data: profiles } = await supabase.from("profiles").select("user_id, full_name").in("user_id", ids);
+        const { data: profiles } = await supabase.rpc("get_authors_public", { _user_ids: ids });
         const map: Record<string, string> = {};
         (profiles ?? []).forEach((p: any) => { map[p.user_id] = p.full_name || "Anonymous"; });
         setAuthors(map);

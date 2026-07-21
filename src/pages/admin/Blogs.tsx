@@ -74,7 +74,21 @@ export default function AdminBlogs() {
 
   const handleCoverFile = async (file: File) => {
     const url = await uploadCover(file);
-    if (url) setEditCover(url);
+    if (!url) return;
+    setEditCover(url);
+    // Persist immediately so admins don't lose the cover if they click Publish/Approve next.
+    if (expanded) {
+      const { error } = await supabase.from("blogs").update({ cover_image_url: url }).eq("id", expanded);
+      if (error) toast({ title: "Cover saved locally only", description: error.message, variant: "destructive" });
+      else { toast({ title: "Cover updated" }); setRows((rs) => rs.map((r) => r.id === expanded ? { ...r, cover_image_url: url } : r)); }
+    }
+  };
+
+  const clearCover = async (row: any) => {
+    setEditCover(null);
+    const { error } = await supabase.from("blogs").update({ cover_image_url: null }).eq("id", row.id);
+    if (error) toast({ title: "Couldn't remove cover", description: error.message, variant: "destructive" });
+    else setRows((rs) => rs.map((r) => r.id === row.id ? { ...r, cover_image_url: null } : r));
   };
 
 
@@ -151,7 +165,7 @@ export default function AdminBlogs() {
                             size="icon"
                             variant="destructive"
                             className="absolute top-2 right-2 h-8 w-8"
-                            onClick={() => setEditCover(null)}
+                            onClick={() => clearCover(row)}
                             disabled={coverUploading}
                           >
                             <X className="h-4 w-4" />
@@ -178,7 +192,7 @@ export default function AdminBlogs() {
                       >
                         {coverUploading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Uploading {coverProgress}%</> : <><ImagePlus className="h-4 w-4 mr-2" />{editCover ? "Replace cover" : "Add cover"}</>}
                       </Button>
-                      <p className="text-xs text-muted-foreground">Click "Save edits" below to apply the new cover.</p>
+                      <p className="text-xs text-muted-foreground">Cover updates save automatically.</p>
                     </div>
                   </div>
 

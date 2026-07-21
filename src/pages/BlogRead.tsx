@@ -63,11 +63,9 @@ export default function BlogRead() {
       if (row) {
         setBlog(row as BlogRow);
         const { data: profile } = await supabase
-          .from("profiles")
-          .select("full_name, avatar_url")
-          .eq("user_id", (row as any).author_id)
+          .rpc("get_author_public", { _user_id: (row as any).author_id })
           .maybeSingle();
-        if (profile) setAuthor({ full_name: profile.full_name || "Anonymous", avatar_url: profile.avatar_url });
+        if (profile) setAuthor({ full_name: (profile as any).full_name || "Anonymous", avatar_url: (profile as any).avatar_url });
       }
       setLoading(false);
     })();
