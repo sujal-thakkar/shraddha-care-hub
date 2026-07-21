@@ -64,7 +64,7 @@ serve(async (req) => {
     const service = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
     const { data: blog, error: blogErr } = await service
       .from("blogs")
-      .select("id, title, slug, status, author_id")
+      .select("id, title, slug, status, author_id, published_at")
       .eq("id", blogId)
       .maybeSingle();
     if (blogErr || !blog) {
@@ -78,7 +78,9 @@ serve(async (req) => {
     if (action === "publish") {
       updates = {
         status: "published",
-        published_at: new Date().toISOString(),
+        // Preserve original publish date on re-publish so re-publishing an edited post
+        // does not bump it above genuinely newer stories.
+        published_at: blog.published_at ?? new Date().toISOString(),
         slug: blog.slug ?? slugify(blog.title || "story"),
         admin_notes: null,
       };
