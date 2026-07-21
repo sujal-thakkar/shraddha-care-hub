@@ -17,7 +17,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { RenderMarkdownLite } from "@/lib/markdown-lite";
 
 interface Newsletter { id: string; title: string; issue_number: number | null; status: string; created_at: string; }
-interface BlogRow { id: string; title: string; author_id: string; published_at: string | null; }
+interface BlogRow { id: string; title: string; author_id: string; published_at: string | null; status?: string; }
 interface FullBlog { id: string; title: string; body: string; author_id: string; published_at: string | null; language: string | null; }
 
 type Layout = "standard" | "compact" | "magazine";
