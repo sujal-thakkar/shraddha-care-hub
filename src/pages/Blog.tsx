@@ -51,8 +51,9 @@ export default function Blog() {
       setLoading(true);
       const { data } = await supabase
         .from("blogs")
-        .select("id, title, slug, cover_image_url, language, published_at, body, author_id")
+        .select("id, title, slug, cover_image_url, language, published_at, body, author_id, sort_order")
         .eq("status", "published")
+        .order("sort_order", { ascending: true, nullsFirst: false })
         .order("published_at", { ascending: false })
         .limit(60);
       const rows = (data ?? []) as BlogRow[];
