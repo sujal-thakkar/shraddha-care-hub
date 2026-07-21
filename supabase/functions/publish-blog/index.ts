@@ -78,7 +78,9 @@ serve(async (req) => {
     if (action === "publish") {
       updates = {
         status: "published",
-        published_at: new Date().toISOString(),
+        // Preserve original publish date on re-publish so re-publishing an edited post
+        // does not bump it above genuinely newer stories.
+        published_at: blog.published_at ?? new Date().toISOString(),
         slug: blog.slug ?? slugify(blog.title || "story"),
         admin_notes: null,
       };
