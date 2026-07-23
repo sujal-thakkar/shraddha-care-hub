@@ -24,6 +24,8 @@ interface BlogRow {
   published_at: string | null;
   updated_at?: string | null;
   author_id: string;
+  is_guest?: boolean | null;
+  guest_name?: string | null;
 }
 
 interface Author {
@@ -62,10 +64,14 @@ export default function BlogRead() {
       }
       if (row) {
         setBlog(row as BlogRow);
-        const { data: profile } = await supabase
-          .rpc("get_author_public", { _user_id: (row as any).author_id })
-          .maybeSingle();
-        if (profile) setAuthor({ full_name: (profile as any).full_name || "Anonymous", avatar_url: (profile as any).avatar_url });
+        if ((row as any).is_guest) {
+          setAuthor({ full_name: (row as any).guest_name || "Anonymous", avatar_url: null });
+        } else if ((row as any).author_id) {
+          const { data: profile } = await supabase
+            .rpc("get_author_public", { _user_id: (row as any).author_id })
+            .maybeSingle();
+          if (profile) setAuthor({ full_name: (profile as any).full_name || "Anonymous", avatar_url: (profile as any).avatar_url });
+        }
       }
       setLoading(false);
     })();
@@ -158,10 +164,17 @@ export default function BlogRead() {
                   {blog.title}
                 </h1>
                 <div className="mt-6 flex items-center flex-wrap gap-4 text-white/90">
-                  <Link to={`/author/${blog.author_id}`} className="flex items-center gap-3 group">
-                    <AuthorAvatar avatarPath={author.avatar_url} name={author.full_name} className="h-11 w-11 border-white/30" />
-                    <span className="font-medium group-hover:underline">{author.full_name}</span>
-                  </Link>
+                  {blog.is_guest ? (
+                    <div className="flex items-center gap-3">
+                      <AuthorAvatar avatarPath={null} name={author.full_name} className="h-11 w-11 border-white/30" />
+                      <span className="font-medium">{author.full_name} <span className="text-white/70 font-normal">(Guest Blogger)</span></span>
+                    </div>
+                  ) : (
+                    <Link to={`/author/${blog.author_id}`} className="flex items-center gap-3 group">
+                      <AuthorAvatar avatarPath={author.avatar_url} name={author.full_name} className="h-11 w-11 border-white/30" />
+                      <span className="font-medium group-hover:underline">{author.full_name}</span>
+                    </Link>
+                  )}
                   {publishedLabel && (
                     <>
                       <span className="text-white/50">•</span>
@@ -189,10 +202,17 @@ export default function BlogRead() {
             </Link>
             <h1 className="font-serif text-3xl md:text-5xl font-bold leading-tight">{blog.title}</h1>
             <div className="mt-6 flex items-center flex-wrap gap-4">
-              <Link to={`/author/${blog.author_id}`} className="flex items-center gap-3 group">
-                <AuthorAvatar avatarPath={author.avatar_url} name={author.full_name} />
-                <span className="font-medium group-hover:underline group-hover:text-primary transition-colors">{author.full_name}</span>
-              </Link>
+              {blog.is_guest ? (
+                <div className="flex items-center gap-3">
+                  <AuthorAvatar avatarPath={null} name={author.full_name} />
+                  <span className="font-medium">{author.full_name} <span className="text-muted-foreground font-normal">(Guest Blogger)</span></span>
+                </div>
+              ) : (
+                <Link to={`/author/${blog.author_id}`} className="flex items-center gap-3 group">
+                  <AuthorAvatar avatarPath={author.avatar_url} name={author.full_name} />
+                  <span className="font-medium group-hover:underline group-hover:text-primary transition-colors">{author.full_name}</span>
+                </Link>
+              )}
               {publishedLabel && (<><span className="text-muted-foreground">•</span><span className="text-sm text-muted-foreground">{publishedLabel}</span></>)}
               <span className="text-muted-foreground">•</span>
               <span className="text-sm text-muted-foreground inline-flex items-center gap-1">
@@ -252,17 +272,28 @@ export default function BlogRead() {
           </div>
 
           {/* Author card */}
-          <Link
-            to={`/author/${blog.author_id}`}
-            className="mt-12 flex items-center gap-4 p-6 rounded-2xl border border-border bg-muted/30 hover:bg-muted/50 transition-colors group"
-          >
-            <AuthorAvatar avatarPath={author.avatar_url} name={author.full_name} className="h-16 w-16 text-lg" />
-            <div className="min-w-0 flex-1">
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">Written by</p>
-              <p className="font-serif text-xl font-semibold group-hover:text-primary transition-colors">{author.full_name}</p>
-              <p className="text-sm text-muted-foreground mt-1">View all blogs by this author →</p>
+          {blog.is_guest ? (
+            <div className="mt-12 flex items-center gap-4 p-6 rounded-2xl border border-border bg-muted/30">
+              <AuthorAvatar avatarPath={null} name={author.full_name} className="h-16 w-16 text-lg" />
+              <div className="min-w-0 flex-1">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Written by</p>
+                <p className="font-serif text-xl font-semibold">{author.full_name}</p>
+                <p className="text-sm text-muted-foreground mt-1">Guest Blogger</p>
+              </div>
             </div>
-          </Link>
+          ) : (
+            <Link
+              to={`/author/${blog.author_id}`}
+              className="mt-12 flex items-center gap-4 p-6 rounded-2xl border border-border bg-muted/30 hover:bg-muted/50 transition-colors group"
+            >
+              <AuthorAvatar avatarPath={author.avatar_url} name={author.full_name} className="h-16 w-16 text-lg" />
+              <div className="min-w-0 flex-1">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Written by</p>
+                <p className="font-serif text-xl font-semibold group-hover:text-primary transition-colors">{author.full_name}</p>
+                <p className="text-sm text-muted-foreground mt-1">View all blogs by this author →</p>
+              </div>
+            </Link>
+          )}
 
           {/* Comments */}
           <BlogComments blogId={blog.id} />

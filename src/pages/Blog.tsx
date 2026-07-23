@@ -18,6 +18,8 @@ interface BlogRow {
   published_at: string | null;
   body: string;
   author_id: string;
+  is_guest?: boolean | null;
+  guest_name?: string | null;
 }
 
 export default function Blog() {
@@ -51,14 +53,14 @@ export default function Blog() {
       setLoading(true);
       const { data } = await supabase
         .from("blogs")
-        .select("id, title, slug, cover_image_url, language, published_at, body, author_id, sort_order")
+        .select("id, title, slug, cover_image_url, language, published_at, body, author_id, sort_order, is_guest, guest_name")
         .eq("status", "published")
         .order("sort_order", { ascending: true, nullsFirst: false })
         .order("published_at", { ascending: false })
         .limit(60);
       const rows = (data ?? []) as BlogRow[];
       setBlogs(rows);
-      const ids = Array.from(new Set(rows.map((r) => r.author_id)));
+      const ids = Array.from(new Set(rows.filter((r) => !r.is_guest && r.author_id).map((r) => r.author_id)));
       if (ids.length) {
         const { data: profiles } = await supabase.rpc("get_authors_public", { _user_ids: ids });
         const map: Record<string, string> = {};
@@ -182,7 +184,7 @@ export default function Blog() {
                       {stripKindMarker(b.body).replace(/\*\*/g, "").slice(0, 180)}
                     </p>
                     <div className="mt-4 text-xs text-muted-foreground">
-                      By {authors[b.author_id] || "Anonymous"}
+                      By {b.is_guest ? `${b.guest_name || "Anonymous"} (Guest Blogger)` : (authors[b.author_id] || "Anonymous")}
                       {b.published_at && <> · {new Date(b.published_at).toLocaleDateString()}</>}
                       {b.language && <> · {b.language.toUpperCase()}</>}
                     </div>
