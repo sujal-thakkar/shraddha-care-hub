@@ -68,13 +68,16 @@ export default function BlogWriteGuest() {
   }, [title, body, kind]);
 
   const handleSubmit = async ({ guest_name, guest_phone, author_id }: { guest_name: string; guest_phone: string; author_id: string | null }) => {
+    // If the submission is linked to a real writer profile (author_id set),
+    // it's not a guest submission — it just came through the guest form.
+    const linked = !!author_id;
     const { error } = await supabase.from("blogs").insert({
       title: title.trim() || "Untitled",
       body,
       status: "submitted",
-      is_guest: true,
-      guest_name,
-      guest_phone,
+      is_guest: !linked,
+      guest_name: linked ? null : guest_name,
+      guest_phone: linked ? null : guest_phone,
       author_id,
     });
     if (error) return { ok: false as const, error: error.message };
