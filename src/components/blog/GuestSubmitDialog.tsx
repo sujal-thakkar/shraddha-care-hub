@@ -142,6 +142,24 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
     setStep("done-guest");
   };
 
+  // Final CTA on done-linked / done-account — reuses the PIN the user just entered/set to sign them in.
+  const handleSignInAndGoToProfile = async () => {
+    const v = validatePhone(dial, phone);
+    if (!v.ok) return;
+    const e164 = toE164(dial, v.digits);
+    setBusy(true);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: syntheticEmail(e164),
+      password: composePassword(e164, pin),
+    });
+    setBusy(false);
+    if (error) {
+      return toast({ title: "Couldn't sign you in", description: error.message, variant: "destructive" });
+    }
+    onOpenChange(false);
+    navigate("/profile");
+  };
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
