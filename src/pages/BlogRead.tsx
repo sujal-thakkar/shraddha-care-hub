@@ -272,17 +272,28 @@ export default function BlogRead() {
           </div>
 
           {/* Author card */}
-          <Link
-            to={`/author/${blog.author_id}`}
-            className="mt-12 flex items-center gap-4 p-6 rounded-2xl border border-border bg-muted/30 hover:bg-muted/50 transition-colors group"
-          >
-            <AuthorAvatar avatarPath={author.avatar_url} name={author.full_name} className="h-16 w-16 text-lg" />
-            <div className="min-w-0 flex-1">
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">Written by</p>
-              <p className="font-serif text-xl font-semibold group-hover:text-primary transition-colors">{author.full_name}</p>
-              <p className="text-sm text-muted-foreground mt-1">View all blogs by this author →</p>
+          {blog.is_guest ? (
+            <div className="mt-12 flex items-center gap-4 p-6 rounded-2xl border border-border bg-muted/30">
+              <AuthorAvatar avatarPath={null} name={author.full_name} className="h-16 w-16 text-lg" />
+              <div className="min-w-0 flex-1">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Written by</p>
+                <p className="font-serif text-xl font-semibold">{author.full_name}</p>
+                <p className="text-sm text-muted-foreground mt-1">Guest Blogger</p>
+              </div>
             </div>
-          </Link>
+          ) : (
+            <Link
+              to={`/author/${blog.author_id}`}
+              className="mt-12 flex items-center gap-4 p-6 rounded-2xl border border-border bg-muted/30 hover:bg-muted/50 transition-colors group"
+            >
+              <AuthorAvatar avatarPath={author.avatar_url} name={author.full_name} className="h-16 w-16 text-lg" />
+              <div className="min-w-0 flex-1">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Written by</p>
+                <p className="font-serif text-xl font-semibold group-hover:text-primary transition-colors">{author.full_name}</p>
+                <p className="text-sm text-muted-foreground mt-1">View all blogs by this author →</p>
+              </div>
+            </Link>
+          )}
 
           {/* Comments */}
           <BlogComments blogId={blog.id} />
