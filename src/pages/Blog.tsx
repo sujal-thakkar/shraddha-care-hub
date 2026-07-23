@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PenLine, Search, Loader2, UserPlus, User as UserIcon, Clock } from "lucide-react";
+import { PenLine, Search, Loader2, UserPlus, User as UserIcon, Clock, UserCircle } from "lucide-react";
 import { stripKindMarker } from "@/lib/markdown-lite";
 
 
