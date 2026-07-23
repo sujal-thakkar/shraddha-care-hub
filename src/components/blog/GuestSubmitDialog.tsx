@@ -220,7 +220,7 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
                 </Button>
               </DialogFooter>
               <p className="text-xs text-muted-foreground text-center">
-                Forgot your PIN? Contact an admin — we'll reset it for you.
+                Forgot your PIN? <Link to="/contact" className="underline text-primary hover:text-primary/80">Contact an admin</Link> — we'll reset it for you.
               </p>
             </form>
           </>
