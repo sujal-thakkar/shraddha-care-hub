@@ -322,8 +322,8 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
               </DialogDescription>
             </DialogHeader>
             <div className="mt-6 flex flex-col gap-2">
-              <Button asChild className="w-full h-12">
-                <Link to="/auth?next=/profile">Sign in to your profile</Link>
+              <Button className="w-full h-12" onClick={handleSignInAndGoToProfile} disabled={busy}>
+                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign in to your profile"}
               </Button>
               <Button variant="ghost" onClick={() => handleClose(false)}>Close</Button>
             </div>
