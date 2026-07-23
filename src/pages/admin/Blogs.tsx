@@ -335,12 +335,22 @@ export default function AdminBlogs() {
 }
 
 function RowHeader({ row, authors }: { row: any; authors: Record<string, { name: string; email: string }> }) {
+  const isGuest = !!row.is_guest;
+  const displayName = isGuest
+    ? (row.guest_name || "Guest")
+    : (authors[row.author_id]?.name || "Unknown");
   return (
     <div className="flex items-start justify-between gap-4">
       <div className="min-w-0 flex-1">
-        <CardTitle className="text-lg truncate">{row.title || "Untitled"}</CardTitle>
+        <CardTitle className="text-lg truncate flex items-center gap-2">
+          {row.title || "Untitled"}
+          {isGuest && <Badge variant="secondary" className="text-xs">Guest</Badge>}
+        </CardTitle>
         <div className="text-xs text-muted-foreground mt-1">
-          By {authors[row.author_id]?.name || "Unknown"} · Updated {new Date(row.updated_at).toLocaleString()}
+          By {displayName}
+          {isGuest && row.guest_phone && <> · <span className="font-mono">{row.guest_phone}</span></>}
+          {isGuest && row.author_id && <> · linked to writer profile</>}
+          {" · "}Updated {new Date(row.updated_at).toLocaleString()}
           {row.language && <> · {row.language.toUpperCase()}</>}
         </div>
       </div>
