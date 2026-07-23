@@ -164,10 +164,17 @@ export default function BlogRead() {
                   {blog.title}
                 </h1>
                 <div className="mt-6 flex items-center flex-wrap gap-4 text-white/90">
-                  <Link to={`/author/${blog.author_id}`} className="flex items-center gap-3 group">
-                    <AuthorAvatar avatarPath={author.avatar_url} name={author.full_name} className="h-11 w-11 border-white/30" />
-                    <span className="font-medium group-hover:underline">{author.full_name}</span>
-                  </Link>
+                  {blog.is_guest ? (
+                    <div className="flex items-center gap-3">
+                      <AuthorAvatar avatarPath={null} name={author.full_name} className="h-11 w-11 border-white/30" />
+                      <span className="font-medium">{author.full_name} <span className="text-white/70 font-normal">(Guest Blogger)</span></span>
+                    </div>
+                  ) : (
+                    <Link to={`/author/${blog.author_id}`} className="flex items-center gap-3 group">
+                      <AuthorAvatar avatarPath={author.avatar_url} name={author.full_name} className="h-11 w-11 border-white/30" />
+                      <span className="font-medium group-hover:underline">{author.full_name}</span>
+                    </Link>
+                  )}
                   {publishedLabel && (
                     <>
                       <span className="text-white/50">•</span>
