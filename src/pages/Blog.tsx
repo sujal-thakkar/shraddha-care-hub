@@ -93,12 +93,20 @@ export default function Blog() {
           </div>
           <div className="flex flex-wrap gap-2">
             {!session ? (
-              <Button asChild size="lg" className="h-12">
-                <Link to="/auth?next=/blog/write">
-                  <UserPlus className="mr-2 h-5 w-5" />
-                  Become a writer
-                </Link>
-              </Button>
+              <>
+                <Button asChild size="lg" className="h-12">
+                  <Link to="/auth?next=/blog/write">
+                    <UserPlus className="mr-2 h-5 w-5" />
+                    Become a writer
+                  </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="h-12">
+                  <Link to="/blog/write-guest">
+                    <UserCircle className="mr-2 h-5 w-5" />
+                    Write as guest
+                  </Link>
+                </Button>
+              </>
             ) : profileStatus === "approved" ? (
               <>
                 <Button asChild size="lg" className="h-12">
@@ -115,13 +123,23 @@ export default function Blog() {
                 </Button>
               </>
             ) : profileStatus === "rejected" ? (
-              <div className="flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/10 text-destructive px-4 py-2 text-sm">
-                Your writer application was declined. Contact an admin for details.
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/10 text-destructive px-4 py-2 text-sm">
+                  Your writer application was declined. Contact an admin for details.
+                </div>
+                <Button asChild size="lg" variant="outline" className="h-12">
+                  <Link to="/blog/write-guest"><UserCircle className="mr-2 h-5 w-5" />Write as guest instead</Link>
+                </Button>
               </div>
             ) : (
-              <div className="flex items-center gap-2 rounded-md border border-amber-300 bg-amber-50 text-amber-800 px-4 py-2 text-sm">
-                <Clock className="h-4 w-4" />
-                Writer application pending admin approval.
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2 rounded-md border border-amber-300 bg-amber-50 text-amber-800 px-4 py-2 text-sm">
+                  <Clock className="h-4 w-4" />
+                  Writer application pending admin approval.
+                </div>
+                <Button asChild size="lg" variant="outline" className="h-12">
+                  <Link to="/blog/write-guest"><UserCircle className="mr-2 h-5 w-5" />Write as guest meanwhile</Link>
+                </Button>
               </div>
             )}
           </div>
