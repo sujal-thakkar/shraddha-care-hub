@@ -92,6 +92,7 @@ const App = () => {
             <Route path="/auth" element={<Auth />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/write" element={<BlogWrite />} />
+            <Route path="/blog/write-guest" element={<BlogWriteGuest />} />
             <Route path="/blog/my-stories" element={<Navigate to="/profile" replace />} />
             <Route path="/blog/:slug" element={<BlogRead />} />
             <Route path="/profile" element={<Profile />} />
