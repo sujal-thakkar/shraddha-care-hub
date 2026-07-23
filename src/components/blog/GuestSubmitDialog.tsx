@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +28,7 @@ export interface GuestSubmitDialogProps {
 
 export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitDialogProps) {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [step, setStep] = useState<Step>("form");
   const [busy, setBusy] = useState(false);
 
@@ -139,6 +140,24 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
     setBusy(false);
     if (!res.ok) return toast({ title: "Submit failed", description: res.error, variant: "destructive" });
     setStep("done-guest");
+  };
+
+  // Final CTA on done-linked / done-account — reuses the PIN the user just entered/set to sign them in.
+  const handleSignInAndGoToProfile = async () => {
+    const v = validatePhone(dial, phone);
+    if (!v.ok) return;
+    const e164 = toE164(dial, v.digits);
+    setBusy(true);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: syntheticEmail(e164),
+      password: composePassword(e164, pin),
+    });
+    setBusy(false);
+    if (error) {
+      return toast({ title: "Couldn't sign you in", description: error.message, variant: "destructive" });
+    }
+    onOpenChange(false);
+    navigate("/profile");
   };
 
   return (
@@ -303,8 +322,8 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
               </DialogDescription>
             </DialogHeader>
             <div className="mt-6 flex flex-col gap-2">
-              <Button asChild className="w-full h-12">
-                <Link to="/auth?next=/profile">Sign in to your profile</Link>
+              <Button className="w-full h-12" onClick={handleSignInAndGoToProfile} disabled={busy}>
+                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign in to your profile"}
               </Button>
               <Button variant="ghost" onClick={() => handleClose(false)}>Close</Button>
             </div>
@@ -324,8 +343,8 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
               </DialogDescription>
             </DialogHeader>
             <div className="mt-6 flex flex-col gap-2">
-              <Button asChild className="w-full h-12">
-                <Link to="/auth?next=/profile">Sign in to your new profile</Link>
+              <Button className="w-full h-12" onClick={handleSignInAndGoToProfile} disabled={busy}>
+                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign in to your new profile"}
               </Button>
               <Button variant="ghost" onClick={() => handleClose(false)}>Close</Button>
             </div>
