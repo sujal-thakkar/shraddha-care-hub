@@ -18,6 +18,8 @@ interface BlogRow {
   published_at: string | null;
   body: string;
   author_id: string;
+  is_guest?: boolean | null;
+  guest_name?: string | null;
 }
 
 export default function Blog() {
