@@ -200,12 +200,15 @@ export type Database = {
       blogs: {
         Row: {
           admin_notes: string | null
-          author_id: string
+          author_id: string | null
           body: string
           content_hash: string | null
           cover_image_url: string | null
           created_at: string
+          guest_name: string | null
+          guest_phone: string | null
           id: string
+          is_guest: boolean
           language: string | null
           published_at: string | null
           slug: string | null
@@ -216,12 +219,15 @@ export type Database = {
         }
         Insert: {
           admin_notes?: string | null
-          author_id: string
+          author_id?: string | null
           body?: string
           content_hash?: string | null
           cover_image_url?: string | null
           created_at?: string
+          guest_name?: string | null
+          guest_phone?: string | null
           id?: string
+          is_guest?: boolean
           language?: string | null
           published_at?: string | null
           slug?: string | null
@@ -232,12 +238,15 @@ export type Database = {
         }
         Update: {
           admin_notes?: string | null
-          author_id?: string
+          author_id?: string | null
           body?: string
           content_hash?: string | null
           cover_image_url?: string | null
           created_at?: string
+          guest_name?: string | null
+          guest_phone?: string | null
           id?: string
+          is_guest?: boolean
           language?: string | null
           published_at?: string | null
           slug?: string | null
