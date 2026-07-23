@@ -184,7 +184,7 @@ export default function Blog() {
                       {stripKindMarker(b.body).replace(/\*\*/g, "").slice(0, 180)}
                     </p>
                     <div className="mt-4 text-xs text-muted-foreground">
-                      By {authors[b.author_id] || "Anonymous"}
+                      By {b.is_guest ? `${b.guest_name || "Anonymous"} (Guest Blogger)` : (authors[b.author_id] || "Anonymous")}
                       {b.published_at && <> · {new Date(b.published_at).toLocaleDateString()}</>}
                       {b.language && <> · {b.language.toUpperCase()}</>}
                     </div>
