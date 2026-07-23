@@ -202,10 +202,17 @@ export default function BlogRead() {
             </Link>
             <h1 className="font-serif text-3xl md:text-5xl font-bold leading-tight">{blog.title}</h1>
             <div className="mt-6 flex items-center flex-wrap gap-4">
-              <Link to={`/author/${blog.author_id}`} className="flex items-center gap-3 group">
-                <AuthorAvatar avatarPath={author.avatar_url} name={author.full_name} />
-                <span className="font-medium group-hover:underline group-hover:text-primary transition-colors">{author.full_name}</span>
-              </Link>
+              {blog.is_guest ? (
+                <div className="flex items-center gap-3">
+                  <AuthorAvatar avatarPath={null} name={author.full_name} />
+                  <span className="font-medium">{author.full_name} <span className="text-muted-foreground font-normal">(Guest Blogger)</span></span>
+                </div>
+              ) : (
+                <Link to={`/author/${blog.author_id}`} className="flex items-center gap-3 group">
+                  <AuthorAvatar avatarPath={author.avatar_url} name={author.full_name} />
+                  <span className="font-medium group-hover:underline group-hover:text-primary transition-colors">{author.full_name}</span>
+                </Link>
+              )}
               {publishedLabel && (<><span className="text-muted-foreground">•</span><span className="text-sm text-muted-foreground">{publishedLabel}</span></>)}
               <span className="text-muted-foreground">•</span>
               <span className="text-sm text-muted-foreground inline-flex items-center gap-1">
