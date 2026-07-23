@@ -24,6 +24,8 @@ interface BlogRow {
   published_at: string | null;
   updated_at?: string | null;
   author_id: string;
+  is_guest?: boolean | null;
+  guest_name?: string | null;
 }
 
 interface Author {
