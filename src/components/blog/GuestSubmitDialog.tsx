@@ -28,6 +28,7 @@ export interface GuestSubmitDialogProps {
 
 export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitDialogProps) {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [step, setStep] = useState<Step>("form");
   const [busy, setBusy] = useState(false);
 
