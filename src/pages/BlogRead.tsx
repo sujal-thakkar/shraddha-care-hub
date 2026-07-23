@@ -64,10 +64,14 @@ export default function BlogRead() {
       }
       if (row) {
         setBlog(row as BlogRow);
-        const { data: profile } = await supabase
-          .rpc("get_author_public", { _user_id: (row as any).author_id })
-          .maybeSingle();
-        if (profile) setAuthor({ full_name: (profile as any).full_name || "Anonymous", avatar_url: (profile as any).avatar_url });
+        if ((row as any).is_guest) {
+          setAuthor({ full_name: (row as any).guest_name || "Anonymous", avatar_url: null });
+        } else if ((row as any).author_id) {
+          const { data: profile } = await supabase
+            .rpc("get_author_public", { _user_id: (row as any).author_id })
+            .maybeSingle();
+          if (profile) setAuthor({ full_name: (profile as any).full_name || "Anonymous", avatar_url: (profile as any).avatar_url });
+        }
       }
       setLoading(false);
     })();
