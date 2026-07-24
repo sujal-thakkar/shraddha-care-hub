@@ -31,7 +31,7 @@ export default function BlogWriteGuest() {
   const wordCount = body.trim() ? body.trim().split(/\s+/).length : 0;
   const ready = title.trim() && body.trim();
 
-  // If they're already logged in as an approved writer, send them to the real editor.
+  // Approved writers use the real editor; pending/rejected sessions write as anonymous guests only.
   useEffect(() => {
     (async () => {
       const { data } = await supabase.auth.getSession();
@@ -39,6 +39,8 @@ export default function BlogWriteGuest() {
         const { data: p } = await supabase.from("profiles").select("status").eq("user_id", data.session.user.id).maybeSingle();
         if ((p as any)?.status === "approved") {
           navigate("/blog/write", { replace: true });
+        } else {
+          await supabase.auth.signOut();
         }
       }
     })();
