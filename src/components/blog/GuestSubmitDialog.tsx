@@ -90,8 +90,11 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
       return toast({ title: "Wrong PIN", description: "That PIN doesn't match this phone number.", variant: "destructive" });
     }
     const authorId = data.user.id;
+    // Look up whether this writer is already approved — decides guest vs. non-guest tagging.
+    const { data: prof } = await supabase.from("profiles").select("status").eq("user_id", authorId).maybeSingle();
+    const approved = (prof as any)?.status === "approved";
     // Insert while signed in so RLS sees auth.uid() = author_id, then sign out.
-    const res = await onSubmit({ guest_name: name.trim(), guest_phone: e164, author_id: authorId });
+    const res = await onSubmit({ guest_name: name.trim(), guest_phone: e164, author_id: authorId, is_approved_writer: approved });
     await supabase.auth.signOut();
     setBusy(false);
     if (!res.ok) return toast({ title: "Submit failed", description: res.error, variant: "destructive" });
