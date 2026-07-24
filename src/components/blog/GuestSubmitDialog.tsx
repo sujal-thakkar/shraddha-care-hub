@@ -144,7 +144,11 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
     }
     const authorId = data.user.id;
     // Insert while signed in so RLS accepts author_id = auth.uid(), then sign out.
-    const res = await onSubmit({ guest_name: name.trim(), guest_phone: e164, author_id: authorId });
+    // Brand-new signup → writer is `pending` by default → treat as guest until admin approves.
+    // If signup fell back to signInWithPassword (account existed), the writer might already be approved — check.
+    const { data: prof } = await supabase.from("profiles").select("status").eq("user_id", authorId).maybeSingle();
+    const approved = (prof as any)?.status === "approved";
+    const res = await onSubmit({ guest_name: name.trim(), guest_phone: e164, author_id: authorId, is_approved_writer: approved });
     await supabase.auth.signOut();
     setBusy(false);
     if (!res.ok) return toast({ title: "Submit failed", description: res.error, variant: "destructive" });
