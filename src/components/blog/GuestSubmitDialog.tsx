@@ -160,7 +160,7 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
     if (!v.ok) return;
     const e164 = toE164(dial, v.digits);
     setBusy(true);
-    const res = await onSubmit({ guest_name: name.trim(), guest_phone: e164, author_id: null });
+    const res = await onSubmit({ guest_name: name.trim(), guest_phone: e164, author_id: null, is_approved_writer: false });
     setBusy(false);
     if (!res.ok) return toast({ title: "Submit failed", description: res.error, variant: "destructive" });
     setStep("done-guest");
