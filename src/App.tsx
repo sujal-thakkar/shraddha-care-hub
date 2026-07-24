@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { PageLoader } from "@/components/ui/page-loader";
 import { useA11yBootstrap } from "@/hooks/use-a11y";
+import { I18nProvider } from "@/i18n";
 import Home from "./pages/Home";
 
 // Lazy load non-critical routes for better TTI
@@ -65,6 +66,7 @@ const App = () => {
   useA11yBootstrap();
   return (
   <QueryClientProvider client={queryClient}>
+    <I18nProvider>
     <TooltipProvider>
       <Toaster />
       <Sonner />
@@ -123,6 +125,7 @@ const App = () => {
         </Suspense>
       </BrowserRouter>
     </TooltipProvider>
+    </I18nProvider>
   </QueryClientProvider>
   );
 };
