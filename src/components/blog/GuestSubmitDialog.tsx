@@ -251,7 +251,7 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
               <div className="space-y-2">
                 <Label htmlFor="ex-pin" className="flex items-center gap-2"><Lock className="h-4 w-4" /> Your PIN</Label>
                 <Input
-                  id="ex-pin" type="password" inputMode="numeric" maxLength={4}
+                  id="ex-pin" type="text" inputMode="numeric" maxLength={4} autoComplete="off"
                   value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
                   placeholder="••••" className="h-12 text-2xl tracking-[0.5em] text-center"
                 />
@@ -293,13 +293,13 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
             <form onSubmit={handleSetPinAndSubmit} className="space-y-3">
               <div className="space-y-2">
                 <Label htmlFor="new-pin" className="flex items-center gap-2"><Lock className="h-4 w-4" /> Create a 4-digit PIN</Label>
-                <Input id="new-pin" type="password" inputMode="numeric" maxLength={4}
+                <Input id="new-pin" type="text" inputMode="numeric" maxLength={4} autoComplete="off"
                   value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
                   placeholder="••••" className="h-12 text-2xl tracking-[0.5em] text-center" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="new-pin2">Confirm PIN</Label>
-                <Input id="new-pin2" type="password" inputMode="numeric" maxLength={4}
+                <Input id="new-pin2" type="text" inputMode="numeric" maxLength={4} autoComplete="off"
                   value={pin2} onChange={(e) => setPin2(e.target.value.replace(/\D/g, "").slice(0, 4))}
                   placeholder="••••" className="h-12 text-2xl tracking-[0.5em] text-center" />
               </div>
