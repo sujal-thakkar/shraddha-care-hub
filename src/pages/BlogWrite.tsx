@@ -15,19 +15,20 @@ import { useFontSize, FontSizeToggle } from "@/hooks/use-font-size";
 import { RichEditor, type RichEditorHandle, type ActiveFormats } from "@/components/blog/RichEditor";
 import { CircularWavesLoader } from "@/components/blog/CircularWavesLoader";
 import { extractKind, stripKindMarker, type BlogKind } from "@/lib/markdown-lite";
+import { useI18n } from "@/i18n";
 
 interface Suggestion { original: string; suggestion: string; reason: string; }
 
-const QUICK_PROMPTS = [
-  { label: "A memory from my youth", seed: "One memory from my youth that still makes me smile is " },
-  { label: "A person who shaped me", seed: "The person who shaped me most is " },
-  { label: "A day I'll never forget", seed: "There's one day I'll never forget. It was " },
-  { label: "What Hosla means to me", seed: "Being part of Hosla means " },
-  { label: "Advice for younger people", seed: "If I could tell my younger self one thing, it would be " },
-  { label: "Something I'm proud of", seed: "One thing I'm truly proud of is " },
+const QUICK_PROMPT_KEYS = [
+  { key: "A memory from my youth", seed: "One memory from my youth that still makes me smile is " },
+  { key: "A person who shaped me", seed: "The person who shaped me most is " },
+  { key: "A day I'll never forget", seed: "There's one day I'll never forget. It was " },
+  { key: "What Hosla means to me", seed: "Being part of Hosla means " },
+  { key: "Advice for younger people", seed: "If I could tell my younger self one thing, it would be " },
+  { key: "Something I'm proud of", seed: "One thing I'm truly proud of is " },
 ];
 
-const TIPS = [
+const TIP_KEYS = [
   "Write like you're telling a friend. Simple words are best.",
   "Don't worry about spelling — you can fix it later with one tap.",
   "Pick one memory and describe what you saw, heard, or felt.",
@@ -111,6 +112,7 @@ export default function BlogWrite() {
   const [params] = useSearchParams();
   const editingId = params.get("id");
   const { toast } = useToast();
+  const { t } = useI18n();
   const { upload, isUploading, progress: uploadProgress } = useImageUpload({ bucket: "project-posters", folder: "blogs", maxSizeMB: 1, maxWidthOrHeight: 1600 });
   const { size, setSize } = useFontSize();
 
