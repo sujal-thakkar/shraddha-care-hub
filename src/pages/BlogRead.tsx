@@ -142,11 +142,11 @@ export default function BlogRead() {
 
       <article>
         {/* Cover hero with overlay title */}
-        {blog.cover_image_url ? (
+        {(
           <header className="relative w-full overflow-hidden">
             <div className="relative h-[60vh] min-h-[420px] max-h-[720px] w-full">
               <img
-                src={blog.cover_image_url}
+                src={coverImageOrDefault(blog.cover_image_url)}
                 alt=""
                 className="absolute inset-0 w-full h-full object-cover"
                 fetchPriority="high"
