@@ -3,6 +3,7 @@ import { Accessibility } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/i18n";
 
 const LARGE_KEY = "a11y_large_text";
 const CONTRAST_KEY = "a11y_high_contrast";
