@@ -57,14 +57,22 @@ export default function Profile() {
       return;
     }
     const uid = sess.session.user.id;
-    const [{ data: p }, { data: b }] = await Promise.all([
-      supabase.from("profiles").select("*").eq("user_id", uid).maybeSingle(),
-      supabase
-        .from("blogs")
-        .select("id, title, status, admin_notes, slug, updated_at, published_at")
-        .eq("author_id", uid)
-        .order("updated_at", { ascending: false }),
-    ]);
+    const { data: p } = await supabase.from("profiles").select("*").eq("user_id", uid).maybeSingle();
+    if (!p || p.status !== "approved") {
+      await supabase.auth.signOut();
+      toast({
+        title: "Writer approval pending",
+        description: "Profile access opens after the admin team approves your writer account.",
+        variant: "destructive",
+      });
+      navigate("/blog", { replace: true });
+      return;
+    }
+    const { data: b } = await supabase
+      .from("blogs")
+      .select("id, title, status, admin_notes, slug, updated_at, published_at")
+      .eq("author_id", uid)
+      .order("updated_at", { ascending: false });
     setProfile(p);
     setFullName(p?.full_name || "");
     setBio(p?.bio || "");

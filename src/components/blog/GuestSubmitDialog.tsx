@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, User, Phone, Lock, Send, CheckCircle2, KeyRound, UserCheck, Sparkles } from "lucide-react";
+import { Loader2, User, Phone, Lock, Send, CheckCircle2, KeyRound, UserCheck, Sparkles, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -108,7 +108,7 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
     setBusy(false);
     if (!res.ok) return toast({ title: "Submit failed", description: res.error, variant: "destructive" });
     setLinkedAuthorId(authorId);
-    setStep("done-linked");
+    setStep(approved ? "done-linked" : "done-account");
   };
 
   // New account path — either set a PIN (creates account + submits) or stay guest.
@@ -201,6 +201,12 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
     }
     onOpenChange(false);
     navigate("/profile");
+  };
+
+  const handleGoBackToBlog = async () => {
+    await supabase.auth.signOut();
+    onOpenChange(false);
+    navigate("/blog");
   };
 
   return (
@@ -375,21 +381,23 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
 
         {step === "done-account" && (
           <div className="text-center py-4">
-            <div className="mx-auto mb-3 h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
-              <CheckCircle2 className="h-8 w-8 text-primary" />
+            <div className="mx-auto mb-3 h-14 w-14 rounded-full bg-amber-100 flex items-center justify-center">
+              <AlertTriangle className="h-8 w-8 text-amber-700" />
             </div>
             <DialogHeader>
-              <DialogTitle className="font-serif text-2xl">Welcome — you're now a writer</DialogTitle>
+              <DialogTitle className="font-serif text-2xl">Submission and writer request sent</DialogTitle>
               <DialogDescription>
-                Your account is ready. An admin will review your first blog shortly.
-                Once approved, sign in with your phone number and PIN to write more, manage drafts, and view responses.
+                Your blog has been submitted for review, and your request to become a writer has also gone to the admin team.
+                You won't get profile access yet. The Hosla / Shraddha team will inform you after your writer account is approved.
               </DialogDescription>
             </DialogHeader>
             <div className="mt-6 flex flex-col gap-2">
-              <Button className="w-full h-12" onClick={handleSignInAndGoToProfile} disabled={busy}>
-                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign in to your new profile"}
+              <Button className="w-full h-12" onClick={handleGoBackToBlog} disabled={busy}>
+                Go back to blog page
               </Button>
-              <Button variant="ghost" onClick={() => handleClose(false)}>Close</Button>
+              <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
+                Setting a PIN only creates a request. Profile, draft management and writer tools unlock only after admin approval.
+              </p>
             </div>
           </div>
         )}
