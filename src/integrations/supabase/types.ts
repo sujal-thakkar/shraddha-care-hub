@@ -1174,6 +1174,7 @@ export type Database = {
           name: string
         }[]
       }
+      get_writer_status_by_phone: { Args: { _phone: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

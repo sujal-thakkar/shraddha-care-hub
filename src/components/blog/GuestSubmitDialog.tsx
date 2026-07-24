@@ -16,6 +16,7 @@ import {
   composePassword,
   isValidPin,
 } from "@/lib/phone-auth";
+import { PhoneDigits } from "@/components/blog/PhoneDigits";
 
 type Step = "form" | "existing-pin" | "new-pin" | "done-guest" | "done-linked" | "done-account";
 
@@ -38,11 +39,15 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
   const [pin, setPin] = useState("");
   const [pin2, setPin2] = useState("");
   const [linkedAuthorId, setLinkedAuthorId] = useState<string | null>(null);
+  const [existingStatus, setExistingStatus] = useState<"approved" | "pending" | null>(null);
+
+  const phoneRule = COUNTRY_CODES.find((c) => c.code === dial);
+  const phoneLen = phoneRule ? phoneRule.digits[1] : 10;
 
   const resetAll = () => {
     setStep("form");
     setBusy(false);
-    setName(""); setPhone(""); setPin(""); setPin2(""); setLinkedAuthorId(null);
+    setName(""); setPhone(""); setPin(""); setPin2(""); setLinkedAuthorId(null); setExistingStatus(null);
   };
 
   const handleClose = (o: boolean) => {
@@ -65,6 +70,11 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
 
     if (available === false) {
       // Phone already registered — need existing PIN to link this submission.
+      // Also look up whether that writer is already approved or still pending,
+      // so we can tailor the copy in the PIN step.
+      const { data: status } = await supabase.rpc("get_writer_status_by_phone" as any, { _phone: e164 });
+      const s = typeof status === "string" ? status : null;
+      setExistingStatus(s === "approved" ? "approved" : s === "pending" ? "pending" : null);
       setStep("existing-pin");
     } else {
       // New phone — invite them to become a writer, or stay guest.
@@ -241,15 +251,18 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
                       ))}
                     </SelectContent>
                   </Select>
-                  <Input
-                    type="tel"
-                    inputMode="numeric"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value.replace(/[^\d\s-]/g, ""))}
-                    placeholder="10-digit number"
-                    className="h-12 flex-1"
-                  />
+                  <div className="flex-1 min-w-0">
+                    <PhoneDigits
+                      value={phone}
+                      onChange={setPhone}
+                      length={phoneLen}
+                      ariaLabel="Phone number digits"
+                    />
+                  </div>
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  Enter exactly {phoneLen} digits — one per box.
+                </p>
               </div>
               <DialogFooter>
                 <Button type="submit" className="w-full h-12" disabled={busy}>
@@ -264,12 +277,26 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
           <>
             <DialogHeader>
               <DialogTitle className="font-serif text-2xl flex items-center gap-2">
-                <UserCheck className="h-6 w-6 text-primary" /> Welcome back
+                {existingStatus === "pending" ? (
+                  <><AlertTriangle className="h-6 w-6 text-amber-600" /> Approval still pending</>
+                ) : (
+                  <><UserCheck className="h-6 w-6 text-primary" /> Welcome back</>
+                )}
               </DialogTitle>
               <DialogDescription>
-                This phone number already belongs to a writer account.
-                Enter your <b>4-digit PIN</b> so we can attach this submission to your profile —
-                you'll see it under <i>My blogs</i> when you sign in.
+                {existingStatus === "pending" ? (
+                  <>
+                    You already sent a writer request from this phone number, and it's <b>still waiting for admin approval</b>.
+                    You had set a <b>4-digit PIN</b> then — please enter it again so we can attach this new blog to that same
+                    pending request. Both will be reviewed together, and you'll be notified once your writer account is approved.
+                  </>
+                ) : (
+                  <>
+                    This phone number already belongs to a writer account.
+                    Enter your <b>4-digit PIN</b> so we can attach this submission to your profile —
+                    you'll see it under <i>My blogs</i> when you sign in.
+                  </>
+                )}
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleExistingPin} className="space-y-4">
@@ -284,7 +311,7 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
               <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
                 <Button type="button" variant="ghost" onClick={() => setStep("form")} disabled={busy}>Back</Button>
                 <Button type="submit" className="flex-1 h-12" disabled={busy}>
-                  {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Verify PIN & submit"}
+                  {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : existingStatus === "pending" ? "Verify PIN & attach blog" : "Verify PIN & submit"}
                 </Button>
               </DialogFooter>
               <p className="text-xs text-muted-foreground text-center">
