@@ -65,6 +65,7 @@ const App = () => {
   useA11yBootstrap();
   return (
   <QueryClientProvider client={queryClient}>
+    <I18nProvider>
     <TooltipProvider>
       <Toaster />
       <Sonner />
