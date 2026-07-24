@@ -14,6 +14,7 @@ import { BlogLikes } from "@/components/blog/BlogLikes";
 import { BlogComments } from "@/components/blog/BlogComments";
 import { YouMayAlsoLike } from "@/components/blog/YouMayAlsoLike";
 import { coverImageOrDefault } from "@/lib/blog-cover";
+import { useI18n } from "@/i18n";
 
 interface BlogRow {
   id: string;
@@ -41,6 +42,7 @@ function estimateReadingMinutes(body: string): number {
 
 export default function BlogRead() {
   const { slug } = useParams<{ slug: string }>();
+  const { t } = useI18n();
   const [blog, setBlog] = useState<BlogRow | null>(null);
   const [author, setAuthor] = useState<Author>({ full_name: "Anonymous", avatar_url: null });
   const [loading, setLoading] = useState(true);
@@ -106,7 +108,7 @@ export default function BlogRead() {
     const { data, error } = await supabase.functions.invoke("read-blog-aloud", { body: { blogId: blog.id } });
     setTtsLoading(false);
     if (error || !data?.url) {
-      toast({ title: "Read-aloud unavailable", description: (error as any)?.message || data?.error || "Please try again later.", variant: "destructive" });
+      toast({ title: t("Read-aloud unavailable"), description: (error as any)?.message || data?.error || t("Please try again later."), variant: "destructive" });
       return;
     }
     setAudioUrl(data.url);
@@ -119,9 +121,9 @@ export default function BlogRead() {
   if (!blog) {
     return <Layout>
       <div className="container max-w-2xl py-16 text-center px-4">
-        <h1 className="font-serif text-3xl font-bold">Blog not found</h1>
-        <p className="text-muted-foreground mt-2">This blog may have been unpublished or removed.</p>
-        <Button asChild className="mt-6"><Link to="/blog">Browse other blogs</Link></Button>
+        <h1 className="font-serif text-3xl font-bold">{t("Blog not found")}</h1>
+        <p className="text-muted-foreground mt-2">{t("This blog may have been unpublished or removed.")}</p>
+        <Button asChild className="mt-6"><Link to="/blog">{t("Browse other blogs")}</Link></Button>
       </div>
     </Layout>;
   }
@@ -159,7 +161,7 @@ export default function BlogRead() {
                   to="/blog"
                   className="inline-flex items-center gap-1 text-sm text-white/80 hover:text-white mb-6 self-start"
                 >
-                  <ArrowLeft className="h-4 w-4" /> All blogs
+                  <ArrowLeft className="h-4 w-4" /> {t("All blogs")}
                 </Link>
                 <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.1] drop-shadow-md max-w-3xl">
                   {blog.title}
@@ -168,7 +170,7 @@ export default function BlogRead() {
                   {blog.is_guest ? (
                     <div className="flex items-center gap-3">
                       <AuthorAvatar avatarPath={null} name={author.full_name} className="h-11 w-11 border-white/30" />
-                      <span className="font-medium">{author.full_name} <span className="text-white/70 font-normal">(Guest Blogger)</span></span>
+                      <span className="font-medium">{author.full_name} <span className="text-white/70 font-normal">({t("Guest Blogger")})</span></span>
                     </div>
                   ) : (
                     <Link to={`/author/${blog.author_id}`} className="flex items-center gap-3 group">
@@ -184,7 +186,7 @@ export default function BlogRead() {
                   )}
                   <span className="text-white/50">•</span>
                   <span className="text-sm inline-flex items-center gap-1">
-                    <Clock className="h-3.5 w-3.5" /> {readMinutes} min read
+                    <Clock className="h-3.5 w-3.5" /> {readMinutes} {t("min read")}
                   </span>
                   {blog.language && (
                     <>
@@ -207,7 +209,7 @@ export default function BlogRead() {
               <FontSizeToggle size={size} onChange={setSize} />
               <Button onClick={handleReadAloud} variant="outline" size="lg" className="h-11 gap-2" disabled={ttsLoading}>
                 {ttsLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : playing ? <Pause className="h-4 w-4" /> : audioUrl ? <Play className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-                <span className="hidden sm:inline">{playing ? "Pause" : audioUrl ? "Play" : "Read aloud"}</span>
+                <span className="hidden sm:inline">{playing ? t("Pause") : audioUrl ? t("Play") : t("Read aloud")}</span>
               </Button>
             </div>
           </div>
@@ -252,9 +254,9 @@ export default function BlogRead() {
             <div className="mt-12 flex items-center gap-4 p-6 rounded-2xl border border-border bg-muted/30">
               <AuthorAvatar avatarPath={null} name={author.full_name} className="h-16 w-16 text-lg" />
               <div className="min-w-0 flex-1">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">Written by</p>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">{t("Written by")}</p>
                 <p className="font-serif text-xl font-semibold">{author.full_name}</p>
-                <p className="text-sm text-muted-foreground mt-1">Guest Blogger</p>
+                <p className="text-sm text-muted-foreground mt-1">{t("Guest Blogger")}</p>
               </div>
             </div>
           ) : (
@@ -264,9 +266,9 @@ export default function BlogRead() {
             >
               <AuthorAvatar avatarPath={author.avatar_url} name={author.full_name} className="h-16 w-16 text-lg" />
               <div className="min-w-0 flex-1">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">Written by</p>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">{t("Written by")}</p>
                 <p className="font-serif text-xl font-semibold group-hover:text-primary transition-colors">{author.full_name}</p>
-                <p className="text-sm text-muted-foreground mt-1">View all blogs by this author →</p>
+                <p className="text-sm text-muted-foreground mt-1">{t("View all blogs by this author →")}</p>
               </div>
             </Link>
           )}
