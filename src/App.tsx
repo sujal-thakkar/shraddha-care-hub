@@ -125,6 +125,7 @@ const App = () => {
         </Suspense>
       </BrowserRouter>
     </TooltipProvider>
+    </I18nProvider>
   </QueryClientProvider>
   );
 };
