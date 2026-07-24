@@ -39,11 +39,15 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
   const [pin, setPin] = useState("");
   const [pin2, setPin2] = useState("");
   const [linkedAuthorId, setLinkedAuthorId] = useState<string | null>(null);
+  const [existingStatus, setExistingStatus] = useState<"approved" | "pending" | null>(null);
+
+  const phoneRule = COUNTRY_CODES.find((c) => c.code === dial);
+  const phoneLen = phoneRule ? phoneRule.digits[1] : 10;
 
   const resetAll = () => {
     setStep("form");
     setBusy(false);
-    setName(""); setPhone(""); setPin(""); setPin2(""); setLinkedAuthorId(null);
+    setName(""); setPhone(""); setPin(""); setPin2(""); setLinkedAuthorId(null); setExistingStatus(null);
   };
 
   const handleClose = (o: boolean) => {
