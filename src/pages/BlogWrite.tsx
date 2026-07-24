@@ -206,7 +206,7 @@ export default function BlogWrite() {
     setInitialBody(b);
     setEditorSyncKey((k2) => k2 + 1);
     setRestorePrompt(null);
-    toast({ title: "Restored", description: "Your unsaved changes are back." });
+    toast({ title: t("Restored"), description: t("Your unsaved changes are back.") });
   };
   const discardRestore = () => {
     localStorage.removeItem(backupKey);
@@ -244,7 +244,7 @@ export default function BlogWrite() {
     } catch (e: any) {
       console.error("save error", e);
       setSavingState("error");
-      if (!silent) toast({ title: "Couldn't save", description: e.message, variant: "destructive" });
+      if (!silent) toast({ title: t("Couldn't save"), description: e.message, variant: "destructive" });
     }
   }, [session, title, body, cover, status, blogId, toast, backupKey, editingId]);
 
@@ -302,20 +302,20 @@ export default function BlogWrite() {
   };
 
   const runAiCheck = async () => {
-    if (!body.trim()) { toast({ title: "Nothing to check yet", description: "Write something first." }); return; }
+    if (!body.trim()) { toast({ title: t("Nothing to check yet"), description: t("Write something first.") }); return; }
     setChecking(true);
     setSuggestions([]);
     const { data, error } = await supabase.functions.invoke("check-blog-writing", { body: { text: body } });
     setChecking(false);
     if (error) {
       const message = (error as any)?.context?.body ? await (error as any).context.text().catch(() => "") : error.message;
-      toast({ title: "AI check failed", description: message || "Please try again.", variant: "destructive" });
+      toast({ title: t("AI check failed"), description: message || t("Please try again."), variant: "destructive" });
       return;
     }
-    if (data?.error) { toast({ title: "AI check failed", description: data.error, variant: "destructive" }); return; }
+    if (data?.error) { toast({ title: t("AI check failed"), description: data.error, variant: "destructive" }); return; }
     setSuggestions(data?.suggestions ?? []);
     if ((data?.suggestions ?? []).length === 0) {
-      toast({ title: "Your writing looks great!", description: "No suggestions." });
+      toast({ title: t("Your writing looks great!"), description: t("No suggestions.") });
     }
   };
 
@@ -339,7 +339,7 @@ export default function BlogWrite() {
 
   const submitStory = async () => {
     if (!title.trim() || !body.trim()) {
-      toast({ title: "Add a title and story", description: "Please fill in both before submitting.", variant: "destructive" });
+      toast({ title: t("Add a title and story"), description: t("Please fill in both before submitting."), variant: "destructive" });
       return;
     }
     setSubmitting(true);
@@ -347,9 +347,9 @@ export default function BlogWrite() {
     if (!blogId) { setSubmitting(false); return; }
     const { error } = await supabase.from("blogs").update({ status: "submitted", admin_notes: null }).eq("id", blogId);
     setSubmitting(false);
-    if (error) toast({ title: "Submit failed", description: error.message, variant: "destructive" });
+    if (error) toast({ title: t("Submit failed"), description: error.message, variant: "destructive" });
     else {
-      toast({ title: "Story submitted!", description: "We'll review it shortly and let you know." });
+      toast({ title: t("Story submitted!"), description: t("We'll review it shortly and let you know.") });
       navigate("/profile");
     }
   };
@@ -366,15 +366,15 @@ export default function BlogWrite() {
       <div className="container max-w-3xl px-4 py-6 md:py-10">
         <div className="flex items-center justify-between mb-4">
           <Link to="/profile" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-4 w-4" /> My profile
+            <ArrowLeft className="h-4 w-4" /> {t("My profile")}
           </Link>
           <div className="flex items-center gap-2">
             <FontSizeToggle size={size} onChange={setSize} />
           </div>
         </div>
 
-        <h1 className="font-serif text-2xl md:text-3xl font-bold mb-2">Tell your story</h1>
-        <p className="text-muted-foreground mb-6">Write in whichever language feels natural. We'll take care of the rest.</p>
+        <h1 className="font-serif text-2xl md:text-3xl font-bold mb-2">{t("Tell your story")}</h1>
+        <p className="text-muted-foreground mb-6">{t("Write in whichever language feels natural. We'll take care of the rest.")}</p>
 
         {/* Guided walkthrough: tips + quick prompts */}
         {showTips && (
@@ -383,12 +383,12 @@ export default function BlogWrite() {
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-2 font-semibold text-primary">
                   <Lightbulb className="h-5 w-5" />
-                  Not sure where to start? Try one of these.
+                  {t("Not sure where to start? Try one of these.")}
                 </div>
                 <button
                   type="button"
                   onClick={dismissTips}
-                  aria-label="Hide tips"
+                  aria-label={t("Hide tips")}
                   className="text-muted-foreground hover:text-foreground"
                 >
                   <X className="h-4 w-4" />
@@ -396,23 +396,23 @@ export default function BlogWrite() {
               </div>
 
               <div className="mt-3 flex flex-wrap gap-2">
-                {QUICK_PROMPTS.map((p) => (
+                {QUICK_PROMPT_KEYS.map((p) => (
                   <button
-                    key={p.label}
+                    key={p.key}
                     type="button"
                     onClick={() => applyPrompt(p.seed)}
                     className="text-sm rounded-full border border-primary/40 bg-background hover:bg-primary hover:text-primary-foreground transition-colors px-3 py-2 min-h-[44px]"
                   >
-                    {p.label}
+                    {t(p.key)}
                   </button>
                 ))}
               </div>
 
               <ul className="mt-4 space-y-1.5 text-sm text-foreground/80">
-                {TIPS.map((t, i) => (
+                {TIP_KEYS.map((tip, i) => (
                   <li key={i} className="flex gap-2">
                     <span className="text-primary mt-0.5">•</span>
-                    <span>{t}</span>
+                    <span>{t(tip)}</span>
                   </li>
                 ))}
               </ul>
@@ -425,14 +425,14 @@ export default function BlogWrite() {
             onClick={() => setShowTips(true)}
             className="mb-4 inline-flex items-center gap-1 text-sm text-primary hover:underline"
           >
-            <Lightbulb className="h-4 w-4" /> Show writing tips & prompts
+            <Lightbulb className="h-4 w-4" /> {t("Show writing tips & prompts")}
           </button>
         )}
 
         {status === "needs_changes" && adminNotes && (
           <Card className="mb-6 border-amber-400 bg-amber-50">
             <CardContent className="pt-6">
-              <div className="text-sm font-semibold text-amber-900 mb-1">Small edits needed</div>
+              <div className="text-sm font-semibold text-amber-900 mb-1">{t("Small edits needed")}</div>
               <p className="text-sm text-amber-800">{adminNotes}</p>
             </CardContent>
           </Card>
@@ -441,7 +441,7 @@ export default function BlogWrite() {
         {status === "published" && (
           <Card className="mb-6 border-primary/40 bg-primary/5">
             <CardContent className="pt-5 text-sm">
-              You're editing a published blog. Saving will take it off the public site and send it back for admin review before it can be republished.
+              {t("You're editing a published blog. Saving will take it off the public site and send it back for admin review before it can be republished.")}
             </CardContent>
           </Card>
         )}
