@@ -146,6 +146,17 @@ export default function BlogWrite() {
     (async () => {
       const { data } = await supabase.auth.getSession();
       if (!data.session) { navigate("/auth?next=/blog/write", { replace: true }); return; }
+      const { data: profile } = await supabase.from("profiles").select("status").eq("user_id", data.session.user.id).maybeSingle();
+      if ((profile as any)?.status !== "approved") {
+        await supabase.auth.signOut();
+        toast({
+          title: "Writer approval pending",
+          description: "You can write as a guest until the admin team approves your writer account.",
+          variant: "destructive",
+        });
+        navigate("/blog", { replace: true });
+        return;
+      }
       setSession(data.session);
       let dbUpdatedAt = 0;
       if (editingId) {
