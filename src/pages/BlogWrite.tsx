@@ -152,8 +152,8 @@ export default function BlogWrite() {
       if ((profile as any)?.status !== "approved") {
         await supabase.auth.signOut();
         toast({
-          title: "Writer approval pending",
-          description: "You can write as a guest until the admin team approves your writer account.",
+          title: t("Writer approval pending"),
+          description: t("You can write as a guest until the admin team approves your writer account."),
           variant: "destructive",
         });
         navigate("/blog", { replace: true });
@@ -165,7 +165,7 @@ export default function BlogWrite() {
         const { data: row } = await supabase.from("blogs").select("*").eq("id", editingId).maybeSingle();
         if (row && row.author_id === data.session.user.id) {
           if (row.status === "published") {
-            toast({ title: "Published blogs can't be edited", description: "Contact an admin if this blog needs changes." });
+            toast({ title: t("Published blogs can't be edited"), description: t("Contact an admin if this blog needs changes.") });
             navigate(`/blog/${row.slug ?? row.id}`, { replace: true });
             return;
           }
