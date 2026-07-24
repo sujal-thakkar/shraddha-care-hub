@@ -174,27 +174,27 @@ export default function BlogWriteGuest() {
               setActive(a);
               if (a.hasSelection) setFabOpen(true);
             }}
-            placeholder={kind === "poem" || kind === "recitation" ? "Write your poem here — every line break is preserved…" : "Write your blog here…"}
+            placeholder={kind === "poem" || kind === "recitation" ? t("Write your poem here — every line break is preserved…") : t("Write your blog here…")}
             fontSize={size}
           />
 
           <Card>
             <CardContent className="pt-6">
               <div className="text-sm text-muted-foreground mb-4">
-                <div>Title {title.trim() ? "✓" : "·"}</div>
-                <div>Blog content {body.trim() ? "✓" : "·"}</div>
+                <div>{t("Title")} {title.trim() ? "✓" : "·"}</div>
+                <div>{t("Blog content")} {body.trim() ? "✓" : "·"}</div>
               </div>
               <Button
                 onClick={() => {
                   if (!ready) {
-                    toast({ title: "Add a title and blog", description: "Please fill in both before submitting.", variant: "destructive" });
+                    toast({ title: t("Add a title and blog"), description: t("Please fill in both before submitting."), variant: "destructive" });
                     return;
                   }
                   setDialogOpen(true);
                 }}
                 className="h-12"
               >
-                <Send className="h-4 w-4 mr-2" /> Continue to submit
+                <Send className="h-4 w-4 mr-2" /> {t("Continue to submit")}
               </Button>
             </CardContent>
           </Card>
