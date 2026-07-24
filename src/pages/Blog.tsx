@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PenLine, Search, Loader2, UserPlus, User as UserIcon, Clock, UserCircle } from "lucide-react";
 import { stripKindMarker } from "@/lib/markdown-lite";
+import { coverImageOrDefault } from "@/lib/blog-cover";
 
 
 interface BlogRow {
