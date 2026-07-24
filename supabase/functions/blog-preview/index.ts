@@ -3,7 +3,7 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 const APP_URL = "https://shraddha.hosla.in";
 const DEFAULT_OG_IMAGE =
-  "https://xnpnkltajezokttrofeh.supabase.co/storage/v1/object/public/project-posters/og%2Froutine-preview.jpg";
+  `${APP_URL}/__l5e/assets-v1/2600e51f-3a67-43d1-8063-1fbad70f6ab4/default-blog-cover.jpg`;
 
 interface BlogRow {
   id: string;

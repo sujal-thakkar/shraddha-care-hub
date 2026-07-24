@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PenLine, Search, Loader2, UserPlus, User as UserIcon, Clock, UserCircle } from "lucide-react";
 import { stripKindMarker } from "@/lib/markdown-lite";
+import { coverImageOrDefault } from "@/lib/blog-cover";
 
 
 interface BlogRow {
@@ -171,11 +172,9 @@ export default function Blog() {
             {filtered.map((b) => (
               <Link to={`/blog/${b.slug ?? b.id}`} key={b.id}>
                 <Card className="h-full hover:shadow-lg transition-shadow overflow-hidden">
-                  {b.cover_image_url && (
-                    <div className="aspect-[16/9] w-full overflow-hidden bg-muted">
-                      <img src={b.cover_image_url} alt={b.title} className="w-full h-full object-cover" loading="lazy" />
-                    </div>
-                  )}
+                  <div className="aspect-[16/9] w-full overflow-hidden bg-muted">
+                    <img src={coverImageOrDefault(b.cover_image_url)} alt={b.title} className="w-full h-full object-cover" loading="lazy" />
+                  </div>
                   <CardHeader>
                     <CardTitle className="font-serif line-clamp-2">{b.title}</CardTitle>
                   </CardHeader>
