@@ -357,7 +357,7 @@ export default function Profile() {
                 <Input
                   inputMode="numeric"
                   maxLength={4}
-                  type="password"
+                  type="text" autoComplete="off"
                   value={currentPin}
                   onChange={(e) => setCurrentPin(e.target.value.replace(/\D/g, ""))}
                   className="h-11 mt-1 tracking-[0.5em] text-center text-lg"
@@ -368,7 +368,7 @@ export default function Profile() {
                 <Input
                   inputMode="numeric"
                   maxLength={4}
-                  type="password"
+                  type="text" autoComplete="off"
                   value={newPin}
                   onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ""))}
                   className="h-11 mt-1 tracking-[0.5em] text-center text-lg"
@@ -379,7 +379,7 @@ export default function Profile() {
                 <Input
                   inputMode="numeric"
                   maxLength={4}
-                  type="password"
+                  type="text" autoComplete="off"
                   value={confirmPin}
                   onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ""))}
                   className="h-11 mt-1 tracking-[0.5em] text-center text-lg"
