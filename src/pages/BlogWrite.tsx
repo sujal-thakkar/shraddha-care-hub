@@ -453,15 +453,15 @@ export default function BlogWrite() {
                 <div className="flex items-start gap-2">
                   <RotateCcw className="h-5 w-5 text-primary mt-0.5" />
                   <div>
-                    <div className="font-semibold">Restore unsaved changes?</div>
+                    <div className="font-semibold">{t("Restore unsaved changes?")}</div>
                     <div className="text-sm text-muted-foreground">
-                      We found a newer local backup from {new Date(restorePrompt.ts).toLocaleString()} that wasn't uploaded.
+                      {t("We found a newer local backup that wasn't uploaded.")} ({new Date(restorePrompt.ts).toLocaleString()})
                     </div>
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button size="sm" onClick={applyRestore}>Restore</Button>
-                  <Button size="sm" variant="ghost" onClick={discardRestore}>Discard</Button>
+                  <Button size="sm" onClick={applyRestore}>{t("Restore")}</Button>
+                  <Button size="sm" variant="ghost" onClick={discardRestore}>{t("Discard")}</Button>
                 </div>
               </div>
             </CardContent>
@@ -472,14 +472,14 @@ export default function BlogWrite() {
           <Input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Title"
+            placeholder={t("Title")}
             className="h-14 text-xl font-serif"
             style={{ fontSize: `${Math.max(size, 20)}px` }}
           />
 
           {/* Kind selector — determines formatting (poems/recitations are centered & keep line breaks) */}
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm text-muted-foreground mr-1">This is a:</span>
+            <span className="text-sm text-muted-foreground mr-1">{t("This is a:")}</span>
             {(["story", "poem", "recitation", "essay", "other"] as BlogKind[]).map((k) => (
               <button
                 key={k}
@@ -493,7 +493,7 @@ export default function BlogWrite() {
                 className={`rounded-full border px-3 py-1.5 text-sm min-h-[36px] transition-colors ${kind === k ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted border-border"}`}
                 aria-pressed={kind === k}
               >
-                {k === "story" ? "Story" : k === "poem" ? "Poem" : k === "recitation" ? "Recitation" : k === "essay" ? "Essay" : "Other"}
+                {t(k === "story" ? "Story" : k === "poem" ? "Poem" : k === "recitation" ? "Recitation" : k === "essay" ? "Essay" : "Other")}
               </button>
             ))}
           </div>
@@ -503,19 +503,19 @@ export default function BlogWrite() {
             <Button type="button" variant={active.list ? "default" : "ghost"} size="sm" onClick={() => editorRef.current?.exec("insertUnorderedList")} className="h-11" aria-pressed={active.list} aria-label="Bullet"><List className="h-4 w-4 mr-1" />Bullet</Button>
             <Button type="button" variant="ghost" size="sm" onClick={() => editorRef.current?.exec("insertParagraph")} className="h-11" aria-label="Paragraph">¶ Paragraph</Button>
             <div className="ml-auto flex items-center gap-3 text-sm text-muted-foreground">
-              <span>{wordCount} words</span>
-              {savingState === "saving" && <span className="inline-flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> Saving…</span>}
-              {savingState === "saved" && <span>Saved{lastSavedAt ? ` · ${Math.max(1, Math.round((Date.now() - lastSavedAt) / 1000))}s ago` : ""}</span>}
-              {savingState === "error" && <span className="text-destructive">Save failed</span>}
+              <span>{t("{n} words", { n: wordCount })}</span>
+              {savingState === "saving" && <span className="inline-flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> {t("Saving…")}</span>}
+              {savingState === "saved" && <span>{t("Saved")}{lastSavedAt ? ` · ${Math.max(1, Math.round((Date.now() - lastSavedAt) / 1000))}s` : ""}</span>}
+              {savingState === "error" && <span className="text-destructive">{t("Save failed")}</span>}
             </div>
           </div>
 
           {/* Mobile-only status row (toolbar lives in floating FAB) */}
           <div className="md:hidden flex items-center justify-between text-xs text-muted-foreground px-1">
-            <span>{wordCount} words</span>
-            {savingState === "saving" && <span className="inline-flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> Saving…</span>}
-            {savingState === "saved" && <span>Saved</span>}
-            {savingState === "error" && <span className="text-destructive">Save failed</span>}
+            <span>{t("{n} words", { n: wordCount })}</span>
+            {savingState === "saving" && <span className="inline-flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> {t("Saving…")}</span>}
+            {savingState === "saved" && <span>{t("Saved")}</span>}
+            {savingState === "error" && <span className="text-destructive">{t("Save failed")}</span>}
           </div>
 
           <RichEditor
@@ -531,7 +531,7 @@ export default function BlogWrite() {
               setActive(a);
               if (a.hasSelection) setFabOpen(true);
             }}
-            placeholder={kind === "poem" || kind === "recitation" ? "Write your poem here — every line break is preserved…" : "Write your blog here…"}
+            placeholder={kind === "poem" || kind === "recitation" ? t("Write your poem here — every line break is preserved…") : t("Write your blog here…")}
             fontSize={size}
           />
 
@@ -539,18 +539,18 @@ export default function BlogWrite() {
           <div className="flex flex-wrap gap-3">
             <Button type="button" variant="outline" onClick={() => document.getElementById("cover-upload")?.click()} className="h-12" disabled={isUploading}>
               {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ImagePlus className="mr-2 h-4 w-4" />}
-              {isUploading ? `Uploading ${Math.round(uploadProgress)}%` : cover ? "Change cover photo" : "Add cover photo"}
+              {isUploading ? t("Uploading {p}%", { p: Math.round(uploadProgress) }) : cover ? t("Change cover photo") : t("Add cover photo")}
             </Button>
             <input id="cover-upload" type="file" accept="image/*" hidden onChange={handleCoverUpload} />
             <Button type="button" variant="secondary" onClick={runAiCheck} disabled={checking} className="h-12">
               {checking ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Wand2 className="h-4 w-4 mr-2" />}
-              Check my writing
+              {t("Check my writing")}
             </Button>
           </div>
 
           {isUploading && (
             <div className="rounded-lg border border-border bg-card p-6 flex items-center justify-center">
-              <CircularWavesLoader progress={uploadProgress} label="Uploading cover photo" />
+              <CircularWavesLoader progress={uploadProgress} label={t("Uploading cover photo")} />
             </div>
           )}
 
@@ -565,13 +565,13 @@ export default function BlogWrite() {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-primary" />
+                  <Sparkles className="h-5 w-5 text-primary" />
                     <div>
                       <div className="font-semibold">
-                        {suggestions.length} suggestion{suggestions.length === 1 ? "" : "s"} to review
+                        {t(suggestions.length === 1 ? "{n} suggestion to review" : "{n} suggestions to review", { n: suggestions.length })}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        Your original words stay unless you accept a change. Compare before and after below.
+                        {t("Your original words stay unless you accept a change. Compare before and after below.")}
                       </div>
                     </div>
                   </div>
@@ -583,7 +583,7 @@ export default function BlogWrite() {
                         className={`px-3 py-1.5 text-xs font-medium transition-colors ${diffMode === "full" ? "bg-primary text-primary-foreground" : "bg-background hover:bg-muted"}`}
                         aria-pressed={diffMode === "full"}
                       >
-                        Full compare
+                        {t("Full compare")}
                       </button>
                       <button
                         type="button"
@@ -591,11 +591,11 @@ export default function BlogWrite() {
                         className={`px-3 py-1.5 text-xs font-medium transition-colors ${diffMode === "highlights" ? "bg-primary text-primary-foreground" : "bg-background hover:bg-muted"}`}
                         aria-pressed={diffMode === "highlights"}
                       >
-                        Changes only
+                        {t("Changes only")}
                       </button>
                     </div>
-                    <Button size="sm" variant="outline" onClick={() => setSuggestions([])}>Reject all</Button>
-                    <Button size="sm" onClick={acceptAll}>Accept all</Button>
+                    <Button size="sm" variant="outline" onClick={() => setSuggestions([])}>{t("Reject all")}</Button>
+                    <Button size="sm" onClick={acceptAll}>{t("Accept all")}</Button>
                   </div>
                 </div>
                 <ul className="space-y-5">
@@ -604,15 +604,15 @@ export default function BlogWrite() {
                       <DiffLine original={s.original} suggestion={s.suggestion} mode={diffMode} />
                       {s.reason && (
                         <div className="mt-2 text-xs text-muted-foreground italic">
-                          Why: {s.reason}
+                          {s.reason}
                         </div>
                       )}
                       <div className="flex gap-2 mt-3">
                         <Button size="sm" onClick={() => acceptSuggestion(idx)} className="h-10 min-w-[110px]">
-                          <Check className="h-4 w-4 mr-1" /> Use this
+                          <Check className="h-4 w-4 mr-1" /> {t("Use this")}
                         </Button>
                         <Button size="sm" variant="ghost" onClick={() => rejectSuggestion(idx)} className="h-10">
-                          <X className="h-4 w-4 mr-1" /> Keep mine
+                          <X className="h-4 w-4 mr-1" /> {t("Keep mine")}
                         </Button>
                       </div>
                     </li>
@@ -625,17 +625,17 @@ export default function BlogWrite() {
           <Card>
             <CardContent className="pt-6">
               <div className="text-sm text-muted-foreground mb-4">
-                <div>Title {title.trim() ? "✓" : "·"}</div>
-                <div>Story {body.trim() ? "✓" : "·"}</div>
-                <div>Cover photo (optional) {cover ? "✓" : "·"}</div>
+                <div>{t("Title")} {title.trim() ? "✓" : "·"}</div>
+                <div>{t("Story")} {body.trim() ? "✓" : "·"}</div>
+                <div>{t("Cover image")} {cover ? "✓" : "·"}</div>
               </div>
               <div className="flex flex-wrap gap-3">
                 <Button variant="outline" onClick={() => saveDraft()} disabled={savingState === "saving"} className="h-12">
-                  <Save className="mr-2 h-4 w-4" /> Save draft
+                  <Save className="mr-2 h-4 w-4" /> {t("Save draft")}
                 </Button>
                 <Button onClick={submitStory} disabled={!ready || submitting} className="h-12">
                   {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Send className="h-4 w-4 mr-2" />}
-                  Submit for publishing
+                  {t("Submit for publishing")}
                 </Button>
               </div>
             </CardContent>
