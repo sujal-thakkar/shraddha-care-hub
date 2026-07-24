@@ -5,10 +5,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PenLine, Search, Loader2, UserPlus, User as UserIcon, Clock, UserCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { PenLine, Search, Loader2, UserPlus, User as UserIcon, Clock, UserCircle, ChevronLeft, ChevronRight, Heart } from "lucide-react";
 import { stripKindMarker } from "@/lib/markdown-lite";
 import { coverImageOrDefault } from "@/lib/blog-cover";
 import { useI18n } from "@/i18n";
+import { inferCategory, CATEGORY_META, type BlogCategory } from "@/lib/blog-category";
 
 
 interface BlogRow {
@@ -24,6 +26,7 @@ interface BlogRow {
   guest_name?: string | null;
 }
 
+type SortMode = "recommended" | "popular" | "newest" | "oldest";
 const PAGE_SIZE = 12;
 
 export default function Blog() {
