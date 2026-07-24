@@ -88,7 +88,7 @@ export default function Profile() {
 
   const saveProfile = async () => {
     if (!fullName.trim()) {
-      toast({ title: "Name can't be empty", variant: "destructive" });
+      toast({ title: t("Name can't be empty"), variant: "destructive" });
       return;
     }
     setSavingName(true);
@@ -97,20 +97,20 @@ export default function Profile() {
       .update({ full_name: fullName.trim(), bio: bio.trim() || null })
       .eq("user_id", profile.user_id);
     setSavingName(false);
-    if (error) toast({ title: "Save failed", description: error.message, variant: "destructive" });
+    if (error) toast({ title: t("Save failed"), description: error.message, variant: "destructive" });
     else {
-      toast({ title: "Profile updated" });
+      toast({ title: t("Profile updated") });
       load();
     }
   };
 
   const uploadAvatar = async (file: File) => {
     if (!file.type.startsWith("image/")) {
-      toast({ title: "Please pick an image file", variant: "destructive" });
+      toast({ title: t("Please pick an image file"), variant: "destructive" });
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast({ title: "Image too large", description: "Please pick an image under 5 MB.", variant: "destructive" });
+      toast({ title: t("Image too large"), description: t("Please pick an image under 5 MB."), variant: "destructive" });
       return;
     }
     setUploadingAvatar(true);
@@ -119,7 +119,7 @@ export default function Profile() {
     const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true, contentType: file.type });
     if (upErr) {
       setUploadingAvatar(false);
-      toast({ title: "Upload failed", description: upErr.message, variant: "destructive" });
+      toast({ title: t("Upload failed"), description: upErr.message, variant: "destructive" });
       return;
     }
     // Best-effort cleanup of previous avatar
@@ -128,21 +128,21 @@ export default function Profile() {
     }
     const { error: updErr } = await supabase.from("profiles").update({ avatar_url: path }).eq("user_id", profile.user_id);
     setUploadingAvatar(false);
-    if (updErr) toast({ title: "Save failed", description: updErr.message, variant: "destructive" });
-    else { toast({ title: "Photo updated" }); load(); }
+    if (updErr) toast({ title: t("Save failed"), description: updErr.message, variant: "destructive" });
+    else { toast({ title: t("Photo updated") }); load(); }
   };
 
   const changePin = async () => {
     if (!isValidPin(currentPin) || !isValidPin(newPin) || !isValidPin(confirmPin)) {
-      toast({ title: "PINs must be 4 digits", variant: "destructive" });
+      toast({ title: t("PINs must be 4 digits"), variant: "destructive" });
       return;
     }
     if (newPin !== confirmPin) {
-      toast({ title: "New PINs don't match", variant: "destructive" });
+      toast({ title: t("New PINs don't match"), variant: "destructive" });
       return;
     }
     if (newPin === currentPin) {
-      toast({ title: "Pick a different new PIN", variant: "destructive" });
+      toast({ title: t("Pick a different new PIN"), variant: "destructive" });
       return;
     }
     if (!profile?.phone_e164) {
@@ -164,7 +164,7 @@ export default function Profile() {
     });
     if (verifyErr) {
       setChangingPin(false);
-      toast({ title: "Current PIN is wrong", variant: "destructive" });
+      toast({ title: t("Current PIN is wrong"), variant: "destructive" });
       return;
     }
     const { error: updateErr } = await supabase.auth.updateUser({
@@ -172,27 +172,27 @@ export default function Profile() {
     });
     setChangingPin(false);
     if (updateErr) {
-      toast({ title: "Couldn't change PIN", description: updateErr.message, variant: "destructive" });
+      toast({ title: t("Couldn't change PIN"), description: updateErr.message, variant: "destructive" });
       return;
     }
     setCurrentPin("");
     setNewPin("");
     setConfirmPin("");
-    toast({ title: "PIN updated", description: "Use your new PIN next time you log in." });
+    toast({ title: t("PIN updated"), description: t("Use your new PIN next time you log in.") });
   };
 
   const logout = async () => {
     await supabase.auth.signOut();
-    toast({ title: "Signed out" });
+    toast({ title: t("Signed out") });
     navigate("/", { replace: true });
   };
 
   const deleteBlog = async (id: string) => {
-    if (!confirm("Delete this draft? This cannot be undone.")) return;
+    if (!confirm(t("Delete this draft? This cannot be undone."))) return;
     const { error } = await supabase.from("blogs").delete().eq("id", id);
-    if (error) toast({ title: "Delete failed", description: error.message, variant: "destructive" });
+    if (error) toast({ title: t("Delete failed"), description: error.message, variant: "destructive" });
     else {
-      toast({ title: "Deleted" });
+      toast({ title: t("Deleted") });
       load();
     }
   };
@@ -216,9 +216,9 @@ export default function Profile() {
       <div className="min-w-0 flex-1">
         <div className="font-serif text-base font-semibold truncate">{r.title || "Untitled"}</div>
         <div className="flex items-center gap-2 mt-1 flex-wrap">
-          <Badge className={STATUS_COLOR[r.status] || ""}>{STATUS_LABEL[r.status] || r.status}</Badge>
+          <Badge className={STATUS_COLOR[r.status] || ""}>{t(STATUS_KEY[r.status] || r.status)}</Badge>
           <span className="text-xs text-muted-foreground">
-            Updated {new Date(r.updated_at).toLocaleDateString()}
+            {t("Updated {d}", { d: new Date(r.updated_at).toLocaleDateString() })}
           </span>
         </div>
         {r.status === "needs_changes" && r.admin_notes && (
@@ -230,15 +230,15 @@ export default function Profile() {
       <div className="flex gap-2 flex-wrap shrink-0">
         {r.status === "published" ? (
           <Button asChild variant="outline" size="sm" className="h-9">
-            <Link to={`/blog/${r.slug ?? r.id}`}>View</Link>
+            <Link to={`/blog/${r.slug ?? r.id}`}>{t("View")}</Link>
           </Button>
         ) : (
           <Button asChild variant="outline" size="sm" className="h-9">
-            <Link to={`/blog/write?id=${r.id}`}>Edit</Link>
+            <Link to={`/blog/write?id=${r.id}`}>{t("Edit")}</Link>
           </Button>
         )}
         {(r.status === "draft" || r.status === "needs_changes") && (
-          <Button variant="ghost" size="icon" onClick={() => deleteBlog(r.id)} className="h-9 w-9">
+          <Button variant="ghost" size="icon" onClick={() => deleteBlog(r.id)} className="h-9 w-9" aria-label={t("Delete")}>
             <Trash2 className="h-4 w-4 text-destructive" />
           </Button>
         )}
