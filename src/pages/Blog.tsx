@@ -220,15 +220,56 @@ export default function Blog() {
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 mb-8">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("Search blogs")} className="pl-10 h-12" />
+        <div className="flex flex-col gap-3 mb-6">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder={t("Search by title, author or words")}
+                className="pl-10 h-12"
+              />
+            </div>
+            <Select value={sort} onValueChange={(v) => setSort(v as SortMode)}>
+              <SelectTrigger className="h-12 sm:w-52" aria-label={t("Sort blogs")}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="recommended">{t("Recommended")}</SelectItem>
+                <SelectItem value="popular">{t("Most popular")}</SelectItem>
+                <SelectItem value="newest">{t("Newest first")}</SelectItem>
+                <SelectItem value="oldest">{t("Oldest first")}</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+
           <div className="flex gap-2 flex-wrap">
-            <Button variant={lang === "all" ? "default" : "outline"} onClick={() => setLang("all")} className="h-12">{t("All")}</Button>
+            <Button variant={lang === "all" ? "default" : "outline"} onClick={() => setLang("all")} size="sm" className="h-10">{t("All")}</Button>
             {languages.map((l) => (
-              <Button key={l} variant={lang === l ? "default" : "outline"} onClick={() => setLang(l)} className="h-12">{l.toUpperCase()}</Button>
+              <Button key={l} variant={lang === l ? "default" : "outline"} onClick={() => setLang(l)} size="sm" className="h-10">{l.toUpperCase()}</Button>
+            ))}
+          </div>
+
+          <div className="flex gap-2 flex-wrap">
+            <Button
+              variant={category === "all" ? "default" : "outline"}
+              onClick={() => setCategory("all")}
+              size="sm"
+              className="h-10 rounded-full"
+            >
+              {t("All categories")}
+            </Button>
+            {CATEGORY_META.map((c) => (
+              <Button
+                key={c.id}
+                variant={category === c.id ? "default" : "outline"}
+                onClick={() => setCategory(c.id)}
+                size="sm"
+                className="h-10 rounded-full"
+              >
+                {uiLang === "bn" ? c.labelBn : c.label}
+              </Button>
             ))}
           </div>
         </div>
@@ -249,6 +290,20 @@ export default function Blog() {
                       <img src={coverImageOrDefault(b.cover_image_url)} alt={b.title} className="w-full h-full object-cover" loading="lazy" />
                     </div>
                     <CardHeader>
+                      <div className="flex items-center justify-between gap-2 mb-1 flex-wrap">
+                        <span className="text-[10px] uppercase tracking-wide font-semibold text-primary bg-primary/10 rounded-full px-2 py-0.5">
+                          {(() => {
+                            const meta = CATEGORY_META.find((c) => c.id === blogCategories[b.id]);
+                            return meta ? (uiLang === "bn" ? meta.labelBn : meta.label) : "";
+                          })()}
+                        </span>
+                        {(likeCounts[b.id] || 0) > 0 && (
+                          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                            <Heart className="h-3.5 w-3.5 fill-red-500 text-red-500" />
+                            {likeCounts[b.id]}
+                          </span>
+                        )}
+                      </div>
                       <CardTitle className="font-serif line-clamp-2">{b.title}</CardTitle>
                     </CardHeader>
                     <CardContent>
