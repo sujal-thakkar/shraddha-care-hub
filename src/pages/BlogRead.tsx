@@ -13,6 +13,7 @@ import { AuthorAvatar } from "@/components/blog/AuthorAvatar";
 import { BlogLikes } from "@/components/blog/BlogLikes";
 import { BlogComments } from "@/components/blog/BlogComments";
 import { YouMayAlsoLike } from "@/components/blog/YouMayAlsoLike";
+import { coverImageOrDefault } from "@/lib/blog-cover";
 
 interface BlogRow {
   id: string;
