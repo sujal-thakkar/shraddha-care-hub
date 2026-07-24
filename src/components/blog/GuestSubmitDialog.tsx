@@ -251,15 +251,18 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
                       ))}
                     </SelectContent>
                   </Select>
-                  <Input
-                    type="tel"
-                    inputMode="numeric"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value.replace(/[^\d\s-]/g, ""))}
-                    placeholder="10-digit number"
-                    className="h-12 flex-1"
-                  />
+                  <div className="flex-1 min-w-0">
+                    <PhoneDigits
+                      value={phone}
+                      onChange={setPhone}
+                      length={phoneLen}
+                      ariaLabel="Phone number digits"
+                    />
+                  </div>
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  Enter exactly {phoneLen} digits — one per box.
+                </p>
               </div>
               <DialogFooter>
                 <Button type="submit" className="w-full h-12" disabled={busy}>
