@@ -16,6 +16,7 @@ import {
   composePassword,
   isValidPin,
 } from "@/lib/phone-auth";
+import { PhoneDigits } from "@/components/blog/PhoneDigits";
 
 type Step = "form" | "existing-pin" | "new-pin" | "done-guest" | "done-linked" | "done-account";
 
