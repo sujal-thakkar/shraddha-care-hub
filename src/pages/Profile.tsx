@@ -252,19 +252,19 @@ export default function Profile() {
       <div className="container max-w-3xl px-4 py-8 md:py-12 space-y-8">
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="font-serif text-3xl md:text-4xl font-bold">My profile</h1>
-            <p className="text-muted-foreground mt-1">Manage your details, PIN and blogs.</p>
+            <h1 className="font-serif text-3xl md:text-4xl font-bold">{t("My profile")}</h1>
+            <p className="text-muted-foreground mt-1">{t("Manage your details, PIN and blogs.")}</p>
           </div>
           <div className="flex gap-2">
             <Button asChild size="lg" className="h-11">
               <Link to="/blog/write">
                 <PenLine className="mr-2 h-4 w-4" />
-                Write blog
+                {t("Write blog")}
               </Link>
             </Button>
             <Button variant="outline" size="lg" className="h-11" onClick={logout}>
               <LogOut className="mr-2 h-4 w-4" />
-              Log out
+              {t("Log out")}
             </Button>
           </div>
         </div>
@@ -274,7 +274,7 @@ export default function Profile() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <User className="h-5 w-5 text-primary" />
-              Basic info
+              {t("Basic info")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
@@ -296,22 +296,22 @@ export default function Profile() {
                   className="h-10"
                 >
                   {uploadingAvatar ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Camera className="h-4 w-4 mr-2" />}
-                  {profile?.avatar_url ? "Change photo" : "Add photo"}
+                  {profile?.avatar_url ? t("Change photo") : t("Add photo")}
                 </Button>
-                <p className="text-xs text-muted-foreground mt-1.5">JPG or PNG, up to 5 MB.</p>
+                <p className="text-xs text-muted-foreground mt-1.5">{t("JPG or PNG, up to 5 MB.")}</p>
               </div>
             </div>
 
             <div>
-              <Label>Full name</Label>
+              <Label>{t("Full name")}</Label>
               <Input value={fullName} onChange={(e) => setFullName(e.target.value)} className="h-11 mt-1" />
             </div>
             <div>
-              <Label>Short bio (optional)</Label>
+              <Label>{t("Short bio (optional)")}</Label>
               <Textarea
                 value={bio}
                 onChange={(e) => setBio(e.target.value.slice(0, 280))}
-                placeholder="A line or two about yourself — this appears on your author page."
+                placeholder={t("A line or two about yourself — this appears on your author page.")}
                 rows={3}
                 className="mt-1 resize-y"
               />
@@ -323,18 +323,18 @@ export default function Profile() {
               className="h-11"
             >
               {savingName ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
-              Save changes
+              {t("Save changes")}
             </Button>
 
             <div>
-              <Label>Phone (used to log in)</Label>
+              <Label>{t("Phone (used to log in)")}</Label>
               <Input value={profile?.phone_e164 || "—"} disabled className="h-11 mt-1 bg-muted" />
               <p className="text-xs text-muted-foreground mt-1">
-                Phone can't be changed. Contact an admin if you need to update it.
+                {t("Phone can't be changed. Contact an admin if you need to update it.")}
               </p>
             </div>
             <div>
-              <Label>Account status</Label>
+              <Label>{t("Account status")}</Label>
               <div className="mt-1">
                 <Badge
                   className={
@@ -345,7 +345,7 @@ export default function Profile() {
                       : "bg-amber-100 text-amber-800"
                   }
                 >
-                  {profile?.status || "unknown"}
+                  {t(profile?.status || "unknown")}
                 </Badge>
               </div>
             </div>
@@ -357,13 +357,13 @@ export default function Profile() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <KeyRound className="h-5 w-5 text-primary" />
-              Change PIN
+              {t("Change PIN")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-3 sm:grid-cols-3">
               <div>
-                <Label>Current PIN</Label>
+                <Label>{t("Current PIN")}</Label>
                 <Input
                   inputMode="numeric"
                   maxLength={4}
@@ -374,7 +374,7 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <Label>New PIN</Label>
+                <Label>{t("New PIN")}</Label>
                 <Input
                   inputMode="numeric"
                   maxLength={4}
@@ -385,7 +385,7 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <Label>Confirm new PIN</Label>
+                <Label>{t("Confirm new PIN")}</Label>
                 <Input
                   inputMode="numeric"
                   maxLength={4}
@@ -398,7 +398,7 @@ export default function Profile() {
             </div>
             <Button onClick={changePin} disabled={changingPin} className="h-11">
               {changingPin ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <KeyRound className="h-4 w-4 mr-2" />}
-              Update PIN
+              {t("Update PIN")}
             </Button>
           </CardContent>
         </Card>
@@ -408,17 +408,17 @@ export default function Profile() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <PenLine className="h-5 w-5 text-primary" />
-              My blogs
+              {t("My blogs")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {blogs.length === 0 ? (
               <div className="py-8 text-center text-muted-foreground">
-                <p className="mb-3">You haven't written any blogs yet.</p>
+                <p className="mb-3">{t("You haven't written any blogs yet.")}</p>
                 <Button asChild>
                   <Link to="/blog/write">
                     <PenLine className="mr-2 h-4 w-4" />
-                    Start writing
+                    {t("Start writing")}
                   </Link>
                 </Button>
               </div>
@@ -426,19 +426,19 @@ export default function Profile() {
               <div className="space-y-6">
                 {drafts.length > 0 && (
                   <div>
-                    <h3 className="font-semibold mb-1">Drafts & edits needed ({drafts.length})</h3>
+                    <h3 className="font-semibold mb-1">{t("Drafts & edits needed ({n})", { n: drafts.length })}</h3>
                     <div>{drafts.map((r) => <BlogRow key={r.id} r={r} />)}</div>
                   </div>
                 )}
                 {inReview.length > 0 && (
                   <div>
-                    <h3 className="font-semibold mb-1">Awaiting review ({inReview.length})</h3>
+                    <h3 className="font-semibold mb-1">{t("Awaiting review ({n})", { n: inReview.length })}</h3>
                     <div>{inReview.map((r) => <BlogRow key={r.id} r={r} />)}</div>
                   </div>
                 )}
                 {live.length > 0 && (
                   <div>
-                    <h3 className="font-semibold mb-1">Published ({live.length})</h3>
+                    <h3 className="font-semibold mb-1">{t("Published ({n})", { n: live.length })}</h3>
                     <div>{live.map((r) => <BlogRow key={r.id} r={r} />)}</div>
                   </div>
                 )}
