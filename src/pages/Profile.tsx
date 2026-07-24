@@ -12,8 +12,9 @@ import { Loader2, LogOut, PenLine, KeyRound, User, Trash2, Save, Camera } from "
 import { useToast } from "@/hooks/use-toast";
 import { composePassword, isValidPin } from "@/lib/phone-auth";
 import { AuthorAvatar } from "@/components/blog/AuthorAvatar";
+import { useI18n } from "@/i18n";
 
-const STATUS_LABEL: Record<string, string> = {
+const STATUS_KEY: Record<string, string> = {
   draft: "Draft",
   submitted: "Under review",
   under_review: "Under review",
@@ -35,6 +36,7 @@ const STATUS_COLOR: Record<string, string> = {
 export default function Profile() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useI18n();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
   const [blogs, setBlogs] = useState<any[]>([]);
@@ -61,8 +63,8 @@ export default function Profile() {
     if (!p || p.status !== "approved") {
       await supabase.auth.signOut();
       toast({
-        title: "Writer approval pending",
-        description: "Profile access opens after the admin team approves your writer account.",
+        title: t("Writer approval pending"),
+        description: t("Profile access opens after the admin team approves your writer account."),
         variant: "destructive",
       });
       navigate("/blog", { replace: true });
@@ -86,7 +88,7 @@ export default function Profile() {
 
   const saveProfile = async () => {
     if (!fullName.trim()) {
-      toast({ title: "Name can't be empty", variant: "destructive" });
+      toast({ title: t("Name can't be empty"), variant: "destructive" });
       return;
     }
     setSavingName(true);
@@ -95,20 +97,20 @@ export default function Profile() {
       .update({ full_name: fullName.trim(), bio: bio.trim() || null })
       .eq("user_id", profile.user_id);
     setSavingName(false);
-    if (error) toast({ title: "Save failed", description: error.message, variant: "destructive" });
+    if (error) toast({ title: t("Save failed"), description: error.message, variant: "destructive" });
     else {
-      toast({ title: "Profile updated" });
+      toast({ title: t("Profile updated") });
       load();
     }
   };
 
   const uploadAvatar = async (file: File) => {
     if (!file.type.startsWith("image/")) {
-      toast({ title: "Please pick an image file", variant: "destructive" });
+      toast({ title: t("Please pick an image file"), variant: "destructive" });
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast({ title: "Image too large", description: "Please pick an image under 5 MB.", variant: "destructive" });
+      toast({ title: t("Image too large"), description: t("Please pick an image under 5 MB."), variant: "destructive" });
       return;
     }
     setUploadingAvatar(true);
@@ -117,7 +119,7 @@ export default function Profile() {
     const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true, contentType: file.type });
     if (upErr) {
       setUploadingAvatar(false);
-      toast({ title: "Upload failed", description: upErr.message, variant: "destructive" });
+      toast({ title: t("Upload failed"), description: upErr.message, variant: "destructive" });
       return;
     }
     // Best-effort cleanup of previous avatar
@@ -126,21 +128,21 @@ export default function Profile() {
     }
     const { error: updErr } = await supabase.from("profiles").update({ avatar_url: path }).eq("user_id", profile.user_id);
     setUploadingAvatar(false);
-    if (updErr) toast({ title: "Save failed", description: updErr.message, variant: "destructive" });
-    else { toast({ title: "Photo updated" }); load(); }
+    if (updErr) toast({ title: t("Save failed"), description: updErr.message, variant: "destructive" });
+    else { toast({ title: t("Photo updated") }); load(); }
   };
 
   const changePin = async () => {
     if (!isValidPin(currentPin) || !isValidPin(newPin) || !isValidPin(confirmPin)) {
-      toast({ title: "PINs must be 4 digits", variant: "destructive" });
+      toast({ title: t("PINs must be 4 digits"), variant: "destructive" });
       return;
     }
     if (newPin !== confirmPin) {
-      toast({ title: "New PINs don't match", variant: "destructive" });
+      toast({ title: t("New PINs don't match"), variant: "destructive" });
       return;
     }
     if (newPin === currentPin) {
-      toast({ title: "Pick a different new PIN", variant: "destructive" });
+      toast({ title: t("Pick a different new PIN"), variant: "destructive" });
       return;
     }
     if (!profile?.phone_e164) {
@@ -162,7 +164,7 @@ export default function Profile() {
     });
     if (verifyErr) {
       setChangingPin(false);
-      toast({ title: "Current PIN is wrong", variant: "destructive" });
+      toast({ title: t("Current PIN is wrong"), variant: "destructive" });
       return;
     }
     const { error: updateErr } = await supabase.auth.updateUser({
@@ -170,27 +172,27 @@ export default function Profile() {
     });
     setChangingPin(false);
     if (updateErr) {
-      toast({ title: "Couldn't change PIN", description: updateErr.message, variant: "destructive" });
+      toast({ title: t("Couldn't change PIN"), description: updateErr.message, variant: "destructive" });
       return;
     }
     setCurrentPin("");
     setNewPin("");
     setConfirmPin("");
-    toast({ title: "PIN updated", description: "Use your new PIN next time you log in." });
+    toast({ title: t("PIN updated"), description: t("Use your new PIN next time you log in.") });
   };
 
   const logout = async () => {
     await supabase.auth.signOut();
-    toast({ title: "Signed out" });
+    toast({ title: t("Signed out") });
     navigate("/", { replace: true });
   };
 
   const deleteBlog = async (id: string) => {
-    if (!confirm("Delete this draft? This cannot be undone.")) return;
+    if (!confirm(t("Delete this draft? This cannot be undone."))) return;
     const { error } = await supabase.from("blogs").delete().eq("id", id);
-    if (error) toast({ title: "Delete failed", description: error.message, variant: "destructive" });
+    if (error) toast({ title: t("Delete failed"), description: error.message, variant: "destructive" });
     else {
-      toast({ title: "Deleted" });
+      toast({ title: t("Deleted") });
       load();
     }
   };
@@ -214,9 +216,9 @@ export default function Profile() {
       <div className="min-w-0 flex-1">
         <div className="font-serif text-base font-semibold truncate">{r.title || "Untitled"}</div>
         <div className="flex items-center gap-2 mt-1 flex-wrap">
-          <Badge className={STATUS_COLOR[r.status] || ""}>{STATUS_LABEL[r.status] || r.status}</Badge>
+          <Badge className={STATUS_COLOR[r.status] || ""}>{t(STATUS_KEY[r.status] || r.status)}</Badge>
           <span className="text-xs text-muted-foreground">
-            Updated {new Date(r.updated_at).toLocaleDateString()}
+            {t("Updated {d}", { d: new Date(r.updated_at).toLocaleDateString() })}
           </span>
         </div>
         {r.status === "needs_changes" && r.admin_notes && (
@@ -228,15 +230,15 @@ export default function Profile() {
       <div className="flex gap-2 flex-wrap shrink-0">
         {r.status === "published" ? (
           <Button asChild variant="outline" size="sm" className="h-9">
-            <Link to={`/blog/${r.slug ?? r.id}`}>View</Link>
+            <Link to={`/blog/${r.slug ?? r.id}`}>{t("View")}</Link>
           </Button>
         ) : (
           <Button asChild variant="outline" size="sm" className="h-9">
-            <Link to={`/blog/write?id=${r.id}`}>Edit</Link>
+            <Link to={`/blog/write?id=${r.id}`}>{t("Edit")}</Link>
           </Button>
         )}
         {(r.status === "draft" || r.status === "needs_changes") && (
-          <Button variant="ghost" size="icon" onClick={() => deleteBlog(r.id)} className="h-9 w-9">
+          <Button variant="ghost" size="icon" onClick={() => deleteBlog(r.id)} className="h-9 w-9" aria-label={t("Delete")}>
             <Trash2 className="h-4 w-4 text-destructive" />
           </Button>
         )}
@@ -250,19 +252,19 @@ export default function Profile() {
       <div className="container max-w-3xl px-4 py-8 md:py-12 space-y-8">
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="font-serif text-3xl md:text-4xl font-bold">My profile</h1>
-            <p className="text-muted-foreground mt-1">Manage your details, PIN and blogs.</p>
+            <h1 className="font-serif text-3xl md:text-4xl font-bold">{t("My profile")}</h1>
+            <p className="text-muted-foreground mt-1">{t("Manage your details, PIN and blogs.")}</p>
           </div>
           <div className="flex gap-2">
             <Button asChild size="lg" className="h-11">
               <Link to="/blog/write">
                 <PenLine className="mr-2 h-4 w-4" />
-                Write blog
+                {t("Write blog")}
               </Link>
             </Button>
             <Button variant="outline" size="lg" className="h-11" onClick={logout}>
               <LogOut className="mr-2 h-4 w-4" />
-              Log out
+              {t("Log out")}
             </Button>
           </div>
         </div>
@@ -272,7 +274,7 @@ export default function Profile() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <User className="h-5 w-5 text-primary" />
-              Basic info
+              {t("Basic info")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
@@ -294,22 +296,22 @@ export default function Profile() {
                   className="h-10"
                 >
                   {uploadingAvatar ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Camera className="h-4 w-4 mr-2" />}
-                  {profile?.avatar_url ? "Change photo" : "Add photo"}
+                  {profile?.avatar_url ? t("Change photo") : t("Add photo")}
                 </Button>
-                <p className="text-xs text-muted-foreground mt-1.5">JPG or PNG, up to 5 MB.</p>
+                <p className="text-xs text-muted-foreground mt-1.5">{t("JPG or PNG, up to 5 MB.")}</p>
               </div>
             </div>
 
             <div>
-              <Label>Full name</Label>
+              <Label>{t("Full name")}</Label>
               <Input value={fullName} onChange={(e) => setFullName(e.target.value)} className="h-11 mt-1" />
             </div>
             <div>
-              <Label>Short bio (optional)</Label>
+              <Label>{t("Short bio (optional)")}</Label>
               <Textarea
                 value={bio}
                 onChange={(e) => setBio(e.target.value.slice(0, 280))}
-                placeholder="A line or two about yourself — this appears on your author page."
+                placeholder={t("A line or two about yourself — this appears on your author page.")}
                 rows={3}
                 className="mt-1 resize-y"
               />
@@ -321,18 +323,18 @@ export default function Profile() {
               className="h-11"
             >
               {savingName ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
-              Save changes
+              {t("Save changes")}
             </Button>
 
             <div>
-              <Label>Phone (used to log in)</Label>
+              <Label>{t("Phone (used to log in)")}</Label>
               <Input value={profile?.phone_e164 || "—"} disabled className="h-11 mt-1 bg-muted" />
               <p className="text-xs text-muted-foreground mt-1">
-                Phone can't be changed. Contact an admin if you need to update it.
+                {t("Phone can't be changed. Contact an admin if you need to update it.")}
               </p>
             </div>
             <div>
-              <Label>Account status</Label>
+              <Label>{t("Account status")}</Label>
               <div className="mt-1">
                 <Badge
                   className={
@@ -343,7 +345,7 @@ export default function Profile() {
                       : "bg-amber-100 text-amber-800"
                   }
                 >
-                  {profile?.status || "unknown"}
+                  {t(profile?.status || "unknown")}
                 </Badge>
               </div>
             </div>
@@ -355,13 +357,13 @@ export default function Profile() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <KeyRound className="h-5 w-5 text-primary" />
-              Change PIN
+              {t("Change PIN")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-3 sm:grid-cols-3">
               <div>
-                <Label>Current PIN</Label>
+                <Label>{t("Current PIN")}</Label>
                 <Input
                   inputMode="numeric"
                   maxLength={4}
@@ -372,7 +374,7 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <Label>New PIN</Label>
+                <Label>{t("New PIN")}</Label>
                 <Input
                   inputMode="numeric"
                   maxLength={4}
@@ -383,7 +385,7 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <Label>Confirm new PIN</Label>
+                <Label>{t("Confirm new PIN")}</Label>
                 <Input
                   inputMode="numeric"
                   maxLength={4}
@@ -396,7 +398,7 @@ export default function Profile() {
             </div>
             <Button onClick={changePin} disabled={changingPin} className="h-11">
               {changingPin ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <KeyRound className="h-4 w-4 mr-2" />}
-              Update PIN
+              {t("Update PIN")}
             </Button>
           </CardContent>
         </Card>
@@ -406,17 +408,17 @@ export default function Profile() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <PenLine className="h-5 w-5 text-primary" />
-              My blogs
+              {t("My blogs")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {blogs.length === 0 ? (
               <div className="py-8 text-center text-muted-foreground">
-                <p className="mb-3">You haven't written any blogs yet.</p>
+                <p className="mb-3">{t("You haven't written any blogs yet.")}</p>
                 <Button asChild>
                   <Link to="/blog/write">
                     <PenLine className="mr-2 h-4 w-4" />
-                    Start writing
+                    {t("Start writing")}
                   </Link>
                 </Button>
               </div>
@@ -424,19 +426,19 @@ export default function Profile() {
               <div className="space-y-6">
                 {drafts.length > 0 && (
                   <div>
-                    <h3 className="font-semibold mb-1">Drafts & edits needed ({drafts.length})</h3>
+                    <h3 className="font-semibold mb-1">{t("Drafts & edits needed ({n})", { n: drafts.length })}</h3>
                     <div>{drafts.map((r) => <BlogRow key={r.id} r={r} />)}</div>
                   </div>
                 )}
                 {inReview.length > 0 && (
                   <div>
-                    <h3 className="font-semibold mb-1">Awaiting review ({inReview.length})</h3>
+                    <h3 className="font-semibold mb-1">{t("Awaiting review ({n})", { n: inReview.length })}</h3>
                     <div>{inReview.map((r) => <BlogRow key={r.id} r={r} />)}</div>
                   </div>
                 )}
                 {live.length > 0 && (
                   <div>
-                    <h3 className="font-semibold mb-1">Published ({live.length})</h3>
+                    <h3 className="font-semibold mb-1">{t("Published ({n})", { n: live.length })}</h3>
                     <div>{live.map((r) => <BlogRow key={r.id} r={r} />)}</div>
                   </div>
                 )}

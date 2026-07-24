@@ -15,19 +15,20 @@ import { useFontSize, FontSizeToggle } from "@/hooks/use-font-size";
 import { RichEditor, type RichEditorHandle, type ActiveFormats } from "@/components/blog/RichEditor";
 import { CircularWavesLoader } from "@/components/blog/CircularWavesLoader";
 import { extractKind, stripKindMarker, type BlogKind } from "@/lib/markdown-lite";
+import { useI18n } from "@/i18n";
 
 interface Suggestion { original: string; suggestion: string; reason: string; }
 
-const QUICK_PROMPTS = [
-  { label: "A memory from my youth", seed: "One memory from my youth that still makes me smile is " },
-  { label: "A person who shaped me", seed: "The person who shaped me most is " },
-  { label: "A day I'll never forget", seed: "There's one day I'll never forget. It was " },
-  { label: "What Hosla means to me", seed: "Being part of Hosla means " },
-  { label: "Advice for younger people", seed: "If I could tell my younger self one thing, it would be " },
-  { label: "Something I'm proud of", seed: "One thing I'm truly proud of is " },
+const QUICK_PROMPT_KEYS = [
+  { key: "A memory from my youth", seed: "One memory from my youth that still makes me smile is " },
+  { key: "A person who shaped me", seed: "The person who shaped me most is " },
+  { key: "A day I'll never forget", seed: "There's one day I'll never forget. It was " },
+  { key: "What Hosla means to me", seed: "Being part of Hosla means " },
+  { key: "Advice for younger people", seed: "If I could tell my younger self one thing, it would be " },
+  { key: "Something I'm proud of", seed: "One thing I'm truly proud of is " },
 ];
 
-const TIPS = [
+const TIP_KEYS = [
   "Write like you're telling a friend. Simple words are best.",
   "Don't worry about spelling — you can fix it later with one tap.",
   "Pick one memory and describe what you saw, heard, or felt.",
@@ -111,6 +112,7 @@ export default function BlogWrite() {
   const [params] = useSearchParams();
   const editingId = params.get("id");
   const { toast } = useToast();
+  const { t } = useI18n();
   const { upload, isUploading, progress: uploadProgress } = useImageUpload({ bucket: "project-posters", folder: "blogs", maxSizeMB: 1, maxWidthOrHeight: 1600 });
   const { size, setSize } = useFontSize();
 
@@ -150,8 +152,8 @@ export default function BlogWrite() {
       if ((profile as any)?.status !== "approved") {
         await supabase.auth.signOut();
         toast({
-          title: "Writer approval pending",
-          description: "You can write as a guest until the admin team approves your writer account.",
+          title: t("Writer approval pending"),
+          description: t("You can write as a guest until the admin team approves your writer account."),
           variant: "destructive",
         });
         navigate("/blog", { replace: true });
@@ -163,7 +165,7 @@ export default function BlogWrite() {
         const { data: row } = await supabase.from("blogs").select("*").eq("id", editingId).maybeSingle();
         if (row && row.author_id === data.session.user.id) {
           if (row.status === "published") {
-            toast({ title: "Published blogs can't be edited", description: "Contact an admin if this blog needs changes." });
+            toast({ title: t("Published blogs can't be edited"), description: t("Contact an admin if this blog needs changes.") });
             navigate(`/blog/${row.slug ?? row.id}`, { replace: true });
             return;
           }
@@ -204,7 +206,7 @@ export default function BlogWrite() {
     setInitialBody(b);
     setEditorSyncKey((k2) => k2 + 1);
     setRestorePrompt(null);
-    toast({ title: "Restored", description: "Your unsaved changes are back." });
+    toast({ title: t("Restored"), description: t("Your unsaved changes are back.") });
   };
   const discardRestore = () => {
     localStorage.removeItem(backupKey);
@@ -242,7 +244,7 @@ export default function BlogWrite() {
     } catch (e: any) {
       console.error("save error", e);
       setSavingState("error");
-      if (!silent) toast({ title: "Couldn't save", description: e.message, variant: "destructive" });
+      if (!silent) toast({ title: t("Couldn't save"), description: e.message, variant: "destructive" });
     }
   }, [session, title, body, cover, status, blogId, toast, backupKey, editingId]);
 
@@ -300,20 +302,20 @@ export default function BlogWrite() {
   };
 
   const runAiCheck = async () => {
-    if (!body.trim()) { toast({ title: "Nothing to check yet", description: "Write something first." }); return; }
+    if (!body.trim()) { toast({ title: t("Nothing to check yet"), description: t("Write something first.") }); return; }
     setChecking(true);
     setSuggestions([]);
     const { data, error } = await supabase.functions.invoke("check-blog-writing", { body: { text: body } });
     setChecking(false);
     if (error) {
       const message = (error as any)?.context?.body ? await (error as any).context.text().catch(() => "") : error.message;
-      toast({ title: "AI check failed", description: message || "Please try again.", variant: "destructive" });
+      toast({ title: t("AI check failed"), description: message || t("Please try again."), variant: "destructive" });
       return;
     }
-    if (data?.error) { toast({ title: "AI check failed", description: data.error, variant: "destructive" }); return; }
+    if (data?.error) { toast({ title: t("AI check failed"), description: data.error, variant: "destructive" }); return; }
     setSuggestions(data?.suggestions ?? []);
     if ((data?.suggestions ?? []).length === 0) {
-      toast({ title: "Your writing looks great!", description: "No suggestions." });
+      toast({ title: t("Your writing looks great!"), description: t("No suggestions.") });
     }
   };
 
@@ -337,7 +339,7 @@ export default function BlogWrite() {
 
   const submitStory = async () => {
     if (!title.trim() || !body.trim()) {
-      toast({ title: "Add a title and story", description: "Please fill in both before submitting.", variant: "destructive" });
+      toast({ title: t("Add a title and story"), description: t("Please fill in both before submitting."), variant: "destructive" });
       return;
     }
     setSubmitting(true);
@@ -345,9 +347,9 @@ export default function BlogWrite() {
     if (!blogId) { setSubmitting(false); return; }
     const { error } = await supabase.from("blogs").update({ status: "submitted", admin_notes: null }).eq("id", blogId);
     setSubmitting(false);
-    if (error) toast({ title: "Submit failed", description: error.message, variant: "destructive" });
+    if (error) toast({ title: t("Submit failed"), description: error.message, variant: "destructive" });
     else {
-      toast({ title: "Story submitted!", description: "We'll review it shortly and let you know." });
+      toast({ title: t("Story submitted!"), description: t("We'll review it shortly and let you know.") });
       navigate("/profile");
     }
   };
@@ -364,15 +366,15 @@ export default function BlogWrite() {
       <div className="container max-w-3xl px-4 py-6 md:py-10">
         <div className="flex items-center justify-between mb-4">
           <Link to="/profile" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-4 w-4" /> My profile
+            <ArrowLeft className="h-4 w-4" /> {t("My profile")}
           </Link>
           <div className="flex items-center gap-2">
             <FontSizeToggle size={size} onChange={setSize} />
           </div>
         </div>
 
-        <h1 className="font-serif text-2xl md:text-3xl font-bold mb-2">Tell your story</h1>
-        <p className="text-muted-foreground mb-6">Write in whichever language feels natural. We'll take care of the rest.</p>
+        <h1 className="font-serif text-2xl md:text-3xl font-bold mb-2">{t("Tell your story")}</h1>
+        <p className="text-muted-foreground mb-6">{t("Write in whichever language feels natural. We'll take care of the rest.")}</p>
 
         {/* Guided walkthrough: tips + quick prompts */}
         {showTips && (
@@ -381,12 +383,12 @@ export default function BlogWrite() {
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-2 font-semibold text-primary">
                   <Lightbulb className="h-5 w-5" />
-                  Not sure where to start? Try one of these.
+                  {t("Not sure where to start? Try one of these.")}
                 </div>
                 <button
                   type="button"
                   onClick={dismissTips}
-                  aria-label="Hide tips"
+                  aria-label={t("Hide tips")}
                   className="text-muted-foreground hover:text-foreground"
                 >
                   <X className="h-4 w-4" />
@@ -394,23 +396,23 @@ export default function BlogWrite() {
               </div>
 
               <div className="mt-3 flex flex-wrap gap-2">
-                {QUICK_PROMPTS.map((p) => (
+                {QUICK_PROMPT_KEYS.map((p) => (
                   <button
-                    key={p.label}
+                    key={p.key}
                     type="button"
                     onClick={() => applyPrompt(p.seed)}
                     className="text-sm rounded-full border border-primary/40 bg-background hover:bg-primary hover:text-primary-foreground transition-colors px-3 py-2 min-h-[44px]"
                   >
-                    {p.label}
+                    {t(p.key)}
                   </button>
                 ))}
               </div>
 
               <ul className="mt-4 space-y-1.5 text-sm text-foreground/80">
-                {TIPS.map((t, i) => (
+                {TIP_KEYS.map((tip, i) => (
                   <li key={i} className="flex gap-2">
                     <span className="text-primary mt-0.5">•</span>
-                    <span>{t}</span>
+                    <span>{t(tip)}</span>
                   </li>
                 ))}
               </ul>
@@ -423,14 +425,14 @@ export default function BlogWrite() {
             onClick={() => setShowTips(true)}
             className="mb-4 inline-flex items-center gap-1 text-sm text-primary hover:underline"
           >
-            <Lightbulb className="h-4 w-4" /> Show writing tips & prompts
+            <Lightbulb className="h-4 w-4" /> {t("Show writing tips & prompts")}
           </button>
         )}
 
         {status === "needs_changes" && adminNotes && (
           <Card className="mb-6 border-amber-400 bg-amber-50">
             <CardContent className="pt-6">
-              <div className="text-sm font-semibold text-amber-900 mb-1">Small edits needed</div>
+              <div className="text-sm font-semibold text-amber-900 mb-1">{t("Small edits needed")}</div>
               <p className="text-sm text-amber-800">{adminNotes}</p>
             </CardContent>
           </Card>
@@ -439,7 +441,7 @@ export default function BlogWrite() {
         {status === "published" && (
           <Card className="mb-6 border-primary/40 bg-primary/5">
             <CardContent className="pt-5 text-sm">
-              You're editing a published blog. Saving will take it off the public site and send it back for admin review before it can be republished.
+              {t("You're editing a published blog. Saving will take it off the public site and send it back for admin review before it can be republished.")}
             </CardContent>
           </Card>
         )}
@@ -451,15 +453,15 @@ export default function BlogWrite() {
                 <div className="flex items-start gap-2">
                   <RotateCcw className="h-5 w-5 text-primary mt-0.5" />
                   <div>
-                    <div className="font-semibold">Restore unsaved changes?</div>
+                    <div className="font-semibold">{t("Restore unsaved changes?")}</div>
                     <div className="text-sm text-muted-foreground">
-                      We found a newer local backup from {new Date(restorePrompt.ts).toLocaleString()} that wasn't uploaded.
+                      {t("We found a newer local backup that wasn't uploaded.")} ({new Date(restorePrompt.ts).toLocaleString()})
                     </div>
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button size="sm" onClick={applyRestore}>Restore</Button>
-                  <Button size="sm" variant="ghost" onClick={discardRestore}>Discard</Button>
+                  <Button size="sm" onClick={applyRestore}>{t("Restore")}</Button>
+                  <Button size="sm" variant="ghost" onClick={discardRestore}>{t("Discard")}</Button>
                 </div>
               </div>
             </CardContent>
@@ -470,14 +472,14 @@ export default function BlogWrite() {
           <Input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Title"
+            placeholder={t("Title")}
             className="h-14 text-xl font-serif"
             style={{ fontSize: `${Math.max(size, 20)}px` }}
           />
 
           {/* Kind selector — determines formatting (poems/recitations are centered & keep line breaks) */}
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm text-muted-foreground mr-1">This is a:</span>
+            <span className="text-sm text-muted-foreground mr-1">{t("This is a:")}</span>
             {(["story", "poem", "recitation", "essay", "other"] as BlogKind[]).map((k) => (
               <button
                 key={k}
@@ -491,7 +493,7 @@ export default function BlogWrite() {
                 className={`rounded-full border px-3 py-1.5 text-sm min-h-[36px] transition-colors ${kind === k ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted border-border"}`}
                 aria-pressed={kind === k}
               >
-                {k === "story" ? "Story" : k === "poem" ? "Poem" : k === "recitation" ? "Recitation" : k === "essay" ? "Essay" : "Other"}
+                {t(k === "story" ? "Story" : k === "poem" ? "Poem" : k === "recitation" ? "Recitation" : k === "essay" ? "Essay" : "Other")}
               </button>
             ))}
           </div>
@@ -501,19 +503,19 @@ export default function BlogWrite() {
             <Button type="button" variant={active.list ? "default" : "ghost"} size="sm" onClick={() => editorRef.current?.exec("insertUnorderedList")} className="h-11" aria-pressed={active.list} aria-label="Bullet"><List className="h-4 w-4 mr-1" />Bullet</Button>
             <Button type="button" variant="ghost" size="sm" onClick={() => editorRef.current?.exec("insertParagraph")} className="h-11" aria-label="Paragraph">¶ Paragraph</Button>
             <div className="ml-auto flex items-center gap-3 text-sm text-muted-foreground">
-              <span>{wordCount} words</span>
-              {savingState === "saving" && <span className="inline-flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> Saving…</span>}
-              {savingState === "saved" && <span>Saved{lastSavedAt ? ` · ${Math.max(1, Math.round((Date.now() - lastSavedAt) / 1000))}s ago` : ""}</span>}
-              {savingState === "error" && <span className="text-destructive">Save failed</span>}
+              <span>{t("{n} words", { n: wordCount })}</span>
+              {savingState === "saving" && <span className="inline-flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> {t("Saving…")}</span>}
+              {savingState === "saved" && <span>{t("Saved")}{lastSavedAt ? ` · ${Math.max(1, Math.round((Date.now() - lastSavedAt) / 1000))}s` : ""}</span>}
+              {savingState === "error" && <span className="text-destructive">{t("Save failed")}</span>}
             </div>
           </div>
 
           {/* Mobile-only status row (toolbar lives in floating FAB) */}
           <div className="md:hidden flex items-center justify-between text-xs text-muted-foreground px-1">
-            <span>{wordCount} words</span>
-            {savingState === "saving" && <span className="inline-flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> Saving…</span>}
-            {savingState === "saved" && <span>Saved</span>}
-            {savingState === "error" && <span className="text-destructive">Save failed</span>}
+            <span>{t("{n} words", { n: wordCount })}</span>
+            {savingState === "saving" && <span className="inline-flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> {t("Saving…")}</span>}
+            {savingState === "saved" && <span>{t("Saved")}</span>}
+            {savingState === "error" && <span className="text-destructive">{t("Save failed")}</span>}
           </div>
 
           <RichEditor
@@ -529,7 +531,7 @@ export default function BlogWrite() {
               setActive(a);
               if (a.hasSelection) setFabOpen(true);
             }}
-            placeholder={kind === "poem" || kind === "recitation" ? "Write your poem here — every line break is preserved…" : "Write your blog here…"}
+            placeholder={kind === "poem" || kind === "recitation" ? t("Write your poem here — every line break is preserved…") : t("Write your blog here…")}
             fontSize={size}
           />
 
@@ -537,18 +539,18 @@ export default function BlogWrite() {
           <div className="flex flex-wrap gap-3">
             <Button type="button" variant="outline" onClick={() => document.getElementById("cover-upload")?.click()} className="h-12" disabled={isUploading}>
               {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ImagePlus className="mr-2 h-4 w-4" />}
-              {isUploading ? `Uploading ${Math.round(uploadProgress)}%` : cover ? "Change cover photo" : "Add cover photo"}
+              {isUploading ? t("Uploading {p}%", { p: Math.round(uploadProgress) }) : cover ? t("Change cover photo") : t("Add cover photo")}
             </Button>
             <input id="cover-upload" type="file" accept="image/*" hidden onChange={handleCoverUpload} />
             <Button type="button" variant="secondary" onClick={runAiCheck} disabled={checking} className="h-12">
               {checking ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Wand2 className="h-4 w-4 mr-2" />}
-              Check my writing
+              {t("Check my writing")}
             </Button>
           </div>
 
           {isUploading && (
             <div className="rounded-lg border border-border bg-card p-6 flex items-center justify-center">
-              <CircularWavesLoader progress={uploadProgress} label="Uploading cover photo" />
+              <CircularWavesLoader progress={uploadProgress} label={t("Uploading cover photo")} />
             </div>
           )}
 
@@ -563,13 +565,13 @@ export default function BlogWrite() {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-primary" />
+                  <Sparkles className="h-5 w-5 text-primary" />
                     <div>
                       <div className="font-semibold">
-                        {suggestions.length} suggestion{suggestions.length === 1 ? "" : "s"} to review
+                        {t(suggestions.length === 1 ? "{n} suggestion to review" : "{n} suggestions to review", { n: suggestions.length })}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        Your original words stay unless you accept a change. Compare before and after below.
+                        {t("Your original words stay unless you accept a change. Compare before and after below.")}
                       </div>
                     </div>
                   </div>
@@ -581,7 +583,7 @@ export default function BlogWrite() {
                         className={`px-3 py-1.5 text-xs font-medium transition-colors ${diffMode === "full" ? "bg-primary text-primary-foreground" : "bg-background hover:bg-muted"}`}
                         aria-pressed={diffMode === "full"}
                       >
-                        Full compare
+                        {t("Full compare")}
                       </button>
                       <button
                         type="button"
@@ -589,11 +591,11 @@ export default function BlogWrite() {
                         className={`px-3 py-1.5 text-xs font-medium transition-colors ${diffMode === "highlights" ? "bg-primary text-primary-foreground" : "bg-background hover:bg-muted"}`}
                         aria-pressed={diffMode === "highlights"}
                       >
-                        Changes only
+                        {t("Changes only")}
                       </button>
                     </div>
-                    <Button size="sm" variant="outline" onClick={() => setSuggestions([])}>Reject all</Button>
-                    <Button size="sm" onClick={acceptAll}>Accept all</Button>
+                    <Button size="sm" variant="outline" onClick={() => setSuggestions([])}>{t("Reject all")}</Button>
+                    <Button size="sm" onClick={acceptAll}>{t("Accept all")}</Button>
                   </div>
                 </div>
                 <ul className="space-y-5">
@@ -602,15 +604,15 @@ export default function BlogWrite() {
                       <DiffLine original={s.original} suggestion={s.suggestion} mode={diffMode} />
                       {s.reason && (
                         <div className="mt-2 text-xs text-muted-foreground italic">
-                          Why: {s.reason}
+                          {s.reason}
                         </div>
                       )}
                       <div className="flex gap-2 mt-3">
                         <Button size="sm" onClick={() => acceptSuggestion(idx)} className="h-10 min-w-[110px]">
-                          <Check className="h-4 w-4 mr-1" /> Use this
+                          <Check className="h-4 w-4 mr-1" /> {t("Use this")}
                         </Button>
                         <Button size="sm" variant="ghost" onClick={() => rejectSuggestion(idx)} className="h-10">
-                          <X className="h-4 w-4 mr-1" /> Keep mine
+                          <X className="h-4 w-4 mr-1" /> {t("Keep mine")}
                         </Button>
                       </div>
                     </li>
@@ -623,17 +625,17 @@ export default function BlogWrite() {
           <Card>
             <CardContent className="pt-6">
               <div className="text-sm text-muted-foreground mb-4">
-                <div>Title {title.trim() ? "✓" : "·"}</div>
-                <div>Story {body.trim() ? "✓" : "·"}</div>
-                <div>Cover photo (optional) {cover ? "✓" : "·"}</div>
+                <div>{t("Title")} {title.trim() ? "✓" : "·"}</div>
+                <div>{t("Story")} {body.trim() ? "✓" : "·"}</div>
+                <div>{t("Cover image")} {cover ? "✓" : "·"}</div>
               </div>
               <div className="flex flex-wrap gap-3">
                 <Button variant="outline" onClick={() => saveDraft()} disabled={savingState === "saving"} className="h-12">
-                  <Save className="mr-2 h-4 w-4" /> Save draft
+                  <Save className="mr-2 h-4 w-4" /> {t("Save draft")}
                 </Button>
                 <Button onClick={submitStory} disabled={!ready || submitting} className="h-12">
                   {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Send className="h-4 w-4 mr-2" />}
-                  Submit for publishing
+                  {t("Submit for publishing")}
                 </Button>
               </div>
             </CardContent>

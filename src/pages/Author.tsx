@@ -6,12 +6,14 @@ import { Loader2, BookOpen, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AuthorAvatar } from "@/components/blog/AuthorAvatar";
 import { coverImageOrDefault } from "@/lib/blog-cover";
+import { useI18n } from "@/i18n";
 
 interface AuthorRow { user_id: string; full_name: string | null; avatar_url: string | null; bio: string | null; }
 interface BlogRow { id: string; title: string; slug: string | null; cover_image_url: string | null; published_at: string | null; }
 
 export default function Author() {
   const { userId } = useParams<{ userId: string }>();
+  const { t } = useI18n();
   const [author, setAuthor] = useState<AuthorRow | null>(null);
   const [blogs, setBlogs] = useState<BlogRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,8 +46,8 @@ export default function Author() {
   if (!author) {
     return <Layout>
       <div className="container max-w-2xl py-16 text-center px-4">
-        <h1 className="font-serif text-3xl font-bold">Author not found</h1>
-        <Button asChild className="mt-6"><Link to="/blog">Back to blogs</Link></Button>
+        <h1 className="font-serif text-3xl font-bold">{t("Author not found")}</h1>
+        <Button asChild className="mt-6"><Link to="/blog">{t("Back to blogs")}</Link></Button>
       </div>
     </Layout>;
   }
@@ -54,22 +56,22 @@ export default function Author() {
     <Layout>
       <div className="container max-w-5xl px-4 py-8 md:py-12">
         <Link to="/blog" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-8">
-          <ArrowLeft className="h-4 w-4" /> All blogs
+          <ArrowLeft className="h-4 w-4" /> {t("All blogs")}
         </Link>
 
         <header className="flex flex-col items-center text-center gap-4 mb-12">
           <AuthorAvatar avatarPath={author.avatar_url} name={author.full_name} className="h-24 w-24 text-2xl" />
           <div>
-            <h1 className="font-serif text-3xl md:text-4xl font-bold">{author.full_name || "Anonymous"}</h1>
+            <h1 className="font-serif text-3xl md:text-4xl font-bold">{author.full_name || t("Anonymous")}</h1>
             {author.bio && <p className="text-muted-foreground mt-3 max-w-xl">{author.bio}</p>}
             <p className="text-sm text-muted-foreground mt-3">
-              {blogs.length} published {blogs.length === 1 ? "blog" : "blogs"}
+              {t(blogs.length === 1 ? "{n} published blog" : "{n} published blogs", { n: blogs.length })}
             </p>
           </div>
         </header>
 
         {blogs.length === 0 ? (
-          <p className="text-center text-muted-foreground py-12">No published blogs yet.</p>
+          <p className="text-center text-muted-foreground py-12">{t("No published blogs yet.")}</p>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {blogs.map((b) => (
