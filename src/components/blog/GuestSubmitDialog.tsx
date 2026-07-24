@@ -22,8 +22,8 @@ type Step = "form" | "existing-pin" | "new-pin" | "done-guest" | "done-linked" |
 export interface GuestSubmitDialogProps {
   open: boolean;
   onOpenChange: (o: boolean) => void;
-  /** Called with { name, phone, authorId? } to actually insert the blog row. */
-  onSubmit: (data: { guest_name: string; guest_phone: string; author_id: string | null }) => Promise<{ ok: boolean; error?: string }>;
+  /** Called with { name, phone, author_id, is_approved_writer } to actually insert the blog row. */
+  onSubmit: (data: { guest_name: string; guest_phone: string; author_id: string | null; is_approved_writer: boolean }) => Promise<{ ok: boolean; error?: string }>;
 }
 
 export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitDialogProps) {
