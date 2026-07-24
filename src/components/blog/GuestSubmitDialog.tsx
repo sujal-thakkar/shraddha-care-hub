@@ -109,7 +109,7 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
     const e164 = toE164(dial, v.digits);
 
     setBusy(true);
-    const { data, error } = await supabase.auth.signUp({
+    let { data, error } = await supabase.auth.signUp({
       email: syntheticEmail(e164),
       password: composePassword(e164, pin),
       options: {
@@ -117,14 +117,32 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
         data: { full_name: name.trim(), phone_e164: e164, country_code: dial },
       },
     });
-    if (error || !data.user) {
+    // If signup says "user already exists" (e.g. an earlier attempt half-succeeded),
+    // fall back to signing in with the same PIN so we can still attach this blog.
+    if (error && /already/i.test(error.message)) {
+      const signIn = await supabase.auth.signInWithPassword({
+        email: syntheticEmail(e164),
+        password: composePassword(e164, pin),
+      });
+      if (signIn.error || !signIn.data.user) {
+        setBusy(false);
+        return toast({
+          title: "This phone is already registered",
+          description: "Enter the PIN you set earlier, or contact an admin to reset it.",
+          variant: "destructive",
+        });
+      }
+      data = signIn.data as any;
+      error = null as any;
+    }
+    if (error || !data?.user) {
       setBusy(false);
       return toast({ title: "Couldn't create account", description: error?.message, variant: "destructive" });
     }
     const authorId = data.user.id;
-    await supabase.auth.signOut();
-
+    // Insert while signed in so RLS accepts author_id = auth.uid(), then sign out.
     const res = await onSubmit({ guest_name: name.trim(), guest_phone: e164, author_id: authorId });
+    await supabase.auth.signOut();
     setBusy(false);
     if (!res.ok) return toast({ title: "Submit failed", description: res.error, variant: "destructive" });
     setStep("done-account");
