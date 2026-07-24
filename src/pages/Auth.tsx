@@ -205,7 +205,7 @@ export default function Auth() {
                   {phoneRow("in")}
                   <div className="space-y-2">
                     <Label htmlFor="in-pin" className="flex items-center gap-2"><Lock className="h-4 w-4" /> 4-digit PIN</Label>
-                    <Input id="in-pin" type="password" inputMode="numeric" maxLength={4}
+                    <Input id="in-pin" type="text" inputMode="numeric" maxLength={4} autoComplete="off"
                       value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
                       placeholder="••••" className="h-12 text-2xl tracking-[0.5em] text-center" />
                   </div>
@@ -228,13 +228,13 @@ export default function Auth() {
                   {phoneRow("up")}
                   <div className="space-y-2">
                     <Label htmlFor="up-pin" className="flex items-center gap-2"><Lock className="h-4 w-4" /> Create a 4-digit PIN</Label>
-                    <Input id="up-pin" type="password" inputMode="numeric" maxLength={4}
+                    <Input id="up-pin" type="text" inputMode="numeric" maxLength={4} autoComplete="off"
                       value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
                       placeholder="••••" className="h-12 text-2xl tracking-[0.5em] text-center" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="up-pin2">Confirm PIN</Label>
-                    <Input id="up-pin2" type="password" inputMode="numeric" maxLength={4}
+                    <Input id="up-pin2" type="text" inputMode="numeric" maxLength={4} autoComplete="off"
                       value={pin2} onChange={(e) => setPin2(e.target.value.replace(/\D/g, "").slice(0, 4))}
                       placeholder="••••" className="h-12 text-2xl tracking-[0.5em] text-center" />
                   </div>
