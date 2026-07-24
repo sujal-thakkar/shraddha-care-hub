@@ -90,10 +90,9 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
       return toast({ title: "Wrong PIN", description: "That PIN doesn't match this phone number.", variant: "destructive" });
     }
     const authorId = data.user.id;
-    // Sign out immediately so the user isn't logged in unexpectedly from a guest flow.
-    await supabase.auth.signOut();
-
+    // Insert while signed in so RLS sees auth.uid() = author_id, then sign out.
     const res = await onSubmit({ guest_name: name.trim(), guest_phone: e164, author_id: authorId });
+    await supabase.auth.signOut();
     setBusy(false);
     if (!res.ok) return toast({ title: "Submit failed", description: res.error, variant: "destructive" });
     setLinkedAuthorId(authorId);
