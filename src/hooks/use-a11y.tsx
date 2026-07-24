@@ -47,13 +47,14 @@ export function useA11yBootstrap() {
 
 export function AccessibilityMenu({ className }: { className?: string }) {
   const { largeText, highContrast, toggleLarge, toggleContrast } = useA11y();
-  const activeCount = (largeText ? 1 : 0) + (highContrast ? 1 : 0);
+  const { lang, setLang } = useI18n();
+  const activeCount = (largeText ? 1 : 0) + (highContrast ? 1 : 0) + (lang === "bn" ? 1 : 0);
   return (
     <Popover>
       <PopoverTrigger asChild>
         <button
           type="button"
-          aria-label="Accessibility settings"
+          aria-label="Accessibility and language settings"
           className={
             "relative inline-flex items-center justify-center h-11 w-11 rounded-full border border-border bg-background hover:bg-accent transition-colors touch-manipulation " +
             (className || "")
@@ -73,6 +74,34 @@ export function AccessibilityMenu({ className }: { className?: string }) {
           <div className="text-xs text-muted-foreground">Applies across the whole site</div>
         </div>
         <div className="space-y-4">
+          <div>
+            <Label className="font-medium">Language / ভাষা</Label>
+            <p className="text-xs text-muted-foreground mb-2">Interface language (blog content stays original)</p>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setLang("en")}
+                className={
+                  "h-10 rounded-md border text-sm font-medium transition-colors " +
+                  (lang === "en" ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-accent")
+                }
+                aria-pressed={lang === "en"}
+              >
+                English
+              </button>
+              <button
+                type="button"
+                onClick={() => setLang("bn")}
+                className={
+                  "h-10 rounded-md border text-sm font-medium transition-colors " +
+                  (lang === "bn" ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-accent")
+                }
+                aria-pressed={lang === "bn"}
+              >
+                বাংলা
+              </button>
+            </div>
+          </div>
           <div className="flex items-center justify-between gap-3">
             <div>
               <Label htmlFor="a11y-large" className="font-medium">Large text</Label>
