@@ -70,6 +70,11 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
 
     if (available === false) {
       // Phone already registered — need existing PIN to link this submission.
+      // Also look up whether that writer is already approved or still pending,
+      // so we can tailor the copy in the PIN step.
+      const { data: status } = await supabase.rpc("get_writer_status_by_phone" as any, { _phone: e164 });
+      const s = typeof status === "string" ? status : null;
+      setExistingStatus(s === "approved" ? "approved" : s === "pending" ? "pending" : null);
       setStep("existing-pin");
     } else {
       // New phone — invite them to become a writer, or stay guest.
