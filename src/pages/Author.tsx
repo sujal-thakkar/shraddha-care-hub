@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2, BookOpen, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AuthorAvatar } from "@/components/blog/AuthorAvatar";
+import { coverImageOrDefault } from "@/lib/blog-cover";
 
 interface AuthorRow { user_id: string; full_name: string | null; avatar_url: string | null; bio: string | null; }
 interface BlogRow { id: string; title: string; slug: string | null; cover_image_url: string | null; published_at: string | null; }
