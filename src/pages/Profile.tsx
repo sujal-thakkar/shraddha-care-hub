@@ -63,8 +63,8 @@ export default function Profile() {
     if (!p || p.status !== "approved") {
       await supabase.auth.signOut();
       toast({
-        title: "Writer approval pending",
-        description: "Profile access opens after the admin team approves your writer account.",
+        title: t("Writer approval pending"),
+        description: t("Profile access opens after the admin team approves your writer account."),
         variant: "destructive",
       });
       navigate("/blog", { replace: true });
