@@ -277,12 +277,26 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
           <>
             <DialogHeader>
               <DialogTitle className="font-serif text-2xl flex items-center gap-2">
-                <UserCheck className="h-6 w-6 text-primary" /> Welcome back
+                {existingStatus === "pending" ? (
+                  <><AlertTriangle className="h-6 w-6 text-amber-600" /> Approval still pending</>
+                ) : (
+                  <><UserCheck className="h-6 w-6 text-primary" /> Welcome back</>
+                )}
               </DialogTitle>
               <DialogDescription>
-                This phone number already belongs to a writer account.
-                Enter your <b>4-digit PIN</b> so we can attach this submission to your profile —
-                you'll see it under <i>My blogs</i> when you sign in.
+                {existingStatus === "pending" ? (
+                  <>
+                    You already sent a writer request from this phone number, and it's <b>still waiting for admin approval</b>.
+                    You had set a <b>4-digit PIN</b> then — please enter it again so we can attach this new blog to that same
+                    pending request. Both will be reviewed together, and you'll be notified once your writer account is approved.
+                  </>
+                ) : (
+                  <>
+                    This phone number already belongs to a writer account.
+                    Enter your <b>4-digit PIN</b> so we can attach this submission to your profile —
+                    you'll see it under <i>My blogs</i> when you sign in.
+                  </>
+                )}
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleExistingPin} className="space-y-4">
@@ -297,7 +311,7 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
               <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
                 <Button type="button" variant="ghost" onClick={() => setStep("form")} disabled={busy}>Back</Button>
                 <Button type="submit" className="flex-1 h-12" disabled={busy}>
-                  {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Verify PIN & submit"}
+                  {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : existingStatus === "pending" ? "Verify PIN & attach blog" : "Verify PIN & submit"}
                 </Button>
               </DialogFooter>
               <p className="text-xs text-muted-foreground text-center">
