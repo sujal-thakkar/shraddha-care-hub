@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PenLine, Search, Loader2, UserPlus, User as UserIcon, Clock, UserCircle, ChevronLeft, ChevronRight, Heart } from "lucide-react";
 import { stripKindMarker } from "@/lib/markdown-lite";
-import { coverImageOrDefault } from "@/lib/blog-cover";
+import { coverImageOrDefault, DEFAULT_BLOG_COVER_URL } from "@/lib/blog-cover";
 import { useI18n } from "@/i18n";
 import { inferCategory, CATEGORY_META, type BlogCategory } from "@/lib/blog-category";
 
@@ -287,7 +287,18 @@ export default function Blog() {
                 <Link to={`/blog/${b.slug ?? b.id}`} key={b.id}>
                   <Card className="h-full hover:shadow-lg transition-shadow overflow-hidden">
                     <div className="aspect-[16/9] w-full overflow-hidden bg-muted">
-                      <img src={coverImageOrDefault(b.cover_image_url)} alt={b.title} className="w-full h-full object-cover" loading="lazy" />
+                      <img
+                        src={coverImageOrDefault(b.cover_image_url)}
+                        alt={b.title}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                        onError={(e) => {
+                          const img = e.currentTarget;
+                          if (img.src !== DEFAULT_BLOG_COVER_URL && !img.src.endsWith(DEFAULT_BLOG_COVER_URL)) {
+                            img.src = DEFAULT_BLOG_COVER_URL;
+                          }
+                        }}
+                      />
                     </div>
                     <CardHeader>
                       <div className="flex items-center justify-between gap-2 mb-1 flex-wrap">
