@@ -67,21 +67,23 @@ export default function BlogWriteGuest() {
     try { localStorage.setItem(BACKUP_KEY, JSON.stringify({ title, body, kind, ts: Date.now() })); } catch {}
   }, [title, body, kind]);
 
-  const handleSubmit = async ({ guest_name, guest_phone, author_id }: { guest_name: string; guest_phone: string; author_id: string | null }) => {
-    // If the submission is linked to a real writer profile (author_id set),
-    // it's not a guest submission — it just came through the guest form.
-    const linked = !!author_id;
+  const handleSubmit = async ({ guest_name, guest_phone, author_id, is_approved_writer }: { guest_name: string; guest_phone: string; author_id: string | null; is_approved_writer: boolean }) => {
+    // Rule: this stays a "guest" submission until the author has an *approved* writer profile.
+    // - No account at all → guest, no author_id.
+    // - Brand-new account (still pending approval) → guest, but linked via author_id so admin approval
+    //   automatically flips it to a normal writer blog (see admin_approve_writer).
+    // - Existing approved writer → not guest, just came through the guest form.
+    const treatAsGuest = !author_id || !is_approved_writer;
     const { error } = await supabase.from("blogs").insert({
       title: title.trim() || "Untitled",
       body,
       status: "submitted",
-      is_guest: !linked,
-      guest_name: linked ? null : guest_name,
-      guest_phone: linked ? null : guest_phone,
+      is_guest: treatAsGuest,
+      guest_name: treatAsGuest ? guest_name : null,
+      guest_phone: treatAsGuest ? guest_phone : null,
       author_id,
     });
     if (error) return { ok: false as const, error: error.message };
-    // Clear local backup on success.
     try { localStorage.removeItem(BACKUP_KEY); } catch {}
     return { ok: true as const };
   };
