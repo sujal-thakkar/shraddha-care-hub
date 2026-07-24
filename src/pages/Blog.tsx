@@ -30,11 +30,14 @@ type SortMode = "recommended" | "popular" | "newest" | "oldest";
 const PAGE_SIZE = 12;
 
 export default function Blog() {
-  const { t } = useI18n();
+  const { t, lang: uiLang } = useI18n();
   const [blogs, setBlogs] = useState<BlogRow[]>([]);
   const [authors, setAuthors] = useState<Record<string, string>>({});
+  const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
   const [q, setQ] = useState("");
   const [lang, setLang] = useState<string>("all");
+  const [category, setCategory] = useState<"all" | BlogCategory>("all");
+  const [sort, setSort] = useState<SortMode>("recommended");
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<any>(null);
   const [profileStatus, setProfileStatus] = useState<string | null>(null);
@@ -68,6 +71,7 @@ export default function Blog() {
         .order("published_at", { ascending: false });
       const rows = (data ?? []) as BlogRow[];
       setBlogs(rows);
+
       const ids = Array.from(new Set(rows.filter((r) => !r.is_guest && r.author_id).map((r) => r.author_id)));
       if (ids.length) {
         const { data: profiles } = await supabase.rpc("get_authors_public", { _user_ids: ids });
@@ -75,16 +79,54 @@ export default function Blog() {
         (profiles ?? []).forEach((p: any) => { map[p.user_id] = p.full_name || "Anonymous"; });
         setAuthors(map);
       }
+
+      // Popularity = like counts. Aggregate client-side from blog_likes.
+      const blogIds = rows.map((r) => r.id);
+      if (blogIds.length) {
+        const { data: likes } = await supabase
+          .from("blog_likes")
+          .select("blog_id")
+          .in("blog_id", blogIds);
+        const counts: Record<string, number> = {};
+        (likes ?? []).forEach((l: any) => { counts[l.blog_id] = (counts[l.blog_id] || 0) + 1; });
+        setLikeCounts(counts);
+      }
+
       setLoading(false);
     })();
   }, []);
 
-  const filtered = useMemo(() => blogs.filter((b) => {
-    if (lang !== "all" && b.language !== lang) return false;
-    if (!q) return true;
-    const needle = q.toLowerCase();
-    return b.title.toLowerCase().includes(needle) || b.body.toLowerCase().includes(needle);
-  }), [blogs, lang, q]);
+  // Per-blog inferred category (memoized).
+  const blogCategories = useMemo(() => {
+    const m: Record<string, BlogCategory> = {};
+    blogs.forEach((b) => { m[b.id] = inferCategory(b.title, b.body); });
+    return m;
+  }, [blogs]);
+
+  const filtered = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    let list = blogs.filter((b) => {
+      if (lang !== "all" && b.language !== lang) return false;
+      if (category !== "all" && blogCategories[b.id] !== category) return false;
+      if (!needle) return true;
+      const authorName = b.is_guest ? (b.guest_name || "") : (authors[b.author_id] || "");
+      return (
+        b.title.toLowerCase().includes(needle) ||
+        b.body.toLowerCase().includes(needle) ||
+        authorName.toLowerCase().includes(needle)
+      );
+    });
+
+    if (sort === "popular") {
+      list = [...list].sort((a, b) => (likeCounts[b.id] || 0) - (likeCounts[a.id] || 0));
+    } else if (sort === "newest") {
+      list = [...list].sort((a, b) => new Date(b.published_at || 0).getTime() - new Date(a.published_at || 0).getTime());
+    } else if (sort === "oldest") {
+      list = [...list].sort((a, b) => new Date(a.published_at || 0).getTime() - new Date(b.published_at || 0).getTime());
+    }
+    // "recommended" keeps server order (sort_order → published_at desc)
+    return list;
+  }, [blogs, lang, q, category, sort, blogCategories, authors, likeCounts]);
 
   const languages = Array.from(new Set(blogs.map((b) => b.language).filter(Boolean))) as string[];
 
@@ -92,10 +134,8 @@ export default function Blog() {
   const currentPage = Math.min(page, totalPages);
   const paged = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
-  // Reset to page 1 when filters change
-  useEffect(() => { setPage(1); }, [q, lang]);
+  useEffect(() => { setPage(1); }, [q, lang, category, sort]);
 
-  // Scroll to top of list on page change
   useEffect(() => {
     if (currentPage > 1) window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentPage]);
