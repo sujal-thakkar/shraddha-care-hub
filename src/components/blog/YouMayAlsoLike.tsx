@@ -63,18 +63,12 @@ export function YouMayAlsoLike({ excludeId }: { excludeId: string }) {
             className="group block rounded-2xl overflow-hidden border border-border bg-card hover:shadow-lg hover:-translate-y-0.5 transition-all"
           >
             <div className="aspect-[16/10] bg-muted overflow-hidden">
-              {b.cover_image_url ? (
-                <img
-                  src={b.cover_image_url}
-                  alt={b.title}
-                  loading="lazy"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                  <BookOpen className="h-10 w-10 text-primary/40" />
-                </div>
-              )}
+              <img
+                src={coverImageOrDefault(b.cover_image_url)}
+                alt={b.title}
+                loading="lazy"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
             </div>
             <div className="p-5">
               <h3 className="font-serif text-lg font-semibold leading-snug line-clamp-2 group-hover:text-primary transition-colors">
