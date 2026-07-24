@@ -12,8 +12,9 @@ import { Loader2, LogOut, PenLine, KeyRound, User, Trash2, Save, Camera } from "
 import { useToast } from "@/hooks/use-toast";
 import { composePassword, isValidPin } from "@/lib/phone-auth";
 import { AuthorAvatar } from "@/components/blog/AuthorAvatar";
+import { useI18n } from "@/i18n";
 
-const STATUS_LABEL: Record<string, string> = {
+const STATUS_KEY: Record<string, string> = {
   draft: "Draft",
   submitted: "Under review",
   under_review: "Under review",
@@ -35,6 +36,7 @@ const STATUS_COLOR: Record<string, string> = {
 export default function Profile() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useI18n();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
   const [blogs, setBlogs] = useState<any[]>([]);
