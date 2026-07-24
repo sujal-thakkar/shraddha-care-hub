@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, CheckCircle2, XCircle, Phone, Search } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, Phone, Search, Trash2 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { toE164, validatePhone } from "@/lib/phone-auth";
 
 type Writer = {
   user_id: string;
@@ -29,6 +30,7 @@ export default function AdminWriters() {
   const [busy, setBusy] = useState<string | null>(null);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [cleanupPhone, setCleanupPhone] = useState("");
 
   const load = async () => {
     setLoading(true);
@@ -62,6 +64,33 @@ export default function AdminWriters() {
     load();
   };
 
+  const deleteWriterAccount = async (writer: Writer) => {
+    const label = writer.phone_e164 || writer.full_name || "this writer";
+    if (!confirm(`Permanently delete ${label}? This removes the writer account, PIN, profile, and linked blogs. This cannot be undone.`)) return;
+    setBusy(writer.user_id);
+    const { data, error } = await supabase.functions.invoke("delete-writer-account", {
+      body: { userId: writer.user_id, phoneE164: writer.phone_e164 },
+    });
+    setBusy(null);
+    if (error || data?.error) return toast({ title: "Delete failed", description: (error as any)?.message || data?.error, variant: "destructive" });
+    toast({ title: "Writer account deleted", description: "The phone/PIN can now be registered again." });
+    load();
+  };
+
+  const cleanupDeletedPhone = async () => {
+    const v = validatePhone("+91", cleanupPhone);
+    if (!v.ok) return toast({ title: "Check phone number", description: v.msg, variant: "destructive" });
+    const phoneE164 = cleanupPhone.trim().startsWith("+") ? cleanupPhone.trim().replace(/[\s-]/g, "") : toE164("+91", v.digits);
+    if (!confirm(`Delete any hidden writer account/PIN for ${phoneE164}? Use this only after a profile was manually removed.`)) return;
+    setBusy("cleanup-phone");
+    const { data, error } = await supabase.functions.invoke("delete-writer-account", { body: { phoneE164 } });
+    setBusy(null);
+    if (error || data?.error) return toast({ title: "Cleanup failed", description: (error as any)?.message || data?.error, variant: "destructive" });
+    setCleanupPhone("");
+    toast({ title: "Phone/PIN cleaned", description: "This phone can now sign up again." });
+    load();
+  };
+
   const filtered = useMemo(
     () => rows.filter((r) => r.status === filter &&
       (!q.trim() || (r.full_name || "").toLowerCase().includes(q.toLowerCase()) || (r.phone_e164 || "").includes(q))),
@@ -86,6 +115,28 @@ export default function AdminWriters() {
           <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name or phone" className="pl-9 w-64" />
         </div>
       </div>
+
+      <Card className="border-amber-200 bg-amber-50/50">
+        <CardContent className="py-4">
+          <div className="flex flex-col md:flex-row md:items-center gap-3 justify-between">
+            <div>
+              <div className="font-medium text-sm">Clean up a manually deleted phone/PIN</div>
+              <p className="text-xs text-muted-foreground">Use this if a profile was removed from the database but signup still says the phone is already registered.</p>
+            </div>
+            <div className="flex gap-2 w-full md:w-auto">
+              <Input
+                value={cleanupPhone}
+                onChange={(e) => setCleanupPhone(e.target.value.replace(/[^\d+\s-]/g, ""))}
+                placeholder="10-digit India number"
+                className="md:w-56"
+              />
+              <Button type="button" variant="outline" onClick={cleanupDeletedPhone} disabled={busy === "cleanup-phone"}>
+                {busy === "cleanup-phone" ? <Loader2 className="h-4 w-4 animate-spin" /> : "Clean"}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <Tabs value={filter} onValueChange={(v) => setFilter(v as any)}>
         <TabsList>
@@ -141,6 +192,9 @@ export default function AdminWriters() {
                         <XCircle className="h-4 w-4 mr-1" /> Reject
                       </Button>
                     )}
+                    <Button size="sm" variant="destructive" onClick={() => deleteWriterAccount(w)} disabled={busy === w.user_id}>
+                      <Trash2 className="h-4 w-4 mr-1" /> Delete account + PIN
+                    </Button>
                   </div>
                 )}
               </CardContent>

@@ -92,6 +92,15 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
     const authorId = data.user.id;
     // Look up whether this writer is already approved — decides guest vs. non-guest tagging.
     const { data: prof } = await supabase.from("profiles").select("status").eq("user_id", authorId).maybeSingle();
+    if (!prof) {
+      await supabase.auth.signOut();
+      setBusy(false);
+      return toast({
+        title: "Writer record needs cleanup",
+        description: "This phone still has an old PIN, but its writer profile was removed. Please ask an admin to delete/reset this phone from Writers.",
+        variant: "destructive",
+      });
+    }
     const approved = (prof as any)?.status === "approved";
     // Insert while signed in so RLS sees auth.uid() = author_id, then sign out.
     const res = await onSubmit({ guest_name: name.trim(), guest_phone: e164, author_id: authorId, is_approved_writer: approved });
@@ -122,16 +131,17 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
     });
     // If signup says "user already exists" (e.g. an earlier attempt half-succeeded),
     // fall back to signing in with the same PIN so we can still attach this blog.
-    if (error && /already/i.test(error.message)) {
+    if (error && /already|registered/i.test(error.message)) {
       const signIn = await supabase.auth.signInWithPassword({
         email: syntheticEmail(e164),
         password: composePassword(e164, pin),
       });
       if (signIn.error || !signIn.data.user) {
         setBusy(false);
+        setStep("existing-pin");
         return toast({
-          title: "This phone is already registered",
-          description: "Enter the PIN you set earlier, or contact an admin to reset it.",
+          title: "This phone already has a PIN",
+          description: "Enter the PIN set earlier, or contact an admin to delete/reset this phone.",
           variant: "destructive",
         });
       }
@@ -147,6 +157,15 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
     // Brand-new signup → writer is `pending` by default → treat as guest until admin approves.
     // If signup fell back to signInWithPassword (account existed), the writer might already be approved — check.
     const { data: prof } = await supabase.from("profiles").select("status").eq("user_id", authorId).maybeSingle();
+    if (!prof) {
+      await supabase.auth.signOut();
+      setBusy(false);
+      return toast({
+        title: "Writer record needs cleanup",
+        description: "This phone still has an old PIN, but its writer profile was removed. Please ask an admin to delete/reset this phone from Writers.",
+        variant: "destructive",
+      });
+    }
     const approved = (prof as any)?.status === "approved";
     const res = await onSubmit({ guest_name: name.trim(), guest_phone: e164, author_id: authorId, is_approved_writer: approved });
     await supabase.auth.signOut();
