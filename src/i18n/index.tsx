@@ -222,6 +222,12 @@ const dict: Record<string, Record<Lang, string>> = {
     bn: "নতুবা একটি PIN সেট করুন (সুপারিশকৃত!) বা এককালীন অতিথি হিসেবে চালিয়ে যান।",
   },
   "Continue to submit": { en: "Continue to submit", bn: "জমা দিতে এগিয়ে যান" },
+  "Blog content": { en: "Blog content", bn: "ব্লগের বিষয়বস্তু" },
+  "Write your blog here…": { en: "Write your blog here…", bn: "এখানে আপনার ব্লগ লিখুন…" },
+  "Write your poem here — every line break is preserved…": {
+    en: "Write your poem here — every line break is preserved…",
+    bn: "এখানে কবিতা লিখুন — প্রতিটি লাইন বিরতি রক্ষিত হবে…",
+  },
 
   // Guest submit dialog
   "Almost there — a few quick details": { en: "Almost there — a few quick details", bn: "প্রায় শেষ — কিছু দ্রুত বিবরণ" },
