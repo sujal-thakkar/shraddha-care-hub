@@ -83,30 +83,41 @@ async function sha256Hex(input: string): Promise<string> {
   return [...new Uint8Array(hash)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 async function synthesize(
   murfKey: string,
   segment: { lang: Lang; text: string },
 ): Promise<Uint8Array> {
   const voice = VOICES[segment.lang];
-  const res = await fetch("https://global.api.murf.ai/v1/speech/stream", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "api-key": murfKey },
-    body: JSON.stringify({
-      voiceId: voice.voiceId,
-      style: voice.style,
-      locale: voice.locale,
-      text: segment.text,
-      model: "FALCON",
-      format: "MP3",
-      sampleRate: 24000,
-      channelType: "MONO",
-    }),
+  const body = JSON.stringify({
+    voiceId: voice.voiceId,
+    style: voice.style,
+    locale: voice.locale,
+    text: segment.text,
+    model: "FALCON",
+    format: "MP3",
+    sampleRate: 24000,
+    channelType: "MONO",
   });
-  if (!res.ok) {
-    const err = await res.text().catch(() => "");
-    throw new Error(`Murf ${res.status} (${voice.voiceId}/${voice.locale}): ${err}`);
+
+  // Retry on 429 (concurrency) with exponential backoff. Murf's free/basic
+  // plans allow ~1 concurrent request, so callers serialize; this backoff
+  // handles transient overlap with other in-flight tenants.
+  let lastErr = "";
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const res = await fetch("https://global.api.murf.ai/v1/speech/stream", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "api-key": murfKey },
+      body,
+    });
+    if (res.ok) return new Uint8Array(await res.arrayBuffer());
+    const errText = await res.text().catch(() => "");
+    lastErr = `Murf ${res.status} (${voice.voiceId}/${voice.locale}): ${errText}`;
+    if (res.status !== 429) throw new Error(lastErr);
+    await sleep(800 * Math.pow(2, attempt)); // 0.8s, 1.6s, 3.2s, 6.4s, 12.8s
   }
-  return new Uint8Array(await res.arrayBuffer());
+  throw new Error(lastErr || "Murf synthesis failed");
 }
 
 function concatBytes(parts: Uint8Array[]): Uint8Array {
