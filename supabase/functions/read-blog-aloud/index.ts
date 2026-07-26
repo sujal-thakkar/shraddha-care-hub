@@ -208,9 +208,11 @@ serve(async (req) => {
       for (const c of chunkForApi(r.text)) jobs.push({ lang: r.lang, text: c });
     }
 
-    // Fire concurrently to minimise wall-clock latency; Murf per-request
-    // billing is the same whether sequential or parallel.
-    const buffers = await Promise.all(jobs.map((j) => synthesize(murfKey, j)));
+    // Serialize calls — Murf plan enforces a strict concurrency cap and
+    // parallel calls come back as 429. Sequential + retry is reliable and
+    // still fast for typical blog lengths (usually 1–3 segments).
+    const buffers: Uint8Array[] = [];
+    for (const j of jobs) buffers.push(await synthesize(murfKey, j));
     const combined = concatBytes(buffers);
 
     await supabase.storage.from("blog-audio").upload(objectPath, combined, {
