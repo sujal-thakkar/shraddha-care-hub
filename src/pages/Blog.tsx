@@ -162,7 +162,7 @@ export default function Blog() {
     <Layout>
 
       <section className="container max-w-6xl px-4 py-12 md:py-16">
-        <BlogSubscribe variant="banner" className="mb-10" />
+        <div id="subscribe" className="scroll-mt-24"><BlogSubscribe variant="banner" className="mb-10" /></div>
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
           <div>
             <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground">{t("Blogs")}</h1>
