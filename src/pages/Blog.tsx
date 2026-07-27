@@ -11,6 +11,7 @@ import { stripKindMarker } from "@/lib/markdown-lite";
 import { coverImageOrDefault, DEFAULT_BLOG_COVER_URL } from "@/lib/blog-cover";
 import { useI18n } from "@/i18n";
 import { inferCategory, CATEGORY_META, type BlogCategory } from "@/lib/blog-category";
+import { BlogSubscribe } from "@/components/blog/BlogSubscribe";
 
 
 interface BlogRow {
@@ -161,6 +162,7 @@ export default function Blog() {
     <Layout>
 
       <section className="container max-w-6xl px-4 py-12 md:py-16">
+        <BlogSubscribe variant="banner" className="mb-10" />
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
           <div>
             <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground">{t("Blogs")}</h1>
