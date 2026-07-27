@@ -12,6 +12,7 @@ import { blogPreviewUrl } from "@/lib/preview";
 import { AuthorAvatar } from "@/components/blog/AuthorAvatar";
 import { BlogLikes } from "@/components/blog/BlogLikes";
 import { BlogComments } from "@/components/blog/BlogComments";
+import { BlogSubscribe } from "@/components/blog/BlogSubscribe";
 import { YouMayAlsoLike } from "@/components/blog/YouMayAlsoLike";
 import { coverImageOrDefault } from "@/lib/blog-cover";
 import { useI18n } from "@/i18n";
@@ -272,6 +273,11 @@ export default function BlogRead() {
               </div>
             </Link>
           )}
+
+          {/* Subscribe */}
+          <div className="mt-16">
+            <BlogSubscribe />
+          </div>
 
           {/* Comments */}
           <BlogComments blogId={blog.id} />

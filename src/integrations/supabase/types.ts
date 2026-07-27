@@ -123,9 +123,10 @@ export type Database = {
           blog_id: string
           body: string
           created_at: string
-          email: string
+          email: string | null
           id: string
           name: string
+          phone: string | null
           status: string
           updated_at: string
           user_id: string | null
@@ -135,9 +136,10 @@ export type Database = {
           blog_id: string
           body: string
           created_at?: string
-          email: string
+          email?: string | null
           id?: string
           name: string
+          phone?: string | null
           status?: string
           updated_at?: string
           user_id?: string | null
@@ -147,9 +149,10 @@ export type Database = {
           blog_id?: string
           body?: string
           created_at?: string
-          email?: string
+          email?: string | null
           id?: string
           name?: string
+          phone?: string | null
           status?: string
           updated_at?: string
           user_id?: string | null
@@ -196,6 +199,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      blog_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          unsubscribe_token: string
+          updated_at: string
+          verified: boolean
+          verified_at: string | null
+          verify_token: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          unsubscribe_token?: string
+          updated_at?: string
+          verified?: boolean
+          verified_at?: string | null
+          verify_token?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          unsubscribe_token?: string
+          updated_at?: string
+          verified?: boolean
+          verified_at?: string | null
+          verify_token?: string
+        }
+        Relationships: []
       }
       blogs: {
         Row: {

@@ -139,6 +139,48 @@ serve(async (req) => {
       console.warn("Author notification failed:", e);
     }
 
+    // Notify verified subscribers on first-time publish
+    try {
+      const resendApiKey = Deno.env.get("RESEND_API_KEY");
+      const isFirstPublish = action === "publish" && !blog.published_at;
+      if (resendApiKey && isFirstPublish) {
+        const { data: subs } = await service
+          .from("blog_subscribers")
+          .select("email, unsubscribe_token")
+          .eq("verified", true);
+        const slug = (updates as any).slug ?? blog.slug ?? blog.id;
+        const readUrl = `https://shraddhango.lovable.app/blog/${slug}`;
+        const projectRef = (Deno.env.get("SUPABASE_URL") || "").match(/https:\/\/([^.]+)\./)?.[1];
+        const fnBase = `https://${projectRef}.supabase.co/functions/v1`;
+        for (const s of subs ?? []) {
+          const unsubUrl = `${fnBase}/blog-unsubscribe?token=${(s as any).unsubscribe_token}`;
+          const html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;color:#111">
+            <h2 style="color:#0a7e5f;margin-top:0">A new blog just dropped 💚</h2>
+            <p style="font-size:18px"><strong>${blog.title}</strong></p>
+            <p style="text-align:center;margin:28px 0">
+              <a href="${readUrl}" style="background:#0a7e5f;color:#fff;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:600">Read the blog</a>
+            </p>
+            <hr style="margin:24px 0;border:none;border-top:1px solid #eee"/>
+            <p style="font-size:12px;color:#888">You're getting this because you subscribed to Shraddha Blogs. <a href="${unsubUrl}" style="color:#888">Unsubscribe</a>.</p>
+          </div>`;
+          // Fire and forget — don't block publishing on email
+          fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${resendApiKey}` },
+            body: JSON.stringify({
+              from: "Shraddha Blogs <notifications@hosla.in>",
+              to: [(s as any).email],
+              subject: `New blog: ${blog.title}`,
+              html,
+              headers: { "List-Unsubscribe": `<${unsubUrl}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" },
+            }),
+          }).catch((e) => console.warn("Subscriber send failed:", e));
+        }
+      }
+    } catch (e) {
+      console.warn("Subscriber notification failed:", e);
+    }
+
     return new Response(JSON.stringify({ success: true, updates }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

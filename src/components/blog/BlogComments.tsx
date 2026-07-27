@@ -23,7 +23,7 @@ export function BlogComments({ blogId }: { blogId: string }) {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [website, setWebsite] = useState("");
   const [body, setBody] = useState("");
   const [saveInfo, setSaveInfo] = useState(true);
@@ -45,7 +45,7 @@ export function BlogComments({ blogId }: { blogId: string }) {
     try {
       const saved = JSON.parse(localStorage.getItem(SAVED_KEY) || "{}");
       if (saved.name) setName(saved.name);
-      if (saved.email) setEmail(saved.email);
+      if (saved.phone) setPhone(saved.phone);
       if (saved.website) setWebsite(saved.website);
     } catch {}
   }, [blogId]);
@@ -53,14 +53,15 @@ export function BlogComments({ blogId }: { blogId: string }) {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const n = name.trim();
-    const em = email.trim();
+    const p = phone.replace(/[^\d+]/g, "");
     const b = body.trim();
-    if (!n || !em || !b) {
-      toast({ title: "Please fill your name, email and comment", variant: "destructive" });
+    if (!n || !p || !b) {
+      toast({ title: "Please fill your name, phone and comment", variant: "destructive" });
       return;
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) {
-      toast({ title: "Please enter a valid email", variant: "destructive" });
+    const digitsOnly = p.replace(/\D/g, "");
+    if (digitsOnly.length < 7 || digitsOnly.length > 15) {
+      toast({ title: "Please enter a valid phone number", variant: "destructive" });
       return;
     }
     if (b.length > 2000) {
@@ -79,18 +80,19 @@ export function BlogComments({ blogId }: { blogId: string }) {
       blog_id: blogId,
       user_id: sess.session?.user.id ?? null,
       name: n.slice(0, 100),
-      email: em.slice(0, 255),
+      phone: p.slice(0, 20),
+      email: null,
       website: siteClean,
       body: b,
       status: "approved",
-    });
+    } as any);
     setSubmitting(false);
     if (error) {
       toast({ title: "Couldn't post comment", description: error.message, variant: "destructive" });
       return;
     }
     if (saveInfo) {
-      try { localStorage.setItem(SAVED_KEY, JSON.stringify({ name: n, email: em, website: w })); } catch {}
+      try { localStorage.setItem(SAVED_KEY, JSON.stringify({ name: n, phone: p, website: w })); } catch {}
     } else {
       try { localStorage.removeItem(SAVED_KEY); } catch {}
     }
@@ -142,12 +144,12 @@ export function BlogComments({ blogId }: { blogId: string }) {
         <div>
           <h3 className="font-serif text-xl font-bold">Leave a Reply</h3>
           <p className="text-sm text-muted-foreground mt-1">
-            Your email address will not be published. Required fields are marked <span className="text-destructive">*</span>
+            Your phone number will not be published. Required fields are marked <span className="text-destructive">*</span>
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           <Input placeholder="Name *" value={name} onChange={(e) => setName(e.target.value)} maxLength={100} className="h-12 bg-background" required />
-          <Input placeholder="Email *" type="email" value={email} onChange={(e) => setEmail(e.target.value)} maxLength={255} className="h-12 bg-background" required />
+          <Input placeholder="Phone *" type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} maxLength={20} className="h-12 bg-background" required />
           <Input placeholder="Website" value={website} onChange={(e) => setWebsite(e.target.value)} maxLength={255} className="h-12 bg-background" />
         </div>
         <Textarea placeholder="Add Comment *" value={body} onChange={(e) => setBody(e.target.value)}
@@ -155,7 +157,7 @@ export function BlogComments({ blogId }: { blogId: string }) {
         <div className="flex items-start gap-2">
           <Checkbox id="save-info" checked={saveInfo} onCheckedChange={(v) => setSaveInfo(!!v)} className="mt-0.5" />
           <label htmlFor="save-info" className="text-sm text-muted-foreground cursor-pointer">
-            Save my name, email and website in this browser for the next time I comment.
+            Save my name, phone and website in this browser for the next time I comment.
           </label>
         </div>
         <Button type="submit" size="lg" disabled={submitting} className="h-12 px-8">
