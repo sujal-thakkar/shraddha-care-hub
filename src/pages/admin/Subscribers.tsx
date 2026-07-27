@@ -34,6 +34,17 @@ export default function Subscribers() {
 
   useEffect(() => { load(); }, []);
 
+  const verifyManually = async (id: string, email: string) => {
+    if (!confirm(`Mark ${email} as verified? They will start receiving new-blog notifications.`)) return;
+    const { error } = await supabase
+      .from("blog_subscribers" as any)
+      .update({ verified: true, verified_at: new Date().toISOString() })
+      .eq("id", id);
+    if (error) return toast({ title: "Verify failed", description: error.message, variant: "destructive" });
+    setRows((r) => r.map((x) => (x.id === id ? { ...x, verified: true, verified_at: new Date().toISOString() } : x)));
+    toast({ title: "Verified", description: `${email} will now get new-blog emails.` });
+  };
+
   const remove = async (id: string, email: string) => {
     if (!confirm(`Remove ${email} from the subscribers list?`)) return;
     const { error } = await supabase.from("blog_subscribers" as any).delete().eq("id", id);
@@ -116,9 +127,16 @@ export default function Subscribers() {
                       {r.verified_at && ` · Verified ${new Date(r.verified_at).toLocaleDateString()}`}
                     </p>
                   </div>
-                  <Button size="icon" variant="ghost" onClick={() => remove(r.id, r.email)} aria-label="Remove">
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    {!r.verified && (
+                      <Button size="sm" variant="outline" onClick={() => verifyManually(r.id, r.email)} className="text-primary border-primary/40 hover:bg-primary/10">
+                        <CheckCircle2 className="h-4 w-4 mr-1" /> Verify
+                      </Button>
+                    )}
+                    <Button size="icon" variant="ghost" onClick={() => remove(r.id, r.email)} aria-label="Remove">
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
