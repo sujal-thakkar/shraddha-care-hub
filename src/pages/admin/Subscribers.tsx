@@ -127,9 +127,16 @@ export default function Subscribers() {
                       {r.verified_at && ` · Verified ${new Date(r.verified_at).toLocaleDateString()}`}
                     </p>
                   </div>
-                  <Button size="icon" variant="ghost" onClick={() => remove(r.id, r.email)} aria-label="Remove">
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    {!r.verified && (
+                      <Button size="sm" variant="outline" onClick={() => verifyManually(r.id, r.email)} className="text-primary border-primary/40 hover:bg-primary/10">
+                        <CheckCircle2 className="h-4 w-4 mr-1" /> Verify
+                      </Button>
+                    )}
+                    <Button size="icon" variant="ghost" onClick={() => remove(r.id, r.email)} aria-label="Remove">
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
