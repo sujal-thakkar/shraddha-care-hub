@@ -34,6 +34,17 @@ export default function Subscribers() {
 
   useEffect(() => { load(); }, []);
 
+  const verifyManually = async (id: string, email: string) => {
+    if (!confirm(`Mark ${email} as verified? They will start receiving new-blog notifications.`)) return;
+    const { error } = await supabase
+      .from("blog_subscribers" as any)
+      .update({ verified: true, verified_at: new Date().toISOString() })
+      .eq("id", id);
+    if (error) return toast({ title: "Verify failed", description: error.message, variant: "destructive" });
+    setRows((r) => r.map((x) => (x.id === id ? { ...x, verified: true, verified_at: new Date().toISOString() } : x)));
+    toast({ title: "Verified", description: `${email} will now get new-blog emails.` });
+  };
+
   const remove = async (id: string, email: string) => {
     if (!confirm(`Remove ${email} from the subscribers list?`)) return;
     const { error } = await supabase.from("blog_subscribers" as any).delete().eq("id", id);
