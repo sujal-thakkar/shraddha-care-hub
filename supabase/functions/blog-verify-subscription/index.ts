@@ -3,23 +3,17 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SITE_URL = "https://shraddhango.lovable.app";
 
-function page(title: string, heading: string, body: string, accent = "#0a7e5f") {
-  return `<!doctype html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>${title}</title>
-  <style>
-    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif;background:#f6f7f5;color:#111;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
-    .card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;max-width:520px;width:100%;padding:40px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.04)}
-    h1{color:${accent};margin:0 0 12px;font-size:26px}
-    p{color:#444;line-height:1.6;margin:8px 0}
-    a.btn{display:inline-block;margin-top:20px;background:${accent};color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600}
-  </style></head><body><div class="card"><h1>${heading}</h1>${body}<a class="btn" href="${SITE_URL}/blog">Go to Blogs</a></div></body></html>`;
-}
-
 serve(async (req) => {
   const url = new URL(req.url);
   const token = url.searchParams.get("token") ?? "";
-  const html = (s: string) => new Response(s, { headers: { "Content-Type": "text/html; charset=utf-8" } });
-  if (!token) return html(page("Invalid link", "Invalid link", "<p>The confirmation link is missing a token.</p>", "#b91c1c"));
+  const redirect = (status: string, email = "") => {
+    const target = new URL(`${SITE_URL}/blog/subscribed`);
+    target.searchParams.set("status", status);
+    if (email) target.searchParams.set("email", email);
+    return new Response(null, { status: 302, headers: { Location: target.toString() } });
+  };
+
+  if (!token) return redirect("invalid");
 
   const service = createClient(
     Deno.env.get("SUPABASE_URL")!,
@@ -32,19 +26,14 @@ serve(async (req) => {
     .eq("verify_token", token)
     .maybeSingle();
 
-  if (!sub) return html(page("Invalid link", "Link not recognized", "<p>This link may have expired or already been used.</p>", "#b91c1c"));
+  if (!sub) return redirect("invalid");
 
   if (!sub.verified) {
     await service
       .from("blog_subscribers")
       .update({ verified: true, verified_at: new Date().toISOString() })
       .eq("id", sub.id);
+    return redirect("verified", sub.email);
   }
-
-  return html(page(
-    "Subscription confirmed",
-    "You're in! 💚",
-    `<p>Thanks — <strong>${sub.email}</strong> is now subscribed to Shraddha Blogs.</p>
-     <p>We'll email you whenever a new blog drops. You can unsubscribe from any email.</p>`
-  ));
+  return redirect("already", sub.email);
 });

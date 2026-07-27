@@ -31,6 +31,7 @@ const BlogWrite = lazy(() => import("./pages/BlogWrite"));
 const BlogWriteGuest = lazy(() => import("./pages/BlogWriteGuest"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Author = lazy(() => import("./pages/Author"));
+const BlogSubscribed = lazy(() => import("./pages/BlogSubscribed"));
 const AdminLogin = lazy(() => import("./pages/admin/Login"));
 const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
 const AdminOverview = lazy(() => import("./pages/admin/Overview"));
@@ -97,6 +98,7 @@ const App = () => {
             <Route path="/blog/write" element={<BlogWrite />} />
             <Route path="/blog/write-guest" element={<BlogWriteGuest />} />
             <Route path="/blog/my-stories" element={<Navigate to="/profile" replace />} />
+            <Route path="/blog/subscribed" element={<BlogSubscribed />} />
             <Route path="/blog/:slug" element={<BlogRead />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/author/:userId" element={<Author />} />
