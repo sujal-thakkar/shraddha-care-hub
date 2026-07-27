@@ -51,6 +51,7 @@ const AdminCollaborateContent = lazy(() => import("./pages/admin/CollaborateCont
 const AdminBlogs = lazy(() => import("./pages/admin/Blogs"));
 const AdminWriters = lazy(() => import("./pages/admin/Writers"));
 const AdminNewsletters = lazy(() => import("./pages/admin/Newsletters"));
+const AdminSubscribers = lazy(() => import("./pages/admin/Subscribers"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -118,6 +119,7 @@ const App = () => {
               <Route path="blogs" element={<AdminBlogs />} />
               <Route path="writers" element={<AdminWriters />} />
               <Route path="newsletters" element={<AdminNewsletters />} />
+              <Route path="subscribers" element={<AdminSubscribers />} />
               <Route path="settings" element={<AdminSettings />} />
             </Route>
             <Route path="*" element={<NotFound />} />
