@@ -149,7 +149,7 @@ serve(async (req) => {
           .select("email, unsubscribe_token")
           .eq("verified", true);
         const slug = (updates as any).slug ?? blog.slug ?? blog.id;
-        const readUrl = `https://shraddhango.lovable.app/blog/${slug}`;
+        const readUrl = `https://shraddha.hosla.in/blog/${slug}`;
         const projectRef = (Deno.env.get("SUPABASE_URL") || "").match(/https:\/\/([^.]+)\./)?.[1];
         const fnBase = `https://${projectRef}.supabase.co/functions/v1`;
         for (const s of subs ?? []) {

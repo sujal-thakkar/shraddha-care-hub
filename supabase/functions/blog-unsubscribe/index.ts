@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const SITE_URL = "https://shraddhango.lovable.app";
+const SITE_URL = "https://shraddha.hosla.in";
 
 function page(heading: string, body: string, accent = "#0a7e5f") {
   return `<!doctype html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
