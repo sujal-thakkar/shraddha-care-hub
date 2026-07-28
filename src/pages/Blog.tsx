@@ -32,6 +32,15 @@ const PAGE_SIZE = 12;
 
 export default function Blog() {
   const { t, lang: uiLang } = useI18n();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // DLT-compliant query-parameter URL support: /blog?slug=xxx → /blog/xxx
+  useEffect(() => {
+    const slug = searchParams.get("slug");
+    if (slug) navigate(`/blog/${slug}`, { replace: true });
+  }, [searchParams, navigate]);
+
   const [blogs, setBlogs] = useState<BlogRow[]>([]);
   const [authors, setAuthors] = useState<Record<string, string>>({});
   const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
