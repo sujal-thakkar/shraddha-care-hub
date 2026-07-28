@@ -35,9 +35,17 @@ export default function Blog() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // DLT-compliant query-parameter URL support: /blog?slug=xxx → /blog/xxx
+  // DLT-compliant query-parameter URL support:
+  //   /blog?slug=xxx  → /blog/xxx  (keyed form)
+  //   /blog?xxx       → /blog/xxx  (bare form, what our SMS operator generates)
   useEffect(() => {
-    const slug = searchParams.get("slug");
+    let slug = searchParams.get("slug");
+    if (!slug) {
+      const raw = window.location.search.replace(/^\?/, "");
+      if (raw && !raw.includes("=") && !raw.includes("&")) {
+        slug = decodeURIComponent(raw);
+      }
+    }
     if (slug) navigate(`/blog/${slug}`, { replace: true });
   }, [searchParams, navigate]);
 

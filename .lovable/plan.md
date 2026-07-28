@@ -1,40 +1,41 @@
-## Goal
-Support DLT-compliant query-parameter blog URLs (e.g. `https://shraddha.hosla.in/blog?slug=bank-the-inner-bank-15e69f`) for SMS notifications, without breaking the existing `/blog/:slug` path URLs used everywhere else (SEO, sharing, OG previews).
+## Problem
+DLT whitelisting accepted `https://shraddha.hosla.in/blog?` as the dynamic URL prefix. The SMS links being generated look like:
 
-## Why not change `/blog/xxx` → `?blog?xxx`
-- `?blog?xxx` is not a valid URL (only one `?` is allowed; the second `?` becomes part of the query string).
-- Replacing `/blog/:slug` with `/blog?slug=` sitewide would break every existing shared link, WhatsApp share, Google index entry, OG preview, and the `blog-preview` edge function's crawler routing.
-- We only need the query form to satisfy the DLT validator for SMS links — nothing else.
+```
+https://shraddha.hosla.in/blog?gita-dhyanam-3be702
+```
 
-## Recommended approach — dual routing
-Make `/blog?slug=xxx` a valid alternative that renders the same blog, then use only that form in SMS. Keep `/blog/:slug` as the canonical URL for everything else.
+Not `?slug=gita-dhyanam-3be702`. The current `Blog.tsx` redirect only handles `?slug=<value>` (via `searchParams.get("slug")`), so a bare `?<slug>` query string has no matching key and the page just renders the blog listing.
 
-### Changes
+## Fix
+Extend the redirect logic in `src/pages/Blog.tsx` to accept **both** query formats:
 
-1. **`src/pages/Blog.tsx`** — on mount, if `location.search` has `?slug=<value>`, redirect (`navigate(`/blog/${slug}`, { replace: true })`) so the existing BlogRead page loads. This means the DLT-whitelisted `https://shraddha.hosla.in/blog?slug=...` works for real users; the URL bar then shows the canonical path.
-   - Alternative (if you prefer the URL to stay as `?slug=`): render `<BlogRead>` inline from `Blog.tsx` when a `slug` query param is present, without redirecting. Slightly more code but keeps the DLT-form URL visible.
+1. `?slug=<slug>` — existing behavior (keyed param).
+2. `?<slug>` — new: when `location.search` is a single token with no `=`, treat everything after `?` as the slug.
 
-2. **SMS notification templates (DLT registration + `publish-blog` edge function)** — whenever a blog URL is placed inside an SMS body, format it as:
-   ```
-   https://shraddha.hosla.in/blog?slug=<slug>
-   ```
-   DLT registration then uses:
-   - URL: `https://shraddha.hosla.in/blog?`
-   - Sample: `https://shraddha.hosla.in/blog?slug=bank-the-inner-bank-15e69f`
-   These match the validator.
+Pseudocode inside the existing `useEffect`:
 
-3. **Everywhere else (email notifications, social share, OG previews, sitemap, admin links, `blog-preview` function)** — keep using `/blog/:slug`. No change. Preserves SEO and existing shared links.
+```ts
+const raw = location.search.replace(/^\?/, "");
+let slug = searchParams.get("slug");
+if (!slug && raw && !raw.includes("=") && !raw.includes("&")) {
+  slug = decodeURIComponent(raw);
+}
+if (slug) navigate(`/blog/${slug}`, { replace: true });
+```
 
-### Which sub-option do you want?
-- **A. Redirect** `?slug=` → `/blog/:slug` on arrival (simpler, cleaner URL bar, still passes DLT because the whitelisted link is what's *sent* in the SMS — user redirect after click is allowed by DLT).
-- **B. Render in place** at `/blog?slug=...` (URL stays in query form after click).
+Guard against accidentally matching real query strings (e.g. `?utm_source=...`) by requiring no `=` and no `&`.
 
-Option A is the standard pattern and what most DLT-registered sites do. I'd recommend A unless you know your operator inspects post-redirect URLs.
+## SMS link format
+After this fix, either of these will work in SMS bodies and satisfy the DLT whitelist prefix `https://shraddha.hosla.in/blog?`:
+
+- `https://shraddha.hosla.in/blog?gita-dhyanam-3be702` (shorter, what your operator is generating now)
+- `https://shraddha.hosla.in/blog?slug=gita-dhyanam-3be702`
+
+Both transparently redirect to `/blog/<slug>`.
 
 ## Out of scope
-- No changes to sitemap, RSS, OG cards, edge functions serving crawlers, or existing shared paths.
-- No schema changes.
+No changes to routing config, edge functions, sitemap, OG previews, or the `/blog/:slug` canonical path.
 
-## Technical notes
-- React Router: read `useSearchParams()` in `Blog.tsx`; if `slug` present, call `navigate` in a `useEffect` before the listing renders.
-- SPA fallback on Lovable hosting already serves `index.html` for `/blog` with any query string, so no infra config needed.
+## Files touched
+- `src/pages/Blog.tsx` — expand the query-param redirect (≈5 lines).
