@@ -300,27 +300,30 @@ export default function EventRegistration() {
                 )}
               </div>
 
-              {canRegister && (
-                <Button
-                  size="lg"
-                  className="mt-2 group"
-                  onClick={() => document.getElementById("register")?.scrollIntoView({ behavior: "smooth" })}
-                >
-                  Register Now
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Button>
-              )}
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
+                {canRegister && (
+                  <Button
+                    size="lg"
+                    className="mt-2 group"
+                    onClick={() => document.getElementById("register")?.scrollIntoView({ behavior: "smooth" })}
+                  >
+                    Register Now
+                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </Button>
+                )}
 
-              {showHighlights && gallery.length > 0 && (
-                <Button
-                  size="lg"
-                  className="mt-2 group"
-                  onClick={() => document.getElementById("highlights")?.scrollIntoView({ behavior: "smooth" })}
-                >
-                  <Images className="mr-2 h-4 w-4" />
-                  View Highlights
-                </Button>
-              )}
+                {gallery.length > 0 && (
+                  <Button
+                    size="lg"
+                    variant={canRegister ? "outline" : "default"}
+                    className="mt-2 group"
+                    onClick={() => document.getElementById("highlights")?.scrollIntoView({ behavior: "smooth" })}
+                  >
+                    <Images className="mr-2 h-4 w-4" />
+                    View Highlights
+                  </Button>
+                )}
+              </div>
             </div>
 
             {event.banner_url && (
