@@ -140,8 +140,52 @@ export default function Register() {
               ))}
             </div>
           )}
+
+          {highlightEvents.length > 0 && (
+            <div className="max-w-6xl mx-auto mt-16">
+              <div className="text-center mb-8">
+                <h2 className="font-serif text-2xl lg:text-3xl font-bold text-foreground mb-2">
+                  Highlights from Our Events
+                </h2>
+                <p className="text-muted-foreground">
+                  Photos and videos from past editions — see what you can look forward to.
+                </p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {highlightEvents.map((event) => (
+                  <Link
+                    key={event.id}
+                    to={`/register/${event.slug}#highlights`}
+                    className="group flex items-center gap-4 rounded-2xl border border-border/60 bg-background/70 p-3 hover:shadow-md transition-shadow"
+                  >
+                    {event.banner_url ? (
+                      <img
+                        src={event.banner_url}
+                        alt={event.title}
+                        className="h-16 w-16 rounded-xl object-cover flex-shrink-0"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <span className="h-16 w-16 rounded-xl bg-accent flex items-center justify-center flex-shrink-0">
+                        <Images className="h-6 w-6 text-primary" />
+                      </span>
+                    )}
+                    <span className="min-w-0">
+                      <span className="block font-medium text-foreground truncate group-hover:text-primary transition-colors">
+                        {event.title}
+                      </span>
+                      <span className="block text-xs text-muted-foreground">
+                        {event.event_date ? format(new Date(event.event_date), "MMM d, yyyy") : "View highlights"}
+                      </span>
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </section>
+
     </Layout>
   );
 }
