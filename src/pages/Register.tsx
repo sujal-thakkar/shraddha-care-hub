@@ -101,12 +101,22 @@ export default function Register() {
                           </div>
                         )}
                       </div>
-                      <Button asChild className="w-full mt-auto group">
-                        <Link to={`/register/${event.slug}`}>
-                          Register
-                          <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                        </Link>
-                      </Button>
+                      <div className="mt-auto space-y-2">
+                        <Button asChild className="w-full group">
+                          <Link to={`/register/${event.slug}`}>
+                            Register
+                            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                          </Link>
+                        </Button>
+                        {parseGallery(event.gallery).length > 0 && (
+                          <Button asChild variant="outline" className="w-full">
+                            <Link to={`/register/${event.slug}#highlights`}>
+                              <Images className="mr-2 h-4 w-4" />
+                              View Highlights
+                            </Link>
+                          </Button>
+                        )}
+                      </div>
                     </CardContent>
                   </Card>
                 </ScrollReveal>
