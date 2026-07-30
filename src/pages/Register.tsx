@@ -27,6 +27,22 @@ export default function Register() {
     },
   });
 
+  // Events (past or recurring) that have highlights to browse
+  const { data: highlightEvents = [] } = useQuery({
+    queryKey: ["highlight-events"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("registration_events")
+        .select("*")
+        .eq("is_published", true)
+        .order("event_date", { ascending: false });
+      if (error) throw error;
+      return data.filter((e) => parseGallery(e.gallery).length > 0);
+    },
+  });
+
+
+
   return (
     <Layout>
       <section className="relative py-16 lg:py-24 overflow-hidden bg-gradient-to-br from-accent/40 via-background to-accent/30">
