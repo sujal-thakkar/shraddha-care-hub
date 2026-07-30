@@ -255,10 +255,11 @@ export default function EventRegistration() {
     .join(" – ");
 
   const gallery = parseGallery(event.gallery);
-  // Completed events never accept registrations — they become a highlights page.
   const canRegister =
     event.enable_registration && event.registration_open && event.status !== "completed";
-  const showHighlights = !canRegister;
+  // Recurring events (e.g. monthly Hosla Darbar) can show past highlights AND take
+  // registrations for the next edition on the same page/link.
+  const showHighlights = gallery.length > 0 || !canRegister;
 
 
 
