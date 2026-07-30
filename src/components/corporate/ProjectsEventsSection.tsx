@@ -4,11 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Calendar, Loader2, MapPin, ChevronRight, ArrowRight, Images } from "lucide-react";
+import { Calendar, Loader2, MapPin, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import type { Database } from "@/integrations/supabase/types";
-import { parseGallery } from "@/lib/event-media";
+import { EventCtaButtons } from "@/components/events/EventCtaButtons";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Carousel,
@@ -205,64 +205,8 @@ const ProjectEventCard = ({
             </div>
           )}
 
-          {(() => {
-            const canRegister =
-              event.enable_registration && event.registration_open && event.status !== "completed";
-            const hasGallery = parseGallery(event.gallery).length > 0;
-            if (canRegister) {
-              return (
-                <Button asChild size="sm" className="w-full mt-auto">
-                  <Link to={`/register/${event.slug}`}>
-                    <ArrowRight className="h-4 w-4 mr-2" />
-                    Register
-                  </Link>
-                </Button>
-              );
-            }
-            if (event.status === "completed" && hasGallery) {
-              return (
-                <Button
-                  asChild
-                  variant="outline"
-                  size="sm"
-                  className="w-full mt-auto border-[hsl(250,70%,45%)]/30 text-[hsl(250,70%,45%)] hover:bg-[hsl(250,70%,45%)] hover:text-white"
-                >
-                  <Link to={`/register/${event.slug}`}>
-                    <Images className="h-4 w-4 mr-2" />
-                    View Highlights
-                  </Link>
-                </Button>
-              );
-            }
-            if (event.resource_link) {
-              return event.resource_link.startsWith("/") ? (
-                <Button
-                  asChild
-                  variant="outline"
-                  size="sm"
-                  className="w-full mt-auto border-[hsl(250,70%,45%)]/30 text-[hsl(250,70%,45%)] hover:bg-[hsl(250,70%,45%)] hover:text-white"
-                >
-                  <Link to={event.resource_link}>
-                    <ChevronRight className="h-4 w-4 mr-2" />
-                    Know More
-                  </Link>
-                </Button>
-              ) : (
-                <Button
-                  asChild
-                  variant="outline"
-                  size="sm"
-                  className="w-full mt-auto border-[hsl(250,70%,45%)]/30 text-[hsl(250,70%,45%)] hover:bg-[hsl(250,70%,45%)] hover:text-white"
-                >
-                  <a href={event.resource_link} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    Learn More
-                  </a>
-                </Button>
-              );
-            }
-            return null;
-          })()}
+          <EventCtaButtons event={event} />
+
         </div>
       </div>
     </ScrollReveal>

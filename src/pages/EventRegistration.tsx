@@ -255,10 +255,11 @@ export default function EventRegistration() {
     .join(" – ");
 
   const gallery = parseGallery(event.gallery);
-  // Completed events never accept registrations — they become a highlights page.
   const canRegister =
     event.enable_registration && event.registration_open && event.status !== "completed";
-  const showHighlights = !canRegister;
+  // Recurring events (e.g. monthly Hosla Darbar) can show past highlights AND take
+  // registrations for the next edition on the same page/link.
+  const showHighlights = gallery.length > 0 || !canRegister;
 
 
 
@@ -299,27 +300,30 @@ export default function EventRegistration() {
                 )}
               </div>
 
-              {canRegister && (
-                <Button
-                  size="lg"
-                  className="mt-2 group"
-                  onClick={() => document.getElementById("register")?.scrollIntoView({ behavior: "smooth" })}
-                >
-                  Register Now
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Button>
-              )}
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
+                {canRegister && (
+                  <Button
+                    size="lg"
+                    className="mt-2 group"
+                    onClick={() => document.getElementById("register")?.scrollIntoView({ behavior: "smooth" })}
+                  >
+                    Register Now
+                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </Button>
+                )}
 
-              {showHighlights && gallery.length > 0 && (
-                <Button
-                  size="lg"
-                  className="mt-2 group"
-                  onClick={() => document.getElementById("highlights")?.scrollIntoView({ behavior: "smooth" })}
-                >
-                  <Images className="mr-2 h-4 w-4" />
-                  View Highlights
-                </Button>
-              )}
+                {gallery.length > 0 && (
+                  <Button
+                    size="lg"
+                    variant={canRegister ? "outline" : "default"}
+                    className="mt-2 group"
+                    onClick={() => document.getElementById("highlights")?.scrollIntoView({ behavior: "smooth" })}
+                  >
+                    <Images className="mr-2 h-4 w-4" />
+                    View Highlights
+                  </Button>
+                )}
+              </div>
             </div>
 
             {event.banner_url && (
@@ -383,24 +387,32 @@ export default function EventRegistration() {
         </section>
       )}
 
-      {/* Registration Form */}
-      {showHighlights ? (
-        <section id="highlights" className="py-16 lg:py-24 bg-background scroll-mt-20">
+      {/* Past highlights (also shown while registration is open, for recurring events) */}
+      {showHighlights && (
+        <section id="highlights" className={`py-16 lg:py-24 scroll-mt-20 ${canRegister ? "bg-accent/20" : "bg-background"}`}>
           <div className="container px-4 sm:px-6 lg:px-8">
             <div className="max-w-5xl mx-auto space-y-10">
               <div className="text-center space-y-3">
                 <div className="flex items-center justify-center gap-2">
                   <Star className="h-5 w-5 text-primary" />
-                  <span className="text-primary font-medium uppercase tracking-widest text-sm">Event Highlights</span>
+                  <span className="text-primary font-medium uppercase tracking-widest text-sm">
+                    {canRegister ? "Past Highlights" : "Event Highlights"}
+                  </span>
                   <Star className="h-5 w-5 text-primary" />
                 </div>
                 <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground">
-                  {gallery.length > 0 ? `Moments from ${event.title}` : "This event has concluded"}
+                  {gallery.length === 0
+                    ? "This event has concluded"
+                    : canRegister
+                      ? `Moments from past editions of ${event.title}`
+                      : `Moments from ${event.title}`}
                 </h2>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
-                  {gallery.length > 0
-                    ? "Thank you to everyone who joined us and made this possible. Relive the moments below — and feel free to share them."
-                    : "Registration for this event is closed. Explore our other events to stay involved."}
+                  {gallery.length === 0
+                    ? "Registration for this event is closed. Explore our other events to stay involved."
+                    : canRegister
+                      ? "Here is a glimpse of what happened last time. Register above to join us for the next one!"
+                      : "Thank you to everyone who joined us and made this possible. Relive the moments below — and feel free to share them."}
                 </p>
               </div>
 
@@ -418,15 +430,29 @@ export default function EventRegistration() {
               </div>
 
               <div className="text-center">
-                <Button asChild variant="outline">
-                  <Link to="/events">Explore more events</Link>
-                </Button>
+                {canRegister ? (
+                  <Button
+                    onClick={() => document.getElementById("register")?.scrollIntoView({ behavior: "smooth" })}
+                    className="group"
+                  >
+                    Register for the next one
+                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </Button>
+                ) : (
+                  <Button asChild variant="outline">
+                    <Link to="/events">Explore more events</Link>
+                  </Button>
+                )}
               </div>
             </div>
           </div>
         </section>
-      ) : (
+      )}
+
+      {/* Registration Form */}
+      {canRegister && (
       <section id="register" className="py-16 lg:py-24 bg-background scroll-mt-20">
+
         <div className="container px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl mx-auto">
             {isRegistered ? (
