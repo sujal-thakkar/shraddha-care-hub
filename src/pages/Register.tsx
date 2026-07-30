@@ -4,9 +4,10 @@ import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import { CalendarDays, MapPin, Loader2, ArrowRight, Clock, CalendarX } from "lucide-react";
+import { CalendarDays, MapPin, Loader2, ArrowRight, Clock, CalendarX, Images } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { parseGallery } from "@/lib/event-media";
 
 export default function Register() {
   const { data: events = [], isLoading } = useQuery({
