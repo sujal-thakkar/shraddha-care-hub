@@ -86,6 +86,53 @@ export type Database = {
         }
         Relationships: []
       }
+      author_notifications: {
+        Row: {
+          actor_name: string | null
+          blog_id: string | null
+          blog_slug: string | null
+          blog_title: string | null
+          comment_body: string | null
+          created_at: string
+          id: string
+          read_at: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          actor_name?: string | null
+          blog_id?: string | null
+          blog_slug?: string | null
+          blog_title?: string | null
+          comment_body?: string | null
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          actor_name?: string | null
+          blog_id?: string | null
+          blog_slug?: string | null
+          blog_title?: string | null
+          comment_body?: string | null
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "author_notifications_blog_id_fkey"
+            columns: ["blog_id"]
+            isOneToOne: false
+            referencedRelation: "blogs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_ai_suggestions: {
         Row: {
           blog_id: string | null

@@ -4,6 +4,7 @@ import { Heart, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { AccessibilityMenu } from "@/hooks/use-a11y";
+import { NotificationBell } from "@/components/blog/NotificationBell";
 import logoShraddha from "@/assets/logo-shraddha.png";
 
 interface NavChild {
@@ -194,6 +195,7 @@ export function Header() {
             {navGroups.map((group) => (
               <DesktopDropdown key={group.name} group={group} />
             ))}
+            <NotificationBell />
             <AccessibilityMenu />
             <Button asChild size="sm">
               <Link to="/donate">Support Us</Link>
@@ -202,6 +204,7 @@ export function Header() {
 
           {/* Mobile actions */}
           <div className="lg:hidden flex items-center gap-1">
+            <NotificationBell />
             <AccessibilityMenu />
             <button
               className="relative z-[60] w-12 h-12 flex items-center justify-center rounded-lg transition-colors hover:bg-accent active:bg-accent/80 touch-manipulation"
