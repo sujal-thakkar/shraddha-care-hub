@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Bell, Heart, MessageCircle, Check, Loader2 } from "lucide-react";
+import { Bell, Heart, MessageCircle, Check, Loader2, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ interface Notif {
   blog_slug: string | null;
   actor_name: string | null;
   comment_body: string | null;
+  comment_id?: string | null;
   read_at: string | null;
   created_at: string;
 }
@@ -32,6 +33,14 @@ function timeAgo(iso: string) {
 
 function stripHtml(s: string) {
   return s.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function targetFor(n: Notif) {
+  if (!n.blog_slug && !n.blog_id) return "/profile";
+  const base = `/blog/${n.blog_slug || n.blog_id}`;
+  if (n.type === "comment" && n.comment_id) return `${base}?c=${n.comment_id}#comment-${n.comment_id}`;
+  if (n.type === "comment") return `${base}#comments-heading`;
+  return `${base}?highlight=likes#reader-actions`;
 }
 
 export function NotificationBell() {
@@ -113,6 +122,11 @@ export function NotificationBell() {
     await db.from("author_notifications").update({ read_at: now }).eq("id", id);
   };
 
+  const markUnread = async (id: string) => {
+    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, read_at: null } : i)));
+    await db.from("author_notifications").update({ read_at: null }).eq("id", id);
+  };
+
   if (!userId) return null;
 
   return (
@@ -132,77 +146,112 @@ export function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 z-[70] w-[min(92vw,22rem)] rounded-xl border border-border bg-popover shadow-xl overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-            <span className="text-sm font-semibold">Notifications</span>
-            {unread > 0 && (
-              <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={markAllRead}>
-                <Check className="h-3.5 w-3.5 mr-1" /> Mark all read
-              </Button>
+        <>
+          {/* Mobile backdrop */}
+          <div className="fixed inset-0 z-[65] bg-black/30 sm:hidden" aria-hidden="true" />
+          <div
+            className={cn(
+              // Mobile: full-width sheet anchored under the header, never clipped
+              "fixed left-2 right-2 top-[4.5rem] z-[70] w-auto max-w-[calc(100vw-1rem)]",
+              // Desktop: dropdown anchored to the bell
+              "sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-[22rem] sm:max-w-[92vw]",
+              "rounded-xl border border-border bg-popover shadow-xl overflow-hidden"
             )}
-          </div>
-
-          <div className="max-h-[60vh] overflow-y-auto">
-            {loading && items.length === 0 ? (
-              <div className="flex items-center justify-center py-8 text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" />
+          >
+            <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-border">
+              <span className="text-sm font-semibold">Notifications</span>
+              <div className="flex items-center gap-1">
+                {unread > 0 && (
+                  <Button variant="ghost" size="sm" className="h-8 px-2 text-xs" onClick={markAllRead}>
+                    <Check className="h-3.5 w-3.5 mr-1" /> Mark all read
+                  </Button>
+                )}
+                <button
+                  onClick={() => setOpen(false)}
+                  aria-label="Close notifications"
+                  className="h-8 w-8 flex items-center justify-center rounded-md hover:bg-accent sm:hidden"
+                >
+                  <X className="h-4 w-4" />
+                </button>
               </div>
-            ) : items.length === 0 ? (
-              <p className="px-4 py-8 text-center text-sm text-muted-foreground">
-                No notifications yet. Likes and comments on your blogs will show up here.
-              </p>
-            ) : (
-              items.map((n) => {
-                const to = n.blog_slug ? `/blog/${n.blog_slug}` : "/profile";
-                const actor = n.actor_name?.trim() || "Someone";
-                return (
-                  <Link
-                    key={n.id}
-                    to={to}
-                    onClick={() => {
-                      markRead(n.id);
-                      setOpen(false);
-                    }}
-                    className={cn(
-                      "flex gap-3 px-4 py-3 border-b border-border/60 last:border-0 transition-colors hover:bg-accent",
-                      !n.read_at && "bg-primary/5"
-                    )}
-                  >
-                    <span
+            </div>
+
+            <div className="max-h-[65vh] overflow-y-auto overscroll-contain">
+              {loading && items.length === 0 ? (
+                <div className="flex items-center justify-center py-8 text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                </div>
+              ) : items.length === 0 ? (
+                <p className="px-4 py-8 text-center text-sm text-muted-foreground">
+                  No notifications yet. Likes and comments on your blogs will show up here.
+                </p>
+              ) : (
+                items.map((n) => {
+                  const actor = n.actor_name?.trim() || "Someone";
+                  return (
+                    <div
+                      key={n.id}
                       className={cn(
-                        "mt-0.5 h-8 w-8 shrink-0 rounded-full flex items-center justify-center",
-                        n.type === "like" ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"
+                        "flex items-start gap-2 border-b border-border/60 last:border-0 transition-colors hover:bg-accent",
+                        !n.read_at && "bg-primary/5"
                       )}
                     >
-                      {n.type === "like" ? <Heart className="h-4 w-4" /> : <MessageCircle className="h-4 w-4" />}
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      {n.type === "like" ? (
-                        <span className="block text-sm text-foreground">Your post got a new like</span>
-                      ) : (
-                        <>
-                          <span className="block text-sm text-foreground italic line-clamp-2">
-                            &lsquo;{stripHtml(n.comment_body ?? "")}&rsquo;
-                          </span>
-                          <span className="block text-sm text-foreground mt-0.5">
-                            new comment by {actor}
-                          </span>
-                        </>
-                      )}
-                      {n.blog_title && (
-                        <span className="block text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                          on “{n.blog_title}”
+                      <Link
+                        to={targetFor(n)}
+                        onClick={() => {
+                          markRead(n.id);
+                          setOpen(false);
+                        }}
+                        className="flex min-w-0 flex-1 gap-3 px-4 py-3"
+                      >
+                        <span
+                          className={cn(
+                            "mt-0.5 h-8 w-8 shrink-0 rounded-full flex items-center justify-center",
+                            n.type === "like" ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"
+                          )}
+                        >
+                          {n.type === "like" ? <Heart className="h-4 w-4" /> : <MessageCircle className="h-4 w-4" />}
                         </span>
-                      )}
-                      <span className="block text-[11px] text-muted-foreground mt-1">{timeAgo(n.created_at)}</span>
-                    </span>
-                    {!n.read_at && <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" />}
-                  </Link>
-                );
-              })
-            )}
+                        <span className="min-w-0 flex-1">
+                          {n.type === "like" ? (
+                            <span className="block text-sm text-foreground">Your post got a new like</span>
+                          ) : (
+                            <>
+                              <span className="block text-sm text-foreground italic line-clamp-2 break-words">
+                                &lsquo;{stripHtml(n.comment_body ?? "")}&rsquo;
+                              </span>
+                              <span className="block text-sm text-foreground mt-0.5 break-words">
+                                new comment by {actor}
+                              </span>
+                            </>
+                          )}
+                          {n.blog_title && (
+                            <span className="block text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                              on “{n.blog_title}”
+                            </span>
+                          )}
+                          <span className="block text-[11px] text-muted-foreground mt-1">{timeAgo(n.created_at)}</span>
+                        </span>
+                      </Link>
+                      <button
+                        onClick={() => (n.read_at ? markUnread(n.id) : markRead(n.id))}
+                        aria-label={n.read_at ? "Mark as unread" : "Mark as read"}
+                        title={n.read_at ? "Mark as unread" : "Mark as read"}
+                        className="mr-2 mt-3 h-8 w-8 shrink-0 flex items-center justify-center rounded-md hover:bg-accent"
+                      >
+                        {n.read_at ? (
+                          <span className="h-2.5 w-2.5 rounded-full border border-muted-foreground" />
+                        ) : (
+                          <span className="h-2.5 w-2.5 rounded-full bg-primary" />
+                        )}
+                      </button>
+                    </div>
+                  );
+                })
+              )}
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
