@@ -123,7 +123,8 @@ export default function Profile() {
     setFullName(p?.full_name || "");
     setBio(p?.bio || "");
     setDigestOn(!!(p as any)?.email_digest_enabled);
-    setDigestEmail((p as any)?.digest_email || (p as any)?.email && !String((p as any).email).endsWith("@shraddha.local") ? (p as any)?.digest_email || (p as any)?.email || "" : "");
+    const realEmail = String((p as any)?.email || "").endsWith("@shraddha.local") ? "" : (p as any)?.email || "";
+    setDigestEmail((p as any)?.digest_email || realEmail);
     setBlogs(b ?? []);
     setLoading(false);
   };
