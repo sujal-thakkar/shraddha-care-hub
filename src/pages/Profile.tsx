@@ -13,6 +13,8 @@ import { useToast } from "@/hooks/use-toast";
 import { composePassword, isValidPin } from "@/lib/phone-auth";
 import { AuthorAvatar } from "@/components/blog/AuthorAvatar";
 import { useI18n } from "@/i18n";
+import { Switch } from "@/components/ui/switch";
+import { BellRing, Send } from "lucide-react";
 
 const STATUS_KEY: Record<string, string> = {
   draft: "Draft",
@@ -51,6 +53,48 @@ export default function Profile() {
   const [newPin, setNewPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
   const [changingPin, setChangingPin] = useState(false);
+
+  // Email digest settings
+  const [digestOn, setDigestOn] = useState(false);
+  const [digestEmail, setDigestEmail] = useState("");
+  const [savingDigest, setSavingDigest] = useState(false);
+  const [sendingDigest, setSendingDigest] = useState(false);
+
+  const saveDigest = async (nextOn?: boolean) => {
+    if (!profile) return;
+    const on = nextOn ?? digestOn;
+    const mail = digestEmail.trim();
+    if (on && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) {
+      toast({ title: t("Please enter a valid email address"), variant: "destructive" });
+      return;
+    }
+    setSavingDigest(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ email_digest_enabled: on, digest_email: mail || null } as any)
+      .eq("user_id", profile.user_id);
+    setSavingDigest(false);
+    if (error) {
+      toast({ title: t("Couldn't save settings"), description: error.message, variant: "destructive" });
+      return;
+    }
+    setDigestOn(on);
+    toast({ title: on ? t("Email digests are on") : t("Email digests are off") });
+  };
+
+  const sendDigestNow = async () => {
+    setSendingDigest(true);
+    const { data, error } = await supabase.functions.invoke("send-blog-digest", { body: {} });
+    setSendingDigest(false);
+    if (error) {
+      toast({ title: t("Couldn't send digest"), description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({
+      title: (data as any)?.sent ? t("Digest sent") : t("Nothing new to send"),
+      description: (data as any)?.sent ? t("Check your inbox in a moment.") : t("You have no unread likes or comments yet."),
+    });
+  };
 
   const load = async () => {
     const { data: sess } = await supabase.auth.getSession();
