@@ -93,6 +93,7 @@ export type Database = {
           blog_slug: string | null
           blog_title: string | null
           comment_body: string | null
+          comment_id: string | null
           created_at: string
           id: string
           read_at: string | null
@@ -105,6 +106,7 @@ export type Database = {
           blog_slug?: string | null
           blog_title?: string | null
           comment_body?: string | null
+          comment_id?: string | null
           created_at?: string
           id?: string
           read_at?: string | null
@@ -117,6 +119,7 @@ export type Database = {
           blog_slug?: string | null
           blog_title?: string | null
           comment_body?: string | null
+          comment_id?: string | null
           created_at?: string
           id?: string
           read_at?: string | null
@@ -847,7 +850,10 @@ export type Database = {
           bio: string | null
           country_code: string | null
           created_at: string
+          digest_email: string | null
+          digest_last_sent_at: string | null
           email: string | null
+          email_digest_enabled: boolean
           full_name: string | null
           id: string
           phone_e164: string | null
@@ -864,7 +870,10 @@ export type Database = {
           bio?: string | null
           country_code?: string | null
           created_at?: string
+          digest_email?: string | null
+          digest_last_sent_at?: string | null
           email?: string | null
+          email_digest_enabled?: boolean
           full_name?: string | null
           id?: string
           phone_e164?: string | null
@@ -881,7 +890,10 @@ export type Database = {
           bio?: string | null
           country_code?: string | null
           created_at?: string
+          digest_email?: string | null
+          digest_last_sent_at?: string | null
           email?: string | null
+          email_digest_enabled?: boolean
           full_name?: string | null
           id?: string
           phone_e164?: string | null
