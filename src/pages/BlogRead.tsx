@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -43,6 +43,8 @@ function estimateReadingMinutes(body: string): number {
 
 export default function BlogRead() {
   const { slug } = useParams<{ slug: string }>();
+  const location = useLocation();
+  const highlightLikes = new URLSearchParams(location.search).get("highlight") === "likes";
   const { t } = useI18n();
   const [blog, setBlog] = useState<BlogRow | null>(null);
   const [author, setAuthor] = useState<Author>({ full_name: "Anonymous", avatar_url: null });
@@ -84,6 +86,15 @@ export default function BlogRead() {
   useEffect(() => {
     if (blog?.title) document.title = `${blog.title} — Shraddha Blogs`;
   }, [blog?.title]);
+
+  // Deep-link scroll for like notifications
+  useEffect(() => {
+    if (!highlightLikes || !blog) return;
+    const timer = setTimeout(() => {
+      document.getElementById("reader-actions")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [highlightLikes, blog?.id]);
 
   // Reading progress bar
   useEffect(() => {
@@ -204,7 +215,13 @@ export default function BlogRead() {
         {/* Article body — optimized for reading */}
         <div className="container max-w-[720px] px-4 py-10 md:py-14">
           {/* Reader toolbar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-8 pb-6 border-b border-border">
+          <div
+            id="reader-actions"
+            className={
+              "flex flex-wrap items-center justify-between gap-3 mb-8 pb-6 border-b border-border scroll-mt-24 rounded-xl transition-colors " +
+              (highlightLikes ? "bg-primary/10 ring-2 ring-primary/40 p-4" : "")
+            }
+          >
             <BlogLikes blogId={blog.id} />
             <div className="flex items-center gap-2">
               <FontSizeToggle size={size} onChange={setSize} />

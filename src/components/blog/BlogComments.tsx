@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +21,9 @@ interface Row {
 
 export function BlogComments({ blogId }: { blogId: string }) {
   const { toast } = useToast();
+  const location = useLocation();
+  const highlightId = new URLSearchParams(location.search).get("c");
+  const highlightedRef = useRef<HTMLLIElement | null>(null);
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
@@ -49,6 +53,17 @@ export function BlogComments({ blogId }: { blogId: string }) {
       if (saved.website) setWebsite(saved.website);
     } catch {}
   }, [blogId]);
+
+  // Scroll to and highlight a specific comment (deep link from notifications)
+  useEffect(() => {
+    if (!highlightId || loading) return;
+    const el = highlightedRef.current;
+    if (!el) return;
+    const timer = setTimeout(() => {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [highlightId, loading, rows.length]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,7 +130,15 @@ export function BlogComments({ blogId }: { blogId: string }) {
       ) : (
         <ul className="space-y-6 mb-12">
           {rows.map((c) => (
-            <li key={c.id} className="flex gap-4">
+            <li
+              key={c.id}
+              id={`comment-${c.id}`}
+              ref={c.id === highlightId ? highlightedRef : undefined}
+              className={
+                "flex gap-4 scroll-mt-24 rounded-xl transition-colors " +
+                (c.id === highlightId ? "bg-primary/10 ring-2 ring-primary/40 p-4 -m-1" : "")
+              }
+            >
               <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold shrink-0">
                 {getInitials(c.name)}
               </div>
