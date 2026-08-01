@@ -122,6 +122,8 @@ export default function Profile() {
     setProfile(p);
     setFullName(p?.full_name || "");
     setBio(p?.bio || "");
+    setDigestOn(!!(p as any)?.email_digest_enabled);
+    setDigestEmail((p as any)?.digest_email || (p as any)?.email && !String((p as any).email).endsWith("@shraddha.local") ? (p as any)?.digest_email || (p as any)?.email || "" : "");
     setBlogs(b ?? []);
     setLoading(false);
   };
@@ -392,6 +394,48 @@ export default function Profile() {
                   {t(profile?.status || "unknown")}
                 </Badge>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Email notifications */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <BellRing className="h-5 w-5 text-primary" />
+              {t("Email notifications")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="font-medium">{t("Email digests for likes and comments")}</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {t("Get a summary email of new likes and comments on your blogs when you are away.")}
+                </p>
+              </div>
+              <Switch checked={digestOn} onCheckedChange={(v) => saveDigest(v)} disabled={savingDigest} />
+            </div>
+            <div>
+              <Label>{t("Notification email")}</Label>
+              <Input
+                type="email"
+                inputMode="email"
+                placeholder="you@example.com"
+                value={digestEmail}
+                onChange={(e) => setDigestEmail(e.target.value)}
+                className="h-11 mt-1"
+              />
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Button onClick={() => saveDigest()} disabled={savingDigest} className="h-11">
+                {savingDigest ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                {t("Save settings")}
+              </Button>
+              <Button variant="outline" onClick={sendDigestNow} disabled={sendingDigest || !digestOn} className="h-11">
+                {sendingDigest ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Send className="h-4 w-4 mr-2" />}
+                {t("Send me a digest now")}
+              </Button>
             </div>
           </CardContent>
         </Card>

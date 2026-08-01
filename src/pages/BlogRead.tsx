@@ -87,6 +87,15 @@ export default function BlogRead() {
     if (blog?.title) document.title = `${blog.title} — Shraddha Blogs`;
   }, [blog?.title]);
 
+  // Deep-link scroll for like notifications
+  useEffect(() => {
+    if (!highlightLikes || !blog) return;
+    const timer = setTimeout(() => {
+      document.getElementById("reader-actions")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [highlightLikes, blog?.id]);
+
   // Reading progress bar
   useEffect(() => {
     const onScroll = () => {
