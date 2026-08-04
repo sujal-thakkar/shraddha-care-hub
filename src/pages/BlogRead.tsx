@@ -3,7 +3,7 @@ import { useParams, Link, useLocation } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Loader2, Volume2, Pause, Play, ArrowLeft, Clock } from "lucide-react";
+import { Loader2, Volume2, Pause, Play, ArrowLeft, Clock, MessageCircle } from "lucide-react";
 import { RenderMarkdownLite } from "@/lib/markdown-lite";
 import { useFontSize, FontSizeToggle } from "@/hooks/use-font-size";
 import { useToast } from "@/hooks/use-toast";
@@ -222,7 +222,20 @@ export default function BlogRead() {
               (highlightLikes ? "bg-primary/10 ring-2 ring-primary/40 p-4" : "")
             }
           >
-            <BlogLikes blogId={blog.id} />
+            <div className="flex items-center gap-2">
+              <BlogLikes blogId={blog.id} />
+              <Button
+                variant="ghost"
+                size="lg"
+                className="h-11 px-4 gap-2 rounded-full hover:bg-muted"
+                onClick={() => {
+                  document.getElementById("comments-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+              >
+                <MessageCircle className="h-5 w-5 text-muted-foreground" />
+                <span className="hidden sm:inline font-medium">{t("Comments")}</span>
+              </Button>
+            </div>
             <div className="flex items-center gap-2">
               <FontSizeToggle size={size} onChange={setSize} />
               <Button onClick={handleReadAloud} variant="outline" size="lg" className="h-11 gap-2" disabled={ttsLoading}>
@@ -297,7 +310,9 @@ export default function BlogRead() {
           </div>
 
           {/* Comments */}
-          <BlogComments blogId={blog.id} />
+          <div id="comments-section" className="scroll-mt-24">
+            <BlogComments blogId={blog.id} />
+          </div>
 
           {/* Related */}
           <YouMayAlsoLike excludeId={blog.id} />
