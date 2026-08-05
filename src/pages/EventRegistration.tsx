@@ -773,6 +773,27 @@ export default function EventRegistration() {
         </div>
       </section>
       )}
+
+      {requiresPaymentSetup && pendingRegId && (
+        <PaidEventPrompt
+          open={showPayPrompt}
+          onOpenChange={setShowPayPrompt}
+          eventTitle={event.title}
+          priceInr={event.price_inr ?? 0}
+          paymentNote={event.payment_note}
+          membersFree={event.members_free}
+          isPaying={isPaying}
+          onPay={() => startCheckout(pendingRegId)}
+        />
+      )}
+
+      {verifyingPayment && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-3 bg-background/85 backdrop-blur-sm">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Confirming your payment…</p>
+        </div>
+      )}
     </Layout>
+
   );
 }
