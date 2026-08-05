@@ -326,7 +326,23 @@ export default function AdminRegistrations() {
                       <Badge variant={reg.checked_in ? "default" : "secondary"} className="text-xs">
                         {reg.checked_in ? "Checked In" : "Registered"}
                       </Badge>
+                      {reg.is_member && (
+                        <Badge variant="outline" className="text-xs border-primary/40 text-primary">
+                          Hosla Member
+                        </Badge>
+                      )}
+                      {reg.payment_status === "paid" && (
+                        <Badge variant="outline" className="text-xs border-primary/40 text-primary">
+                          Paid ₹{(reg.amount_inr ?? 0).toLocaleString("en-IN")}
+                        </Badge>
+                      )}
+                      {reg.payment_status === "pending" && (
+                        <Badge variant="outline" className="text-xs border-destructive/40 text-destructive">
+                          Payment pending
+                        </Badge>
+                      )}
                       {reg.age > 0 && <span className="text-xs text-muted-foreground">Age: {reg.age}</span>}
+
                     </div>
                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
                       <span>{reg.mobile}</span>
