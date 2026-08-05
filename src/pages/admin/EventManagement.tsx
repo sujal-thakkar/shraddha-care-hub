@@ -88,9 +88,14 @@ interface FormState {
   field_config: FieldConfig;
   enable_registration: boolean;
   registration_open: boolean;
+  is_paid: boolean;
+  price_inr: number;
+  members_free: boolean;
+  payment_note: string;
   is_published: boolean;
   display_order: number;
 }
+
 
 const defaultForm: FormState = {
   slug: "",
