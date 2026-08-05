@@ -277,6 +277,11 @@ export default function AdminEventManagement() {
       field_config: { ...defaultFieldConfig, ...((ev.field_config as Partial<FieldConfig>) || {}) },
       enable_registration: ev.enable_registration,
       registration_open: ev.registration_open,
+      is_paid: ev.is_paid,
+      price_inr: ev.price_inr ?? 0,
+      members_free: ev.members_free,
+      payment_note: ev.payment_note || "",
+
       is_published: ev.is_published,
       display_order: ev.display_order,
     });
