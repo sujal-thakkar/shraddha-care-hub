@@ -193,6 +193,11 @@ export default function AdminEventManagement() {
     field_config: data.field_config as unknown as Database["public"]["Tables"]["registration_events"]["Insert"]["field_config"],
     enable_registration: data.enable_registration,
     registration_open: data.registration_open,
+    is_paid: data.enable_registration && data.is_paid,
+    price_inr: data.is_paid ? Math.max(0, Math.round(data.price_inr)) : 0,
+    members_free: data.members_free,
+    payment_note: data.payment_note || null,
+
     is_published: data.is_published,
     display_order: data.display_order,
   };
