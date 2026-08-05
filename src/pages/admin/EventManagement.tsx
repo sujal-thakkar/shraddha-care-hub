@@ -576,7 +576,65 @@ export default function AdminEventManagement() {
                     <Switch id="reg_open" checked={form.registration_open} onCheckedChange={(v) => setForm({ ...form, registration_open: v })} />
                   </div>
 
+                  {/* Paid entry */}
+                  <div className="rounded-lg border border-border p-4 space-y-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <Label className="text-base">Paid Event</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Charge non-members a registration fee via Stripe.
+                        </p>
+                      </div>
+                      <Switch
+                        checked={form.is_paid}
+                        onCheckedChange={(v) => setForm({ ...form, is_paid: v })}
+                      />
+                    </div>
+
+                    {form.is_paid && (
+                      <div className="space-y-4 border-t border-border/60 pt-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="price_inr">Fee for non-members (₹)</Label>
+                          <Input
+                            id="price_inr"
+                            type="number"
+                            min={1}
+                            value={form.price_inr}
+                            onChange={(e) => setForm({ ...form, price_inr: parseInt(e.target.value) || 0 })}
+                            placeholder="e.g. 200"
+                          />
+                        </div>
+
+                        <div className="flex items-center justify-between rounded-lg border border-border p-3">
+                          <div>
+                            <Label htmlFor="members_free">Free for Hosla members</Label>
+                            <p className="text-xs text-muted-foreground">
+                              Approved members skip payment automatically.
+                            </p>
+                          </div>
+                          <Switch
+                            id="members_free"
+                            checked={form.members_free}
+                            onCheckedChange={(v) => setForm({ ...form, members_free: v })}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="payment_note">Note shown on the payment prompt</Label>
+                          <Textarea
+                            id="payment_note"
+                            rows={2}
+                            value={form.payment_note}
+                            onChange={(e) => setForm({ ...form, payment_note: e.target.value })}
+                            placeholder="e.g. Fee covers lunch, materials and the activity kit."
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   <p className="text-xs text-muted-foreground">Public link: /register/{form.slug || "your-slug"}</p>
+
 
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-2">
