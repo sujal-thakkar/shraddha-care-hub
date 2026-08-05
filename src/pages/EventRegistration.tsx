@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { checkRateLimit } from "@/lib/rate-limit";
 import {
-  CalendarDays, Clock, MapPin, Phone, Heart, CheckCircle, ArrowRight, Loader2, Star, Images,
+  CalendarDays, Clock, MapPin, Phone, Heart, CheckCircle, ArrowRight, Loader2, Star, Images, Ticket,
 } from "lucide-react";
 import { format } from "date-fns";
 import hoslaLogo from "@/assets/hosla-logo.png";
@@ -20,7 +20,9 @@ import logoShraddha from "@/assets/logo-shraddha.png";
 import { parseGallery } from "@/lib/event-media";
 import { EventGallery } from "@/components/events/EventGallery";
 import { SocialShare } from "@/components/events/SocialShare";
+import { PaidEventPrompt } from "@/components/events/PaidEventPrompt";
 import { eventPreviewUrl } from "@/lib/preview";
+
 
 const sourceOptions = ["WhatsApp", "Facebook/Instagram", "Friend/Relative", "Website", "Other"];
 
