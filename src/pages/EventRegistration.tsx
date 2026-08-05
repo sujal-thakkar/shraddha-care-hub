@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { checkRateLimit } from "@/lib/rate-limit";
 import {
-  CalendarDays, Clock, MapPin, Phone, Heart, CheckCircle, ArrowRight, Loader2, Star, Images,
+  CalendarDays, Clock, MapPin, Phone, Heart, CheckCircle, ArrowRight, Loader2, Star, Images, Ticket,
 } from "lucide-react";
 import { format } from "date-fns";
 import hoslaLogo from "@/assets/hosla-logo.png";
@@ -20,7 +20,9 @@ import logoShraddha from "@/assets/logo-shraddha.png";
 import { parseGallery } from "@/lib/event-media";
 import { EventGallery } from "@/components/events/EventGallery";
 import { SocialShare } from "@/components/events/SocialShare";
+import { PaidEventPrompt } from "@/components/events/PaidEventPrompt";
 import { eventPreviewUrl } from "@/lib/preview";
+
 
 const sourceOptions = ["WhatsApp", "Facebook/Instagram", "Friend/Relative", "Website", "Other"];
 
@@ -51,6 +53,12 @@ export default function EventRegistration() {
     source: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [pendingRegId, setPendingRegId] = useState<string | null>(null);
+  const [showPayPrompt, setShowPayPrompt] = useState(false);
+  const [isPaying, setIsPaying] = useState(false);
+  const [verifyingPayment, setVerifyingPayment] = useState(false);
+
 
   const { data: event, isLoading } = useQuery({
     queryKey: ["registration-event", slug],
@@ -145,6 +153,84 @@ export default function EventRegistration() {
     return errs;
   };
 
+  // Paid-event helpers -------------------------------------------------------
+  const requiresPaymentSetup = !!event?.is_paid && (event?.price_inr ?? 0) > 0;
+
+  const startCheckout = async (registrationId: string) => {
+    setIsPaying(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-event-checkout", {
+        body: { registrationId, returnUrl: window.location.href.split("?")[0] },
+      });
+      if (error) throw error;
+      if (data?.alreadyPaid) {
+        setShowPayPrompt(false);
+        setIsRegistered(true);
+        return;
+      }
+      if (!data?.url) throw new Error(data?.error || "Could not start checkout");
+      window.location.href = data.url as string;
+    } catch (err) {
+      console.error("Checkout error:", err);
+      toast({
+        title: "Could not open checkout",
+        description: "Please try again, or call us and we'll help you register.",
+        variant: "destructive",
+      });
+      setIsPaying(false);
+    }
+  };
+
+  // Returning from Stripe: confirm the payment and show the success card.
+  useEffect(() => {
+    const payment = searchParams.get("payment");
+    const regId = searchParams.get("reg");
+    if (!payment || !regId) return;
+
+    if (payment === "cancelled") {
+      toast({
+        title: "Payment cancelled",
+        description: "Your details are saved — you can pay again any time to confirm your spot.",
+      });
+      setPendingRegId(regId);
+      setShowPayPrompt(true);
+      setSearchParams({}, { replace: true });
+      return;
+    }
+
+    if (payment !== "success") return;
+    setVerifyingPayment(true);
+    (async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke("verify-event-payment", {
+          body: { registrationId: regId },
+        });
+        if (error) throw error;
+        if (data?.paymentStatus === "paid") {
+          setIsRegistered(true);
+        } else {
+          toast({
+            title: "Payment not confirmed yet",
+            description: "If you completed the payment, please refresh in a moment.",
+          });
+          setPendingRegId(regId);
+          setShowPayPrompt(true);
+        }
+      } catch (err) {
+        console.error("Payment verification error:", err);
+        toast({
+          title: "Could not confirm payment",
+          description: "Please contact us and we'll confirm your registration.",
+          variant: "destructive",
+        });
+      } finally {
+        setVerifyingPayment(false);
+        setSearchParams({}, { replace: true });
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.get("payment"), searchParams.get("reg")]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!event) return;
@@ -158,6 +244,7 @@ export default function EventRegistration() {
 
     const age = fieldConfig.age.enabled && formData.age ? Number(formData.age) : null;
     const email = formData.email.trim().toLowerCase();
+    const mobile = formData.mobile.trim();
 
     setIsSubmitting(true);
     try {
@@ -170,19 +257,39 @@ export default function EventRegistration() {
         }
       }
 
+      // Approved Hosla members can attend free when the admin allows it.
+      let isMember = false;
+      if (requiresPaymentSetup) {
+        const { data: memberCheck } = await supabase.rpc("is_hosla_member", {
+          _email: email || null,
+          _phone: mobile || null,
+        });
+        isMember = memberCheck === true;
+      }
+      const needsPayment = requiresPaymentSetup && !(event.members_free && isMember);
+
       const registrationId = crypto.randomUUID();
       const { error } = await supabase.from("event_registrations").insert({
         id: registrationId,
         event_id: event.id,
         full_name: formData.full_name.trim(),
-        mobile: formData.mobile.trim() || "—",
+        mobile: mobile || "—",
         email: email || null,
         age: age ?? 0,
         area: formData.area.trim() || "—",
         medical_concerns: formData.medical_concerns.trim() || null,
         source: formData.source || "Other",
+        is_member: isMember,
+        payment_status: needsPayment ? "pending" : "not_required",
+        amount_inr: needsPayment ? event.price_inr : null,
       });
       if (error) throw error;
+
+      if (needsPayment) {
+        setPendingRegId(registrationId);
+        setShowPayPrompt(true);
+        return;
+      }
 
       if (email) {
         try {
@@ -212,6 +319,7 @@ export default function EventRegistration() {
       setIsSubmitting(false);
     }
   };
+
 
   if (isLoading) {
     return (
@@ -298,7 +406,17 @@ export default function EventRegistration() {
                     <span className="font-medium text-foreground">{timeLabel}</span>
                   </div>
                 )}
+                {requiresPaymentSetup && (
+                  <div className="flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-xl border border-primary/25 shadow-sm">
+                    <Ticket className="h-5 w-5 text-primary" />
+                    <span className="font-medium text-foreground">
+                      ₹{(event.price_inr ?? 0).toLocaleString("en-IN")} for non-members
+                      {event.members_free ? " · Free for Hosla members" : ""}
+                    </span>
+                  </div>
+                )}
               </div>
+
 
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
                 {canRegister && (
@@ -655,6 +773,27 @@ export default function EventRegistration() {
         </div>
       </section>
       )}
+
+      {requiresPaymentSetup && pendingRegId && (
+        <PaidEventPrompt
+          open={showPayPrompt}
+          onOpenChange={setShowPayPrompt}
+          eventTitle={event.title}
+          priceInr={event.price_inr ?? 0}
+          paymentNote={event.payment_note}
+          membersFree={event.members_free}
+          isPaying={isPaying}
+          onPay={() => startCheckout(pendingRegId)}
+        />
+      )}
+
+      {verifyingPayment && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-3 bg-background/85 backdrop-blur-sm">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Confirming your payment…</p>
+        </div>
+      )}
     </Layout>
+
   );
 }
