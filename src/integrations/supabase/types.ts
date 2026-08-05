@@ -483,6 +483,7 @@ export type Database = {
       event_registrations: {
         Row: {
           age: number
+          amount_inr: number | null
           area: string
           checked_in: boolean
           checked_in_at: string | null
@@ -491,13 +492,18 @@ export type Database = {
           event_id: string | null
           full_name: string
           id: string
+          is_member: boolean
           medical_concerns: string | null
           mobile: string
+          paid_at: string | null
+          payment_status: string
           source: string
+          stripe_session_id: string | null
           updated_at: string
         }
         Insert: {
           age: number
+          amount_inr?: number | null
           area: string
           checked_in?: boolean
           checked_in_at?: string | null
@@ -506,13 +512,18 @@ export type Database = {
           event_id?: string | null
           full_name: string
           id?: string
+          is_member?: boolean
           medical_concerns?: string | null
           mobile: string
+          paid_at?: string | null
+          payment_status?: string
           source?: string
+          stripe_session_id?: string | null
           updated_at?: string
         }
         Update: {
           age?: number
+          amount_inr?: number | null
           area?: string
           checked_in?: boolean
           checked_in_at?: string | null
@@ -521,9 +532,13 @@ export type Database = {
           event_id?: string | null
           full_name?: string
           id?: string
+          is_member?: boolean
           medical_concerns?: string | null
           mobile?: string
+          paid_at?: string | null
+          payment_status?: string
           source?: string
+          stripe_session_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -919,9 +934,13 @@ export type Database = {
           field_config: Json
           gallery: Json
           id: string
+          is_paid: boolean
           is_published: boolean
           location: string | null
+          members_free: boolean
           organization: Database["public"]["Enums"]["organization_type"]
+          payment_note: string | null
+          price_inr: number
           registration_open: boolean
           resource_link: string | null
           slug: string
@@ -945,9 +964,13 @@ export type Database = {
           field_config?: Json
           gallery?: Json
           id?: string
+          is_paid?: boolean
           is_published?: boolean
           location?: string | null
+          members_free?: boolean
           organization?: Database["public"]["Enums"]["organization_type"]
+          payment_note?: string | null
+          price_inr?: number
           registration_open?: boolean
           resource_link?: string | null
           slug: string
@@ -971,9 +994,13 @@ export type Database = {
           field_config?: Json
           gallery?: Json
           id?: string
+          is_paid?: boolean
           is_published?: boolean
           location?: string | null
+          members_free?: boolean
           organization?: Database["public"]["Enums"]["organization_type"]
+          payment_note?: string | null
+          price_inr?: number
           registration_open?: boolean
           resource_link?: string | null
           slug?: string
@@ -1269,6 +1296,14 @@ export type Database = {
           name: string
         }[]
       }
+      get_registration_payment_status: {
+        Args: { _registration_id: string }
+        Returns: {
+          amount_inr: number
+          is_member: boolean
+          payment_status: string
+        }[]
+      }
       get_writer_status_by_phone: { Args: { _phone: string }; Returns: string }
       has_role: {
         Args: {
@@ -1279,6 +1314,10 @@ export type Database = {
       }
       is_admin: { Args: never; Returns: boolean }
       is_approved_writer: { Args: { _uid: string }; Returns: boolean }
+      is_hosla_member: {
+        Args: { _email: string; _phone: string }
+        Returns: boolean
+      }
       is_phone_available: { Args: { _phone: string }; Returns: boolean }
     }
     Enums: {
