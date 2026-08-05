@@ -406,7 +406,17 @@ export default function EventRegistration() {
                     <span className="font-medium text-foreground">{timeLabel}</span>
                   </div>
                 )}
+                {requiresPaymentSetup && (
+                  <div className="flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-xl border border-primary/25 shadow-sm">
+                    <Ticket className="h-5 w-5 text-primary" />
+                    <span className="font-medium text-foreground">
+                      ₹{(event.price_inr ?? 0).toLocaleString("en-IN")} for non-members
+                      {event.members_free ? " · Free for Hosla members" : ""}
+                    </span>
+                  </div>
+                )}
               </div>
+
 
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
                 {canRegister && (
