@@ -53,6 +53,12 @@ export default function EventRegistration() {
     source: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [pendingRegId, setPendingRegId] = useState<string | null>(null);
+  const [showPayPrompt, setShowPayPrompt] = useState(false);
+  const [isPaying, setIsPaying] = useState(false);
+  const [verifyingPayment, setVerifyingPayment] = useState(false);
+
 
   const { data: event, isLoading } = useQuery({
     queryKey: ["registration-event", slug],
