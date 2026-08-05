@@ -117,6 +117,11 @@ const defaultForm: FormState = {
   field_config: defaultFieldConfig,
   enable_registration: false,
   registration_open: true,
+  is_paid: false,
+  price_inr: 0,
+  members_free: true,
+  payment_note: "",
+
   is_published: false,
   display_order: 0,
 };
