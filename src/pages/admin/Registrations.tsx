@@ -147,12 +147,14 @@ export default function AdminRegistrations() {
 
   const exportCSV = () => {
     if (!registrations?.length) return;
-    const headers = ["Name", "Mobile", "Email", "Age", "Area", "Medical Concerns", "Source", "Checked In", "Registered At"];
+    const headers = ["Name", "Mobile", "Email", "Age", "Area", "Medical Concerns", "Source", "Checked In", "Hosla Member", "Payment", "Amount (₹)", "Registered At"];
     const rows = registrations.map((r) => [
       r.full_name, r.mobile, r.email, r.age, r.area,
       r.medical_concerns || "", r.source, r.checked_in ? "Yes" : "No",
+      r.is_member ? "Yes" : "No", r.payment_status, r.amount_inr ?? "",
       format(new Date(r.created_at), "PPp"),
     ]);
+
     const csv = [headers, ...rows].map((row) => row.map((c) => `"${c}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
