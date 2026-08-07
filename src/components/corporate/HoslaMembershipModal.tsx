@@ -305,21 +305,6 @@ export function HoslaMembershipModal({ open, onOpenChange, plan = "standard" }: 
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="voterId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className={labelClass}>
-                        <IdCard className="h-4 w-4 text-muted-foreground" /> Voter ID <span className="text-destructive">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="Voter ID number" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
 
                 <FormField
                   control={form.control}
