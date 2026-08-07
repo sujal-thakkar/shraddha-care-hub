@@ -43,7 +43,7 @@ const bloodGroups = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-", "Don't kn
 const schema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100, "Name is too long"),
   email: z.string().trim().email("Enter a valid email").max(255, "Email is too long"),
-  voterId: z.string().trim().min(1, "Voter ID is required").max(50, "Voter ID is too long"),
+  
   childContact: z
     .string()
     .trim()
