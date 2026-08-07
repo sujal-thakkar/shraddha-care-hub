@@ -173,7 +173,7 @@ export function HoslaMembershipModal({ open, onOpenChange, plan = "standard" }: 
         id: applicationId,
         name: data.name,
         email: data.email,
-        voter_id: data.voterId,
+        
         child_contact: data.childContact,
         address: data.address,
         date_of_birth: data.dateOfBirth,
