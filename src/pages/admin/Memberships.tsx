@@ -21,7 +21,7 @@ type MembershipApplication = {
   id: string;
   name: string;
   email: string;
-  voter_id: string;
+  
   child_contact: string;
   address: string;
   date_of_birth: string;
