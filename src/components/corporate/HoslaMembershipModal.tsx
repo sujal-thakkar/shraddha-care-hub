@@ -84,7 +84,7 @@ export function HoslaMembershipModal({ open, onOpenChange, plan = "standard" }: 
     defaultValues: {
       name: "",
       email: "",
-      voterId: "",
+      
       childContact: "",
       address: "",
       dateOfBirth: "",
