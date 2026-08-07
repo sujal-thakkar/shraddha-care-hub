@@ -569,7 +569,7 @@ export type Database = {
           plan: string
           status: string
           updated_at: string
-          voter_id: string
+          voter_id: string | null
         }
         Insert: {
           address: string
@@ -588,7 +588,7 @@ export type Database = {
           plan?: string
           status?: string
           updated_at?: string
-          voter_id: string
+          voter_id?: string | null
         }
         Update: {
           address?: string
@@ -607,7 +607,7 @@ export type Database = {
           plan?: string
           status?: string
           updated_at?: string
-          voter_id?: string
+          voter_id?: string | null
         }
         Relationships: []
       }
