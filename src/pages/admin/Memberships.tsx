@@ -16,6 +16,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import ActiveMembersSync from "@/components/admin/ActiveMembersSync";
+
 
 type MembershipApplication = {
   id: string;
@@ -158,6 +160,9 @@ export default function AdminMemberships() {
         <h1 className="font-serif text-3xl font-bold text-foreground">Membership Applications</h1>
         <p className="text-muted-foreground">Manage Hosla Membership Card applications and follow-ups.</p>
       </div>
+
+      <ActiveMembersSync />
+
 
       {/* Filters */}
       <Card className="border-border">
