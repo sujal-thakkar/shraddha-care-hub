@@ -68,6 +68,36 @@ export type Database = {
         }
         Relationships: []
       }
+      active_members: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          phone_digits: string
+          raw_phone: string | null
+          synced_at: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          phone_digits: string
+          raw_phone?: string | null
+          synced_at?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          phone_digits?: string
+          raw_phone?: string | null
+          synced_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ai_check_log: {
         Row: {
           created_at: string
@@ -1312,6 +1342,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_active_member: { Args: { _phone: string }; Returns: boolean }
       is_admin: { Args: never; Returns: boolean }
       is_approved_writer: { Args: { _uid: string }; Returns: boolean }
       is_hosla_member: {
