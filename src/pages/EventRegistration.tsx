@@ -257,15 +257,15 @@ export default function EventRegistration() {
         }
       }
 
-      // Approved Hosla members can attend free when the admin allows it.
+      // Active members (synced from the team's members sheet) attend free when the admin allows it.
       let isMember = false;
       if (requiresPaymentSetup) {
-        const { data: memberCheck } = await supabase.rpc("is_hosla_member", {
-          _email: email || null,
-          _phone: mobile || null,
+        const { data: memberCheck } = await supabase.rpc("is_active_member", {
+          _phone: mobile || "",
         });
         isMember = memberCheck === true;
       }
+
       const needsPayment = requiresPaymentSetup && !(event.members_free && isMember);
 
       const registrationId = crypto.randomUUID();
