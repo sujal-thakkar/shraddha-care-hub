@@ -1,59 +1,64 @@
-# SMS + OTP via Fast2SMS (Jio TrueConnect DLT)
+# Hosla Membership Platform — Phase 1 (OTP login, member ledger, cash & UPI workflows, RBAC)
 
-Add real SMS to the site using your DLT-approved templates on sender ID **HOSLAS**, sent through the Fast2SMS DLT API from the backend. Two capabilities:
+Building the enterprise membership foundation from your design docs, plus the DLT SMS/OTP layer, in one coherent phase. Renewals, dunning, analytics and 2FA stay for the next phase.
 
-1. **Phone OTP verification** on membership signup and event registration.
-2. **Admin-triggered SMS blasts** using your Blog Notification and Formal Event Invitation templates, to a recipient list the admin picks each time.
+## Decisions locked from your answers
+- One account per phone for everyone (member, writer, volunteer, admin). Login becomes **phone + OTP first**, with the existing 4-digit PIN kept as an alternative so current writers are not locked out.
+- Fee engine is a **monthly ledger** (fee amount per member + "paid up until" date). The Standard/Premium plan prices only set the default monthly amount.
+- Stripe stays as the online gateway for now; the design is webhook-first so Razorpay can drop in later.
+- Existing members are imported from **both** the Active Members sheet and approved membership applications into an admin review screen where each record is confirmed before activation.
 
-Nothing exists today — there is no SMS or OTP code in the project yet, and no Fast2SMS key stored.
+## 1. Login with SMS OTP (Jio TrueConnect DLT via Fast2SMS)
+- Sign-in screen: country code + 10-digit phone, big "Send code" button, then a 6-digit code box. "Use my PIN instead" link stays available.
+- Codes are generated and hashed server-side, expire in 5 minutes, are single-use, limited to 5 sends per phone per hour, and locked after 5 wrong attempts.
+- Sent through your approved DLT OTP template with sender ID HOSLAS.
+- New numbers can sign up with OTP only; no PIN required (they can add one later in profile).
 
-## What you need to give me
+## 2. Member records and the fee ledger
+Each member gets: membership number (HSL-2026-0148 style), plan, monthly fee amount, paid-up-until date, city chapter, join date, status (active / renewal due / lapsed) with a 15-day grace buffer.
 
-- **Fast2SMS API key** (Dev API section of the Fast2SMS dashboard) — I'll request it through the secure secret form; it is never put in code.
-- **Entity ID / PE ID**: 1201164527599055009 (from your screenshot) and sender/header **HOSLAS**.
-- **Message IDs** for each template as they appear in Fast2SMS (Fast2SMS assigns its own numeric `message_id` per DLT template — not the DLT template ID). Needed for:
-  - OTP template (plus its exact text so variable order matches)
-  - Blog Notification — `Hello! A new blog is now live on the Shraddha website. Read here: {#url#} - Team Hosla`
-  - Formal Event Invitation — 3 variables: event name, date, venue
+A single transactions ledger records every rupee with its source and state:
+- `stripe` → success immediately (confirmed by webhook, not the redirect page).
+- `direct_upi` → pending_verification (member/child reported it).
+- `cash` → pending_approval (volunteer collected it), then settled.
+- Plus rejected, with the reason.
 
-Fast2SMS requires the template to be approved and mapped in their DLT-SMS section before the message_id works.
+Approving a transaction is what extends the paid-up-until date. Months covered are computed from amount ÷ monthly fee, so ₹600 on a ₹300 plan reads "April–May" before anyone confirms. Every state change is written to an audit log with who did it and when. Duplicate submissions for the same member and month are blocked.
 
-## 1. OTP verification
+## 3. The three payment workflows
+**A. Online (Stripe)** — member pays from their profile; a `stripe-webhook` function marks the transaction paid and extends validity even if the browser is closed. A downloadable receipt link is stored.
 
-**Where it appears**
+**B. "I paid directly on PhonePe/GPay" (member or their child)** — screenshot-first form: amount, date, paid by self/someone else, mandatory screenshot upload, optional transaction ID. Creates pending_verification and shows a clear "Waiting for admin approval" badge. Uploads go to a new private bucket.
 
-- **Membership signup** (Hosla membership form): after the form is filled, a "Verify your mobile" step sends a 6-digit code to the contact number; the application is only recorded once verified.
-- **Event registration**: after the mobile field, a "Verify" button sends the code; registration (and any payment step) proceeds only after the code is confirmed.
+**C. Cash collected by a volunteer** — the *receiver* records it, never the elder. Volunteer searches the member by name or phone (fuzzy search), sees "Rina is on the ₹300 plan; ₹600 covers April–May", confirms, and the member immediately gets an SMS receipt. The amount lands in that volunteer's floating-cash balance until a main admin settles it.
 
-**How it works**
+## 4. RBAC: member / volunteer / main admin
+| Action | Volunteer | Main admin |
+| --- | --- | --- |
+| Record cash collection | Yes (pending approval) | Yes (self-approved) |
+| Approve direct-UPI reports | View only | Yes |
+| Settle volunteer cash | View own balance | Yes |
+| Change fees, delete payments | No | Yes (audit-logged) |
+| Manage users | Create only | Full |
 
-- A backend function generates a random 6-digit code, stores only a hash of it with a 10-minute expiry, and sends it via Fast2SMS using the OTP template.
-- A second function checks the code, marks the phone as verified for a short window, and returns a short-lived verification token the form submits alongside the data.
-- Limits: max 3 codes per phone per hour, 30-second resend cooldown, max 5 wrong attempts before the code is discarded. All rate limiting is enforced server-side.
-- Codes are never returned to the browser and never logged.
+Roles live in the existing `user_roles` table (never on the profile), extended with `volunteer` and `main_admin`.
 
-Writer/admin login stays on the current PIN system — untouched in this phase.
+## 5. Admin panel additions
+- **Members**: searchable list with plan, fee, paid-until, status, membership number; detail view with full payment timeline, blogs written, events attended.
+- **Verification queue**: direct-UPI reports side by side with the uploaded screenshot; approve or reject with reason.
+- **Cash & settlement**: pending cash entries to approve, and per-volunteer outstanding balances with a "Settle" action.
+- **Import review**: merged list from the Active Members sheet and approved applications; admin sets fee amount and paid-until date, then activates.
+- **SMS broadcasts**: send your approved event-invitation and blog-notification templates to Active Members or an event's registrants, with a preview and confirm step.
+- **Audit log**: read-only trail of every money action.
 
-## 2. Admin SMS blasts
-
-A new **SMS** section in the admin panel:
-
-- Pick a template: **Blog Notification** (choose a published blog; link auto-filled in the DLT-friendly `?blog?slug` form you already set up) or **Event Invitation** (choose an event; name/date/venue auto-filled).
-- Pick recipients: from the synced Active Members directory or event registrants, with checkboxes and select-all, plus a manual paste box for extra numbers.
-- Preview the exact message and recipient count, then send. Sends run in batches from the backend.
-- A send log records template, message text, recipient count, per-number delivery result and cost/failure reason, viewable in admin.
-- Only admins can send; the Fast2SMS key lives on the backend only.
+## 6. Member profile as a "living room" (not a dashboard)
+Rebuilt `/profile` for elders: big "Namaste {name}" header with photo and a green/orange membership badge, then Membership (vertical month timeline showing "Paid via Amit on 12 Aug", pay/report buttons), My Stories, and My Events with the next event's pass. Minimum 18px text, 56px tap targets, static bold labels above inputs, works in English and Bengali.
 
 ## Technical notes
+- Migration adds: `members` fields on profiles (membership_no, plan, monthly_fee_amount, paid_up_until, chapter, member_status), `transactions`, `fee_audit_log`, `otp_codes`, `sms_log`, `member_imports`; new `volunteer` and `main_admin` values on `app_role`; RLS so members read only their own transactions and insert only direct-UPI reports, volunteers insert cash entries, main admins manage all — with GRANTs on every new table.
+- New edge functions: `send-otp`, `verify-otp` (verifies then mints a Supabase session via an admin-generated one-time link), `stripe-webhook`, `create-membership-checkout`, `record-cash-collection`, `send-sms-broadcast`, `import-members`.
+- Fast2SMS needs a secret; I'll request `FAST2SMS_API_KEY`. Stripe webhook needs `STRIPE_WEBHOOK_SECRET`.
+- Frontend: OTP flow added to `src/pages/Auth.tsx` (PIN path preserved), `src/pages/Profile.tsx` rebuilt, new admin pages under `src/pages/admin/` (Members, Verifications, CashSettlement, MemberImport, SMS, AuditLog), shared elder-mode type/spacing tokens in the design system, TanStack Query persistence so a volunteer's cash entry survives a dropped signal.
 
-- `phone_otps` table: phone, code hash, purpose, expiry, attempt count, consumed flag. Service-role only — never readable from the browser.
-- `sms_logs` table: template key, rendered message, recipients count, status, provider response, sent_by. Admin read-only.
-- Edge functions: `send-otp`, `verify-otp`, `send-sms-broadcast`. All validate input with Zod, verify admin role where relevant, and surface Fast2SMS error bodies instead of generic 500s.
-- Fast2SMS DLT endpoint: `POST https://www.fast2sms.com/dev/bulkV2` with `route=dlt`, `sender_id=HOSLAS`, `message=<message_id>`, `variables_values` pipe-separated, `numbers` comma-separated. Non-`return:true` responses are logged with the provider's status text.
-- Frontend: a reusable `PhoneVerify` component used by both the membership modal and the event registration form; new `src/pages/admin/SMS.tsx` plus a dashboard nav entry.
-
-## Out of scope for now
-
-- OTP for writer login / admin 2FA (planned for the later enterprise auth phase).
-- Automatic SMS on new blog publish (manual admin send first, so you control DLT volume/cost).
-- Registration confirmation SMS — needs a separate DLT template first.
+## Explicitly deferred to phase 2
+Auto-renewal and dunning reminders, Razorpay swap, 2FA, deep analytics dashboards, event photo "Memories", volunteer PWA install prompt.
