@@ -15,7 +15,7 @@ Building the enterprise membership foundation from your design docs, plus the DL
 - New numbers can sign up with OTP only; no PIN required (they can add one later in profile).
 
 ## 2. Member records and the fee ledger
-Each member gets: membership number (HSL-2026-0148 style), plan, monthly fee amount, paid-up-until date, city chapter, join date, status (active / renewal due / lapsed) with a 15-day grace buffer.
+Each member gets: membership number (first four letters of the member's name + last four digits of their phone, e.g. RINA1234), plan, monthly fee amount, paid-up-until date, city chapter, join date, status (active / renewal due / lapsed) with a 15-day grace buffer.
 
 A single transactions ledger records every rupee with its source and state:
 - `stripe` → success immediately (confirmed by webhook, not the redirect page).
