@@ -55,7 +55,7 @@ export default function Blog() {
   const [q, setQ] = useState("");
   const [lang, setLang] = useState<string>("all");
   const [category, setCategory] = useState<"all" | BlogCategory>("all");
-  const [sort, setSort] = useState<SortMode>("recommended");
+  const [sort, setSort] = useState<SortMode>("newest");
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<any>(null);
   const [profileStatus, setProfileStatus] = useState<string | null>(null);
@@ -302,9 +302,11 @@ export default function Blog() {
         ) : (
           <>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {paged.map((b) => (
+              {paged.map((b) => {
+                const isNew = b.published_at && (new Date().getTime() - new Date(b.published_at).getTime()) <= 5 * 24 * 60 * 60 * 1000;
+                return (
                 <Link to={`/blog/${b.slug ?? b.id}`} key={b.id}>
-                  <Card className="h-full hover:shadow-lg transition-shadow overflow-hidden">
+                  <Card className="h-full hover:shadow-lg transition-shadow overflow-hidden relative">
                     <div className="aspect-[16/9] w-full overflow-hidden bg-muted">
                       <img
                         src={coverImageOrDefault(b.cover_image_url)}
@@ -321,12 +323,19 @@ export default function Blog() {
                     </div>
                     <CardHeader>
                       <div className="flex items-center justify-between gap-2 mb-1 flex-wrap">
-                        <span className="text-[10px] uppercase tracking-wide font-semibold text-primary bg-primary/10 rounded-full px-2 py-0.5">
-                          {(() => {
-                            const meta = CATEGORY_META.find((c) => c.id === blogCategories[b.id]);
-                            return meta ? (uiLang === "bn" ? meta.labelBn : meta.label) : "";
-                          })()}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] uppercase tracking-wide font-semibold text-primary bg-primary/10 rounded-full px-2 py-0.5">
+                            {(() => {
+                              const meta = CATEGORY_META.find((c) => c.id === blogCategories[b.id]);
+                              return meta ? (uiLang === "bn" ? meta.labelBn : meta.label) : "";
+                            })()}
+                          </span>
+                          {isNew && (
+                            <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm tracking-wider">
+                              NEW
+                            </span>
+                          )}
+                        </div>
                         {(likeCounts[b.id] || 0) > 0 && (
                           <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                             <Heart className="h-3.5 w-3.5 fill-red-500 text-red-500" />
@@ -335,6 +344,12 @@ export default function Blog() {
                         )}
                       </div>
                       <CardTitle className="font-serif line-clamp-2">{b.title}</CardTitle>
+                      {b.published_at && (
+                        <div className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5" />
+                          <span>{new Date(b.published_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                        </div>
+                      )}
                     </CardHeader>
                     <CardContent>
                       <p className="text-sm text-muted-foreground line-clamp-3">
@@ -342,13 +357,13 @@ export default function Blog() {
                       </p>
                       <div className="mt-4 text-xs text-muted-foreground">
                         {t("By")} {b.is_guest ? `${b.guest_name || t("Anonymous")} (${t("Guest Blogger")})` : (authors[b.author_id] || t("Anonymous"))}
-                        {b.published_at && <> · {new Date(b.published_at).toLocaleDateString()}</>}
                         {b.language && <> · {b.language.toUpperCase()}</>}
                       </div>
                     </CardContent>
                   </Card>
                 </Link>
-              ))}
+                );
+              })}
             </div>
 
             {totalPages > 1 && (
