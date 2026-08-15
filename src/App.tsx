@@ -46,7 +46,6 @@ const AdminTeamManagement = lazy(() => import("./pages/admin/TeamManagement"));
 const AdminRegistrations = lazy(() => import("./pages/admin/Registrations"));
 const AdminEventManagement = lazy(() => import("./pages/admin/EventManagement"));
 const AdminRoutineManagement = lazy(() => import("./pages/admin/RoutineManagement"));
-const AdminMemberships = lazy(() => import("./pages/admin/Memberships"));
 const AdminPreviewInspector = lazy(() => import("./pages/admin/PreviewInspector"));
 const AdminCollaborateContent = lazy(() => import("./pages/admin/CollaborateContent"));
 const AdminBlogs = lazy(() => import("./pages/admin/Blogs"));
