@@ -33,29 +33,35 @@ Approving a transaction is what extends the paid-up-until date. Months covered a
 
 **B. "I paid directly on PhonePe/GPay" (member or their child)** — simple form: amount, date, paid by self/someone else, optional transaction ID, and an **optional** screenshot upload. Creates pending_verification and shows a clear "Waiting for admin approval" badge. Any uploads go to a new private bucket.
 
-**C. Cash collected by a volunteer** — the *receiver* records it, never the elder. Volunteer searches the member by name, membership ID or phone (fuzzy search), sees "Rina is on the ₹300 plan; ₹600 covers April–May", confirms, and the member instantly gets an in-app receipt in their profile (email receipt where an address exists; SMS receipt comes with the phase-2 DLT work). The amount lands in that volunteer's floating-cash balance until a main admin settles it.
+**C. Cash collected in person** — the *receiver* records it, never the elder. A team-member admin searches the member by name, membership ID or phone (fuzzy search), sees "Rina is on the ₹300 plan; ₹600 covers April–May", confirms, and the member instantly gets an in-app receipt in their profile (email receipt where an address exists; SMS receipt comes with the phase-2 DLT work). The amount lands in that collector's floating-cash balance until the main admin settles it.
 
-## 4. RBAC: one panel, role-scoped views (recommended over a hidden route)
-A separate secret URL is weak protection — anyone who learns the link only needs a password, and it forces us to maintain two panels. The stronger and simpler answer is **one `/admin` panel where the navigation and every server action are scoped to the signed-in role**, so a volunteer literally cannot see or call a main-admin feature even by typing the URL. Roles: `member`, `volunteer`, `team_member`, `admin`, `main_admin`, stored in `user_roles` (never on the profile).
+## 4. RBAC: two admin levels, one panel, role-scoped views
+A separate secret URL is weak protection — anyone who learns the link only needs a password, and it forces us to maintain two panels. The stronger answer is **one `/admin` panel where the navigation and every server action are scoped to the signed-in role**, so a team-member admin cannot see or call a main-admin feature even by typing the URL. Roles: `member`, `team_admin`, `main_admin`, stored in `user_roles` (never on the profile). There is exactly one main-admin level; everything sensitive sits there.
 
-| Action | Team member | Volunteer | Admin | Main admin |
-| --- | --- | --- | --- | --- |
-| Content (blogs, events, messages) | Yes | No | Yes | Yes |
-| Record cash collection | No | Yes (pending approval) | Yes (pending approval) | Yes (self-approved) |
-| Approve direct-UPI reports | No | View only | No | Yes |
-| Settle volunteer cash | No | View own balance | View only | Yes |
-| Set / reset member passwords | No | No | Request only (needs main-admin approval) | Yes, unrestricted |
-| Change fees, delete payments, manage roles | No | No | No | Yes (audit-logged) |
-| Send fee reminders | No | No | Yes | Yes |
+| Action | Team-member admin | Main admin |
+| --- | --- | --- |
+| Content: blogs, events, messages, reports, donations, routine, newsletters, team, subscribers | Yes | Yes |
+| View members, plans, paid-until status | Yes | Yes |
+| Record cash collection | Yes → goes to pending approval | Yes, self-approved |
+| Approve / reject cash entries | No (sees own entries' status) | Yes |
+| Approve / reject direct-UPI reports | View only | Yes |
+| Cash settlement (mark handed over) | Sees own outstanding balance | Yes, for everyone |
+| Send fee reminders | Yes | Yes |
+| Create member accounts | Yes | Yes |
+| Set / reset member passwords | Raises a request for approval | Yes, unrestricted |
+| Change fee amounts, edit paid-until, delete or reverse payments | No | Yes (audit-logged) |
+| Assign or remove roles, ban accounts | No | Yes |
+| Import existing members / activate memberships | Prepare only | Yes, approves activation |
+| Audit log | Own actions | Everything |
 
-Extra protection for main-admin actions, instead of obscurity: a **step-up re-authentication** prompt (re-enter password) before any money, role or credential action, a short idle timeout on those screens, and every action written to the audit log with actor, time and IP. Membership, settlement, credential and role screens simply do not render for other roles.
+Extra protection for main-admin actions, instead of obscurity: a **step-up re-authentication** prompt (re-enter password) before any money, role or credential action, a short idle timeout on those screens, and every action written to the audit log with actor, time and IP. Approval, settlement, credential and role screens simply do not render for team-member admins, and the same checks are enforced server-side in RLS and edge functions.
 
 ## 5. Admin panel additions
 - **Members**: searchable list with plan, fee, paid-until, status, membership ID; detail view with full payment timeline, blogs written, events attended.
-- **Credentials**: create a member account (ID auto-generated), set or reset the password, copy it to share, force a password change on next sign-in. A normal admin's reset creates a **pending request** the main admin approves; the main admin acts directly.
+- **Credentials**: create a member account (ID auto-generated), set or reset the password, copy it to share, force a password change on next sign-in. A team-member admin's reset creates a **pending request** the main admin approves; the main admin acts directly.
 - **Fee reminders**: filter members who are due or lapsed, preview the message, select recipients (or all due) and send. Delivered by email plus an in-app notification now; the same screen will send SMS once DLT is live in phase 2. Reminder history is logged per member so nobody gets spammed twice in a day.
 - **Verification queue**: direct-UPI reports with the screenshot when one was attached; approve or reject with reason.
-- **Cash & settlement**: pending cash entries to approve, and per-volunteer outstanding balances with a "Settle" action.
+- **Cash & settlement**: pending cash entries for the main admin to approve, and per-collector outstanding balances with a "Settle" action.
 - **Import review**: merged list from the Active Members sheet and approved applications; admin sets fee amount and paid-until date, then activates.
 - **Audit log**: read-only trail of every money, credential and role action.
 
@@ -63,10 +69,10 @@ Extra protection for main-admin actions, instead of obscurity: a **step-up re-au
 Rebuilt `/profile` for elders: big "Namaste {name}" header with photo and a green/orange membership badge, then Membership (vertical month timeline showing "Paid via Amit on 12 Aug", pay/report buttons), My Stories, and My Events with the next event's pass. Minimum 18px text, 56px tap targets, static bold labels above inputs, works in English and Bengali.
 
 ## Technical notes
-- Migration adds: member fields on profiles (membership_id, plan, monthly_fee_amount, paid_up_until, chapter, member_status, must_change_password), `transactions`, `fee_audit_log`, `member_imports`, `credential_requests`, `fee_reminders`; new `volunteer`, `team_member` and `main_admin` values on `app_role` plus `is_main_admin()` / `has_any_role()` helpers; RLS so members read only their own transactions and insert only direct-UPI reports, volunteers insert cash entries, main admins manage all — with GRANTs on every new table.
-- Auth keeps the existing Supabase synthetic-email pattern: the membership ID maps to a deterministic internal email, so `signInWithPassword` works unchanged and the current PIN path keeps functioning. A `member-credentials` edge function (service role) creates accounts and sets/resets passwords, re-checking the caller's role server-side and enforcing the request/approval rule for non-main admins.
+- Migration adds: member fields on profiles (membership_id, plan, monthly_fee_amount, paid_up_until, chapter, member_status, must_change_password), `transactions`, `fee_audit_log`, `member_imports`, `credential_requests`, `fee_reminders`; new `team_admin` and `main_admin` values on `app_role` plus `is_main_admin()` / `is_team_admin()` helpers; RLS so members read only their own transactions and insert only direct-UPI reports, team admins insert cash entries and read members, main admins manage all — with GRANTs on every new table.
+- Auth keeps the existing Supabase synthetic-email pattern: the membership ID maps to a deterministic internal email, so `signInWithPassword` works unchanged and the current PIN path keeps functioning. A `member-credentials` edge function (service role) creates accounts and sets/resets passwords, re-checking the caller's role server-side and enforcing the request/approval rule for team admins.
 - Other new edge functions: `stripe-webhook`, `create-membership-checkout`, `record-cash-collection`, `import-members`, `send-fee-reminders`. Stripe webhook needs a `STRIPE_WEBHOOK_SECRET`.
-- Frontend: `src/pages/Auth.tsx` becomes the single unified sign-in (Membership ID + password, PIN fallback) and `/admin/login` reuses it; the blog's separate auth entry points redirect there. `src/pages/Profile.tsx` rebuilt; a role-aware admin layout hides unauthorised nav and routes; new admin pages under `src/pages/admin/` (Members, MemberCredentials, FeeReminders, Verifications, CashSettlement, MemberImport, AuditLog); a reusable step-up re-auth dialog; shared elder-mode type/spacing tokens; TanStack Query persistence so a volunteer's cash entry survives a dropped signal.
+- Frontend: `src/pages/Auth.tsx` becomes the single unified sign-in (Membership ID + password, PIN fallback) and `/admin/login` reuses it; the blog's separate auth entry points redirect there. `src/pages/Profile.tsx` rebuilt; the admin layout in `src/pages/admin/Dashboard.tsx` becomes role-aware so unauthorised nav items and routes never render; new admin pages under `src/pages/admin/` (Members, MemberCredentials, FeeReminders, Verifications, CashSettlement, MemberImport, AuditLog); a reusable step-up re-auth dialog; shared elder-mode type/spacing tokens; TanStack Query persistence so a cash entry survives a dropped signal.
 
 ## Explicitly deferred to phase 2
-DLT SMS + OTP login, SMS reminders and broadcasts, automatic recurring renewal charges and dunning schedules, Razorpay swap, 2FA, deep analytics dashboards, event photo "Memories", volunteer PWA install prompt.
+DLT SMS + OTP login, SMS reminders and broadcasts, automatic recurring renewal charges and dunning schedules, Razorpay swap, 2FA, deep analytics dashboards, event photo "Memories", PWA install prompt for field collection.
