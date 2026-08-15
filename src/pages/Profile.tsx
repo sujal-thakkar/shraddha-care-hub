@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,9 @@ import { AuthorAvatar } from "@/components/blog/AuthorAvatar";
 import { useI18n } from "@/i18n";
 import { Switch } from "@/components/ui/switch";
 import { BellRing, Send } from "lucide-react";
+import { MembershipSection } from "@/components/membership/MembershipSection";
+import { ChangePasswordCard } from "@/components/membership/ChangePasswordCard";
+
 
 const STATUS_KEY: Record<string, string> = {
   draft: "Draft",
@@ -38,7 +41,10 @@ const STATUS_COLOR: Record<string, string> = {
 export default function Profile() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [params] = useSearchParams();
+  const mustChangePassword = params.get("change_password") === "1";
   const { t } = useI18n();
+
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
   const [blogs, setBlogs] = useState<any[]>([]);
@@ -316,7 +322,11 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* Membership */}
+        <MembershipSection profile={profile} />
+
         {/* Basic info */}
+
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -441,7 +451,11 @@ export default function Profile() {
           </CardContent>
         </Card>
 
+        {/* Password (Membership ID sign-in) */}
+        <ChangePasswordCard highlight={mustChangePassword || !!profile?.must_change_password} />
+
         {/* Change PIN */}
+
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">

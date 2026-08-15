@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, CheckCircle2, User, Phone, Lock } from "lucide-react";
+import { Loader2, CheckCircle2, User, Phone, Lock, IdCard } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,14 +15,19 @@ import { COUNTRY_CODES, validatePhone, toE164, syntheticEmail, composePassword, 
 export default function Auth() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const next = params.get("next") || "/blog/write";
+  const next = params.get("next") || "/profile";
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
   const [signupDone, setSignupDone] = useState(false);
 
-  // Shared
+  // Membership ID + password (primary way in)
+  const [membershipId, setMembershipId] = useState("");
+  const [password, setPassword] = useState("");
+  const [usePin, setUsePin] = useState(false);
+
+  // Phone + PIN (writers created before membership IDs)
   const [dial, setDial] = useState("+91");
   const [phone, setPhone] = useState("");
   const [pin, setPin] = useState("");
@@ -41,6 +46,38 @@ export default function Auth() {
       setChecking(false);
     });
   }, [navigate, next]);
+
+  const handleMemberLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const id = membershipId.trim().toUpperCase();
+    if (!/^[A-Z]{4}\d{4}$/.test(id)) {
+      return toast({ title: "Check your Membership ID", description: "It looks like ABCD1234.", variant: "destructive" });
+    }
+    if (password.length < 4) return toast({ title: "Enter your password", variant: "destructive" });
+
+    setLoading(true);
+    const { data, error } = await supabase.functions.invoke("member-login", {
+      body: { membership_id: id, password },
+    });
+    const payload = data as any;
+    if (error || !payload?.session) {
+      setLoading(false);
+      return toast({
+        title: "Couldn't sign you in",
+        description: payload?.error || "Wrong Membership ID or password.",
+        variant: "destructive",
+      });
+    }
+    const { error: setErr } = await supabase.auth.setSession({
+      access_token: payload.session.access_token,
+      refresh_token: payload.session.refresh_token,
+    });
+    setLoading(false);
+    if (setErr) return toast({ title: "Couldn't start your session", description: setErr.message, variant: "destructive" });
+
+    toast({ title: `Welcome, ${payload.full_name || "friend"}!` });
+    navigate(payload.must_change_password ? "/profile?change_password=1" : next, { replace: true });
+  };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -191,7 +228,7 @@ export default function Auth() {
         <Card>
           <CardHeader className="text-center">
             <CardTitle className="font-serif text-2xl">Welcome</CardTitle>
-            <CardDescription>Sign in with your phone number and 4-digit PIN.</CardDescription>
+            <CardDescription>Sign in with your Membership ID and password.</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin">
@@ -201,21 +238,68 @@ export default function Auth() {
               </TabsList>
 
               <TabsContent value="signin">
-                <form onSubmit={handleLogin} className="space-y-4 mt-4">
-                  {phoneRow("in")}
-                  <div className="space-y-2">
-                    <Label htmlFor="in-pin" className="flex items-center gap-2"><Lock className="h-4 w-4" /> 4-digit PIN</Label>
-                    <Input id="in-pin" type="text" inputMode="numeric" maxLength={4} autoComplete="off"
-                      value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                      placeholder="••••" className="h-12 text-2xl tracking-[0.5em] text-center" />
-                  </div>
-                  <Button type="submit" className="w-full h-12" disabled={loading}>
-                    {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign in"}
-                  </Button>
-                  <p className="text-xs text-muted-foreground text-center">
-                    Forgot your PIN? Contact the admin — they can reset it for you.
-                  </p>
-                </form>
+                {!usePin ? (
+                  <form onSubmit={handleMemberLogin} className="space-y-4 mt-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="mid" className="flex items-center gap-2"><IdCard className="h-4 w-4" /> Membership ID</Label>
+                      <Input
+                        id="mid"
+                        autoComplete="username"
+                        value={membershipId}
+                        onChange={(e) => setMembershipId(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8))}
+                        placeholder="ABCD1234"
+                        className="h-12 text-xl tracking-[0.2em] text-center uppercase"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        First 4 letters of your name + last 4 digits of your phone number.
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="mpw" className="flex items-center gap-2"><Lock className="h-4 w-4" /> Password</Label>
+                      <Input
+                        id="mpw"
+                        type="password"
+                        autoComplete="current-password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Your password"
+                        className="h-12 text-base"
+                      />
+                    </div>
+                    <Button type="submit" className="w-full h-12" disabled={loading}>
+                      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign in"}
+                    </Button>
+                    <div className="text-center">
+                      <button type="button" onClick={() => setUsePin(true)} className="text-sm underline text-muted-foreground">
+                        Use my PIN instead
+                      </button>
+                    </div>
+                    <p className="text-xs text-muted-foreground text-center">
+                      Forgot your password? The office can issue a new one for you.
+                    </p>
+                  </form>
+                ) : (
+                  <form onSubmit={handleLogin} className="space-y-4 mt-4">
+                    {phoneRow("in")}
+                    <div className="space-y-2">
+                      <Label htmlFor="in-pin" className="flex items-center gap-2"><Lock className="h-4 w-4" /> 4-digit PIN</Label>
+                      <Input id="in-pin" type="text" inputMode="numeric" maxLength={4} autoComplete="off"
+                        value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                        placeholder="••••" className="h-12 text-2xl tracking-[0.5em] text-center" />
+                    </div>
+                    <Button type="submit" className="w-full h-12" disabled={loading}>
+                      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign in"}
+                    </Button>
+                    <div className="text-center">
+                      <button type="button" onClick={() => setUsePin(false)} className="text-sm underline text-muted-foreground">
+                        Use my Membership ID instead
+                      </button>
+                    </div>
+                    <p className="text-xs text-muted-foreground text-center">
+                      Forgot your PIN? Contact the admin — they can reset it for you.
+                    </p>
+                  </form>
+                )}
               </TabsContent>
 
               <TabsContent value="signup">
@@ -242,7 +326,7 @@ export default function Auth() {
                     {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create account"}
                   </Button>
                   <p className="text-xs text-muted-foreground text-center">
-                    Your account will be reviewed by the admin team before you can start writing.
+                    Writers' accounts are reviewed by the admin team. Hosla members get their Membership ID and password from the office.
                   </p>
                 </form>
               </TabsContent>
