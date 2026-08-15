@@ -31,9 +31,9 @@ Approving a transaction is what extends the paid-up-until date. Months covered a
 ## 3. The three payment workflows
 **A. Online (Stripe)** — member pays from their profile; a `stripe-webhook` function marks the transaction paid and extends validity even if the browser is closed. A downloadable receipt link is stored.
 
-**B. "I paid directly on PhonePe/GPay" (member or their child)** — screenshot-first form: amount, date, paid by self/someone else, mandatory screenshot upload, optional transaction ID. Creates pending_verification and shows a clear "Waiting for admin approval" badge. Uploads go to a new private bucket.
+**B. "I paid directly on PhonePe/GPay" (member or their child)** — simple form: amount, date, paid by self/someone else, optional transaction ID, and an **optional** screenshot upload. Creates pending_verification and shows a clear "Waiting for admin approval" badge. Any uploads go to a new private bucket.
 
-**C. Cash collected by a volunteer** — the *receiver* records it, never the elder. Volunteer searches the member by name or phone (fuzzy search), sees "Rina is on the ₹300 plan; ₹600 covers April–May", confirms, and the member immediately gets an SMS receipt. The amount lands in that volunteer's floating-cash balance until a main admin settles it.
+**C. Cash collected by a volunteer** — the *receiver* records it, never the elder. Volunteer searches the member by name, membership ID or phone (fuzzy search), sees "Rina is on the ₹300 plan; ₹600 covers April–May", confirms, and the member instantly gets an in-app receipt in their profile (email receipt where an address exists; SMS receipt comes with the phase-2 DLT work). The amount lands in that volunteer's floating-cash balance until a main admin settles it.
 
 ## 4. RBAC: member / volunteer / main admin
 | Action | Volunteer | Main admin |
