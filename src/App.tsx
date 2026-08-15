@@ -129,6 +129,8 @@ const App = () => {
               <Route path="subscribers" element={<AdminSubscribers />} />
               <Route path="settings" element={<AdminSettings />} />
             </Route>
+            <Route path="/admin/hq" element={<AdminHq />} />
+
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
