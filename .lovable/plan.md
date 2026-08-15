@@ -35,24 +35,29 @@ Approving a transaction is what extends the paid-up-until date. Months covered a
 
 **C. Cash collected by a volunteer** — the *receiver* records it, never the elder. Volunteer searches the member by name, membership ID or phone (fuzzy search), sees "Rina is on the ₹300 plan; ₹600 covers April–May", confirms, and the member instantly gets an in-app receipt in their profile (email receipt where an address exists; SMS receipt comes with the phase-2 DLT work). The amount lands in that volunteer's floating-cash balance until a main admin settles it.
 
-## 4. RBAC: member / volunteer / main admin
-| Action | Volunteer | Main admin |
-| --- | --- | --- |
-| Record cash collection | Yes (pending approval) | Yes (self-approved) |
-| Approve direct-UPI reports | View only | Yes |
-| Settle volunteer cash | View own balance | Yes |
-| Change fees, delete payments | No | Yes (audit-logged) |
-| Manage users | Create only | Full |
+## 4. RBAC: one panel, role-scoped views (recommended over a hidden route)
+A separate secret URL is weak protection — anyone who learns the link only needs a password, and it forces us to maintain two panels. The stronger and simpler answer is **one `/admin` panel where the navigation and every server action are scoped to the signed-in role**, so a volunteer literally cannot see or call a main-admin feature even by typing the URL. Roles: `member`, `volunteer`, `team_member`, `admin`, `main_admin`, stored in `user_roles` (never on the profile).
 
-Roles live in the existing `user_roles` table (never on the profile), extended with `volunteer` and `main_admin`.
+| Action | Team member | Volunteer | Admin | Main admin |
+| --- | --- | --- | --- | --- |
+| Content (blogs, events, messages) | Yes | No | Yes | Yes |
+| Record cash collection | No | Yes (pending approval) | Yes (pending approval) | Yes (self-approved) |
+| Approve direct-UPI reports | No | View only | No | Yes |
+| Settle volunteer cash | No | View own balance | View only | Yes |
+| Set / reset member passwords | No | No | Request only (needs main-admin approval) | Yes, unrestricted |
+| Change fees, delete payments, manage roles | No | No | No | Yes (audit-logged) |
+| Send fee reminders | No | No | Yes | Yes |
+
+Extra protection for main-admin actions, instead of obscurity: a **step-up re-authentication** prompt (re-enter password) before any money, role or credential action, a short idle timeout on those screens, and every action written to the audit log with actor, time and IP. Membership, settlement, credential and role screens simply do not render for other roles.
 
 ## 5. Admin panel additions
 - **Members**: searchable list with plan, fee, paid-until, status, membership ID; detail view with full payment timeline, blogs written, events attended.
-- **Credentials**: create a member account (ID auto-generated), set or reset the password, copy it to share, and force a password change on next sign-in.
+- **Credentials**: create a member account (ID auto-generated), set or reset the password, copy it to share, force a password change on next sign-in. A normal admin's reset creates a **pending request** the main admin approves; the main admin acts directly.
+- **Fee reminders**: filter members who are due or lapsed, preview the message, select recipients (or all due) and send. Delivered by email plus an in-app notification now; the same screen will send SMS once DLT is live in phase 2. Reminder history is logged per member so nobody gets spammed twice in a day.
 - **Verification queue**: direct-UPI reports with the screenshot when one was attached; approve or reject with reason.
 - **Cash & settlement**: pending cash entries to approve, and per-volunteer outstanding balances with a "Settle" action.
 - **Import review**: merged list from the Active Members sheet and approved applications; admin sets fee amount and paid-until date, then activates.
-- **Audit log**: read-only trail of every money action.
+- **Audit log**: read-only trail of every money, credential and role action.
 
 ## 6. Member profile as a "living room" (not a dashboard)
 Rebuilt `/profile` for elders: big "Namaste {name}" header with photo and a green/orange membership badge, then Membership (vertical month timeline showing "Paid via Amit on 12 Aug", pay/report buttons), My Stories, and My Events with the next event's pass. Minimum 18px text, 56px tap targets, static bold labels above inputs, works in English and Bengali.
