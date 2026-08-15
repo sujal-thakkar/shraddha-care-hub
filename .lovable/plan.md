@@ -61,7 +61,7 @@ Extra protection for main-admin actions, instead of obscurity: a **step-up re-au
 - **Credentials**: create a member account (ID auto-generated), set or reset the password, copy it to share, force a password change on next sign-in. A team-member admin's reset creates a **pending request** the main admin approves; the main admin acts directly.
 - **Fee reminders**: filter members who are due or lapsed, preview the message, select recipients (or all due) and send. Delivered by email plus an in-app notification now; the same screen will send SMS once DLT is live in phase 2. Reminder history is logged per member so nobody gets spammed twice in a day.
 - **Verification queue**: direct-UPI reports with the screenshot when one was attached; approve or reject with reason.
-- **Cash & settlement**: pending cash entries to approve, and per-volunteer outstanding balances with a "Settle" action.
+- **Cash & settlement**: pending cash entries for the main admin to approve, and per-collector outstanding balances with a "Settle" action.
 - **Import review**: merged list from the Active Members sheet and approved applications; admin sets fee amount and paid-until date, then activates.
 - **Audit log**: read-only trail of every money, credential and role action.
 
