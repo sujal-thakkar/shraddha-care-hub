@@ -33,28 +33,33 @@ Approving a transaction is what extends the paid-up-until date. Months covered a
 
 **B. "I paid directly on PhonePe/GPay" (member or their child)** — simple form: amount, date, paid by self/someone else, optional transaction ID, and an **optional** screenshot upload. Creates pending_verification and shows a clear "Waiting for admin approval" badge. Any uploads go to a new private bucket.
 
-**C. Cash collected in person** — the *receiver* records it, never the elder. A team-member admin searches the member by name, membership ID or phone (fuzzy search), sees "Rina is on the ₹300 plan; ₹600 covers April–May", confirms, and the member instantly gets an in-app receipt in their profile (email receipt where an address exists; SMS receipt comes with the phase-2 DLT work). The amount lands in that collector's floating-cash balance until the main admin settles it.
+**C. Cash collected in person** — a deliberately tiny form with **three fields only**: member name (search-as-you-type), amount, and receiver name (pre-filled with the signed-in collector, editable when someone else handed it over). Everything else is auto-filled and shown read-only for confirmation: membership ID, plan, monthly fee, and the months the amount covers ("₹600 covers April–May, new paid-until 31 May"). One "Record collection" button. The entry is created as pending_approval, the member instantly gets an in-app receipt, and the amount sits in that receiver's floating-cash balance until the main admin settles it.
 
-## 4. RBAC: two admin levels, one panel, role-scoped views
-A separate secret URL is weak protection — anyone who learns the link only needs a password, and it forces us to maintain two panels. The stronger answer is **one `/admin` panel where the navigation and every server action are scoped to the signed-in role**, so a team-member admin cannot see or call a main-admin feature even by typing the URL. Roles: `member`, `team_admin`, `main_admin`, stored in `user_roles` (never on the profile). There is exactly one main-admin level; everything sensitive sits there.
+## 4. Two admin surfaces: shared team panel + separate main-admin console
+Your shared-laptop reality changes the answer, so we'll do both layers rather than pick one:
 
-| Action | Team-member admin | Main admin |
+- **`/admin` — team panel (shared).** Keeps the existing sign-in exactly as it is. Any team-member admin account can use it, and a shared office login is fine. Content management, member lookup, cash recording, fee reminders, own settlement balance. No per-person profiling required.
+- **`/admin/hq` — main-admin console (separate route, not linked anywhere).** Not listed in navigation or sitemap. Reaching it requires **both** the `main_admin` role on the signed-in account **and** a separate console passphrase entered on arrival, which unlocks a short session (30 min idle timeout, cleared on tab close). So on the shared laptop, a main admin signs in as usual, opens the console URL, enters the passphrase, does the sensitive work, and closes it — basic team members can't get in even from the same browser.
+
+To be straight with you: the hidden URL itself adds close to zero security (URLs leak), and a passphrase alone would be weak because it's shared and never rotated. What makes this safe is the **role check enforced server-side** in RLS and edge functions — the console is a convenience/segregation layer on top, and the passphrase is the shared-laptop lock. Every sensitive action is also audit-logged with actor, time and IP, so a shared login still leaves a trail.
+
+Roles stay in `user_roles`: `member`, `team_admin`, `main_admin`.
+
+| Action | `/admin` team panel | `/admin/hq` main console |
 | --- | --- | --- |
-| Content: blogs, events, messages, reports, donations, routine, newsletters, team, subscribers | Yes | Yes |
+| Content: blogs, events, messages, reports, donations, routine, newsletters, team, subscribers | Yes | — (stays in team panel) |
 | View members, plans, paid-until status | Yes | Yes |
-| Record cash collection | Yes → goes to pending approval | Yes, self-approved |
-| Approve / reject cash entries | No (sees own entries' status) | Yes |
+| Record cash collection (3-field form) | Yes → pending approval | Yes, self-approved |
+| Approve / reject cash entries | No | Yes |
 | Approve / reject direct-UPI reports | View only | Yes |
-| Cash settlement (mark handed over) | Sees own outstanding balance | Yes, for everyone |
+| Cash settlement | Sees own balance | Yes, for every collector |
 | Send fee reminders | Yes | Yes |
 | Create member accounts | Yes | Yes |
-| Set / reset member passwords | Raises a request for approval | Yes, unrestricted |
-| Change fee amounts, edit paid-until, delete or reverse payments | No | Yes (audit-logged) |
+| Set / reset member passwords | Raises a request | Yes, unrestricted |
+| Change fee amounts, edit paid-until, reverse payments | No | Yes (audit-logged) |
 | Assign or remove roles, ban accounts | No | Yes |
-| Import existing members / activate memberships | Prepare only | Yes, approves activation |
+| Import / activate memberships | Prepare only | Yes, approves |
 | Audit log | Own actions | Everything |
-
-Extra protection for main-admin actions, instead of obscurity: a **step-up re-authentication** prompt (re-enter password) before any money, role or credential action, a short idle timeout on those screens, and every action written to the audit log with actor, time and IP. Approval, settlement, credential and role screens simply do not render for team-member admins, and the same checks are enforced server-side in RLS and edge functions.
 
 ## 5. Admin panel additions
 - **Members**: searchable list with plan, fee, paid-until, status, membership ID; detail view with full payment timeline, blogs written, events attended.
