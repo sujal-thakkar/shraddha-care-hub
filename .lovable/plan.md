@@ -1,18 +1,21 @@
-# Hosla Membership Platform — Phase 1 (OTP login, member ledger, cash & UPI workflows, RBAC)
+# Hosla Membership Platform — Phase 1 (Membership ID login, member ledger, cash & UPI workflows, RBAC)
 
-Building the enterprise membership foundation from your design docs, plus the DLT SMS/OTP layer, in one coherent phase. Renewals, dunning, analytics and 2FA stay for the next phase.
+Building the enterprise membership foundation from your design docs in one coherent phase. Renewals, dunning, analytics, SMS/DLT and 2FA stay for the next phase.
 
 ## Decisions locked from your answers
-- One account per phone for everyone (member, writer, volunteer, admin). Login becomes **phone + OTP first**, with the existing 4-digit PIN kept as an alternative so current writers are not locked out.
+- **One unified account for everyone** (member, writer, volunteer, admin) — the blog no longer has its own login or separate path; everything lives in one synchronous profile.
+- Login is **Membership ID + password**. Passwords are issued and managed by admins, not self-registered.
+- No OTP / DLT SMS in this phase.
 - Fee engine is a **monthly ledger** (fee amount per member + "paid up until" date). The Standard/Premium plan prices only set the default monthly amount.
 - Stripe stays as the online gateway for now; the design is webhook-first so Razorpay can drop in later.
 - Existing members are imported from **both** the Active Members sheet and approved membership applications into an admin review screen where each record is confirmed before activation.
 
-## 1. Login with SMS OTP (Jio TrueConnect DLT via Fast2SMS)
-- Sign-in screen: country code + 10-digit phone, big "Send code" button, then a 6-digit code box. "Use my PIN instead" link stays available.
-- Codes are generated and hashed server-side, expire in 5 minutes, are single-use, limited to 5 sends per phone per hour, and locked after 5 wrong attempts.
-- Sent through your approved DLT OTP template with sender ID HOSLAS.
-- New numbers can sign up with OTP only; no PIN required (they can add one later in profile).
+## 1. Login with Membership ID + password
+- Sign-in screen: **Membership ID** box + **Password** box and one big "Sign in" button. The existing "Use my PIN instead" option stays available so current writers are not locked out.
+- Membership ID is generated automatically: first four letters of the name + last four digits of the phone (e.g. RINA1234). Shown prominently on the profile so members can read it back.
+- Admin panel can set, reset and re-issue a member's password at any time; new-member onboarding is ID + password only (no self-signup).
+- Sensible protections: attempt throttling and lockout after repeated wrong passwords, and a forced password change prompt the first time a member signs in with an admin-issued password.
+
 
 ## 2. Member records and the fee ledger
 Each member gets: membership number (first four letters of the member's name + last four digits of their phone, e.g. RINA1234), plan, monthly fee amount, paid-up-until date, city chapter, join date, status (active / renewal due / lapsed) with a 15-day grace buffer.
