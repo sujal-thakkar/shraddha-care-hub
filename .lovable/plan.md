@@ -33,26 +33,32 @@ Approving a transaction is what extends the paid-up-until date. Months covered a
 
 **B. "I paid directly on PhonePe/GPay" (member or their child)** — simple form: amount, date, paid by self/someone else, optional transaction ID, and an **optional** screenshot upload. Creates pending_verification and shows a clear "Waiting for admin approval" badge. Any uploads go to a new private bucket.
 
-**C. Cash collected by a volunteer** — the *receiver* records it, never the elder. Volunteer searches the member by name, membership ID or phone (fuzzy search), sees "Rina is on the ₹300 plan; ₹600 covers April–May", confirms, and the member instantly gets an in-app receipt in their profile (email receipt where an address exists; SMS receipt comes with the phase-2 DLT work). The amount lands in that volunteer's floating-cash balance until a main admin settles it.
+**C. Cash collected in person** — the *receiver* records it, never the elder. A team-member admin searches the member by name, membership ID or phone (fuzzy search), sees "Rina is on the ₹300 plan; ₹600 covers April–May", confirms, and the member instantly gets an in-app receipt in their profile (email receipt where an address exists; SMS receipt comes with the phase-2 DLT work). The amount lands in that collector's floating-cash balance until the main admin settles it.
 
-## 4. RBAC: one panel, role-scoped views (recommended over a hidden route)
-A separate secret URL is weak protection — anyone who learns the link only needs a password, and it forces us to maintain two panels. The stronger and simpler answer is **one `/admin` panel where the navigation and every server action are scoped to the signed-in role**, so a volunteer literally cannot see or call a main-admin feature even by typing the URL. Roles: `member`, `volunteer`, `team_member`, `admin`, `main_admin`, stored in `user_roles` (never on the profile).
+## 4. RBAC: two admin levels, one panel, role-scoped views
+A separate secret URL is weak protection — anyone who learns the link only needs a password, and it forces us to maintain two panels. The stronger answer is **one `/admin` panel where the navigation and every server action are scoped to the signed-in role**, so a team-member admin cannot see or call a main-admin feature even by typing the URL. Roles: `member`, `team_admin`, `main_admin`, stored in `user_roles` (never on the profile). There is exactly one main-admin level; everything sensitive sits there.
 
-| Action | Team member | Volunteer | Admin | Main admin |
-| --- | --- | --- | --- | --- |
-| Content (blogs, events, messages) | Yes | No | Yes | Yes |
-| Record cash collection | No | Yes (pending approval) | Yes (pending approval) | Yes (self-approved) |
-| Approve direct-UPI reports | No | View only | No | Yes |
-| Settle volunteer cash | No | View own balance | View only | Yes |
-| Set / reset member passwords | No | No | Request only (needs main-admin approval) | Yes, unrestricted |
-| Change fees, delete payments, manage roles | No | No | No | Yes (audit-logged) |
-| Send fee reminders | No | No | Yes | Yes |
+| Action | Team-member admin | Main admin |
+| --- | --- | --- |
+| Content: blogs, events, messages, reports, donations, routine, newsletters, team, subscribers | Yes | Yes |
+| View members, plans, paid-until status | Yes | Yes |
+| Record cash collection | Yes → goes to pending approval | Yes, self-approved |
+| Approve / reject cash entries | No (sees own entries' status) | Yes |
+| Approve / reject direct-UPI reports | View only | Yes |
+| Cash settlement (mark handed over) | Sees own outstanding balance | Yes, for everyone |
+| Send fee reminders | Yes | Yes |
+| Create member accounts | Yes | Yes |
+| Set / reset member passwords | Raises a request for approval | Yes, unrestricted |
+| Change fee amounts, edit paid-until, delete or reverse payments | No | Yes (audit-logged) |
+| Assign or remove roles, ban accounts | No | Yes |
+| Import existing members / activate memberships | Prepare only | Yes, approves activation |
+| Audit log | Own actions | Everything |
 
-Extra protection for main-admin actions, instead of obscurity: a **step-up re-authentication** prompt (re-enter password) before any money, role or credential action, a short idle timeout on those screens, and every action written to the audit log with actor, time and IP. Membership, settlement, credential and role screens simply do not render for other roles.
+Extra protection for main-admin actions, instead of obscurity: a **step-up re-authentication** prompt (re-enter password) before any money, role or credential action, a short idle timeout on those screens, and every action written to the audit log with actor, time and IP. Approval, settlement, credential and role screens simply do not render for team-member admins, and the same checks are enforced server-side in RLS and edge functions.
 
 ## 5. Admin panel additions
 - **Members**: searchable list with plan, fee, paid-until, status, membership ID; detail view with full payment timeline, blogs written, events attended.
-- **Credentials**: create a member account (ID auto-generated), set or reset the password, copy it to share, force a password change on next sign-in. A normal admin's reset creates a **pending request** the main admin approves; the main admin acts directly.
+- **Credentials**: create a member account (ID auto-generated), set or reset the password, copy it to share, force a password change on next sign-in. A team-member admin's reset creates a **pending request** the main admin approves; the main admin acts directly.
 - **Fee reminders**: filter members who are due or lapsed, preview the message, select recipients (or all due) and send. Delivered by email plus an in-app notification now; the same screen will send SMS once DLT is live in phase 2. Reminder history is logged per member so nobody gets spammed twice in a day.
 - **Verification queue**: direct-UPI reports with the screenshot when one was attached; approve or reject with reason.
 - **Cash & settlement**: pending cash entries to approve, and per-volunteer outstanding balances with a "Settle" action.
