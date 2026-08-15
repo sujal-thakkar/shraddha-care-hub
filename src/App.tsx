@@ -53,6 +53,9 @@ const AdminBlogs = lazy(() => import("./pages/admin/Blogs"));
 const AdminWriters = lazy(() => import("./pages/admin/Writers"));
 const AdminNewsletters = lazy(() => import("./pages/admin/Newsletters"));
 const AdminSubscribers = lazy(() => import("./pages/admin/Subscribers"));
+const AdminMembers = lazy(() => import("./pages/admin/Members"));
+const AdminHq = lazy(() => import("./pages/admin/hq/Hq"));
+
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -116,6 +119,8 @@ const App = () => {
               <Route path="routine" element={<AdminRoutineManagement />} />
               <Route path="registrations" element={<AdminRegistrations />} />
               <Route path="memberships" element={<AdminMemberships />} />
+              <Route path="members" element={<AdminMembers />} />
+
               <Route path="preview-inspector" element={<AdminPreviewInspector />} />
               <Route path="collaborate" element={<AdminCollaborateContent />} />
               <Route path="blogs" element={<AdminBlogs />} />
@@ -124,6 +129,8 @@ const App = () => {
               <Route path="subscribers" element={<AdminSubscribers />} />
               <Route path="settings" element={<AdminSettings />} />
             </Route>
+            <Route path="/admin/hq" element={<AdminHq />} />
+
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>

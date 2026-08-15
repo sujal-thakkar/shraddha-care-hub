@@ -468,6 +468,51 @@ export type Database = {
         }
         Relationships: []
       }
+      credential_requests: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          reason: string | null
+          requested_by: string
+          requested_by_name: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          target_membership_id: string | null
+          target_user_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind?: string
+          reason?: string | null
+          requested_by: string
+          requested_by_name?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          target_membership_id?: string | null
+          target_user_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          reason?: string | null
+          requested_by?: string
+          requested_by_name?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          target_membership_id?: string | null
+          target_user_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       donations: {
         Row: {
           admin_notes: string | null
@@ -581,6 +626,90 @@ export type Database = {
           },
         ]
       }
+      fee_reminders: {
+        Row: {
+          channel: string
+          id: string
+          member_user_id: string
+          membership_id: string | null
+          message: string | null
+          sent_at: string
+          sent_by: string | null
+        }
+        Insert: {
+          channel?: string
+          id?: string
+          member_user_id: string
+          membership_id?: string | null
+          message?: string | null
+          sent_at?: string
+          sent_by?: string | null
+        }
+        Update: {
+          channel?: string
+          id?: string
+          member_user_id?: string
+          membership_id?: string | null
+          message?: string | null
+          sent_at?: string
+          sent_by?: string | null
+        }
+        Relationships: []
+      }
+      member_imports: {
+        Row: {
+          chapter: string | null
+          created_at: string
+          email: string | null
+          id: string
+          linked_user_id: string | null
+          membership_id: string | null
+          monthly_fee_amount: number | null
+          name: string
+          note: string | null
+          paid_up_until: string | null
+          phone_digits: string | null
+          plan: string | null
+          source: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          chapter?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          linked_user_id?: string | null
+          membership_id?: string | null
+          monthly_fee_amount?: number | null
+          name: string
+          note?: string | null
+          paid_up_until?: string | null
+          phone_digits?: string | null
+          plan?: string | null
+          source: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          chapter?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          linked_user_id?: string | null
+          membership_id?: string | null
+          monthly_fee_amount?: number | null
+          name?: string
+          note?: string | null
+          paid_up_until?: string | null
+          phone_digits?: string | null
+          plan?: string | null
+          source?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       membership_applications: {
         Row: {
           address: string
@@ -638,6 +767,129 @@ export type Database = {
           status?: string
           updated_at?: string
           voter_id?: string | null
+        }
+        Relationships: []
+      }
+      membership_audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          actor_name: string | null
+          created_at: string
+          details: Json
+          entity: string | null
+          entity_id: string | null
+          id: string
+          ip: string | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          actor_name?: string | null
+          created_at?: string
+          details?: Json
+          entity?: string | null
+          entity_id?: string | null
+          id?: string
+          ip?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          actor_name?: string | null
+          created_at?: string
+          details?: Json
+          entity?: string | null
+          entity_id?: string | null
+          id?: string
+          ip?: string | null
+        }
+        Relationships: []
+      }
+      membership_transactions: {
+        Row: {
+          amount_inr: number
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          id: string
+          member_user_id: string
+          membership_id: string | null
+          monthly_fee_amount: number | null
+          months_covered: number | null
+          note: string | null
+          paid_on: string
+          period_end: string | null
+          period_start: string | null
+          receipt_url: string | null
+          receiver_name: string | null
+          recorded_by: string | null
+          rejected_reason: string | null
+          screenshot_path: string | null
+          settled: boolean
+          settled_at: string | null
+          settled_by: string | null
+          source: string
+          state: string
+          stripe_session_id: string | null
+          transaction_ref: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount_inr: number
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          member_user_id: string
+          membership_id?: string | null
+          monthly_fee_amount?: number | null
+          months_covered?: number | null
+          note?: string | null
+          paid_on?: string
+          period_end?: string | null
+          period_start?: string | null
+          receipt_url?: string | null
+          receiver_name?: string | null
+          recorded_by?: string | null
+          rejected_reason?: string | null
+          screenshot_path?: string | null
+          settled?: boolean
+          settled_at?: string | null
+          settled_by?: string | null
+          source: string
+          state?: string
+          stripe_session_id?: string | null
+          transaction_ref?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount_inr?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          member_user_id?: string
+          membership_id?: string | null
+          monthly_fee_amount?: number | null
+          months_covered?: number | null
+          note?: string | null
+          paid_on?: string
+          period_end?: string | null
+          period_start?: string | null
+          receipt_url?: string | null
+          receiver_name?: string | null
+          recorded_by?: string | null
+          rejected_reason?: string | null
+          screenshot_path?: string | null
+          settled?: boolean
+          settled_at?: string | null
+          settled_by?: string | null
+          source?: string
+          state?: string
+          stripe_session_id?: string | null
+          transaction_ref?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -893,6 +1145,7 @@ export type Database = {
           approved_by: string | null
           avatar_url: string | null
           bio: string | null
+          chapter: string | null
           country_code: string | null
           created_at: string
           digest_email: string | null
@@ -901,7 +1154,14 @@ export type Database = {
           email_digest_enabled: boolean
           full_name: string | null
           id: string
+          member_since: string | null
+          member_status: string
+          membership_id: string | null
+          monthly_fee_amount: number | null
+          must_change_password: boolean
+          paid_up_until: string | null
           phone_e164: string | null
+          plan: string | null
           preferred_font_size: number
           rejected_reason: string | null
           status: string
@@ -913,6 +1173,7 @@ export type Database = {
           approved_by?: string | null
           avatar_url?: string | null
           bio?: string | null
+          chapter?: string | null
           country_code?: string | null
           created_at?: string
           digest_email?: string | null
@@ -921,7 +1182,14 @@ export type Database = {
           email_digest_enabled?: boolean
           full_name?: string | null
           id?: string
+          member_since?: string | null
+          member_status?: string
+          membership_id?: string | null
+          monthly_fee_amount?: number | null
+          must_change_password?: boolean
+          paid_up_until?: string | null
           phone_e164?: string | null
+          plan?: string | null
           preferred_font_size?: number
           rejected_reason?: string | null
           status?: string
@@ -933,6 +1201,7 @@ export type Database = {
           approved_by?: string | null
           avatar_url?: string | null
           bio?: string | null
+          chapter?: string | null
           country_code?: string | null
           created_at?: string
           digest_email?: string | null
@@ -941,7 +1210,14 @@ export type Database = {
           email_digest_enabled?: boolean
           full_name?: string | null
           id?: string
+          member_since?: string | null
+          member_status?: string
+          membership_id?: string | null
+          monthly_fee_amount?: number | null
+          must_change_password?: boolean
+          paid_up_until?: string | null
           phone_e164?: string | null
+          plan?: string | null
           preferred_font_size?: number
           rejected_reason?: string | null
           status?: string
@@ -1344,16 +1620,41 @@ export type Database = {
       }
       is_active_member: { Args: { _phone: string }; Returns: boolean }
       is_admin: { Args: never; Returns: boolean }
+      is_any_admin: { Args: never; Returns: boolean }
       is_approved_writer: { Args: { _uid: string }; Returns: boolean }
       is_hosla_member: {
         Args: { _email: string; _phone: string }
         Returns: boolean
       }
+      is_main_admin: { Args: never; Returns: boolean }
       is_phone_available: { Args: { _phone: string }; Returns: boolean }
+      make_membership_id: {
+        Args: { _name: string; _phone: string }
+        Returns: string
+      }
+      search_members: {
+        Args: { _q: string }
+        Returns: {
+          full_name: string
+          member_status: string
+          membership_id: string
+          monthly_fee_amount: number
+          paid_up_until: string
+          phone_e164: string
+          plan: string
+          user_id: string
+        }[]
+      }
     }
     Enums: {
       abuse_type: "physical" | "emotional" | "financial" | "neglect" | "other"
-      app_role: "admin" | "moderator" | "user"
+      app_role:
+        | "admin"
+        | "moderator"
+        | "user"
+        | "team_admin"
+        | "main_admin"
+        | "member"
       organization_type: "shraddha" | "hosla" | "both"
       project_status: "upcoming" | "ongoing" | "completed"
       report_status: "new" | "investigating" | "resolved" | "archived"
@@ -1499,7 +1800,14 @@ export const Constants = {
   public: {
     Enums: {
       abuse_type: ["physical", "emotional", "financial", "neglect", "other"],
-      app_role: ["admin", "moderator", "user"],
+      app_role: [
+        "admin",
+        "moderator",
+        "user",
+        "team_admin",
+        "main_admin",
+        "member",
+      ],
       organization_type: ["shraddha", "hosla", "both"],
       project_status: ["upcoming", "ongoing", "completed"],
       report_status: ["new", "investigating", "resolved", "archived"],
