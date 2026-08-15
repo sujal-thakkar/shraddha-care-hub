@@ -46,7 +46,6 @@ const AdminTeamManagement = lazy(() => import("./pages/admin/TeamManagement"));
 const AdminRegistrations = lazy(() => import("./pages/admin/Registrations"));
 const AdminEventManagement = lazy(() => import("./pages/admin/EventManagement"));
 const AdminRoutineManagement = lazy(() => import("./pages/admin/RoutineManagement"));
-const AdminMemberships = lazy(() => import("./pages/admin/Memberships"));
 const AdminPreviewInspector = lazy(() => import("./pages/admin/PreviewInspector"));
 const AdminCollaborateContent = lazy(() => import("./pages/admin/CollaborateContent"));
 const AdminBlogs = lazy(() => import("./pages/admin/Blogs"));
@@ -118,7 +117,7 @@ const App = () => {
               <Route path="events" element={<AdminEventManagement />} />
               <Route path="routine" element={<AdminRoutineManagement />} />
               <Route path="registrations" element={<AdminRegistrations />} />
-              <Route path="memberships" element={<AdminMemberships />} />
+              <Route path="memberships" element={<Navigate to="/admin/dashboard/members" replace />} />
               <Route path="members" element={<AdminMembers />} />
 
               <Route path="preview-inspector" element={<AdminPreviewInspector />} />

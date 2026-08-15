@@ -46,13 +46,29 @@ Deno.serve(async (req) => {
       const email = memberSyntheticEmail(membershipId);
       const e164 = `+91${phone.slice(-10)}`;
 
-      const { data: created, error: createErr } = await svc.auth.admin.createUser({
-        email,
-        password,
-        email_confirm: true,
-        user_metadata: { full_name: name, phone_e164: e164, country_code: "+91" },
-      });
-      if (createErr || !created.user) return json({ error: createErr?.message ?? "Could not create account" }, 400, H);
+      // A profile may already exist for this phone (e.g. an existing blog writer).
+      // Upgrade that account into a member instead of failing on the unique phone.
+      const { data: existing } = await svc.from("profiles")
+        .select("user_id, membership_id").eq("phone_e164", e164).maybeSingle();
+
+      let userId: string;
+      if (existing) {
+        if (existing.membership_id) {
+          return json({ error: `This phone already belongs to member ${existing.membership_id}.` }, 400, H);
+        }
+        userId = existing.user_id;
+        const { error: pwErr } = await svc.auth.admin.updateUserById(userId, { password });
+        if (pwErr) return json({ error: pwErr.message }, 400, H);
+      } else {
+        const { data: created, error: createErr } = await svc.auth.admin.createUser({
+          email,
+          password,
+          email_confirm: true,
+          user_metadata: { full_name: name, phone_e164: e164, country_code: "+91" },
+        });
+        if (createErr || !created.user) return json({ error: createErr?.message ?? "Could not create account" }, 400, H);
+        userId = created.user.id;
+      }
 
       // handle_new_user() already inserted the profile row; fill in member fields.
       await svc.from("profiles").update({
@@ -68,12 +84,12 @@ Deno.serve(async (req) => {
         must_change_password: true,
         status: "approved",
         approved_at: new Date().toISOString(),
-      }).eq("user_id", created.user.id);
+      }).eq("user_id", userId);
 
-      await svc.from("user_roles").insert({ user_id: created.user.id, role: "member" });
-      await audit(svc, caller, "create_member", "profiles", created.user.id, { membership_id: membershipId }, ip);
+      await svc.from("user_roles").insert({ user_id: userId, role: "member" });
+      await audit(svc, caller, "create_member", "profiles", userId, { membership_id: membershipId }, ip);
 
-      return json({ membership_id: membershipId, password, user_id: created.user.id }, 200, H);
+      return json({ membership_id: membershipId, password, user_id: userId }, 200, H);
     }
 
     // ---- Set / reset a password --------------------------------------------

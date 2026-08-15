@@ -6,6 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import AdminMemberships from "@/pages/admin/Memberships";
+import { PLANS, defaultAmount, monthlyEquivalent, planLabel, type BillingCycle } from "@/lib/membership-plans";
 import { Loader2, Search, HandCoins, BellRing, IdCard, UserPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAdminRole } from "@/hooks/use-admin-role";
@@ -38,8 +42,9 @@ export default function AdminMembers() {
   const [newOpen, setNewOpen] = useState(false);
   const [nName, setNName] = useState("");
   const [nPhone, setNPhone] = useState("");
-  const [nPlan, setNPlan] = useState("Standard");
-  const [nFee, setNFee] = useState("300");
+  const [nPlan, setNPlan] = useState("standard-non-metro");
+  const [nCycle, setNCycle] = useState<BillingCycle>("monthly");
+  const [nFee, setNFee] = useState(defaultAmount("standard-non-metro", "monthly"));
   const [creating, setCreating] = useState(false);
   const [issued, setIssued] = useState<{ membership_id: string; password: string } | null>(null);
 
@@ -119,7 +124,7 @@ export default function AdminMembers() {
         name: nName.trim(),
         phone: nPhone.replace(/\D/g, ""),
         plan: nPlan,
-        monthly_fee_amount: Number(nFee) || null,
+        monthly_fee_amount: monthlyEquivalent(Number(nFee), nCycle),
       },
     });
     setCreating(false);
@@ -149,8 +154,8 @@ export default function AdminMembers() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-serif text-2xl md:text-3xl font-bold">Members</h1>
-          <p className="text-muted-foreground">Record cash collections, issue accounts and send fee reminders.</p>
+          <h1 className="font-serif text-2xl md:text-3xl font-bold">Members &amp; Fee Management</h1>
+          <p className="text-muted-foreground">Member accounts, plans, cash collections, reminders and card applications — all in one place.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button onClick={() => { setIssued(null); setNewOpen(true); }} className="h-11">
@@ -164,6 +169,15 @@ export default function AdminMembers() {
         </div>
       </div>
 
+      <Tabs defaultValue="members">
+        <TabsList>
+          <TabsTrigger value="members">Members &amp; fees</TabsTrigger>
+          <TabsTrigger value="applications">Card applications</TabsTrigger>
+        </TabsList>
+        <TabsContent value="applications" className="mt-4">
+          <AdminMemberships />
+        </TabsContent>
+        <TabsContent value="members" className="mt-4 space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2"><IdCard className="h-5 w-5 text-primary" /> Member directory</CardTitle>
@@ -184,7 +198,7 @@ export default function AdminMembers() {
                     <div className="min-w-0">
                       <p className="font-medium">{m.full_name || "—"} <span className="text-muted-foreground font-normal">· {m.membership_id}</span></p>
                       <p className="text-sm text-muted-foreground">
-                        {m.plan || "—"}{m.monthly_fee_amount ? ` · ${formatINR(m.monthly_fee_amount)}/month` : ""} · paid up to {prettyDate(m.paid_up_until)}
+                        {planLabel(m.plan)}{m.monthly_fee_amount ? ` · ${formatINR(m.monthly_fee_amount)}/month` : ""} · paid up to {prettyDate(m.paid_up_until)}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -209,6 +223,8 @@ export default function AdminMembers() {
           Approvals, cash settlement and credential overrides live in the main-admin console.
         </p>
       )}
+        </TabsContent>
+      </Tabs>
 
       {/* Cash collection: three fields only */}
       <Dialog open={!!cashFor} onOpenChange={(o) => !o && setCashFor(null)}>
@@ -273,16 +289,37 @@ export default function AdminMembers() {
                   <Label>Phone (10 digits)</Label>
                   <Input inputMode="numeric" value={nPhone} onChange={(e) => setNPhone(e.target.value.replace(/\D/g, "").slice(0, 10))} className="h-12 mt-1" />
                 </div>
+                <div>
+                  <Label>Plan</Label>
+                  <Select value={nPlan} onValueChange={(v) => { setNPlan(v); setNFee(defaultAmount(v, nCycle)); }}>
+                    <SelectTrigger className="h-12 mt-1"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {PLANS.map((p) => <SelectItem key={p.key} value={p.key}>{p.label}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <Label>Plan</Label>
-                    <Input value={nPlan} onChange={(e) => setNPlan(e.target.value)} className="h-12 mt-1" />
+                    <Label>Billing</Label>
+                    <Select value={nCycle} onValueChange={(v) => { setNCycle(v as BillingCycle); setNFee(defaultAmount(nPlan, v as BillingCycle)); }}>
+                      <SelectTrigger className="h-12 mt-1"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="monthly">Monthly</SelectItem>
+                        <SelectItem value="yearly">Yearly</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
-                    <Label>Monthly fee (₹)</Label>
-                    <Input inputMode="numeric" value={nFee} onChange={(e) => setNFee(e.target.value.replace(/\D/g, ""))} className="h-12 mt-1" />
+                    <Label>Amount (₹ / {nCycle === "monthly" ? "month" : "year"})</Label>
+                    <Input inputMode="numeric" value={nFee} onChange={(e) => setNFee(e.target.value.replace(/\D/g, ""))}
+                      placeholder={nPlan.startsWith("premium") ? "Custom amount" : ""} className="h-12 mt-1" />
                   </div>
                 </div>
+                {nCycle === "yearly" && Number(nFee) > 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    Charged as <strong>{formatINR(monthlyEquivalent(Number(nFee), "yearly"))}/month</strong> in the fee ledger.
+                  </p>
+                )}
                 {nName && nPhone.length === 10 && (
                   <p className="text-sm text-muted-foreground">
                     Membership ID will be <strong>{makeMembershipId(nName, nPhone)}</strong>
