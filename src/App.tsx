@@ -119,6 +119,8 @@ const App = () => {
               <Route path="routine" element={<AdminRoutineManagement />} />
               <Route path="registrations" element={<AdminRegistrations />} />
               <Route path="memberships" element={<AdminMemberships />} />
+              <Route path="members" element={<AdminMembers />} />
+
               <Route path="preview-inspector" element={<AdminPreviewInspector />} />
               <Route path="collaborate" element={<AdminCollaborateContent />} />
               <Route path="blogs" element={<AdminBlogs />} />
