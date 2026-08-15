@@ -47,11 +47,11 @@ Approving a transaction is what extends the paid-up-until date. Months covered a
 Roles live in the existing `user_roles` table (never on the profile), extended with `volunteer` and `main_admin`.
 
 ## 5. Admin panel additions
-- **Members**: searchable list with plan, fee, paid-until, status, membership number; detail view with full payment timeline, blogs written, events attended.
-- **Verification queue**: direct-UPI reports side by side with the uploaded screenshot; approve or reject with reason.
+- **Members**: searchable list with plan, fee, paid-until, status, membership ID; detail view with full payment timeline, blogs written, events attended.
+- **Credentials**: create a member account (ID auto-generated), set or reset the password, copy it to share, and force a password change on next sign-in.
+- **Verification queue**: direct-UPI reports with the screenshot when one was attached; approve or reject with reason.
 - **Cash & settlement**: pending cash entries to approve, and per-volunteer outstanding balances with a "Settle" action.
 - **Import review**: merged list from the Active Members sheet and approved applications; admin sets fee amount and paid-until date, then activates.
-- **SMS broadcasts**: send your approved event-invitation and blog-notification templates to Active Members or an event's registrants, with a preview and confirm step.
 - **Audit log**: read-only trail of every money action.
 
 ## 6. Member profile as a "living room" (not a dashboard)
