@@ -41,10 +41,10 @@ const BUILT_IN: Template[] = [
 
 function fill(tpl: string, m: ReminderTarget) {
   return tpl
-    .replaceAll("{name}", m.full_name || "friend")
-    .replaceAll("{membership_id}", m.membership_id || "—")
-    .replaceAll("{amount}", String(m.monthly_fee_amount ?? 0))
-    .replaceAll("{paid_up_until}", m.paid_up_until ? prettyDate(m.paid_up_until) : "—");
+    .replace(/\{name\}/g, m.full_name || "friend")
+    .replace(/\{membership_id\}/g, m.membership_id || "—")
+    .replace(/\{amount\}/g, String(m.monthly_fee_amount ?? 0))
+    .replace(/\{paid_up_until\}/g, m.paid_up_until ? prettyDate(m.paid_up_until) : "—");
 }
 
 export default function ReminderComposer({
