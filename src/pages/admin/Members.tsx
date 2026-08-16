@@ -13,6 +13,8 @@ import AdminMemberships from "@/pages/admin/Memberships";
 import PlanEditor from "@/components/admin/PlanEditor";
 import ReminderComposer, { type ReminderTarget } from "@/components/admin/ReminderComposer";
 import SheetOnboarding from "@/components/admin/SheetOnboarding";
+import MemberCredentialActions from "@/components/admin/MemberCredentialActions";
+import { AuthorAvatar } from "@/components/blog/AuthorAvatar";
 import { usePlanPrices } from "@/hooks/use-plan-prices";
 import { PLANS, defaultAmount, monthlyEquivalent, planLabel, priceFor, type BillingCycle } from "@/lib/membership-plans";
 import { Loader2, Search, HandCoins, BellRing, IdCard, UserPlus, AlertTriangle, CalendarClock, UserMinus } from "lucide-react";
@@ -81,7 +83,7 @@ export default function AdminMembers() {
     const uid = sess.session?.user.id;
     const { data } = await supabase
       .from("profiles")
-      .select("user_id, full_name, phone_e164, email, membership_id, plan, monthly_fee_amount, paid_up_until, last_paid_month, member_status, chapter")
+      .select("user_id, full_name, phone_e164, email, membership_id, plan, monthly_fee_amount, paid_up_until, last_paid_month, member_status, chapter, avatar_url")
       .not("membership_id", "is", null)
       .order("full_name");
     setMembers(data ?? []);
@@ -251,8 +253,10 @@ export default function AdminMembers() {
             onCheckedChange={(v) => setSelected((s) => ({ ...s, [m.user_id]: !!v }))}
             aria-label={`Select ${m.full_name}`}
           />
+          <AuthorAvatar avatarPath={m.avatar_url} name={m.full_name} className="h-10 w-10" />
           <div className="min-w-0">
             <p className="font-medium">{m.full_name || "—"} <span className="text-muted-foreground font-normal">· {m.membership_id}</span></p>
+            <p className="text-xs text-muted-foreground font-mono">password ••••••••</p>
             <p className="text-sm text-muted-foreground">
               {planLabel(m.plan)}{m.monthly_fee_amount ? ` · ${formatINR(m.monthly_fee_amount)}/month` : ""} · last paid {m.last_paid_month ? monthLabel(m.last_paid_month) : "never"} · paid up to {prettyDate(m.paid_up_until)}
               {opts.renewal && dLeft !== null && (
@@ -271,6 +275,7 @@ export default function AdminMembers() {
           <Button size="sm" variant="ghost" className="h-10" onClick={() => openComposer([m])} disabled={sending}>
             <BellRing className="h-4 w-4" />
           </Button>
+          <MemberCredentialActions member={m} isMainAdmin={isMainAdmin} onChanged={load} />
           <Button size="sm" variant="ghost" className="h-10 text-destructive hover:text-destructive"
             onClick={() => setRemoveFor(m)} aria-label={`Remove ${m.full_name} from the directory`}>
             <UserMinus className="h-4 w-4" />

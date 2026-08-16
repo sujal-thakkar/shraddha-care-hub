@@ -301,12 +301,18 @@ export default function Hq() {
                     {requests.map((r) => (
                       <div key={r.id} className="py-3 flex flex-wrap items-center justify-between gap-3">
                         <div>
-                          <p className="font-medium">{r.target_membership_id || r.target_user_id}</p>
+                          <p className="font-medium">
+                            {r.target_membership_id || r.target_user_id}
+                            <span className="ml-2 text-xs font-normal rounded-full bg-muted px-2 py-0.5">
+                              {r.kind === "password_view" ? "wants to see the password" : "wants a password reset"}
+                            </span>
+                          </p>
                           <p className="text-sm text-muted-foreground">
                             Asked by {r.requested_by_name || "an admin"} · {prettyDate(r.created_at)}
                           </p>
                           {r.reason && <p className="text-sm">{r.reason}</p>}
                         </div>
+
                         <div className="flex gap-2">
                           <Button size="sm" className="h-10" disabled={busy} onClick={() => reviewRequest(r.id, true)}>Approve</Button>
                           <Button size="sm" variant="outline" className="h-10" disabled={busy} onClick={() => reviewRequest(r.id, false)}>Reject</Button>

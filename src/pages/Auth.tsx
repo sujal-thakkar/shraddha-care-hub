@@ -75,7 +75,7 @@ export default function Auth() {
     if (setErr) return toast({ title: "Couldn't start your session", description: setErr.message, variant: "destructive" });
 
     toast({ title: `Welcome, ${payload.full_name || "friend"}!` });
-    navigate(payload.must_change_password ? "/profile?change_password=1" : next, { replace: true });
+    navigate(next, { replace: true });
   };
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -229,7 +229,7 @@ export default function Auth() {
             <CardDescription>Sign in with your Membership ID and password.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="signin">
+            <Tabs defaultValue={params.get("tab") === "signup" ? "signup" : "signin"}>
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="signin">Sign in</TabsTrigger>
                 <TabsTrigger value="signup">Create account</TabsTrigger>

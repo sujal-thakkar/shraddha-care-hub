@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,15 +8,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, LogOut, PenLine, KeyRound, User, Trash2, Save, Camera } from "lucide-react";
+import { Loader2, LogOut, PenLine, User, Trash2, Save, Camera, CalendarCheck, HeartHandshake } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { composePassword, isValidPin } from "@/lib/phone-auth";
 import { AuthorAvatar } from "@/components/blog/AuthorAvatar";
 import { useI18n } from "@/i18n";
 import { Switch } from "@/components/ui/switch";
 import { BellRing, Send } from "lucide-react";
 import { MembershipSection } from "@/components/membership/MembershipSection";
-import { ChangePasswordCard } from "@/components/membership/ChangePasswordCard";
 
 
 const STATUS_KEY: Record<string, string> = {
@@ -41,8 +39,6 @@ const STATUS_COLOR: Record<string, string> = {
 export default function Profile() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [params] = useSearchParams();
-  const mustChangePassword = params.get("change_password") === "1";
   const { t } = useI18n();
 
   const [loading, setLoading] = useState(true);
@@ -55,10 +51,10 @@ export default function Profile() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // PIN change
-  const [currentPin, setCurrentPin] = useState("");
-  const [newPin, setNewPin] = useState("");
-  const [confirmPin, setConfirmPin] = useState("");
-  const [changingPin, setChangingPin] = useState(false);
+  // Member activity
+  const [events, setEvents] = useState<any[]>([]);
+  const [donations, setDonations] = useState<any[]>([]);
+
 
   // Email digest settings
   const [digestOn, setDigestOn] = useState(false);
@@ -132,6 +128,7 @@ export default function Profile() {
     const realEmail = String((p as any)?.email || "").endsWith("@shraddha.local") ? "" : (p as any)?.email || "";
     setDigestEmail((p as any)?.digest_email || realEmail);
     setBlogs(b ?? []);
+    loadActivity();
     setLoading(false);
   };
 
@@ -185,54 +182,15 @@ export default function Profile() {
     else { toast({ title: t("Photo updated") }); load(); }
   };
 
-  const changePin = async () => {
-    if (!isValidPin(currentPin) || !isValidPin(newPin) || !isValidPin(confirmPin)) {
-      toast({ title: t("PINs must be 4 digits"), variant: "destructive" });
-      return;
-    }
-    if (newPin !== confirmPin) {
-      toast({ title: t("New PINs don't match"), variant: "destructive" });
-      return;
-    }
-    if (newPin === currentPin) {
-      toast({ title: t("Pick a different new PIN"), variant: "destructive" });
-      return;
-    }
-    if (!profile?.phone_e164) {
-      toast({ title: "No phone on file", variant: "destructive" });
-      return;
-    }
-    setChangingPin(true);
-    // Re-authenticate to verify current PIN
-    const { data: sess } = await supabase.auth.getSession();
-    const email = sess.session?.user.email;
-    if (!email) {
-      setChangingPin(false);
-      toast({ title: "Session expired — please sign in again", variant: "destructive" });
-      return;
-    }
-    const { error: verifyErr } = await supabase.auth.signInWithPassword({
-      email,
-      password: composePassword(profile.phone_e164, currentPin),
-    });
-    if (verifyErr) {
-      setChangingPin(false);
-      toast({ title: t("Current PIN is wrong"), variant: "destructive" });
-      return;
-    }
-    const { error: updateErr } = await supabase.auth.updateUser({
-      password: composePassword(profile.phone_e164, newPin),
-    });
-    setChangingPin(false);
-    if (updateErr) {
-      toast({ title: t("Couldn't change PIN"), description: updateErr.message, variant: "destructive" });
-      return;
-    }
-    setCurrentPin("");
-    setNewPin("");
-    setConfirmPin("");
-    toast({ title: t("PIN updated"), description: t("Use your new PIN next time you log in.") });
+  const loadActivity = async () => {
+    const [ev, dn] = await Promise.all([
+      supabase.rpc("my_event_registrations" as any),
+      supabase.rpc("my_donations" as any),
+    ]);
+    setEvents((ev.data as any[]) ?? []);
+    setDonations((dn.data as any[]) ?? []);
   };
+
 
   const logout = async () => {
     await supabase.auth.signOut();
@@ -306,7 +264,7 @@ export default function Profile() {
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
             <h1 className="font-serif text-3xl md:text-4xl font-bold">{t("My profile")}</h1>
-            <p className="text-muted-foreground mt-1">{t("Manage your details, PIN and blogs.")}</p>
+            <p className="text-muted-foreground mt-1">{t("Manage your details, membership, events and blogs.")}</p>
           </div>
           <div className="flex gap-2">
             <Button asChild size="lg" className="h-11">
@@ -451,60 +409,71 @@ export default function Profile() {
           </CardContent>
         </Card>
 
-        {/* Password (Membership ID sign-in) */}
-        <ChangePasswordCard highlight={mustChangePassword || !!profile?.must_change_password} />
-
-        {/* Change PIN */}
-
+        {/* Events attended */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
-              <KeyRound className="h-5 w-5 text-primary" />
-              {t("Change PIN")}
+              <CalendarCheck className="h-5 w-5 text-primary" />
+              {t("My events")}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-3 sm:grid-cols-3">
-              <div>
-                <Label>{t("Current PIN")}</Label>
-                <Input
-                  inputMode="numeric"
-                  maxLength={4}
-                  type="text" autoComplete="off"
-                  value={currentPin}
-                  onChange={(e) => setCurrentPin(e.target.value.replace(/\D/g, ""))}
-                  className="h-11 mt-1 tracking-[0.5em] text-center text-lg"
-                />
+          <CardContent>
+            {events.length === 0 ? (
+              <p className="text-muted-foreground py-4">
+                {t("No event registrations yet. Add your Membership ID when you register and it will appear here.")}
+              </p>
+            ) : (
+              <div className="divide-y">
+                {events.map((e) => (
+                  <div key={e.id} className="py-3 flex flex-wrap items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="font-medium">{e.event_title || t("Event")}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {e.event_date ? new Date(e.event_date).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }) : new Date(e.created_at).toLocaleDateString("en-IN")}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {e.payment_status === "paid" && <Badge className="bg-emerald-100 text-emerald-800">{t("Paid")}</Badge>}
+                      <Badge className={e.checked_in ? "bg-emerald-100 text-emerald-800" : "bg-blue-100 text-blue-800"}>
+                        {e.checked_in ? t("Attended") : t("Registered")}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div>
-                <Label>{t("New PIN")}</Label>
-                <Input
-                  inputMode="numeric"
-                  maxLength={4}
-                  type="text" autoComplete="off"
-                  value={newPin}
-                  onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ""))}
-                  className="h-11 mt-1 tracking-[0.5em] text-center text-lg"
-                />
-              </div>
-              <div>
-                <Label>{t("Confirm new PIN")}</Label>
-                <Input
-                  inputMode="numeric"
-                  maxLength={4}
-                  type="text" autoComplete="off"
-                  value={confirmPin}
-                  onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ""))}
-                  className="h-11 mt-1 tracking-[0.5em] text-center text-lg"
-                />
-              </div>
-            </div>
-            <Button onClick={changePin} disabled={changingPin} className="h-11">
-              {changingPin ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <KeyRound className="h-4 w-4 mr-2" />}
-              {t("Update PIN")}
-            </Button>
+            )}
           </CardContent>
         </Card>
+
+        {/* Donations */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <HeartHandshake className="h-5 w-5 text-primary" />
+              {t("My donations")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {donations.length === 0 ? (
+              <p className="text-muted-foreground py-4">{t("No donations on record yet.")}</p>
+            ) : (
+              <div className="divide-y">
+                {donations.map((d) => (
+                  <div key={d.id} className="py-3 flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <p className="font-medium">₹{d.amount}</p>
+                      <p className="text-sm text-muted-foreground">{new Date(d.created_at).toLocaleDateString("en-IN")}</p>
+                    </div>
+                    <Badge className={d.status === "verified" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}>
+                      {t(d.status === "verified" ? "Verified" : "Pending")}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
 
         {/* My blogs */}
         <Card>

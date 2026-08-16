@@ -129,10 +129,17 @@ Deno.serve(async (req) => {
         chapter,
         member_since: new Date().toISOString().slice(0, 10),
         member_status: paidUpUntil ? "active" : "pending_payment",
-        must_change_password: Boolean(password),
+        must_change_password: false,
         status: "approved",
       }).eq("user_id", userId);
-      if (!password) await svc.from("user_roles").insert({ user_id: userId, role: "member" }).select();
+      if (password) {
+        await svc.from("member_passwords").upsert({
+          user_id: userId, password, updated_at: new Date().toISOString(), updated_by: caller.userId,
+        }, { onConflict: "user_id" });
+      } else {
+        await svc.from("user_roles").insert({ user_id: userId, role: "member" }).select();
+      }
+
 
       await svc.from("member_imports").update({
         status: "activated", linked_user_id: userId, membership_id: membershipId,
