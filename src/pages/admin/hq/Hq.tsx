@@ -60,16 +60,29 @@ export default function Hq() {
   };
 
   const unlock = async () => {
-    setUnlocking(true);
-    const { data, error } = await supabase.functions.invoke("hq-unlock", { body: { passphrase } });
-    setUnlocking(false);
-    if (error || !(data as any)?.ok) {
-      return toast({ title: "Console locked", description: (data as any)?.error || error?.message, variant: "destructive" });
+    if (!username.trim() || !password) {
+      return toast({ title: "Enter your main admin ID and password", variant: "destructive" });
     }
+    setUnlocking(true);
+    const { data, error } = await supabase.functions.invoke("admin-auth", {
+      body: { action: "login", console: true, username: username.trim(), password },
+    });
+    const payload = data as any;
+    if (error || !payload?.session) {
+      setUnlocking(false);
+      return toast({ title: "Console locked", description: payload?.error || error?.message, variant: "destructive" });
+    }
+    const { error: setErr } = await supabase.auth.setSession({
+      access_token: payload.session.access_token,
+      refresh_token: payload.session.refresh_token,
+    });
+    setUnlocking(false);
+    if (setErr) return toast({ title: "Couldn't start your session", description: setErr.message, variant: "destructive" });
     setUnlocked(true);
-    setPassphrase("");
+    setPassword("");
     loadAll();
   };
+
 
   const review = async (body: Record<string, unknown>, okMsg: string) => {
     setBusy(true);
