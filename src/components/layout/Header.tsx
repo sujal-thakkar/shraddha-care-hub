@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { AccessibilityMenu } from "@/hooks/use-a11y";
 import { NotificationBell } from "@/components/blog/NotificationBell";
+import { UserMenu } from "@/components/layout/UserMenu";
+import { MobileAccountLinks } from "@/components/layout/MobileAccountLinks";
 import logoShraddha from "@/assets/logo-shraddha.png";
 
 interface NavChild {
@@ -197,6 +199,7 @@ export function Header() {
             ))}
             <NotificationBell />
             <AccessibilityMenu />
+            <UserMenu />
             <Button asChild size="sm">
               <Link to="/donate">Support Us</Link>
             </Button>
@@ -317,7 +320,8 @@ export function Header() {
             )}
             style={{ transitionDelay: isMenuOpen ? `${navGroups.length * 50 + 100}ms` : "0ms" }}
           >
-            <Button asChild size="lg" className="w-full h-14 text-base">
+            <MobileAccountLinks onNavigate={() => setIsMenuOpen(false)} />
+            <Button asChild size="lg" className="w-full h-14 text-base mt-3">
               <Link to="/donate" onClick={() => setIsMenuOpen(false)}>
                 <Heart className="mr-2 h-5 w-5" />
                 Support Us
