@@ -67,23 +67,33 @@ Deno.serve(async (req) => {
     }
 
     // ---- Create a member account -------------------------------------------
-    if (action === "create_member") {
-      const name = String(body.name ?? "").trim();
-      const phone = String(body.phone ?? "").replace(/\D/g, "");
-      const plan = body.plan ? String(body.plan) : null;
-      const fee = body.monthly_fee_amount ? Number(body.monthly_fee_amount) : null;
-      const chapter = body.chapter ? String(body.chapter) : null;
-      const paidUpUntil = body.paid_up_until ? String(body.paid_up_until) : null;
-      const allowUpgrade = Boolean(body.allow_upgrade);
+    // Shared by the single "New member" dialog and the bulk sheet onboarding.
+    type CreateInput = {
+      name?: unknown; phone?: unknown; plan?: unknown; monthly_fee_amount?: unknown;
+      chapter?: unknown; paid_up_until?: unknown; last_paid_month?: unknown;
+      password?: unknown; allow_upgrade?: unknown;
+    };
+
+    const createMember = async (input: CreateInput) => {
+      const name = String(input.name ?? "").trim();
+      const phone = String(input.phone ?? "").replace(/\D/g, "");
+      const plan = input.plan ? String(input.plan) : null;
+      const fee = input.monthly_fee_amount ? Number(input.monthly_fee_amount) : null;
+      const chapter = input.chapter ? String(input.chapter) : null;
+      const lastPaidMonth = monthStart(input.last_paid_month);
+      const paidUpUntil = input.paid_up_until
+        ? String(input.paid_up_until)
+        : lastPaidMonth ? monthEnd(lastPaidMonth) : null;
+      const allowUpgrade = Boolean(input.allow_upgrade);
       if (name.length < 2 || phone.length < 10) {
-        return json({ error: "Name and a 10-digit phone number are required." }, 400, H);
+        return { status: 400, payload: { error: "Name and a 10-digit phone number are required." } };
       }
       const membershipId = makeMembershipId(name, phone);
 
       const { data: clash } = await svc.from("profiles").select("user_id").eq("membership_id", membershipId).maybeSingle();
-      if (clash) return json({ error: `Membership ID ${membershipId} already exists.` }, 400, H);
+      if (clash) return { status: 400, payload: { error: `Membership ID ${membershipId} already exists.` } };
 
-      const password = String(body.password ?? "") || randomPassword();
+      const password = String(input.password ?? "") || randomPassword();
       const email = memberSyntheticEmail(membershipId);
       const e164 = `+91${phone.slice(-10)}`;
 
@@ -97,21 +107,24 @@ Deno.serve(async (req) => {
       let upgraded = false;
       if (existing) {
         if (existing.membership_id) {
-          return json({ error: `This phone already belongs to member ${existing.membership_id}.` }, 400, H);
+          return { status: 400, payload: { error: `This phone already belongs to member ${existing.membership_id}.` } };
         }
         if (!allowUpgrade) {
-          return json({
-            needs_confirmation: true,
-            outcome: "upgrade",
-            user_id: existing.user_id,
-            full_name: existing.full_name,
-            status: existing.status,
-          }, 409, H);
+          return {
+            status: 409,
+            payload: {
+              needs_confirmation: true,
+              outcome: "upgrade",
+              user_id: existing.user_id,
+              full_name: existing.full_name,
+              status: existing.status,
+            },
+          };
         }
         userId = existing.user_id;
         upgraded = true;
         const { error: pwErr } = await svc.auth.admin.updateUserById(userId, { password });
-        if (pwErr) return json({ error: pwErr.message }, 400, H);
+        if (pwErr) return { status: 400, payload: { error: pwErr.message } };
       } else {
         const { data: created, error: createErr } = await svc.auth.admin.createUser({
           email,
@@ -119,7 +132,9 @@ Deno.serve(async (req) => {
           email_confirm: true,
           user_metadata: { full_name: name, phone_e164: e164, country_code: "+91" },
         });
-        if (createErr || !created.user) return json({ error: createErr?.message ?? "Could not create account" }, 400, H);
+        if (createErr || !created.user) {
+          return { status: 400, payload: { error: createErr?.message ?? "Could not create account" } };
+        }
         userId = created.user.id;
       }
 
@@ -132,6 +147,7 @@ Deno.serve(async (req) => {
         monthly_fee_amount: fee,
         chapter,
         paid_up_until: paidUpUntil,
+        last_paid_month: lastPaidMonth,
         member_since: new Date().toISOString().slice(0, 10),
         member_status: paidUpUntil ? "active" : "pending_payment",
         must_change_password: true,
@@ -153,13 +169,50 @@ Deno.serve(async (req) => {
               previous_status: existing?.status ?? null,
               new_name: name,
               plan,
+              last_paid_month: lastPaidMonth,
             }
-          : { membership_id: membershipId, plan },
+          : { membership_id: membershipId, plan, last_paid_month: lastPaidMonth },
         ip,
       );
 
-      return json({ membership_id: membershipId, password, user_id: userId, upgraded }, 200, H);
+      return {
+        status: 200,
+        payload: { membership_id: membershipId, password, user_id: userId, upgraded, paid_up_until: paidUpUntil },
+      };
+    };
+
+    if (action === "create_member") {
+      const { status, payload } = await createMember(body);
+      return json(payload, status, H);
     }
+
+    // ---- Bulk create from the Active Members sheet ---------------------------
+    if (action === "bulk_create") {
+      const rows = Array.isArray(body.rows) ? body.rows.slice(0, 200) : [];
+      if (rows.length === 0) return json({ error: "No rows to create." }, 400, H);
+
+      const created: Record<string, unknown>[] = [];
+      const failed: Record<string, unknown>[] = [];
+      for (const row of rows) {
+        const { status, payload } = await createMember({
+          ...row,
+          plan: row.plan ?? body.plan,
+          monthly_fee_amount: row.monthly_fee_amount ?? body.monthly_fee_amount,
+          last_paid_month: row.last_paid_month ?? body.last_paid_month,
+          allow_upgrade: row.allow_upgrade ?? body.allow_upgrade ?? true,
+        });
+        const name = String(row.name ?? "");
+        if (status === 200) {
+          created.push({ name, phone: String(row.phone ?? ""), ...payload });
+        } else {
+          failed.push({ name, phone: String(row.phone ?? ""), reason: (payload as any).error ?? "Needs confirmation" });
+        }
+      }
+      await audit(svc, caller, "bulk_create_members", "profiles", null,
+        { created: created.length, failed: failed.length }, ip);
+      return json({ created, failed }, 200, H);
+    }
+
 
     // ---- Set / reset a password --------------------------------------------
     if (action === "set_password") {
