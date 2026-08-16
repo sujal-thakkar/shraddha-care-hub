@@ -338,7 +338,12 @@ export default function Hq() {
                         {r.status === "activated" ? (
                           <Badge className="bg-emerald-100 text-emerald-800">Activated</Badge>
                         ) : (
-                          <Button size="sm" className="h-10" disabled={busy} onClick={() => runImport("activate", { import_id: r.id })}>
+                          <Button size="sm" className="h-10" disabled={busy} onClick={() => {
+                            setActivateRow(r);
+                            setAPlan(r.plan || "standard-non-metro");
+                            setACycle("monthly");
+                            setALastPaid(r.last_paid_month ? String(r.last_paid_month).slice(0, 7) : "");
+                          }}>
                             Activate
                           </Button>
                         )}
