@@ -33,6 +33,7 @@ const Profile = lazy(() => import("./pages/Profile"));
 const Author = lazy(() => import("./pages/Author"));
 const BlogSubscribed = lazy(() => import("./pages/BlogSubscribed"));
 const AdminLogin = lazy(() => import("./pages/admin/Login"));
+const AdminBootstrap = lazy(() => import("./pages/admin/Bootstrap"));
 const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
 const AdminOverview = lazy(() => import("./pages/admin/Overview"));
 const AdminMessages = lazy(() => import("./pages/admin/Messages"));
@@ -105,6 +106,7 @@ const App = () => {
             <Route path="/profile" element={<Profile />} />
             <Route path="/author/:userId" element={<Author />} />
             <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin/recover" element={<AdminBootstrap />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />}>
               <Route index element={<AdminOverview />} />
               <Route path="messages" element={<AdminMessages />} />
