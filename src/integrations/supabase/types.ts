@@ -1198,6 +1198,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          admin_username: string | null
           approved_at: string | null
           approved_by: string | null
           avatar_url: string | null
@@ -1211,6 +1212,7 @@ export type Database = {
           email_digest_enabled: boolean
           full_name: string | null
           id: string
+          is_console_admin: boolean
           member_since: string | null
           member_status: string
           membership_id: string | null
@@ -1226,6 +1228,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          admin_username?: string | null
           approved_at?: string | null
           approved_by?: string | null
           avatar_url?: string | null
@@ -1239,6 +1242,7 @@ export type Database = {
           email_digest_enabled?: boolean
           full_name?: string | null
           id?: string
+          is_console_admin?: boolean
           member_since?: string | null
           member_status?: string
           membership_id?: string | null
@@ -1254,6 +1258,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          admin_username?: string | null
           approved_at?: string | null
           approved_by?: string | null
           avatar_url?: string | null
@@ -1267,6 +1272,7 @@ export type Database = {
           email_digest_enabled?: boolean
           full_name?: string | null
           id?: string
+          is_console_admin?: boolean
           member_since?: string | null
           member_status?: string
           membership_id?: string | null
