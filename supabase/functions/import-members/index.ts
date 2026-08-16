@@ -10,6 +10,18 @@ function randomPassword() {
   return `${words[Math.floor(Math.random() * words.length)]}${Math.floor(1000 + Math.random() * 9000)}`;
 }
 
+/** "2026-07" or "2026-07-01" -> first day of that month. */
+function monthStart(raw: unknown): string | null {
+  const m = String(raw ?? "").trim().match(/^(\d{4})-(\d{2})/);
+  return m ? `${m[1]}-${m[2]}-01` : null;
+}
+
+/** Last day of the month a member has paid for. */
+function monthEnd(monthStartISO: string) {
+  const [y, mo] = monthStartISO.split("-").map(Number);
+  return new Date(Date.UTC(y, mo, 0)).toISOString().slice(0, 10);
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   const H = { ...corsHeaders };
