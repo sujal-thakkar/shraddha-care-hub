@@ -54,6 +54,7 @@ const AdminWriters = lazy(() => import("./pages/admin/Writers"));
 const AdminNewsletters = lazy(() => import("./pages/admin/Newsletters"));
 const AdminSubscribers = lazy(() => import("./pages/admin/Subscribers"));
 const AdminMembers = lazy(() => import("./pages/admin/Members"));
+const AdminRoles = lazy(() => import("./pages/admin/Roles"));
 const AdminHq = lazy(() => import("./pages/admin/hq/Hq"));
 
 const NotFound = lazy(() => import("./pages/NotFound"));
