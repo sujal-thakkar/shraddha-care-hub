@@ -32,6 +32,16 @@ export default function Hq() {
   const [busy, setBusy] = useState(false);
   const [issued, setIssued] = useState<string | null>(null);
 
+  // Activate dialog — plan / fee / last paid month for a staged row
+  const { prices } = usePlanPrices();
+  const [activateRow, setActivateRow] = useState<any>(null);
+  const [aPlan, setAPlan] = useState("standard-non-metro");
+  const [aCycle, setACycle] = useState<BillingCycle>("monthly");
+  const [aFee, setAFee] = useState("");
+  const [aLastPaid, setALastPaid] = useState("");
+
+  useEffect(() => { setAFee(defaultAmount(aPlan, aCycle, prices)); }, [aPlan, aCycle, prices]);
+
   useEffect(() => {
     (async () => {
       const { data: sess } = await supabase.auth.getSession();
