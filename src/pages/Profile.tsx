@@ -8,15 +8,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, LogOut, PenLine, KeyRound, User, Trash2, Save, Camera } from "lucide-react";
+import { Loader2, LogOut, PenLine, User, Trash2, Save, Camera, CalendarCheck, HeartHandshake } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { composePassword, isValidPin } from "@/lib/phone-auth";
 import { AuthorAvatar } from "@/components/blog/AuthorAvatar";
 import { useI18n } from "@/i18n";
 import { Switch } from "@/components/ui/switch";
 import { BellRing, Send } from "lucide-react";
 import { MembershipSection } from "@/components/membership/MembershipSection";
-import { ChangePasswordCard } from "@/components/membership/ChangePasswordCard";
 
 
 const STATUS_KEY: Record<string, string> = {
@@ -42,7 +40,6 @@ export default function Profile() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [params] = useSearchParams();
-  const mustChangePassword = params.get("change_password") === "1";
   const { t } = useI18n();
 
   const [loading, setLoading] = useState(true);
@@ -132,6 +129,7 @@ export default function Profile() {
     const realEmail = String((p as any)?.email || "").endsWith("@shraddha.local") ? "" : (p as any)?.email || "";
     setDigestEmail((p as any)?.digest_email || realEmail);
     setBlogs(b ?? []);
+    loadActivity();
     setLoading(false);
   };
 
@@ -267,7 +265,7 @@ export default function Profile() {
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
             <h1 className="font-serif text-3xl md:text-4xl font-bold">{t("My profile")}</h1>
-            <p className="text-muted-foreground mt-1">{t("Manage your details, PIN and blogs.")}</p>
+            <p className="text-muted-foreground mt-1">{t("Manage your details, membership, events and blogs.")}</p>
           </div>
           <div className="flex gap-2">
             <Button asChild size="lg" className="h-11">
