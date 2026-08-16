@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { useAdminRole } from "@/hooks/use-admin-role";
 import logoShraddha from "@/assets/logo-shraddha.png";
 
 export default function AdminDashboard() {
