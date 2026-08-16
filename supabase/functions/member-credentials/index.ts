@@ -26,6 +26,31 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const action = String(body.action ?? "");
 
+    // ---- Look up what a phone number would do ------------------------------
+    // Lets the admin UI confirm before an existing account gets upgraded.
+    if (action === "check_phone") {
+      const phone = String(body.phone ?? "").replace(/\D/g, "");
+      if (phone.length < 10) return json({ error: "Enter a 10-digit phone number." }, 400, H);
+      const e164 = `+91${phone.slice(-10)}`;
+      const { data: existing } = await svc.from("profiles")
+        .select("user_id, full_name, membership_id, status, created_at").eq("phone_e164", e164).maybeSingle();
+      if (!existing) return json({ outcome: "new" }, 200, H);
+      if (existing.membership_id) {
+        return json({
+          outcome: "member_exists",
+          membership_id: existing.membership_id,
+          full_name: existing.full_name,
+        }, 200, H);
+      }
+      return json({
+        outcome: "upgrade",
+        user_id: existing.user_id,
+        full_name: existing.full_name,
+        status: existing.status,
+        since: existing.created_at,
+      }, 200, H);
+    }
+
     // ---- Create a member account -------------------------------------------
     if (action === "create_member") {
       const name = String(body.name ?? "").trim();
@@ -34,6 +59,7 @@ Deno.serve(async (req) => {
       const fee = body.monthly_fee_amount ? Number(body.monthly_fee_amount) : null;
       const chapter = body.chapter ? String(body.chapter) : null;
       const paidUpUntil = body.paid_up_until ? String(body.paid_up_until) : null;
+      const allowUpgrade = Boolean(body.allow_upgrade);
       if (name.length < 2 || phone.length < 10) {
         return json({ error: "Name and a 10-digit phone number are required." }, 400, H);
       }
@@ -47,16 +73,28 @@ Deno.serve(async (req) => {
       const e164 = `+91${phone.slice(-10)}`;
 
       // A profile may already exist for this phone (e.g. an existing blog writer).
-      // Upgrade that account into a member instead of failing on the unique phone.
+      // Upgrade that account into a member instead of failing on the unique phone —
+      // but only when the admin has explicitly confirmed the upgrade.
       const { data: existing } = await svc.from("profiles")
-        .select("user_id, membership_id").eq("phone_e164", e164).maybeSingle();
+        .select("user_id, membership_id, full_name, status").eq("phone_e164", e164).maybeSingle();
 
       let userId: string;
+      let upgraded = false;
       if (existing) {
         if (existing.membership_id) {
           return json({ error: `This phone already belongs to member ${existing.membership_id}.` }, 400, H);
         }
+        if (!allowUpgrade) {
+          return json({
+            needs_confirmation: true,
+            outcome: "upgrade",
+            user_id: existing.user_id,
+            full_name: existing.full_name,
+            status: existing.status,
+          }, 409, H);
+        }
         userId = existing.user_id;
+        upgraded = true;
         const { error: pwErr } = await svc.auth.admin.updateUserById(userId, { password });
         if (pwErr) return json({ error: pwErr.message }, 400, H);
       } else {
@@ -87,9 +125,25 @@ Deno.serve(async (req) => {
       }).eq("user_id", userId);
 
       await svc.from("user_roles").insert({ user_id: userId, role: "member" });
-      await audit(svc, caller, "create_member", "profiles", userId, { membership_id: membershipId }, ip);
+      await audit(
+        svc, caller,
+        upgraded ? "upgrade_account_to_member" : "create_member",
+        "profiles", userId,
+        upgraded
+          ? {
+              membership_id: membershipId,
+              upgraded_existing_account: true,
+              phone_e164: e164,
+              previous_name: existing?.full_name ?? null,
+              previous_status: existing?.status ?? null,
+              new_name: name,
+              plan,
+            }
+          : { membership_id: membershipId, plan },
+        ip,
+      );
 
-      return json({ membership_id: membershipId, password, user_id: userId }, 200, H);
+      return json({ membership_id: membershipId, password, user_id: userId, upgraded }, 200, H);
     }
 
     // ---- Set / reset a password --------------------------------------------
