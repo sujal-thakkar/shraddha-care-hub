@@ -494,6 +494,7 @@ export type Database = {
           created_at: string
           id: string
           kind: string
+          proposed_password: string | null
           reason: string | null
           requested_by: string
           requested_by_name: string | null
@@ -508,6 +509,7 @@ export type Database = {
           created_at?: string
           id?: string
           kind?: string
+          proposed_password?: string | null
           reason?: string | null
           requested_by: string
           requested_by_name?: string | null
@@ -522,6 +524,7 @@ export type Database = {
           created_at?: string
           id?: string
           kind?: string
+          proposed_password?: string | null
           reason?: string | null
           requested_by?: string
           requested_by_name?: string | null
@@ -590,6 +593,7 @@ export type Database = {
           id: string
           is_member: boolean
           medical_concerns: string | null
+          membership_id: string | null
           mobile: string
           paid_at: string | null
           payment_status: string
@@ -610,6 +614,7 @@ export type Database = {
           id?: string
           is_member?: boolean
           medical_concerns?: string | null
+          membership_id?: string | null
           mobile: string
           paid_at?: string | null
           payment_status?: string
@@ -630,6 +635,7 @@ export type Database = {
           id?: string
           is_member?: boolean
           medical_concerns?: string | null
+          membership_id?: string | null
           mobile?: string
           paid_at?: string | null
           payment_status?: string
@@ -731,6 +737,27 @@ export type Database = {
           source?: string
           status?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      member_passwords: {
+        Row: {
+          password: string
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+        }
+        Insert: {
+          password: string
+          updated_at?: string
+          updated_by?: string | null
+          user_id: string
+        }
+        Update: {
+          password?: string
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -1775,6 +1802,31 @@ export type Database = {
       make_membership_id: {
         Args: { _name: string; _phone: string }
         Returns: string
+      }
+      my_donations: {
+        Args: never
+        Returns: {
+          amount: string
+          created_at: string
+          id: string
+          name: string
+          status: string
+        }[]
+      }
+      my_event_registrations: {
+        Args: never
+        Returns: {
+          amount_inr: number
+          checked_in: boolean
+          checked_in_at: string
+          created_at: string
+          event_date: string
+          event_id: string
+          event_slug: string
+          event_title: string
+          id: string
+          payment_status: string
+        }[]
       }
       search_members: {
         Args: { _q: string }
