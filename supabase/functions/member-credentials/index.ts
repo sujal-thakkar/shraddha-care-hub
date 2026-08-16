@@ -263,6 +263,7 @@ Deno.serve(async (req) => {
           requested_by: caller.userId,
           requested_by_name: caller.fullName,
           kind: "password_reset",
+          proposed_password: body.password ? String(body.password) : null,
           reason: body.reason ? String(body.reason) : null,
         });
         if (error) return json({ error: error.message }, 400, H);
@@ -273,9 +274,81 @@ Deno.serve(async (req) => {
       const password = String(body.password ?? "") || randomPassword();
       const { error: updErr } = await svc.auth.admin.updateUserById(targetUserId, { password });
       if (updErr) return json({ error: updErr.message }, 400, H);
-      await svc.from("profiles").update({ must_change_password: true }).eq("user_id", targetUserId);
+      await savePassword(svc, targetUserId, password, caller.userId);
       await audit(svc, caller, "set_password", "profiles", targetUserId, {}, ip);
       return json({ password }, 200, H);
+    }
+
+    // ---- Reveal a member's password ----------------------------------------
+    // Main admin sees it straight away. A team admin needs one approval from the
+    // main admin; after that they can read it for 24 hours.
+    if (action === "reveal_password") {
+      const targetUserId = String(body.user_id ?? "");
+      if (!targetUserId) return json({ error: "Missing member" }, 400, H);
+      const { data: target } = await svc.from("profiles")
+        .select("membership_id, full_name").eq("user_id", targetUserId).maybeSingle();
+      if (!target) return json({ error: "Member not found" }, 404, H);
+
+      const readVault = async () => {
+        const { data } = await svc.from("member_passwords")
+          .select("password, updated_at").eq("user_id", targetUserId).maybeSingle();
+        return data;
+      };
+
+      if (caller.isMainAdmin) {
+        const row = await readVault();
+        await audit(svc, caller, "view_member_password", "profiles", targetUserId,
+          { membership_id: target.membership_id }, ip);
+        return json({ password: row?.password ?? null, updated_at: row?.updated_at ?? null }, 200, H);
+      }
+
+      const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const { data: approved } = await svc.from("credential_requests")
+        .select("id, reviewed_at")
+        .eq("target_user_id", targetUserId)
+        .eq("requested_by", caller.userId)
+        .eq("kind", "password_view")
+        .eq("status", "approved")
+        .gte("reviewed_at", cutoff)
+        .order("reviewed_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (approved) {
+        const row = await readVault();
+        await audit(svc, caller, "view_member_password", "profiles", targetUserId,
+          { membership_id: target.membership_id, via_request: approved.id }, ip);
+        return json({ password: row?.password ?? null, updated_at: row?.updated_at ?? null }, 200, H);
+      }
+
+      // Already waiting on the main admin?
+      const { data: waiting } = await svc.from("credential_requests")
+        .select("id").eq("target_user_id", targetUserId).eq("requested_by", caller.userId)
+        .eq("kind", "password_view").eq("status", "pending").limit(1).maybeSingle();
+      if (waiting) return json({ requested: true, already: true }, 200, H);
+
+      const { error } = await svc.from("credential_requests").insert({
+        target_user_id: targetUserId,
+        target_membership_id: target.membership_id,
+        requested_by: caller.userId,
+        requested_by_name: caller.fullName,
+        kind: "password_view",
+        reason: body.reason ? String(body.reason) : null,
+      });
+      if (error) return json({ error: error.message }, 400, H);
+      await audit(svc, caller, "request_password_view", "profiles", targetUserId, {}, ip);
+      return json({ requested: true }, 200, H);
+    }
+
+    // ---- Set / change a member's photo (admins) -----------------------------
+    if (action === "set_avatar") {
+      const targetUserId = String(body.user_id ?? "");
+      const path = String(body.avatar_path ?? "");
+      if (!targetUserId || !path) return json({ error: "Missing member or photo" }, 400, H);
+      const { error } = await svc.from("profiles").update({ avatar_url: path }).eq("user_id", targetUserId);
+      if (error) return json({ error: error.message }, 400, H);
+      await audit(svc, caller, "set_member_photo", "profiles", targetUserId, { avatar_url: path }, ip);
+      return json({ ok: true }, 200, H);
     }
 
     // ---- Approve / reject a pending credential request ----------------------
@@ -287,21 +360,24 @@ Deno.serve(async (req) => {
       if (!reqRow || reqRow.status !== "pending") return json({ error: "Request not found" }, 404, H);
 
       let password: string | null = null;
-      if (approve) {
-        password = randomPassword();
+      if (approve && reqRow.kind !== "password_view") {
+        password = String(reqRow.proposed_password ?? "") || randomPassword();
         const { error } = await svc.auth.admin.updateUserById(reqRow.target_user_id, { password });
         if (error) return json({ error: error.message }, 400, H);
-        await svc.from("profiles").update({ must_change_password: true }).eq("user_id", reqRow.target_user_id);
+        await savePassword(svc, reqRow.target_user_id, password, caller.userId);
       }
       await svc.from("credential_requests").update({
         status: approve ? "approved" : "rejected",
         reviewed_by: caller.userId,
         reviewed_at: new Date().toISOString(),
       }).eq("id", requestId);
-      await audit(svc, caller, approve ? "approve_password_reset" : "reject_password_reset",
-        "credential_requests", requestId, {}, ip);
-      return json({ password }, 200, H);
+      await audit(svc, caller,
+        `${approve ? "approve" : "reject"}_${reqRow.kind === "password_view" ? "password_view" : "password_reset"}`,
+        "credential_requests", requestId, { target_user_id: reqRow.target_user_id }, ip);
+      return json({ password, membership_id: reqRow.target_membership_id }, 200, H);
     }
+
+
 
     // ---- Assign / remove a role (main admin only) ---------------------------
     if (action === "set_role") {
