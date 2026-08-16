@@ -84,8 +84,6 @@ export default function Auth() {
     if (!fullName.trim()) return toast({ title: "Enter your full name", variant: "destructive" });
     const v = validatePhone(dial, phone);
     if (!v.ok) return toast({ title: "Check phone number", description: v.msg, variant: "destructive" });
-    if (!isValidPin(pin)) return toast({ title: "PIN must be 4 digits", variant: "destructive" });
-    if (pin !== pin2) return toast({ title: "PINs don't match", variant: "destructive" });
 
     const e164 = toE164(dial, v.digits);
     setLoading(true);
@@ -98,9 +96,11 @@ export default function Auth() {
       return toast({ title: "Phone already registered", description: "Try signing in instead.", variant: "destructive" });
     }
 
+    // No PIN for new accounts — the admin issues a Membership ID and password later.
+    const placeholder = `Hosla-${crypto.randomUUID()}`;
     const { error } = await supabase.auth.signUp({
       email: syntheticEmail(e164),
-      password: composePassword(e164, pin),
+      password: placeholder,
       options: {
         emailRedirectTo: `${window.location.origin}${next}`,
         data: {
