@@ -14,9 +14,9 @@ import { formatINR, prettyDate, TX_SOURCE_LABEL, TX_STATE_LABEL } from "@/lib/me
 export default function Hq() {
   const { toast } = useToast();
   const [checking, setChecking] = useState(true);
-  const [allowed, setAllowed] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
-  const [passphrase, setPassphrase] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [unlocking, setUnlocking] = useState(false);
 
   const [pending, setPending] = useState<any[]>([]);
@@ -31,12 +31,18 @@ export default function Hq() {
     (async () => {
       const { data: sess } = await supabase.auth.getSession();
       const uid = sess.session?.user.id;
-      if (!uid) { setChecking(false); return; }
-      const { data } = await supabase.from("user_roles").select("role").eq("user_id", uid);
-      setAllowed((data ?? []).some((r: any) => r.role === "main_admin"));
+      if (uid) {
+        const { data } = await supabase.from("user_roles").select("role").eq("user_id", uid);
+        if ((data ?? []).some((r: any) => r.role === "main_admin")) {
+          setUnlocked(true);
+          loadAll();
+        }
+      }
       setChecking(false);
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
 
   const loadAll = async () => {
     const [tx, req, imp, log] = await Promise.all([
@@ -54,16 +60,29 @@ export default function Hq() {
   };
 
   const unlock = async () => {
-    setUnlocking(true);
-    const { data, error } = await supabase.functions.invoke("hq-unlock", { body: { passphrase } });
-    setUnlocking(false);
-    if (error || !(data as any)?.ok) {
-      return toast({ title: "Console locked", description: (data as any)?.error || error?.message, variant: "destructive" });
+    if (!username.trim() || !password) {
+      return toast({ title: "Enter your main admin ID and password", variant: "destructive" });
     }
+    setUnlocking(true);
+    const { data, error } = await supabase.functions.invoke("admin-auth", {
+      body: { action: "login", console: true, username: username.trim(), password },
+    });
+    const payload = data as any;
+    if (error || !payload?.session) {
+      setUnlocking(false);
+      return toast({ title: "Console locked", description: payload?.error || error?.message, variant: "destructive" });
+    }
+    const { error: setErr } = await supabase.auth.setSession({
+      access_token: payload.session.access_token,
+      refresh_token: payload.session.refresh_token,
+    });
+    setUnlocking(false);
+    if (setErr) return toast({ title: "Couldn't start your session", description: setErr.message, variant: "destructive" });
     setUnlocked(true);
-    setPassphrase("");
+    setPassword("");
     loadAll();
   };
+
 
   const review = async (body: Record<string, unknown>, okMsg: string) => {
     setBusy(true);
@@ -112,22 +131,6 @@ export default function Hq() {
 
   if (checking) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
-  if (!allowed) {
-    return (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <Card className="max-w-sm w-full">
-          <CardHeader className="text-center">
-            <CardTitle className="font-serif text-xl">Not available</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center space-y-4">
-            <p className="text-muted-foreground">This page isn't available for your account.</p>
-            <Button asChild variant="outline"><Link to="/admin/dashboard">Back to admin</Link></Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   if (!unlocked) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
@@ -140,19 +143,30 @@ export default function Hq() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label>Console passphrase</Label>
-              <Input type="password" value={passphrase} onChange={(e) => setPassphrase(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && unlock()} className="h-12 mt-1" autoFocus />
+              <Label>Main admin ID</Label>
+              <Input value={username} autoCapitalize="none" autoComplete="username"
+                onChange={(e) => setUsername(e.target.value.replace(/\s/g, "").toLowerCase())}
+                className="h-12 mt-1" autoFocus />
+            </div>
+            <div>
+              <Label>Password</Label>
+              <Input type="password" value={password} autoComplete="current-password"
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && unlock()} className="h-12 mt-1" />
             </div>
             <Button onClick={unlock} disabled={unlocking} className="h-12 w-full">
               {unlocking ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <ShieldCheck className="h-4 w-4 mr-2" />}
-              Unlock
+              Sign in
             </Button>
+            <p className="text-xs text-muted-foreground text-center">
+              These credentials are separate from the normal admin login.
+            </p>
           </CardContent>
         </Card>
       </div>
     );
   }
+
 
   return (
     <div className="min-h-screen bg-muted/30">
