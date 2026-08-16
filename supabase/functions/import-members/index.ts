@@ -10,6 +10,18 @@ function randomPassword() {
   return `${words[Math.floor(Math.random() * words.length)]}${Math.floor(1000 + Math.random() * 9000)}`;
 }
 
+/** "2026-07" or "2026-07-01" -> first day of that month. */
+function monthStart(raw: unknown): string | null {
+  const m = String(raw ?? "").trim().match(/^(\d{4})-(\d{2})/);
+  return m ? `${m[1]}-${m[2]}-01` : null;
+}
+
+/** Last day of the month a member has paid for. */
+function monthEnd(monthStartISO: string) {
+  const [y, mo] = monthStartISO.split("-").map(Number);
+  return new Date(Date.UTC(y, mo, 0)).toISOString().slice(0, 10);
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   const H = { ...corsHeaders };
@@ -73,10 +85,23 @@ Deno.serve(async (req) => {
       if (!row || row.status === "activated") return json({ error: "Row not found" }, 404, H);
       if (!row.phone_digits) return json({ error: "This row has no phone number yet." }, 400, H);
 
-      const membershipId = row.membership_id || makeMembershipId(row.name, row.phone_digits);
-      const { data: clash } = await svc.from("profiles").select("user_id").eq("membership_id", membershipId).maybeSingle();
+      // Details the main admin filled in on the Activate dialog win over the staged row.
+      const plan = body.plan ? String(body.plan) : (row.plan ?? null);
+      const fee = body.monthly_fee_amount != null && body.monthly_fee_amount !== ""
+        ? Number(body.monthly_fee_amount)
+        : (row.monthly_fee_amount ?? null);
+      const chapter = body.chapter ? String(body.chapter) : (row.chapter ?? null);
+      const lastPaidMonth = monthStart(body.last_paid_month) ?? row.last_paid_month ?? null;
+      const paidUpUntil = lastPaidMonth ? monthEnd(lastPaidMonth) : (row.paid_up_until ?? null);
 
-      let userId = clash?.user_id as string | undefined;
+      const membershipId = row.membership_id || makeMembershipId(row.name, row.phone_digits);
+      const e164 = `+91${String(row.phone_digits).slice(-10)}`;
+      const { data: clash } = await svc.from("profiles").select("user_id").eq("membership_id", membershipId).maybeSingle();
+      const { data: byPhone } = clash
+        ? { data: null }
+        : await svc.from("profiles").select("user_id").eq("phone_e164", e164).maybeSingle();
+
+      let userId = (clash?.user_id ?? byPhone?.user_id) as string | undefined;
       let password: string | null = null;
 
       if (!userId) {
@@ -95,21 +120,27 @@ Deno.serve(async (req) => {
       await svc.from("profiles").update({
         membership_id: membershipId,
         full_name: row.name,
+        phone_e164: e164,
         email: row.email ?? null,
-        plan: row.plan ?? null,
-        monthly_fee_amount: row.monthly_fee_amount ?? null,
-        paid_up_until: row.paid_up_until ?? null,
-        chapter: row.chapter ?? null,
-        member_status: row.paid_up_until ? "active" : "pending_payment",
+        plan,
+        monthly_fee_amount: fee,
+        paid_up_until: paidUpUntil,
+        last_paid_month: lastPaidMonth,
+        chapter,
+        member_since: new Date().toISOString().slice(0, 10),
+        member_status: paidUpUntil ? "active" : "pending_payment",
         must_change_password: Boolean(password),
         status: "approved",
       }).eq("user_id", userId);
+      if (!password) await svc.from("user_roles").insert({ user_id: userId, role: "member" }).select();
 
       await svc.from("member_imports").update({
         status: "activated", linked_user_id: userId, membership_id: membershipId,
+        plan, monthly_fee_amount: fee, last_paid_month: lastPaidMonth, paid_up_until: paidUpUntil, chapter,
       }).eq("id", id);
 
-      await audit(svc, caller, "activate_member", "member_imports", id, { membership_id: membershipId }, ip);
+      await audit(svc, caller, "activate_member", "member_imports", id,
+        { membership_id: membershipId, plan, monthly_fee_amount: fee, last_paid_month: lastPaidMonth }, ip);
       return json({ membership_id: membershipId, password, user_id: userId }, 200, H);
     }
 

@@ -7,9 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, ShieldCheck, Lock, Check, X, Banknote, KeyRound, Download, ScrollText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import AdminAccountsPanel from "@/components/admin/AdminAccountsPanel";
+import { usePlanPrices } from "@/hooks/use-plan-prices";
+import { PLANS, defaultAmount, monthlyEquivalent, priceFor, type BillingCycle } from "@/lib/membership-plans";
 import { formatINR, prettyDate, TX_SOURCE_LABEL, TX_STATE_LABEL } from "@/lib/membership";
 
 export default function Hq() {
@@ -27,6 +31,16 @@ export default function Hq() {
   const [audit, setAudit] = useState<any[]>([]);
   const [busy, setBusy] = useState(false);
   const [issued, setIssued] = useState<string | null>(null);
+
+  // Activate dialog — plan / fee / last paid month for a staged row
+  const { prices } = usePlanPrices();
+  const [activateRow, setActivateRow] = useState<any>(null);
+  const [aPlan, setAPlan] = useState("standard-non-metro");
+  const [aCycle, setACycle] = useState<BillingCycle>("monthly");
+  const [aFee, setAFee] = useState("");
+  const [aLastPaid, setALastPaid] = useState("");
+
+  useEffect(() => { setAFee(defaultAmount(aPlan, aCycle, prices)); }, [aPlan, aCycle, prices]);
 
   useEffect(() => {
     (async () => {
@@ -324,7 +338,12 @@ export default function Hq() {
                         {r.status === "activated" ? (
                           <Badge className="bg-emerald-100 text-emerald-800">Activated</Badge>
                         ) : (
-                          <Button size="sm" className="h-10" disabled={busy} onClick={() => runImport("activate", { import_id: r.id })}>
+                          <Button size="sm" className="h-10" disabled={busy} onClick={() => {
+                            setActivateRow(r);
+                            setAPlan(r.plan || "standard-non-metro");
+                            setACycle("monthly");
+                            setALastPaid(r.last_paid_month ? String(r.last_paid_month).slice(0, 7) : "");
+                          }}>
                             Activate
                           </Button>
                         )}
@@ -357,6 +376,71 @@ export default function Hq() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Activate: fill in plan, fee and last paid month before creating the member */}
+        <Dialog open={!!activateRow} onOpenChange={(o) => !o && setActivateRow(null)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="font-serif">Activate {activateRow?.name}</DialogTitle>
+              <DialogDescription>
+                {activateRow?.membership_id || "Membership ID will be generated"} · {activateRow?.phone_digits || "no phone"}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>Plan</Label>
+                <Select value={aPlan} onValueChange={setAPlan}>
+                  <SelectTrigger className="h-11 mt-1"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {PLANS.map((p) => {
+                      const monthly = priceFor(p.key, "monthly", prices);
+                      return <SelectItem key={p.key} value={p.key}>{p.label}{monthly ? ` — ₹${monthly}/mo` : ""}</SelectItem>;
+                    })}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label>Billing</Label>
+                  <Select value={aCycle} onValueChange={(v) => setACycle(v as BillingCycle)}>
+                    <SelectTrigger className="h-11 mt-1"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="monthly">Monthly</SelectItem>
+                      <SelectItem value="yearly">Yearly</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Amount (₹ / {aCycle === "monthly" ? "month" : "year"})</Label>
+                  <Input inputMode="numeric" value={aFee}
+                    onChange={(e) => setAFee(e.target.value.replace(/\D/g, ""))} className="h-11 mt-1" />
+                </div>
+              </div>
+              <div>
+                <Label>Last paid month</Label>
+                <Input type="month" value={aLastPaid} onChange={(e) => setALastPaid(e.target.value)} className="h-11 mt-1" />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Leave blank if they have not paid yet — the account starts as pending payment.
+                </p>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="ghost" className="h-11" onClick={() => setActivateRow(null)}>Cancel</Button>
+              <Button className="h-11" disabled={busy} onClick={async () => {
+                const id = activateRow.id;
+                setActivateRow(null);
+                await runImport("activate", {
+                  import_id: id,
+                  plan: aPlan,
+                  monthly_fee_amount: monthlyEquivalent(Number(aFee || 0), aCycle),
+                  last_paid_month: aLastPaid || null,
+                });
+              }}>
+                {busy ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null} Activate member
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

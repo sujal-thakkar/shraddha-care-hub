@@ -15,7 +15,7 @@ import ReminderComposer, { type ReminderTarget } from "@/components/admin/Remind
 import SheetOnboarding from "@/components/admin/SheetOnboarding";
 import { usePlanPrices } from "@/hooks/use-plan-prices";
 import { PLANS, defaultAmount, monthlyEquivalent, planLabel, priceFor, type BillingCycle } from "@/lib/membership-plans";
-import { Loader2, Search, HandCoins, BellRing, IdCard, UserPlus, AlertTriangle, CalendarClock } from "lucide-react";
+import { Loader2, Search, HandCoins, BellRing, IdCard, UserPlus, AlertTriangle, CalendarClock, UserMinus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAdminRole } from "@/hooks/use-admin-role";
 import {
@@ -64,6 +64,10 @@ export default function AdminMembers() {
   const [creating, setCreating] = useState(false);
   const [issued, setIssued] = useState<{ membership_id: string; password: string; upgraded?: boolean } | null>(null);
   const [upgradeInfo, setUpgradeInfo] = useState<{ full_name: string | null; status: string | null } | null>(null);
+
+  // Remove-from-directory dialog
+  const [removeFor, setRemoveFor] = useState<any>(null);
+  const [removing, setRemoving] = useState(false);
 
   // Selection + reminders
   const [selected, setSelected] = useState<Record<string, boolean>>({});
@@ -216,6 +220,25 @@ export default function AdminMembers() {
     submitMember(false);
   };
 
+  const removeMember = async () => {
+    if (!removeFor) return;
+    setRemoving(true);
+    const { data, error } = await supabase.functions.invoke("member-credentials", {
+      body: { action: "remove_member", user_id: removeFor.user_id },
+    });
+    setRemoving(false);
+    if (error || (data as any)?.error) {
+      return toast({ title: "Couldn't remove the member", description: (data as any)?.error || error?.message, variant: "destructive" });
+    }
+    setRemoveFor(null);
+    setSelected({});
+    toast({
+      title: "Removed from the directory",
+      description: "They appear again under “Create profiles from the Active Members sheet”.",
+    });
+    load();
+  };
+
   const memberRow = (m: any, opts: { renewal?: boolean } = {}) => {
     const status = memberStatusOf(m.paid_up_until);
     const dLeft = daysUntil(m.paid_up_until);
@@ -247,6 +270,10 @@ export default function AdminMembers() {
           </Button>
           <Button size="sm" variant="ghost" className="h-10" onClick={() => openComposer([m])} disabled={sending}>
             <BellRing className="h-4 w-4" />
+          </Button>
+          <Button size="sm" variant="ghost" className="h-10 text-destructive hover:text-destructive"
+            onClick={() => setRemoveFor(m)} aria-label={`Remove ${m.full_name} from the directory`}>
+            <UserMinus className="h-4 w-4" />
           </Button>
         </div>
       </div>
@@ -548,6 +575,35 @@ export default function AdminMembers() {
               </DialogFooter>
             </>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Remove from directory */}
+      <Dialog open={!!removeFor} onOpenChange={(o) => !o && setRemoveFor(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-serif">Remove {removeFor?.full_name} from the directory?</DialogTitle>
+            <DialogDescription>
+              Their Membership ID, plan, fee and paid-until dates are cleared. Their login stays, and because
+              they are in the Active Members sheet they will reappear above under “Create profiles from the
+              Active Members sheet”, ready to be set up again.
+            </DialogDescription>
+          </DialogHeader>
+          {removeFor && (
+            <div className="rounded-lg border bg-muted/40 p-3 text-sm">
+              <p className="font-medium">{removeFor.membership_id}</p>
+              <p className="text-muted-foreground">
+                {planLabel(removeFor.plan)} · last paid {removeFor.last_paid_month ? monthLabel(removeFor.last_paid_month) : "never"}
+              </p>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="ghost" className="h-11" onClick={() => setRemoveFor(null)}>Cancel</Button>
+            <Button variant="destructive" className="h-11" onClick={removeMember} disabled={removing}>
+              {removing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <UserMinus className="h-4 w-4 mr-2" />}
+              Remove member
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

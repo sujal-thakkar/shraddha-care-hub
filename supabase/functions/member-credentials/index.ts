@@ -214,6 +214,39 @@ Deno.serve(async (req) => {
     }
 
 
+    // ---- Remove a member from the directory ---------------------------------
+    // Non-destructive: the login/profile stays, but every membership field is
+    // cleared so the person shows up again in the Active Members sheet panel.
+    if (action === "remove_member") {
+      const targetUserId = String(body.user_id ?? "");
+      if (!targetUserId) return json({ error: "Missing member" }, 400, H);
+      const { data: target } = await svc.from("profiles")
+        .select("membership_id, full_name, phone_e164, plan").eq("user_id", targetUserId).maybeSingle();
+      if (!target) return json({ error: "Member not found" }, 404, H);
+
+      const { error: updErr } = await svc.from("profiles").update({
+        membership_id: null,
+        plan: null,
+        monthly_fee_amount: null,
+        paid_up_until: null,
+        last_paid_month: null,
+        member_since: null,
+        chapter: null,
+        member_status: "none",
+      }).eq("user_id", targetUserId);
+      if (updErr) return json({ error: updErr.message }, 400, H);
+
+      await svc.from("user_roles").delete().eq("user_id", targetUserId).eq("role", "member");
+      // Let the import row be staged/activated again.
+      await svc.from("member_imports")
+        .update({ status: "pending", linked_user_id: null })
+        .eq("linked_user_id", targetUserId);
+
+      await audit(svc, caller, "remove_member", "profiles", targetUserId,
+        { membership_id: target.membership_id, full_name: target.full_name, phone_e164: target.phone_e164 }, ip);
+      return json({ ok: true, membership_id: target.membership_id }, 200, H);
+    }
+
     // ---- Set / reset a password --------------------------------------------
     if (action === "set_password") {
       const targetUserId = String(body.user_id ?? "");
