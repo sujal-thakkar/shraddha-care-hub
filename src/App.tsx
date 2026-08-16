@@ -106,6 +106,7 @@ const App = () => {
             <Route path="/profile" element={<Profile />} />
             <Route path="/author/:userId" element={<Author />} />
             <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin/recover" element={<AdminBootstrap />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />}>
               <Route index element={<AdminOverview />} />
               <Route path="messages" element={<AdminMessages />} />
