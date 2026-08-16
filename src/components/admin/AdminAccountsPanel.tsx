@@ -19,7 +19,6 @@ type Admin = {
 
 const ROLE_LABEL: Record<string, string> = {
   admin: "Admin",
-  team_admin: "Team admin",
   main_admin: "Main admin",
 };
 
@@ -151,7 +150,6 @@ export default function AdminAccountsPanel() {
                 <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="admin">Admin — day-to-day admin work</SelectItem>
-                  <SelectItem value="team_admin">Team admin — can approve records</SelectItem>
                   <SelectItem value="main_admin">Main admin — full control</SelectItem>
                 </SelectContent>
               </Select>
@@ -190,7 +188,6 @@ export default function AdminAccountsPanel() {
                   <SelectTrigger className="h-10 w-[200px]"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="admin">Admin</SelectItem>
-                    <SelectItem value="team_admin">Team admin</SelectItem>
                     <SelectItem value="main_admin">Main admin</SelectItem>
                   </SelectContent>
                 </Select>
