@@ -1,4 +1,5 @@
-// Membership plan catalogue. Amounts are defaults — admins can edit them per member.
+// Membership plan catalogue. Prices live in the `plan_prices` table with effective
+// dates; the values below are only the fallback used before prices load.
 
 export type BillingCycle = "monthly" | "yearly";
 
@@ -7,6 +8,10 @@ export type PlanKey =
   | "standard-metro"
   | "premium-non-metro"
   | "premium-metro";
+
+export type PlanPrice = { monthly: number | null; yearly: number | null; effectiveFrom?: string | null };
+
+export type PriceMap = Partial<Record<string, PlanPrice>>;
 
 export const PLANS: { key: PlanKey; label: string; monthly: number | null; yearly: number | null }[] = [
   { key: "standard-non-metro", label: "Standard — Non-metro", monthly: 400, yearly: 4000 },
@@ -24,10 +29,17 @@ export function planLabel(key: string | null | undefined) {
   return planByKey(key)?.label ?? key;
 }
 
-export function defaultAmount(key: string, cycle: BillingCycle) {
+/** Current price for a plan — from the live price map when available. */
+export function priceFor(key: string, cycle: BillingCycle, prices?: PriceMap): number | null {
+  const live = prices?.[key];
+  if (live) return cycle === "monthly" ? live.monthly : live.yearly;
   const p = planByKey(key);
-  if (!p) return "";
-  const v = cycle === "monthly" ? p.monthly : p.yearly;
+  if (!p) return null;
+  return cycle === "monthly" ? p.monthly : p.yearly;
+}
+
+export function defaultAmount(key: string, cycle: BillingCycle, prices?: PriceMap) {
+  const v = priceFor(key, cycle, prices);
   return v == null ? "" : String(v);
 }
 

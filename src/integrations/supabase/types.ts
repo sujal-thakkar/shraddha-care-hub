@@ -1139,6 +1139,42 @@ export type Database = {
         }
         Relationships: []
       }
+      plan_prices: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          effective_from: string
+          id: string
+          monthly_amount: number | null
+          note: string | null
+          plan_key: string
+          updated_at: string
+          yearly_amount: number | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          effective_from?: string
+          id?: string
+          monthly_amount?: number | null
+          note?: string | null
+          plan_key: string
+          updated_at?: string
+          yearly_amount?: number | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          effective_from?: string
+          id?: string
+          monthly_amount?: number | null
+          note?: string | null
+          plan_key?: string
+          updated_at?: string
+          yearly_amount?: number | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           approved_at: string | null
@@ -1319,6 +1355,36 @@ export type Database = {
         }
         Relationships: []
       }
+      reminder_templates: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_default: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_default?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_default?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       report_evidence: {
         Row: {
           created_at: string
@@ -1405,6 +1471,51 @@ export type Database = {
           title_bn?: string | null
           updated_at?: string
           youtube_url?: string | null
+        }
+        Relationships: []
+      }
+      scheduled_reminders: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          error: string | null
+          id: string
+          message: string | null
+          processed_at: string | null
+          scheduled_for: string
+          sent_count: number | null
+          skipped_count: number | null
+          status: string
+          updated_at: string
+          user_ids: string[]
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          error?: string | null
+          id?: string
+          message?: string | null
+          processed_at?: string | null
+          scheduled_for: string
+          sent_count?: number | null
+          skipped_count?: number | null
+          status?: string
+          updated_at?: string
+          user_ids: string[]
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          error?: string | null
+          id?: string
+          message?: string | null
+          processed_at?: string | null
+          scheduled_for?: string
+          sent_count?: number | null
+          skipped_count?: number | null
+          status?: string
+          updated_at?: string
+          user_ids?: string[]
         }
         Relationships: []
       }

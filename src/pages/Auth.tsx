@@ -34,7 +34,6 @@ export default function Auth() {
 
   // Signup only
   const [fullName, setFullName] = useState("");
-  const [pin2, setPin2] = useState("");
 
   // Simple client-side rate limit for login attempts
   const [cooldownUntil, setCooldownUntil] = useState(0);
@@ -84,8 +83,6 @@ export default function Auth() {
     if (!fullName.trim()) return toast({ title: "Enter your full name", variant: "destructive" });
     const v = validatePhone(dial, phone);
     if (!v.ok) return toast({ title: "Check phone number", description: v.msg, variant: "destructive" });
-    if (!isValidPin(pin)) return toast({ title: "PIN must be 4 digits", variant: "destructive" });
-    if (pin !== pin2) return toast({ title: "PINs don't match", variant: "destructive" });
 
     const e164 = toE164(dial, v.digits);
     setLoading(true);
@@ -98,9 +95,11 @@ export default function Auth() {
       return toast({ title: "Phone already registered", description: "Try signing in instead.", variant: "destructive" });
     }
 
+    // No PIN for new accounts — the admin issues a Membership ID and password later.
+    const placeholder = `Hosla-${crypto.randomUUID()}`;
     const { error } = await supabase.auth.signUp({
       email: syntheticEmail(e164),
-      password: composePassword(e164, pin),
+      password: placeholder,
       options: {
         emailRedirectTo: `${window.location.origin}${next}`,
         data: {
@@ -180,11 +179,10 @@ export default function Auth() {
               <div className="mx-auto mb-3 h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
                 <CheckCircle2 className="h-8 w-8 text-primary" />
               </div>
-              <CardTitle className="font-serif text-2xl">Account created</CardTitle>
+              <CardTitle className="font-serif text-2xl">Request received</CardTitle>
               <CardDescription>
-                Your account is being reviewed by the admin team.
-                Once approved, you can sign in and start writing.
-                Usually within a day or two.
+                Our team will review your details and then share your Membership ID and password
+                with you on WhatsApp or by a phone call — usually within a day or two.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -310,23 +308,15 @@ export default function Auth() {
                       placeholder="Your name" className="h-12 text-base" />
                   </div>
                   {phoneRow("up")}
-                  <div className="space-y-2">
-                    <Label htmlFor="up-pin" className="flex items-center gap-2"><Lock className="h-4 w-4" /> Create a 4-digit PIN</Label>
-                    <Input id="up-pin" type="text" inputMode="numeric" maxLength={4} autoComplete="off"
-                      value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                      placeholder="••••" className="h-12 text-2xl tracking-[0.5em] text-center" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="up-pin2">Confirm PIN</Label>
-                    <Input id="up-pin2" type="text" inputMode="numeric" maxLength={4} autoComplete="off"
-                      value={pin2} onChange={(e) => setPin2(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                      placeholder="••••" className="h-12 text-2xl tracking-[0.5em] text-center" />
+                  <div className="rounded-lg border bg-muted/40 p-3 text-sm text-muted-foreground">
+                    No password to choose here. Our team reviews your request and then shares your
+                    <strong className="text-foreground"> Membership ID and password</strong> with you on WhatsApp or by phone call.
                   </div>
                   <Button type="submit" className="w-full h-12" disabled={loading}>
-                    {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create account"}
+                    {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Request an account"}
                   </Button>
                   <p className="text-xs text-muted-foreground text-center">
-                    Writers' accounts are reviewed by the admin team. Hosla members get their Membership ID and password from the office.
+                    Just your name and phone number — nothing else needed.
                   </p>
                 </form>
               </TabsContent>
