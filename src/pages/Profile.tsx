@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,6 @@ const STATUS_COLOR: Record<string, string> = {
 export default function Profile() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [params] = useSearchParams();
   const { t } = useI18n();
 
   const [loading, setLoading] = useState(true);
