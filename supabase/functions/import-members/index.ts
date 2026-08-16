@@ -85,10 +85,23 @@ Deno.serve(async (req) => {
       if (!row || row.status === "activated") return json({ error: "Row not found" }, 404, H);
       if (!row.phone_digits) return json({ error: "This row has no phone number yet." }, 400, H);
 
-      const membershipId = row.membership_id || makeMembershipId(row.name, row.phone_digits);
-      const { data: clash } = await svc.from("profiles").select("user_id").eq("membership_id", membershipId).maybeSingle();
+      // Details the main admin filled in on the Activate dialog win over the staged row.
+      const plan = body.plan ? String(body.plan) : (row.plan ?? null);
+      const fee = body.monthly_fee_amount != null && body.monthly_fee_amount !== ""
+        ? Number(body.monthly_fee_amount)
+        : (row.monthly_fee_amount ?? null);
+      const chapter = body.chapter ? String(body.chapter) : (row.chapter ?? null);
+      const lastPaidMonth = monthStart(body.last_paid_month) ?? row.last_paid_month ?? null;
+      const paidUpUntil = lastPaidMonth ? monthEnd(lastPaidMonth) : (row.paid_up_until ?? null);
 
-      let userId = clash?.user_id as string | undefined;
+      const membershipId = row.membership_id || makeMembershipId(row.name, row.phone_digits);
+      const e164 = `+91${String(row.phone_digits).slice(-10)}`;
+      const { data: clash } = await svc.from("profiles").select("user_id").eq("membership_id", membershipId).maybeSingle();
+      const { data: byPhone } = clash
+        ? { data: null }
+        : await svc.from("profiles").select("user_id").eq("phone_e164", e164).maybeSingle();
+
+      let userId = (clash?.user_id ?? byPhone?.user_id) as string | undefined;
       let password: string | null = null;
 
       if (!userId) {
