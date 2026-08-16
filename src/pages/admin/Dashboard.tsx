@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link, Outlet, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, FileText, Users, Settings, LogOut, Loader2, Menu, X, UsersRound, Building2, MessageSquare, Heart, CalendarDays, ClipboardList, IdCard, CalendarClock, Share2, Handshake, BookOpen, Newspaper, UserCheck, Mail } from "lucide-react";
+import { LayoutDashboard, FileText, Users, Settings, LogOut, Loader2, Menu, X, UsersRound, Building2, MessageSquare, Heart, CalendarDays, ClipboardList, IdCard, CalendarClock, Share2, Handshake, BookOpen, Newspaper, UserCheck, Mail, ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { useAdminRole } from "@/hooks/use-admin-role";
 import logoShraddha from "@/assets/logo-shraddha.png";
 
 export default function AdminDashboard() {
@@ -13,6 +14,7 @@ export default function AdminDashboard() {
   const location = useLocation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
+  const { isMainAdmin } = useAdminRole();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [pendingWriters, setPendingWriters] = useState(0);
   const [pendingBlogs, setPendingBlogs] = useState(0);
@@ -93,6 +95,7 @@ export default function AdminDashboard() {
     { icon: CalendarClock, label: "Daily Routine", path: "/admin/dashboard/routine" },
     { icon: ClipboardList, label: "Event Registrations", path: "/admin/dashboard/registrations" },
     { icon: IdCard, label: "Members & Fees", path: "/admin/dashboard/members" },
+    ...(isMainAdmin ? [{ icon: ShieldCheck, label: "Admin Roles", path: "/admin/dashboard/roles" }] : []),
 
     { icon: Newspaper, label: "Newsletters", path: "/admin/dashboard/newsletters" },
     { icon: Mail, label: "Blog Subscribers", path: "/admin/dashboard/subscribers" },

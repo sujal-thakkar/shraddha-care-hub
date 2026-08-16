@@ -54,6 +54,7 @@ const AdminWriters = lazy(() => import("./pages/admin/Writers"));
 const AdminNewsletters = lazy(() => import("./pages/admin/Newsletters"));
 const AdminSubscribers = lazy(() => import("./pages/admin/Subscribers"));
 const AdminMembers = lazy(() => import("./pages/admin/Members"));
+const AdminRoles = lazy(() => import("./pages/admin/Roles"));
 const AdminHq = lazy(() => import("./pages/admin/hq/Hq"));
 
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -121,6 +122,7 @@ const App = () => {
               <Route path="registrations" element={<AdminRegistrations />} />
               <Route path="memberships" element={<Navigate to="/admin/dashboard/members" replace />} />
               <Route path="members" element={<AdminMembers />} />
+              <Route path="roles" element={<AdminRoles />} />
 
               <Route path="preview-inspector" element={<AdminPreviewInspector />} />
               <Route path="collaborate" element={<AdminCollaborateContent />} />
