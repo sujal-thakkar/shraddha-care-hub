@@ -14,7 +14,7 @@ export default function AdminDashboard() {
   const location = useLocation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
-  const { isMainAdmin } = useAdminRole();
+  useAdminRole();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [pendingWriters, setPendingWriters] = useState(0);
   const [pendingBlogs, setPendingBlogs] = useState(0);
@@ -95,7 +95,6 @@ export default function AdminDashboard() {
     { icon: CalendarClock, label: "Daily Routine", path: "/admin/dashboard/routine" },
     { icon: ClipboardList, label: "Event Registrations", path: "/admin/dashboard/registrations" },
     { icon: IdCard, label: "Members & Fees", path: "/admin/dashboard/members" },
-    ...(isMainAdmin ? [{ icon: ShieldCheck, label: "Admin Accounts", path: "/admin/dashboard/roles" }] : []),
 
     { icon: Newspaper, label: "Newsletters", path: "/admin/dashboard/newsletters" },
     { icon: Mail, label: "Blog Subscribers", path: "/admin/dashboard/subscribers" },

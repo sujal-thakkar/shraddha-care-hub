@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, ShieldCheck, Lock, Check, X, Banknote, KeyRound, Download, ScrollText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import AdminAccountsPanel from "@/components/admin/AdminAccountsPanel";
 import { formatINR, prettyDate, TX_SOURCE_LABEL, TX_STATE_LABEL } from "@/lib/membership";
 
 export default function Hq() {
@@ -198,6 +199,7 @@ export default function Hq() {
             <TabsTrigger value="cash">Cash settlement ({cash.length})</TabsTrigger>
             <TabsTrigger value="credentials">Credentials ({requests.length})</TabsTrigger>
             <TabsTrigger value="imports">Imports</TabsTrigger>
+            <TabsTrigger value="admins">Admin accounts</TabsTrigger>
             <TabsTrigger value="audit">Audit log</TabsTrigger>
           </TabsList>
 
@@ -332,6 +334,10 @@ export default function Hq() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="admins" className="mt-4">
+            <AdminAccountsPanel />
           </TabsContent>
 
           <TabsContent value="audit" className="mt-4">
