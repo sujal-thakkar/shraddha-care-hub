@@ -1,7 +1,7 @@
 // Emergency admin recovery: with the main-admin console passphrase, set an account's
 // password and grant it admin / main_admin. Used when nobody can sign in to /admin.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
-import { serviceClient, json, makeMembershipId } from "../_shared/admin.ts";
+import { serviceClient, json, makeMembershipId, verifyConsolePassphrase } from "../_shared/admin.ts";
 
 const attempts = new Map<string, { count: number; until: number }>();
 
@@ -16,14 +16,14 @@ Deno.serve(async (req) => {
       return json({ error: "Too many attempts. Please wait a few minutes." }, 429, H);
     }
 
-    const expected = Deno.env.get("MAIN_ADMIN_CONSOLE_PASSPHRASE") ?? "";
     const body = await req.json().catch(() => ({}));
     const passphrase = String(body.passphrase ?? "");
     const phoneDigits = String(body.phone ?? "").replace(/\D/g, "");
     const newPassword = String(body.password ?? "");
     const makeMain = body.make_main_admin !== false;
 
-    if (!expected || passphrase !== expected) {
+    const svcCheck = serviceClient();
+    if (!(await verifyConsolePassphrase(svcCheck, passphrase))) {
       const next = { count: (gate?.count ?? 0) + 1, until: 0 };
       if (next.count >= 5) { next.until = Date.now() + 5 * 60_000; next.count = 0; }
       attempts.set(ip, next);
@@ -34,7 +34,7 @@ Deno.serve(async (req) => {
     if (phoneDigits.length < 10) return json({ error: "Enter the full phone number." }, 400, H);
     if (newPassword.length < 8) return json({ error: "Password must be at least 8 characters." }, 400, H);
 
-    const svc = serviceClient();
+    const svc = svcCheck;
     const last10 = phoneDigits.slice(-10);
 
     const { data: profiles, error: pErr } = await svc

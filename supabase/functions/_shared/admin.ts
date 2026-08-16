@@ -93,3 +93,33 @@ export function extendPaidUntil(current: string | null, months: number) {
   const d = new Date(startFrom.getFullYear(), startFrom.getMonth() + months + 1, 0);
   return d.toISOString().slice(0, 10);
 }
+
+/** SHA-256 hex of a string. */
+export async function sha256Hex(input: string) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+const PASSPHRASE_KEY = "main_admin_console_passphrase_hash";
+
+/**
+ * Checks the main-admin console passphrase. A hash stored in app_settings
+ * (set from the admin UI) takes precedence over the MAIN_ADMIN_CONSOLE_PASSPHRASE secret.
+ */
+export async function verifyConsolePassphrase(svc: SupabaseClient, given: string) {
+  if (!given) return false;
+  const { data } = await svc
+    .from("app_settings").select("value").eq("key", PASSPHRASE_KEY).maybeSingle();
+  if (data?.value) return (await sha256Hex(given)) === data.value;
+  const secret = Deno.env.get("MAIN_ADMIN_CONSOLE_PASSPHRASE") ?? "";
+  return Boolean(secret) && given === secret;
+}
+
+export async function setConsolePassphrase(svc: SupabaseClient, passphrase: string, userId: string) {
+  const value = await sha256Hex(passphrase);
+  const { error } = await svc.from("app_settings").upsert(
+    { key: PASSPHRASE_KEY, value, updated_at: new Date().toISOString(), updated_by: userId },
+    { onConflict: "key" },
+  );
+  if (error) throw new Error(error.message);
+}
