@@ -55,10 +55,10 @@ export default function Profile() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // PIN change
-  const [currentPin, setCurrentPin] = useState("");
-  const [newPin, setNewPin] = useState("");
-  const [confirmPin, setConfirmPin] = useState("");
-  const [changingPin, setChangingPin] = useState(false);
+  // Member activity
+  const [events, setEvents] = useState<any[]>([]);
+  const [donations, setDonations] = useState<any[]>([]);
+
 
   // Email digest settings
   const [digestOn, setDigestOn] = useState(false);
