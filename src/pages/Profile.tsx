@@ -185,54 +185,15 @@ export default function Profile() {
     else { toast({ title: t("Photo updated") }); load(); }
   };
 
-  const changePin = async () => {
-    if (!isValidPin(currentPin) || !isValidPin(newPin) || !isValidPin(confirmPin)) {
-      toast({ title: t("PINs must be 4 digits"), variant: "destructive" });
-      return;
-    }
-    if (newPin !== confirmPin) {
-      toast({ title: t("New PINs don't match"), variant: "destructive" });
-      return;
-    }
-    if (newPin === currentPin) {
-      toast({ title: t("Pick a different new PIN"), variant: "destructive" });
-      return;
-    }
-    if (!profile?.phone_e164) {
-      toast({ title: "No phone on file", variant: "destructive" });
-      return;
-    }
-    setChangingPin(true);
-    // Re-authenticate to verify current PIN
-    const { data: sess } = await supabase.auth.getSession();
-    const email = sess.session?.user.email;
-    if (!email) {
-      setChangingPin(false);
-      toast({ title: "Session expired — please sign in again", variant: "destructive" });
-      return;
-    }
-    const { error: verifyErr } = await supabase.auth.signInWithPassword({
-      email,
-      password: composePassword(profile.phone_e164, currentPin),
-    });
-    if (verifyErr) {
-      setChangingPin(false);
-      toast({ title: t("Current PIN is wrong"), variant: "destructive" });
-      return;
-    }
-    const { error: updateErr } = await supabase.auth.updateUser({
-      password: composePassword(profile.phone_e164, newPin),
-    });
-    setChangingPin(false);
-    if (updateErr) {
-      toast({ title: t("Couldn't change PIN"), description: updateErr.message, variant: "destructive" });
-      return;
-    }
-    setCurrentPin("");
-    setNewPin("");
-    setConfirmPin("");
-    toast({ title: t("PIN updated"), description: t("Use your new PIN next time you log in.") });
+  const loadActivity = async () => {
+    const [ev, dn] = await Promise.all([
+      supabase.rpc("my_event_registrations" as any),
+      supabase.rpc("my_donations" as any),
+    ]);
+    setEvents((ev.data as any[]) ?? []);
+    setDonations((dn.data as any[]) ?? []);
   };
+
 
   const logout = async () => {
     await supabase.auth.signOut();
