@@ -7,9 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, ShieldCheck, Lock, Check, X, Banknote, KeyRound, Download, ScrollText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import AdminAccountsPanel from "@/components/admin/AdminAccountsPanel";
+import { usePlanPrices } from "@/hooks/use-plan-prices";
+import { PLANS, defaultAmount, monthlyEquivalent, priceFor, type BillingCycle } from "@/lib/membership-plans";
 import { formatINR, prettyDate, TX_SOURCE_LABEL, TX_STATE_LABEL } from "@/lib/membership";
 
 export default function Hq() {
