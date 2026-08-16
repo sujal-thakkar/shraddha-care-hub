@@ -131,22 +131,6 @@ export default function Hq() {
 
   if (checking) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
-  if (!allowed) {
-    return (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <Card className="max-w-sm w-full">
-          <CardHeader className="text-center">
-            <CardTitle className="font-serif text-xl">Not available</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center space-y-4">
-            <p className="text-muted-foreground">This page isn't available for your account.</p>
-            <Button asChild variant="outline"><Link to="/admin/dashboard">Back to admin</Link></Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   if (!unlocked) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
@@ -159,19 +143,30 @@ export default function Hq() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label>Console passphrase</Label>
-              <Input type="password" value={passphrase} onChange={(e) => setPassphrase(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && unlock()} className="h-12 mt-1" autoFocus />
+              <Label>Main admin ID</Label>
+              <Input value={username} autoCapitalize="none" autoComplete="username"
+                onChange={(e) => setUsername(e.target.value.replace(/\s/g, "").toLowerCase())}
+                className="h-12 mt-1" autoFocus />
+            </div>
+            <div>
+              <Label>Password</Label>
+              <Input type="password" value={password} autoComplete="current-password"
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && unlock()} className="h-12 mt-1" />
             </div>
             <Button onClick={unlock} disabled={unlocking} className="h-12 w-full">
               {unlocking ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <ShieldCheck className="h-4 w-4 mr-2" />}
-              Unlock
+              Sign in
             </Button>
+            <p className="text-xs text-muted-foreground text-center">
+              These credentials are separate from the normal admin login.
+            </p>
           </CardContent>
         </Card>
       </div>
     );
   }
+
 
   return (
     <div className="min-h-screen bg-muted/30">
