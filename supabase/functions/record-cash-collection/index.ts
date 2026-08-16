@@ -51,7 +51,11 @@ Deno.serve(async (req) => {
     if (error) return json({ error: error.message }, 400, H);
 
     if (selfApproved && periodEnd) {
-      await svc.from("profiles").update({ paid_up_until: periodEnd, member_status: "active" }).eq("user_id", memberUserId);
+      await svc.from("profiles").update({
+        paid_up_until: periodEnd,
+        last_paid_month: `${periodEnd.slice(0, 7)}-01`,
+        member_status: "active",
+      }).eq("user_id", memberUserId);
     }
 
     await audit(svc, caller, "record_cash", "membership_transactions", tx.id,

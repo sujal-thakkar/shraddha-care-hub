@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AdminMemberships from "@/pages/admin/Memberships";
 import PlanEditor from "@/components/admin/PlanEditor";
 import ReminderComposer, { type ReminderTarget } from "@/components/admin/ReminderComposer";
+import SheetOnboarding from "@/components/admin/SheetOnboarding";
 import { usePlanPrices } from "@/hooks/use-plan-prices";
 import { PLANS, defaultAmount, monthlyEquivalent, planLabel, priceFor, type BillingCycle } from "@/lib/membership-plans";
 import { Loader2, Search, HandCoins, BellRing, IdCard, UserPlus, AlertTriangle, CalendarClock } from "lucide-react";
@@ -26,6 +27,11 @@ const STATUS_STYLE: Record<string, string> = {
   due: "bg-amber-100 text-amber-800",
   lapsed: "bg-destructive/15 text-destructive",
   none: "bg-muted text-muted-foreground",
+};
+
+const monthLabel = (date: string | null | undefined) => {
+  if (!date) return "\u2014";
+  return new Date(date).toLocaleDateString("en-IN", { month: "long", year: "numeric" });
 };
 
 const daysUntil = (date: string | null | undefined) => {
@@ -54,6 +60,7 @@ export default function AdminMembers() {
   const [nPlan, setNPlan] = useState<string>("standard-non-metro");
   const [nCycle, setNCycle] = useState<BillingCycle>("monthly");
   const [nFee, setNFee] = useState("");
+  const [nLastPaid, setNLastPaid] = useState("");
   const [creating, setCreating] = useState(false);
   const [issued, setIssued] = useState<{ membership_id: string; password: string; upgraded?: boolean } | null>(null);
   const [upgradeInfo, setUpgradeInfo] = useState<{ full_name: string | null; status: string | null } | null>(null);
@@ -70,7 +77,7 @@ export default function AdminMembers() {
     const uid = sess.session?.user.id;
     const { data } = await supabase
       .from("profiles")
-      .select("user_id, full_name, phone_e164, email, membership_id, plan, monthly_fee_amount, paid_up_until, member_status, chapter")
+      .select("user_id, full_name, phone_e164, email, membership_id, plan, monthly_fee_amount, paid_up_until, last_paid_month, member_status, chapter")
       .not("membership_id", "is", null)
       .order("full_name");
     setMembers(data ?? []);
@@ -167,6 +174,7 @@ export default function AdminMembers() {
         phone: nPhone.replace(/\D/g, ""),
         plan: nPlan,
         monthly_fee_amount: monthlyEquivalent(Number(nFee), nCycle),
+        last_paid_month: nLastPaid || null,
         allow_upgrade: allowUpgrade,
       },
     });
@@ -182,7 +190,7 @@ export default function AdminMembers() {
     }
     setUpgradeInfo(null);
     setIssued({ membership_id: payload.membership_id, password: payload.password, upgraded: payload.upgraded });
-    setNName(""); setNPhone("");
+    setNName(""); setNPhone(""); setNLastPaid("");
     load();
   };
 
@@ -223,7 +231,7 @@ export default function AdminMembers() {
           <div className="min-w-0">
             <p className="font-medium">{m.full_name || "—"} <span className="text-muted-foreground font-normal">· {m.membership_id}</span></p>
             <p className="text-sm text-muted-foreground">
-              {planLabel(m.plan)}{m.monthly_fee_amount ? ` · ${formatINR(m.monthly_fee_amount)}/month` : ""} · paid up to {prettyDate(m.paid_up_until)}
+              {planLabel(m.plan)}{m.monthly_fee_amount ? ` · ${formatINR(m.monthly_fee_amount)}/month` : ""} · last paid {m.last_paid_month ? monthLabel(m.last_paid_month) : "never"} · paid up to {prettyDate(m.paid_up_until)}
               {opts.renewal && dLeft !== null && (
                 <span className="text-foreground">
                   {" · "}{dLeft >= 0 ? `renews in ${dLeft} day${dLeft === 1 ? "" : "s"}` : `overdue by ${Math.abs(dLeft)} days`}
@@ -339,6 +347,7 @@ export default function AdminMembers() {
         </TabsContent>
 
         <TabsContent value="members" className="mt-4 space-y-6">
+          <SheetOnboarding onCreated={load} />
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2"><IdCard className="h-5 w-5 text-primary" /> Member directory</CardTitle>
@@ -512,6 +521,13 @@ export default function AdminMembers() {
                     <Input inputMode="numeric" value={nFee} onChange={(e) => setNFee(e.target.value.replace(/\D/g, ""))}
                       placeholder={nPlan.startsWith("premium") ? "Custom amount" : ""} className="h-12 mt-1" />
                   </div>
+                </div>
+                <div>
+                  <Label>Last paid month</Label>
+                  <Input type="month" value={nLastPaid} onChange={(e) => setNLastPaid(e.target.value)} className="h-12 mt-1" />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    The month their fee is paid up to. Leave blank for a brand-new member who has not paid yet.
+                  </p>
                 </div>
                 {nCycle === "yearly" && Number(nFee) > 0 && (
                   <p className="text-sm text-muted-foreground">
