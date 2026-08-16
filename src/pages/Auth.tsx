@@ -34,7 +34,6 @@ export default function Auth() {
 
   // Signup only
   const [fullName, setFullName] = useState("");
-  const [pin2, setPin2] = useState("");
 
   // Simple client-side rate limit for login attempts
   const [cooldownUntil, setCooldownUntil] = useState(0);
@@ -180,11 +179,10 @@ export default function Auth() {
               <div className="mx-auto mb-3 h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
                 <CheckCircle2 className="h-8 w-8 text-primary" />
               </div>
-              <CardTitle className="font-serif text-2xl">Account created</CardTitle>
+              <CardTitle className="font-serif text-2xl">Request received</CardTitle>
               <CardDescription>
-                Your account is being reviewed by the admin team.
-                Once approved, you can sign in and start writing.
-                Usually within a day or two.
+                Our team will review your details and then share your Membership ID and password
+                with you on WhatsApp or by a phone call — usually within a day or two.
               </CardDescription>
             </CardHeader>
             <CardContent>
