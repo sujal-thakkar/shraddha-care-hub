@@ -376,6 +376,71 @@ export default function Hq() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Activate: fill in plan, fee and last paid month before creating the member */}
+        <Dialog open={!!activateRow} onOpenChange={(o) => !o && setActivateRow(null)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="font-serif">Activate {activateRow?.name}</DialogTitle>
+              <DialogDescription>
+                {activateRow?.membership_id || "Membership ID will be generated"} · {activateRow?.phone_digits || "no phone"}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>Plan</Label>
+                <Select value={aPlan} onValueChange={setAPlan}>
+                  <SelectTrigger className="h-11 mt-1"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {PLANS.map((p) => {
+                      const monthly = priceFor(p.key, "monthly", prices);
+                      return <SelectItem key={p.key} value={p.key}>{p.label}{monthly ? ` — ₹${monthly}/mo` : ""}</SelectItem>;
+                    })}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label>Billing</Label>
+                  <Select value={aCycle} onValueChange={(v) => setACycle(v as BillingCycle)}>
+                    <SelectTrigger className="h-11 mt-1"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="monthly">Monthly</SelectItem>
+                      <SelectItem value="yearly">Yearly</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Amount (₹ / {aCycle === "monthly" ? "month" : "year"})</Label>
+                  <Input inputMode="numeric" value={aFee}
+                    onChange={(e) => setAFee(e.target.value.replace(/\D/g, ""))} className="h-11 mt-1" />
+                </div>
+              </div>
+              <div>
+                <Label>Last paid month</Label>
+                <Input type="month" value={aLastPaid} onChange={(e) => setALastPaid(e.target.value)} className="h-11 mt-1" />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Leave blank if they have not paid yet — the account starts as pending payment.
+                </p>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="ghost" className="h-11" onClick={() => setActivateRow(null)}>Cancel</Button>
+              <Button className="h-11" disabled={busy} onClick={async () => {
+                const id = activateRow.id;
+                setActivateRow(null);
+                await runImport("activate", {
+                  import_id: id,
+                  plan: aPlan,
+                  monthly_fee_amount: monthlyEquivalent(Number(aFee || 0), aCycle),
+                  last_paid_month: aLastPaid || null,
+                });
+              }}>
+                {busy ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null} Activate member
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
