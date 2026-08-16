@@ -13,6 +13,17 @@ function randomPassword() {
   return `${w}${Math.floor(1000 + Math.random() * 9000)}`;
 }
 
+/** Keep the office copy of a member's password so admins can look it up later. */
+async function savePassword(svc: any, userId: string, password: string, byUserId?: string | null) {
+  await svc.from("member_passwords").upsert({
+    user_id: userId,
+    password,
+    updated_at: new Date().toISOString(),
+    updated_by: byUserId ?? null,
+  }, { onConflict: "user_id" });
+}
+
+
 /** "2026-07" or "2026-07-01" -> first day of that month. */
 function monthStart(raw: unknown): string | null {
   const s = String(raw ?? "").trim();
