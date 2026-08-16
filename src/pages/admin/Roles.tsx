@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ShieldCheck, Search, Plus, Minus, ShieldAlert } from "lucide-react";
+import { Loader2, ShieldCheck, Search, Plus, Minus, ShieldAlert, KeyRound } from "lucide-react";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAdminRole } from "@/hooks/use-admin-role";
 
@@ -22,6 +23,94 @@ const ROLES: { key: "admin" | "team_admin" | "main_admin"; label: string; hint: 
   { key: "team_admin", label: "Team admin", hint: "Day-to-day team operations" },
   { key: "main_admin", label: "Main admin", hint: "Can manage roles and the HQ console" },
 ];
+
+
+function PassphraseSection() {
+  const { toast } = useToast();
+  const [password, setPassword] = useState("");
+  const [current, setCurrent] = useState("");
+  const [next, setNext] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [updatedAt, setUpdatedAt] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase.functions
+      .invoke("admin-passphrase", { body: { action: "status" } })
+      .then(({ data }) => setUpdatedAt((data as any)?.updated_at ?? null))
+      .catch(() => {});
+  }, []);
+
+  const submit = async () => {
+    setSaving(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-passphrase", {
+        body: {
+          action: "update",
+          password,
+          current_passphrase: current,
+          new_passphrase: next,
+          confirm_passphrase: confirm,
+        },
+      });
+      if (error || (data as any)?.error) {
+        throw new Error((data as any)?.error ?? error?.message ?? "Something went wrong");
+      }
+      toast({ title: "Passphrase updated", description: "Use the new passphrase from now on." });
+      setPassword(""); setCurrent(""); setNext(""); setConfirm("");
+      setUpdatedAt(new Date().toISOString());
+    } catch (e) {
+      toast({ title: "Could not update", description: (e as Error).message, variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const ready = password.length >= 4 && current.length >= 4 && next.length >= 10 && next === confirm;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <KeyRound className="h-5 w-5 text-primary" /> Console passphrase
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <p className="text-sm text-muted-foreground">
+          This passphrase unlocks the HQ console and the account recovery page. To change it, confirm
+          your identity by re-entering your own admin password along with the current passphrase.
+          {updatedAt ? ` Last changed ${new Date(updatedAt).toLocaleString()}.` : ""}
+        </p>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="pp-pwd">Your admin password</Label>
+            <Input id="pp-pwd" type="password" autoComplete="current-password"
+              value={password} onChange={(e) => setPassword(e.target.value)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="pp-cur">Current passphrase</Label>
+            <Input id="pp-cur" type="password" value={current} onChange={(e) => setCurrent(e.target.value)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="pp-new">New passphrase (min 10 characters)</Label>
+            <Input id="pp-new" type="password" value={next} onChange={(e) => setNext(e.target.value)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="pp-conf">Repeat new passphrase</Label>
+            <Input id="pp-conf" type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+          </div>
+        </div>
+        {confirm.length > 0 && next !== confirm && (
+          <p className="text-sm text-destructive">The two new passphrases do not match.</p>
+        )}
+        <Button onClick={submit} disabled={!ready || saving}>
+          {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <KeyRound className="mr-2 h-4 w-4" />}
+          Change passphrase
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function AdminRoles() {
   const { toast } = useToast();
@@ -222,6 +311,8 @@ export default function AdminRoles() {
           )}
         </CardContent>
       </Card>
+
+      <PassphraseSection />
     </div>
   );
 }
