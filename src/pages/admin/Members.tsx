@@ -65,6 +65,10 @@ export default function AdminMembers() {
   const [issued, setIssued] = useState<{ membership_id: string; password: string; upgraded?: boolean } | null>(null);
   const [upgradeInfo, setUpgradeInfo] = useState<{ full_name: string | null; status: string | null } | null>(null);
 
+  // Remove-from-directory dialog
+  const [removeFor, setRemoveFor] = useState<any>(null);
+  const [removing, setRemoving] = useState(false);
+
   // Selection + reminders
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [composerOpen, setComposerOpen] = useState(false);
