@@ -271,6 +271,10 @@ export default function AdminMembers() {
           <Button size="sm" variant="ghost" className="h-10" onClick={() => openComposer([m])} disabled={sending}>
             <BellRing className="h-4 w-4" />
           </Button>
+          <Button size="sm" variant="ghost" className="h-10 text-destructive hover:text-destructive"
+            onClick={() => setRemoveFor(m)} aria-label={`Remove ${m.full_name} from the directory`}>
+            <UserMinus className="h-4 w-4" />
+          </Button>
         </div>
       </div>
     );
