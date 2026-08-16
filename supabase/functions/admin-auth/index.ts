@@ -6,8 +6,8 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { serviceClient, getCaller, json, audit, clientIp, SUPABASE_URL, ANON_KEY } from "../_shared/admin.ts";
 
-const STAFF_ROLES = ["admin", "team_admin"];
-const ALL_ROLES = ["admin", "team_admin", "main_admin"];
+const STAFF_ROLES = ["admin"];
+const ALL_ROLES = ["admin", "main_admin"];
 
 const attempts = new Map<string, { count: number; until: number }>();
 
