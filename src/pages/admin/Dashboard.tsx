@@ -14,7 +14,7 @@ export default function AdminDashboard() {
   const location = useLocation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
-  const { isMainAdmin } = useAdminRole();
+  useAdminRole();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [pendingWriters, setPendingWriters] = useState(0);
   const [pendingBlogs, setPendingBlogs] = useState(0);
