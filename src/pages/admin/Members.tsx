@@ -577,6 +577,35 @@ export default function AdminMembers() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Remove from directory */}
+      <Dialog open={!!removeFor} onOpenChange={(o) => !o && setRemoveFor(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-serif">Remove {removeFor?.full_name} from the directory?</DialogTitle>
+            <DialogDescription>
+              Their Membership ID, plan, fee and paid-until dates are cleared. Their login stays, and because
+              they are in the Active Members sheet they will reappear above under “Create profiles from the
+              Active Members sheet”, ready to be set up again.
+            </DialogDescription>
+          </DialogHeader>
+          {removeFor && (
+            <div className="rounded-lg border bg-muted/40 p-3 text-sm">
+              <p className="font-medium">{removeFor.membership_id}</p>
+              <p className="text-muted-foreground">
+                {planLabel(removeFor.plan)} · last paid {removeFor.last_paid_month ? monthLabel(removeFor.last_paid_month) : "never"}
+              </p>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="ghost" className="h-11" onClick={() => setRemoveFor(null)}>Cancel</Button>
+            <Button variant="destructive" className="h-11" onClick={removeMember} disabled={removing}>
+              {removing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <UserMinus className="h-4 w-4 mr-2" />}
+              Remove member
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
