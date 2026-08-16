@@ -22,13 +22,26 @@ export default function AdminBootstrap() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const { data, error: fnErr } = await supabase.functions.invoke("admin-bootstrap", {
-      body: { passphrase, phone, password, make_main_admin: makeMain },
-    });
+    let payload: any = null;
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-bootstrap`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string,
+          },
+          body: JSON.stringify({ passphrase, phone, password, make_main_admin: makeMain }),
+        },
+      );
+      payload = await res.json().catch(() => null);
+    } catch {
+      payload = null;
+    }
     setLoading(false);
-    const payload = data as any;
-    if (fnErr || !payload?.ok) {
-      return setError(payload?.error || "Could not complete. Check the passphrase and phone number.");
+    if (!payload?.ok) {
+      return setError(payload?.error || "Could not reach the server. Please try again.");
     }
     setDone(payload);
   };

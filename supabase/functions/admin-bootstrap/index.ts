@@ -17,9 +17,9 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json().catch(() => ({}));
-    const passphrase = String(body.passphrase ?? "");
-    const phoneDigits = String(body.phone ?? "").replace(/\D/g, "");
-    const newPassword = String(body.password ?? "");
+    const passphrase = String(body.passphrase ?? "").trim();
+    const phoneDigits = String(body.phone ?? body.phone_number ?? "").replace(/\D/g, "");
+    const newPassword = String(body.password ?? body.new_password ?? body.newPassword ?? "");
     const makeMain = body.make_main_admin !== false;
 
     const svcCheck = serviceClient();
