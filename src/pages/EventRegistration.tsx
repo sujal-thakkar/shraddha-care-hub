@@ -51,6 +51,7 @@ export default function EventRegistration() {
     area: "",
     medical_concerns: "",
     source: "",
+    membership_id: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [searchParams, setSearchParams] = useSearchParams();
@@ -279,6 +280,7 @@ export default function EventRegistration() {
         area: formData.area.trim() || "—",
         medical_concerns: formData.medical_concerns.trim() || null,
         source: formData.source || "Other",
+        membership_id: formData.membership_id.trim().toUpperCase() || null,
         is_member: isMember,
         payment_status: needsPayment ? "pending" : "not_required",
         amount_inr: needsPayment ? event.price_inr : null,
@@ -715,6 +717,20 @@ export default function EventRegistration() {
                             {errors.area && <p className="text-sm text-destructive">{errors.area}</p>}
                           </div>
                         )}
+                        <div className="space-y-2">
+                          <Label htmlFor="membership_id">Hosla Membership ID (members only)</Label>
+                          <Input
+                            id="membership_id"
+                            value={formData.membership_id}
+                            onChange={(e) => handleChange("membership_id", e.target.value.toUpperCase())}
+                            placeholder="e.g. SUJA6931"
+                            maxLength={12}
+                            className="font-mono"
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            Add it and this event will show up in your member profile.
+                          </p>
+                        </div>
                       </div>
 
                       {fieldConfig.source.enabled && (
