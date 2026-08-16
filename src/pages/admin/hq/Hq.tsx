@@ -14,9 +14,9 @@ import { formatINR, prettyDate, TX_SOURCE_LABEL, TX_STATE_LABEL } from "@/lib/me
 export default function Hq() {
   const { toast } = useToast();
   const [checking, setChecking] = useState(true);
-  const [allowed, setAllowed] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
-  const [passphrase, setPassphrase] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [unlocking, setUnlocking] = useState(false);
 
   const [pending, setPending] = useState<any[]>([]);
@@ -31,12 +31,18 @@ export default function Hq() {
     (async () => {
       const { data: sess } = await supabase.auth.getSession();
       const uid = sess.session?.user.id;
-      if (!uid) { setChecking(false); return; }
-      const { data } = await supabase.from("user_roles").select("role").eq("user_id", uid);
-      setAllowed((data ?? []).some((r: any) => r.role === "main_admin"));
+      if (uid) {
+        const { data } = await supabase.from("user_roles").select("role").eq("user_id", uid);
+        if ((data ?? []).some((r: any) => r.role === "main_admin")) {
+          setUnlocked(true);
+          loadAll();
+        }
+      }
       setChecking(false);
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
 
   const loadAll = async () => {
     const [tx, req, imp, log] = await Promise.all([
