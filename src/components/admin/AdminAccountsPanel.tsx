@@ -23,7 +23,7 @@ const ROLE_LABEL: Record<string, string> = {
   main_admin: "Main admin",
 };
 
-export default function AdminRoles() {
+export default function AdminAccountsPanel() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [allowed, setAllowed] = useState(false);
