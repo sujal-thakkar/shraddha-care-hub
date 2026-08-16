@@ -56,6 +56,7 @@ const AdminSubscribers = lazy(() => import("./pages/admin/Subscribers"));
 const AdminMembers = lazy(() => import("./pages/admin/Members"));
 const AdminRoles = lazy(() => import("./pages/admin/Roles"));
 const AdminHq = lazy(() => import("./pages/admin/hq/Hq"));
+const AdminSetup = lazy(() => import("./pages/admin/Setup"));
 
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -108,6 +109,7 @@ const App = () => {
             <Route path="/author/:userId" element={<Author />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/recover" element={<AdminBootstrap />} />
+            <Route path="/admin/setup" element={<AdminSetup />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />}>
               <Route index element={<AdminOverview />} />
               <Route path="messages" element={<AdminMessages />} />
