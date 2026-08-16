@@ -161,12 +161,14 @@ Deno.serve(async (req) => {
         last_paid_month: lastPaidMonth,
         member_since: new Date().toISOString().slice(0, 10),
         member_status: paidUpUntil ? "active" : "pending_payment",
-        must_change_password: true,
+        must_change_password: false,
         status: "approved",
         approved_at: new Date().toISOString(),
       }).eq("user_id", userId);
 
+      await savePassword(svc, userId, password, caller.userId);
       await svc.from("user_roles").insert({ user_id: userId, role: "member" });
+
       await audit(
         svc, caller,
         upgraded ? "upgrade_account_to_member" : "create_member",
