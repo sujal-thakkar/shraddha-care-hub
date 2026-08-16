@@ -15,7 +15,7 @@ import ReminderComposer, { type ReminderTarget } from "@/components/admin/Remind
 import SheetOnboarding from "@/components/admin/SheetOnboarding";
 import { usePlanPrices } from "@/hooks/use-plan-prices";
 import { PLANS, defaultAmount, monthlyEquivalent, planLabel, priceFor, type BillingCycle } from "@/lib/membership-plans";
-import { Loader2, Search, HandCoins, BellRing, IdCard, UserPlus, AlertTriangle, CalendarClock } from "lucide-react";
+import { Loader2, Search, HandCoins, BellRing, IdCard, UserPlus, AlertTriangle, CalendarClock, UserMinus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAdminRole } from "@/hooks/use-admin-role";
 import {
