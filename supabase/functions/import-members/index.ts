@@ -120,21 +120,27 @@ Deno.serve(async (req) => {
       await svc.from("profiles").update({
         membership_id: membershipId,
         full_name: row.name,
+        phone_e164: e164,
         email: row.email ?? null,
-        plan: row.plan ?? null,
-        monthly_fee_amount: row.monthly_fee_amount ?? null,
-        paid_up_until: row.paid_up_until ?? null,
-        chapter: row.chapter ?? null,
-        member_status: row.paid_up_until ? "active" : "pending_payment",
+        plan,
+        monthly_fee_amount: fee,
+        paid_up_until: paidUpUntil,
+        last_paid_month: lastPaidMonth,
+        chapter,
+        member_since: new Date().toISOString().slice(0, 10),
+        member_status: paidUpUntil ? "active" : "pending_payment",
         must_change_password: Boolean(password),
         status: "approved",
       }).eq("user_id", userId);
+      if (!password) await svc.from("user_roles").insert({ user_id: userId, role: "member" }).select();
 
       await svc.from("member_imports").update({
         status: "activated", linked_user_id: userId, membership_id: membershipId,
+        plan, monthly_fee_amount: fee, last_paid_month: lastPaidMonth, paid_up_until: paidUpUntil, chapter,
       }).eq("id", id);
 
-      await audit(svc, caller, "activate_member", "member_imports", id, { membership_id: membershipId }, ip);
+      await audit(svc, caller, "activate_member", "member_imports", id,
+        { membership_id: membershipId, plan, monthly_fee_amount: fee, last_paid_month: lastPaidMonth }, ip);
       return json({ membership_id: membershipId, password, user_id: userId }, 200, H);
     }
 
