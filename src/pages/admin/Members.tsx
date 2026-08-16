@@ -220,6 +220,25 @@ export default function AdminMembers() {
     submitMember(false);
   };
 
+  const removeMember = async () => {
+    if (!removeFor) return;
+    setRemoving(true);
+    const { data, error } = await supabase.functions.invoke("member-credentials", {
+      body: { action: "remove_member", user_id: removeFor.user_id },
+    });
+    setRemoving(false);
+    if (error || (data as any)?.error) {
+      return toast({ title: "Couldn't remove the member", description: (data as any)?.error || error?.message, variant: "destructive" });
+    }
+    setRemoveFor(null);
+    setSelected({});
+    toast({
+      title: "Removed from the directory",
+      description: "They appear again under “Create profiles from the Active Members sheet”.",
+    });
+    load();
+  };
+
   const memberRow = (m: any, opts: { renewal?: boolean } = {}) => {
     const status = memberStatusOf(m.paid_up_until);
     const dLeft = daysUntil(m.paid_up_until);
