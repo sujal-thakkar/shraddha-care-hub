@@ -107,12 +107,13 @@ const PASSPHRASE_KEY = "main_admin_console_passphrase_hash";
  * (set from the admin UI) takes precedence over the MAIN_ADMIN_CONSOLE_PASSPHRASE secret.
  */
 export async function verifyConsolePassphrase(svc: SupabaseClient, given: string) {
-  if (!given) return false;
+  const value = given.trim();
+  if (!value) return false;
   const { data } = await svc
     .from("app_settings").select("value").eq("key", PASSPHRASE_KEY).maybeSingle();
-  if (data?.value) return (await sha256Hex(given)) === data.value;
+  if (data?.value) return (await sha256Hex(value)) === data.value;
   const secret = Deno.env.get("MAIN_ADMIN_CONSOLE_PASSPHRASE") ?? "";
-  return Boolean(secret) && given === secret;
+  return Boolean(secret) && value === secret.trim();
 }
 
 export async function setConsolePassphrase(svc: SupabaseClient, passphrase: string, userId: string) {

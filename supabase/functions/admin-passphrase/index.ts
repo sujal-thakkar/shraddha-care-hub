@@ -36,8 +36,8 @@ Deno.serve(async (req) => {
 
     const password = String(body.password ?? "");
     const currentPassphrase = String(body.current_passphrase ?? "");
-    const newPassphrase = String(body.new_passphrase ?? "");
-    const confirm = String(body.confirm_passphrase ?? "");
+    const newPassphrase = String(body.new_passphrase ?? "").trim();
+    const confirm = String(body.confirm_passphrase ?? "").trim();
 
     if (newPassphrase.length < 10) {
       return json({ error: "New passphrase must be at least 10 characters." }, 400, H);
