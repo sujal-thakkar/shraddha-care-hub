@@ -683,6 +683,7 @@ export type Database = {
           created_at: string
           email: string | null
           id: string
+          last_paid_month: string | null
           linked_user_id: string | null
           membership_id: string | null
           monthly_fee_amount: number | null
@@ -700,6 +701,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          last_paid_month?: string | null
           linked_user_id?: string | null
           membership_id?: string | null
           monthly_fee_amount?: number | null
@@ -717,6 +719,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          last_paid_month?: string | null
           linked_user_id?: string | null
           membership_id?: string | null
           monthly_fee_amount?: number | null
@@ -1213,6 +1216,7 @@ export type Database = {
           full_name: string | null
           id: string
           is_console_admin: boolean
+          last_paid_month: string | null
           member_since: string | null
           member_status: string
           membership_id: string | null
@@ -1243,6 +1247,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_console_admin?: boolean
+          last_paid_month?: string | null
           member_since?: string | null
           member_status?: string
           membership_id?: string | null
@@ -1273,6 +1278,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_console_admin?: boolean
+          last_paid_month?: string | null
           member_since?: string | null
           member_status?: string
           membership_id?: string | null
