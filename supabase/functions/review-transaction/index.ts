@@ -46,8 +46,11 @@ Deno.serve(async (req) => {
       }).eq("id", txId);
 
       if (periodEnd) {
-        await svc.from("profiles").update({ paid_up_until: periodEnd, member_status: "active" })
-          .eq("user_id", tx.member_user_id);
+        await svc.from("profiles").update({
+          paid_up_until: periodEnd,
+          last_paid_month: `${periodEnd.slice(0, 7)}-01`,
+          member_status: "active",
+        }).eq("user_id", tx.member_user_id);
       }
       await audit(svc, caller, "approve_payment", "membership_transactions", txId,
         { amount: tx.amount_inr, months, period_end: periodEnd }, ip);
