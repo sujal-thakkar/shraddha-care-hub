@@ -75,7 +75,7 @@ export default function Auth() {
     if (setErr) return toast({ title: "Couldn't start your session", description: setErr.message, variant: "destructive" });
 
     toast({ title: `Welcome, ${payload.full_name || "friend"}!` });
-    navigate(payload.must_change_password ? "/profile?change_password=1" : next, { replace: true });
+    navigate(next, { replace: true });
   };
 
   const handleSignup = async (e: React.FormEvent) => {
