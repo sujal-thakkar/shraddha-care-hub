@@ -451,60 +451,71 @@ export default function Profile() {
           </CardContent>
         </Card>
 
-        {/* Password (Membership ID sign-in) */}
-        <ChangePasswordCard highlight={mustChangePassword || !!profile?.must_change_password} />
-
-        {/* Change PIN */}
-
+        {/* Events attended */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
-              <KeyRound className="h-5 w-5 text-primary" />
-              {t("Change PIN")}
+              <CalendarCheck className="h-5 w-5 text-primary" />
+              {t("My events")}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-3 sm:grid-cols-3">
-              <div>
-                <Label>{t("Current PIN")}</Label>
-                <Input
-                  inputMode="numeric"
-                  maxLength={4}
-                  type="text" autoComplete="off"
-                  value={currentPin}
-                  onChange={(e) => setCurrentPin(e.target.value.replace(/\D/g, ""))}
-                  className="h-11 mt-1 tracking-[0.5em] text-center text-lg"
-                />
+          <CardContent>
+            {events.length === 0 ? (
+              <p className="text-muted-foreground py-4">
+                {t("No event registrations yet. Add your Membership ID when you register and it will appear here.")}
+              </p>
+            ) : (
+              <div className="divide-y">
+                {events.map((e) => (
+                  <div key={e.id} className="py-3 flex flex-wrap items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="font-medium">{e.event_title || t("Event")}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {e.event_date ? new Date(e.event_date).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }) : new Date(e.created_at).toLocaleDateString("en-IN")}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {e.payment_status === "paid" && <Badge className="bg-emerald-100 text-emerald-800">{t("Paid")}</Badge>}
+                      <Badge className={e.checked_in ? "bg-emerald-100 text-emerald-800" : "bg-blue-100 text-blue-800"}>
+                        {e.checked_in ? t("Attended") : t("Registered")}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div>
-                <Label>{t("New PIN")}</Label>
-                <Input
-                  inputMode="numeric"
-                  maxLength={4}
-                  type="text" autoComplete="off"
-                  value={newPin}
-                  onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ""))}
-                  className="h-11 mt-1 tracking-[0.5em] text-center text-lg"
-                />
-              </div>
-              <div>
-                <Label>{t("Confirm new PIN")}</Label>
-                <Input
-                  inputMode="numeric"
-                  maxLength={4}
-                  type="text" autoComplete="off"
-                  value={confirmPin}
-                  onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ""))}
-                  className="h-11 mt-1 tracking-[0.5em] text-center text-lg"
-                />
-              </div>
-            </div>
-            <Button onClick={changePin} disabled={changingPin} className="h-11">
-              {changingPin ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <KeyRound className="h-4 w-4 mr-2" />}
-              {t("Update PIN")}
-            </Button>
+            )}
           </CardContent>
         </Card>
+
+        {/* Donations */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <HeartHandshake className="h-5 w-5 text-primary" />
+              {t("My donations")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {donations.length === 0 ? (
+              <p className="text-muted-foreground py-4">{t("No donations on record yet.")}</p>
+            ) : (
+              <div className="divide-y">
+                {donations.map((d) => (
+                  <div key={d.id} className="py-3 flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <p className="font-medium">₹{d.amount}</p>
+                      <p className="text-sm text-muted-foreground">{new Date(d.created_at).toLocaleDateString("en-IN")}</p>
+                    </div>
+                    <Badge className={d.status === "verified" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}>
+                      {t(d.status === "verified" ? "Verified" : "Pending")}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
 
         {/* My blogs */}
         <Card>
