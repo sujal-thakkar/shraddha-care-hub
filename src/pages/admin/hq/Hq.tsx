@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, ShieldCheck, Lock, Check, X, Banknote, KeyRound, Download, ScrollText } from "lucide-react";
+import { Loader2, ShieldCheck, Lock, Check, X, Banknote, KeyRound, Download, ScrollText, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import AdminAccountsPanel from "@/components/admin/AdminAccountsPanel";
 import { usePlanPrices } from "@/hooks/use-plan-prices";
