@@ -155,6 +155,7 @@ export default function SheetOnboarding({ onCreated }: { onCreated?: () => void 
           <div>
             <Label>Amount (₹ / {cycle === "monthly" ? "month" : "year"})</Label>
             <Input inputMode="numeric" value={fee} onChange={(e) => setFee(e.target.value.replace(/\D/g, ""))} className="h-11 mt-1" />
+            <p className="text-xs text-muted-foreground mt-1">Default for everyone — override per person in the list below.</p>
           </div>
           <div>
             <Label>Last paid month</Label>
