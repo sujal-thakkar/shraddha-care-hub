@@ -211,6 +211,7 @@ export function Header() {
           <div className="lg:hidden flex items-center gap-1">
             <NotificationBell />
             <AccessibilityMenu />
+            {signedIn && <UserMenu className="mr-1" />}
             <button
               className="relative z-[60] w-12 h-12 flex items-center justify-center rounded-lg transition-colors hover:bg-accent active:bg-accent/80 touch-manipulation"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
