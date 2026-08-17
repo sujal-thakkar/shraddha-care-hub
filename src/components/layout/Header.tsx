@@ -7,6 +7,7 @@ import { AccessibilityMenu } from "@/hooks/use-a11y";
 import { NotificationBell } from "@/components/blog/NotificationBell";
 import { UserMenu } from "@/components/layout/UserMenu";
 import { MobileAccountLinks } from "@/components/layout/MobileAccountLinks";
+import { useSessionProfile } from "@/hooks/use-session-profile";
 import logoShraddha from "@/assets/logo-shraddha.png";
 
 interface NavChild {
