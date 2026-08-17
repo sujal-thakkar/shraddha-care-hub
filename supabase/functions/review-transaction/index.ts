@@ -67,6 +67,20 @@ Deno.serve(async (req) => {
       return json({ ok: true, count: ids.length }, 200, H);
     }
 
+    if (action === "delete_cash") {
+      const ids: string[] = Array.isArray(body.transaction_ids) ? body.transaction_ids.map(String) : [];
+      if (!ids.length) return json({ error: "Nothing to remove" }, 400, H);
+      const { data: rows } = await svc.from("membership_transactions")
+        .select("id, amount_inr, membership_id, source, settled").in("id", ids);
+      const cashIds = (rows ?? []).filter((r: any) => r.source === "cash" && !r.settled).map((r: any) => r.id);
+      if (!cashIds.length) return json({ error: "Only unsettled cash entries can be removed." }, 400, H);
+      const { error } = await svc.from("membership_transactions").delete().in("id", cashIds);
+      if (error) return json({ error: error.message }, 400, H);
+      await audit(svc, caller, "delete_cash", "membership_transactions", null,
+        { count: cashIds.length, removed: rows }, ip);
+      return json({ ok: true, count: cashIds.length }, 200, H);
+    }
+
     if (action === "adjust_member") {
       const userId = String(body.user_id ?? "");
       const patch: Record<string, unknown> = {};

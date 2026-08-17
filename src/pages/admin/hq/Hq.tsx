@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, ShieldCheck, Lock, Check, X, Banknote, KeyRound, Download, ScrollText } from "lucide-react";
+import { Loader2, ShieldCheck, Lock, Check, X, Banknote, KeyRound, Download, ScrollText, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import AdminAccountsPanel from "@/components/admin/AdminAccountsPanel";
 import { usePlanPrices } from "@/hooks/use-plan-prices";
@@ -272,16 +272,35 @@ export default function Hq() {
                             <p className="font-medium">{receiver}</p>
                             <p className="text-sm text-muted-foreground">{(list as any[]).length} collection(s) · {formatINR(total)} in hand</p>
                           </div>
-                          <Button size="sm" className="h-10" disabled={busy}
-                            onClick={() => review({ action: "settle", transaction_ids: (list as any[]).map((t) => t.id) }, `Settled ${formatINR(total)}`)}>
-                            Mark settled
-                          </Button>
+                          <div className="flex items-center gap-2">
+                            <Button size="sm" className="h-10" disabled={busy}
+                              onClick={() => review({ action: "settle", transaction_ids: (list as any[]).map((t) => t.id) }, `Settled ${formatINR(total)}`)}>
+                              Mark settled
+                            </Button>
+                            <Button size="sm" variant="outline" className="h-10 text-destructive hover:text-destructive" disabled={busy}
+                              onClick={() => {
+                                if (!window.confirm(`Remove all ${(list as any[]).length} floating entr${(list as any[]).length === 1 ? "y" : "ies"} for ${receiver}? This cannot be undone.`)) return;
+                                review({ action: "delete_cash", transaction_ids: (list as any[]).map((t) => t.id) }, "Entries removed");
+                              }}>
+                              <Trash2 className="h-4 w-4 mr-1" /> Remove all
+                            </Button>
+                          </div>
                         </div>
                         <div className="mt-3 divide-y">
                           {(list as any[]).map((t) => (
-                            <p key={t.id} className="py-2 text-sm">
-                              {formatINR(t.amount_inr)} · {t.membership_id} · {prettyDate(t.created_at)} · {TX_STATE_LABEL[t.state]}
-                            </p>
+                            <div key={t.id} className="flex items-center justify-between gap-3 py-2">
+                              <p className="text-sm">
+                                {formatINR(t.amount_inr)} · {t.membership_id} · {prettyDate(t.created_at)} · {TX_STATE_LABEL[t.state]}
+                              </p>
+                              <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive hover:text-destructive" disabled={busy}
+                                aria-label="Remove entry"
+                                onClick={() => {
+                                  if (!window.confirm(`Remove this ${formatINR(t.amount_inr)} entry? This cannot be undone.`)) return;
+                                  review({ action: "delete_cash", transaction_ids: [t.id] }, "Entry removed");
+                                }}>
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
                           ))}
                         </div>
                       </div>
