@@ -72,7 +72,14 @@ export default function SheetOnboarding({ onCreated }: { onCreated?: () => void 
         monthly_fee_amount: monthlyEquivalent(Number(fee || 0), cycle) || null,
         last_paid_month: lastPaidMonth || null,
         allow_upgrade: true,
-        rows: selectedRows.map((r) => ({ name: r.name, phone: r.phone_digits })),
+        rows: selectedRows.map((r) => {
+          const own = amounts[r.id];
+          return {
+            name: r.name,
+            phone: r.phone_digits,
+            monthly_fee_amount: own ? monthlyEquivalent(Number(own), cycle) : undefined,
+          };
+        }),
       },
     });
     setRunning(false);
