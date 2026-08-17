@@ -206,7 +206,19 @@ export default function SheetOnboarding({ onCreated }: { onCreated?: () => void 
                     onCheckedChange={(v) => setSelected((s) => ({ ...s, [r.id]: !!v }))}
                   />
                   <span className="flex-1 min-w-0 truncate">{r.name}</span>
-                  <span className="text-muted-foreground tabular-nums">{r.phone_digits}</span>
+                  <span className="text-muted-foreground tabular-nums hidden sm:inline">{r.phone_digits}</span>
+                  <span className="flex items-center gap-1 text-muted-foreground">
+                    ₹
+                    <Input
+                      inputMode="numeric"
+                      value={amounts[r.id] ?? ""}
+                      placeholder={fee || "0"}
+                      onClick={(e) => e.preventDefault()}
+                      onChange={(e) => setAmounts((a) => ({ ...a, [r.id]: e.target.value.replace(/\D/g, "") }))}
+                      className="h-9 w-20 tabular-nums"
+                      aria-label={`Amount for ${r.name}`}
+                    />
+                  </span>
                   <Badge variant="outline" className="font-mono">{makeMembershipId(r.name, r.phone_digits)}</Badge>
                 </label>
               ))}
