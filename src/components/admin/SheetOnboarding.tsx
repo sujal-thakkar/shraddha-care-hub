@@ -93,6 +93,7 @@ export default function SheetOnboarding({ onCreated }: { onCreated?: () => void 
     }
     setResults({ created: payload.created ?? [], failed: payload.failed ?? [] });
     setSelected({});
+    setAmounts({});
     toast({
       title: `${payload.created?.length ?? 0} profile(s) created`,
       description: payload.failed?.length ? `${payload.failed.length} row(s) need attention.` : "Credentials are listed below.",
