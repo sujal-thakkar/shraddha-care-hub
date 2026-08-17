@@ -7,6 +7,7 @@ import { AccessibilityMenu } from "@/hooks/use-a11y";
 import { NotificationBell } from "@/components/blog/NotificationBell";
 import { UserMenu } from "@/components/layout/UserMenu";
 import { MobileAccountLinks } from "@/components/layout/MobileAccountLinks";
+import { useSessionProfile } from "@/hooks/use-session-profile";
 import logoShraddha from "@/assets/logo-shraddha.png";
 
 interface NavChild {
@@ -169,6 +170,7 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
   const location = useLocation();
+  const { signedIn } = useSessionProfile();
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -209,6 +211,7 @@ export function Header() {
           <div className="lg:hidden flex items-center gap-1">
             <NotificationBell />
             <AccessibilityMenu />
+            {signedIn && <UserMenu className="mr-1" />}
             <button
               className="relative z-[60] w-12 h-12 flex items-center justify-center rounded-lg transition-colors hover:bg-accent active:bg-accent/80 touch-manipulation"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
