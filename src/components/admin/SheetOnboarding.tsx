@@ -29,6 +29,7 @@ export default function SheetOnboarding({ onCreated }: { onCreated?: () => void 
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
   const [fee, setFee] = useState("");
   const [lastPaidMonth, setLastPaidMonth] = useState("");
+  const [amounts, setAmounts] = useState<Record<string, string>>({});
   const [running, setRunning] = useState(false);
   const [results, setResults] = useState<{ created: Issued[]; failed: Issued[] } | null>(null);
 
@@ -71,7 +72,14 @@ export default function SheetOnboarding({ onCreated }: { onCreated?: () => void 
         monthly_fee_amount: monthlyEquivalent(Number(fee || 0), cycle) || null,
         last_paid_month: lastPaidMonth || null,
         allow_upgrade: true,
-        rows: selectedRows.map((r) => ({ name: r.name, phone: r.phone_digits })),
+        rows: selectedRows.map((r) => {
+          const own = amounts[r.id];
+          return {
+            name: r.name,
+            phone: r.phone_digits,
+            monthly_fee_amount: own ? monthlyEquivalent(Number(own), cycle) : undefined,
+          };
+        }),
       },
     });
     setRunning(false);
@@ -85,6 +93,7 @@ export default function SheetOnboarding({ onCreated }: { onCreated?: () => void 
     }
     setResults({ created: payload.created ?? [], failed: payload.failed ?? [] });
     setSelected({});
+    setAmounts({});
     toast({
       title: `${payload.created?.length ?? 0} profile(s) created`,
       description: payload.failed?.length ? `${payload.failed.length} row(s) need attention.` : "Credentials are listed below.",
@@ -146,6 +155,7 @@ export default function SheetOnboarding({ onCreated }: { onCreated?: () => void 
           <div>
             <Label>Amount (₹ / {cycle === "monthly" ? "month" : "year"})</Label>
             <Input inputMode="numeric" value={fee} onChange={(e) => setFee(e.target.value.replace(/\D/g, ""))} className="h-11 mt-1" />
+            <p className="text-xs text-muted-foreground mt-1">Default for everyone — override per person in the list below.</p>
           </div>
           <div>
             <Label>Last paid month</Label>
@@ -198,7 +208,19 @@ export default function SheetOnboarding({ onCreated }: { onCreated?: () => void 
                     onCheckedChange={(v) => setSelected((s) => ({ ...s, [r.id]: !!v }))}
                   />
                   <span className="flex-1 min-w-0 truncate">{r.name}</span>
-                  <span className="text-muted-foreground tabular-nums">{r.phone_digits}</span>
+                  <span className="text-muted-foreground tabular-nums hidden sm:inline">{r.phone_digits}</span>
+                  <span className="flex items-center gap-1 text-muted-foreground">
+                    ₹
+                    <Input
+                      inputMode="numeric"
+                      value={amounts[r.id] ?? ""}
+                      placeholder={fee || "0"}
+                      onClick={(e) => e.preventDefault()}
+                      onChange={(e) => setAmounts((a) => ({ ...a, [r.id]: e.target.value.replace(/\D/g, "") }))}
+                      className="h-9 w-20 tabular-nums"
+                      aria-label={`Amount for ${r.name}`}
+                    />
+                  </span>
                   <Badge variant="outline" className="font-mono">{makeMembershipId(r.name, r.phone_digits)}</Badge>
                 </label>
               ))}
