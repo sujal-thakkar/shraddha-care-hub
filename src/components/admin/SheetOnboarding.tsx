@@ -29,6 +29,7 @@ export default function SheetOnboarding({ onCreated }: { onCreated?: () => void 
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
   const [fee, setFee] = useState("");
   const [lastPaidMonth, setLastPaidMonth] = useState("");
+  const [amounts, setAmounts] = useState<Record<string, string>>({});
   const [running, setRunning] = useState(false);
   const [results, setResults] = useState<{ created: Issued[]; failed: Issued[] } | null>(null);
 
