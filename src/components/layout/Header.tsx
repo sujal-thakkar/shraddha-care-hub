@@ -170,6 +170,7 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
   const location = useLocation();
+  const { signedIn } = useSessionProfile();
 
   useEffect(() => {
     setIsMenuOpen(false);
