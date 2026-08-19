@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, AlertCircle, CheckCircle2, KeyRound, Phone, ShieldCheck } from "lucide-react";
@@ -92,7 +93,7 @@ export default function AdminBootstrap() {
           <form onSubmit={submit} className="space-y-4">
             <div className="space-y-2">
               <Label className="flex items-center gap-2"><KeyRound className="h-4 w-4" /> Console passphrase</Label>
-              <Input type="password" value={passphrase} onChange={(e) => setPassphrase(e.target.value)}
+              <PasswordInput value={passphrase} onChange={(e) => setPassphrase(e.target.value)}
                 className="h-12" autoComplete="off" />
             </div>
             <div className="space-y-2">

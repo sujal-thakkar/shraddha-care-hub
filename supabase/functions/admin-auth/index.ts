@@ -64,9 +64,6 @@ Deno.serve(async (req) => {
       if (wantsConsole && !roles.includes("main_admin")) {
         return json({ error: "This console is only for the main admin." }, 403, H);
       }
-      if (!wantsConsole && admin.is_console_admin) {
-        return json({ error: "Use the main-admin console to sign in with this account." }, 403, H);
-      }
 
       const { data: userRes } = await svc.auth.admin.getUserById(admin.user_id);
       const email = userRes?.user?.email;
