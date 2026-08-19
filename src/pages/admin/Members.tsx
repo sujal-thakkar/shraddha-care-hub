@@ -379,37 +379,7 @@ export default function AdminMembers() {
         </TabsContent>
 
         <TabsContent value="members" className="mt-4 space-y-6">
-          <SheetOnboarding onCreated={load} />
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2"><IdCard className="h-5 w-5 text-primary" /> Member directory</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="relative mb-4">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search by name, Membership ID or phone" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9 h-11" />
-              </div>
-              {filtered.length > 0 && (
-                <div className="flex items-center gap-2 pb-3 text-sm">
-                  <Checkbox
-                    checked={filtered.every((m) => selected[m.user_id])}
-                    onCheckedChange={(v) => setSelected((s) => {
-                      const next = { ...s };
-                      filtered.forEach((m) => { next[m.user_id] = !!v; });
-                      return next;
-                    })}
-                    aria-label="Select all"
-                  />
-                  <span className="text-muted-foreground">Select all shown</span>
-                </div>
-              )}
-              {filtered.length === 0 ? (
-                <p className="text-muted-foreground py-6 text-center">No members found.</p>
-              ) : (
-                <div className="divide-y">{filtered.map((m) => memberRow(m))}</div>
-              )}
-            </CardContent>
-          </Card>
+          {directorySection}
 
           {isMainAdmin && (
             <p className="text-sm text-muted-foreground">
@@ -417,7 +387,12 @@ export default function AdminMembers() {
             </p>
           )}
         </TabsContent>
+
+        <TabsContent value="onboarding" className="mt-4">
+          <SheetOnboarding onCreated={load} />
+        </TabsContent>
       </Tabs>
+
 
       <ReminderComposer
         open={composerOpen}
