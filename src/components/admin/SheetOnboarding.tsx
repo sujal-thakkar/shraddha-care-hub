@@ -7,14 +7,19 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, UsersRound, Search, Download, RefreshCw, CheckCircle2 } from "lucide-react";
+import { Loader2, UsersRound, Search, Download, RefreshCw, CheckCircle2, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { usePlanPrices } from "@/hooks/use-plan-prices";
 import { PLANS, defaultAmount, monthlyEquivalent, priceFor, type BillingCycle } from "@/lib/membership-plans";
 import { makeMembershipId, prettyDate } from "@/lib/membership";
+import { format } from "date-fns";
+
+const SHEET_URL =
+  "https://docs.google.com/spreadsheets/d/1OeHRRTQw-oosoRJKxWgUOs4Kb4DcQy8cjFT0-oLOz_o/edit";
 
 type SheetRow = { id: string; name: string; phone_digits: string };
 type Issued = { name: string; phone: string; membership_id?: string; password?: string; reason?: string };
+
 
 /** Bulk-creates member profiles from the synced Active Members sheet. */
 export default function SheetOnboarding({ onCreated }: { onCreated?: () => void }) {
