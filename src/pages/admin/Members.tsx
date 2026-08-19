@@ -287,6 +287,82 @@ export default function AdminMembers() {
 
   if (loading) return <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
+  const directorySection = (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg flex items-center gap-2"><IdCard className="h-5 w-5 text-primary" /> Member directory</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="relative mb-4">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input placeholder="Search by name, Membership ID or phone" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9 h-11" />
+        </div>
+        {filtered.length > 0 && (
+          <div className="flex items-center gap-2 pb-3 text-sm">
+            <Checkbox
+              checked={filtered.every((m) => selected[m.user_id])}
+              onCheckedChange={(v) => setSelected((s) => {
+                const next = { ...s };
+                filtered.forEach((m) => { next[m.user_id] = !!v; });
+                return next;
+              })}
+              aria-label="Select all"
+            />
+            <span className="text-muted-foreground">Select all shown</span>
+          </div>
+        )}
+        {filtered.length === 0 ? (
+          <p className="text-muted-foreground py-6 text-center">No members found.</p>
+        ) : (
+          <div className="divide-y">{filtered.map((m) => memberRow(m))}</div>
+        )}
+      </CardContent>
+    </Card>
+  );
+
+  const selectionBar = selectedList.length > 0 && (
+    <div className="sticky top-2 z-10 rounded-lg border bg-card shadow-sm p-3 flex flex-wrap items-center justify-between gap-3">
+      <p className="text-sm">{selectedList.length} member(s) selected</p>
+      <div className="flex gap-2">
+        <Button size="sm" className="h-10" onClick={() => openComposer(selectedList)}>
+          <BellRing className="h-4 w-4 mr-2" /> Send reminders
+        </Button>
+        <Button size="sm" variant="ghost" className="h-10" onClick={() => setSelected({})}>Clear</Button>
+      </div>
+    </div>
+  );
+
+  const dialogs = (
+    <>
+      <ReminderComposer
+        open={composerOpen}
+        onOpenChange={setComposerOpen}
+        targets={composerTargets}
+        onDone={() => { setSelected({}); loadSchedules(); }}
+      />
+      {dialogBlock}
+    </>
+  );
+
+  if (view === "directory") {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 className="font-serif text-2xl md:text-3xl font-bold">Collect fees</h1>
+            <p className="text-muted-foreground">Search a member, tap “Record cash”, done. Handy on the road — bookmark this page.</p>
+          </div>
+          <Button onClick={() => { setIssued(null); setUpgradeInfo(null); setNewOpen(true); }} className="h-11">
+            <UserPlus className="h-4 w-4 mr-2" /> New member
+          </Button>
+        </div>
+        {selectionBar}
+        {directorySection}
+        {dialogs}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -305,25 +381,17 @@ export default function AdminMembers() {
         </div>
       </div>
 
-      {selectedList.length > 0 && (
-        <div className="sticky top-2 z-10 rounded-lg border bg-card shadow-sm p-3 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-sm">{selectedList.length} member(s) selected</p>
-          <div className="flex gap-2">
-            <Button size="sm" className="h-10" onClick={() => openComposer(selectedList)}>
-              <BellRing className="h-4 w-4 mr-2" /> Send reminders
-            </Button>
-            <Button size="sm" variant="ghost" className="h-10" onClick={() => setSelected({})}>Clear</Button>
-          </div>
-        </div>
-      )}
+      {selectionBar}
 
       <Tabs defaultValue="members">
         <TabsList className="flex-wrap h-auto">
           <TabsTrigger value="members">Members &amp; fees</TabsTrigger>
           <TabsTrigger value="renewals">Renewals</TabsTrigger>
+          <TabsTrigger value="onboarding">Add from sheet</TabsTrigger>
           <TabsTrigger value="plans">Plans &amp; pricing</TabsTrigger>
           <TabsTrigger value="applications">Card applications</TabsTrigger>
         </TabsList>
+
 
         <TabsContent value="applications" className="mt-4">
           <AdminMemberships />
