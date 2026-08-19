@@ -256,8 +256,7 @@ export default function Auth() {
                       <Label htmlFor="mpw" className="flex items-center gap-2"><Lock className="h-4 w-4" /> Password</Label>
                       <Input
                         id="mpw"
-                        type="password"
-                        autoComplete="current-password"
+                                                autoComplete="current-password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Your password"

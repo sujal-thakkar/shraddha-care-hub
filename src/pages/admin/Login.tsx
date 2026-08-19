@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Loader2, AlertCircle, Lock, UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -88,7 +89,7 @@ export default function AdminLogin() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="admin-password" className="flex items-center gap-2"><Lock className="h-4 w-4" /> Password</Label>
-              <Input id="admin-password" type="password" value={password} autoComplete="current-password"
+              <PasswordInput id="admin-password" value={password} autoComplete="current-password"
                 onChange={(e) => setPassword(e.target.value)} placeholder="Your password" className="h-12 text-base" />
             </div>
             <Button type="submit" className="w-full h-12" disabled={isLoading}>

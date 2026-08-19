@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -165,7 +166,7 @@ export default function Hq() {
             </div>
             <div>
               <Label>Password</Label>
-              <Input type="password" value={password} autoComplete="current-password"
+              <PasswordInput value={password} autoComplete="current-password"
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && unlock()} className="h-12 mt-1" />
             </div>

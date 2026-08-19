@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, AlertCircle, ShieldCheck } from "lucide-react";
@@ -87,11 +88,11 @@ export default function AdminSetup() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="s-pw">Password</Label>
-                <Input id="s-pw" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="h-12" placeholder="At least 8 characters" />
+                <PasswordInput id="s-pw" value={password} onChange={(e) => setPassword(e.target.value)} className="h-12" placeholder="At least 8 characters" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="s-pw2">Repeat password</Label>
-                <Input id="s-pw2" type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} className="h-12" />
+                <PasswordInput id="s-pw2" value={confirm} onChange={(e) => setConfirm(e.target.value)} className="h-12" />
               </div>
               <Button type="submit" className="w-full h-12" disabled={busy}>
                 {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create main admin"}
