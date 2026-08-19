@@ -36,21 +36,53 @@ export default function SheetOnboarding({ onCreated }: { onCreated?: () => void 
   const [lastPaidMonth, setLastPaidMonth] = useState("");
   const [amounts, setAmounts] = useState<Record<string, string>>({});
   const [running, setRunning] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const [lastSynced, setLastSynced] = useState<string | null>(null);
   const [results, setResults] = useState<{ created: Issued[]; failed: Issued[] } | null>(null);
 
   const load = async () => {
     setLoading(true);
     const [{ data: sheet }, { data: profiles }] = await Promise.all([
-      supabase.from("active_members").select("id, name, phone_digits").order("name"),
+      supabase.from("active_members").select("id, name, phone_digits, synced_at").order("name"),
       supabase.from("profiles").select("phone_e164, membership_id").not("membership_id", "is", null),
     ]);
     setRows((sheet ?? []) as SheetRow[]);
+    setLastSynced(
+      (sheet ?? []).reduce<string | null>((max: string | null, r: any) => {
+        const v = r?.synced_at ? String(r.synced_at) : null;
+        return v && (!max || v > max) ? v : max;
+      }, null),
+    );
     setExisting(new Set((profiles ?? []).map((p: any) => String(p.phone_e164 ?? "").replace(/\D/g, "").slice(-10))));
     setLoading(false);
   };
 
+  const syncSheet = async () => {
+    setSyncing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("sync-active-members");
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error(String((data as any).error));
+      const payload = data as any;
+      toast({
+        title: "Sheet synced",
+        description: `${payload.synced} member(s) imported${payload.skipped ? `, ${payload.skipped} row(s) skipped (invalid phone)` : ""}.`,
+      });
+      await load();
+    } catch (err) {
+      toast({
+        title: "Sync failed",
+        description: err instanceof Error ? err.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   useEffect(() => { load(); }, []);
   useEffect(() => { setFee(defaultAmount(plan, cycle, prices)); }, [plan, cycle, prices]);
+
 
   const pending = useMemo(
     () => rows.filter((r) => !existing.has(r.phone_digits.slice(-10))),
