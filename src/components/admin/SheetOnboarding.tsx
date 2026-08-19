@@ -156,15 +156,36 @@ export default function SheetOnboarding({ onCreated }: { onCreated?: () => void 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg flex items-center gap-2">
-          <UsersRound className="h-5 w-5 text-primary" /> Create profiles from the Active Members sheet
-        </CardTitle>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <UsersRound className="h-5 w-5 text-primary" /> Create profiles from the Active Members sheet
+            </CardTitle>
+            {lastSynced && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Last synced {format(new Date(lastSynced), "MMM d, yyyy h:mm a")}
+              </p>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="h-10" asChild>
+              <a href={SHEET_URL} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="h-4 w-4 mr-2" /> Open sheet
+              </a>
+            </Button>
+            <Button size="sm" className="h-10" onClick={syncSheet} disabled={syncing}>
+              {syncing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
+              {syncing ? "Syncing..." : "Sync now"}
+            </Button>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-muted-foreground">
           Everyone in the synced sheet who does not have a member profile yet. Pick the plan and the month
           they have paid up to, then create the accounts — Membership IDs and passwords are generated for you.
         </p>
+
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <div>
