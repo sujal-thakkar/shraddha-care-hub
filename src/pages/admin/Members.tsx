@@ -41,7 +41,7 @@ const daysUntil = (date: string | null | undefined) => {
   return Math.round((new Date(date).getTime() - Date.now()) / 86_400_000);
 };
 
-export default function AdminMembers() {
+export default function AdminMembers({ view = "full" }: { view?: "full" | "directory" }) {
   const { toast } = useToast();
   const { isMainAdmin } = useAdminRole();
   const { prices, rows: priceRows, upcoming, reload: reloadPrices } = usePlanPrices();
@@ -332,17 +332,6 @@ export default function AdminMembers() {
     </div>
   );
 
-  const dialogs = (
-    <>
-      <ReminderComposer
-        open={composerOpen}
-        onOpenChange={setComposerOpen}
-        targets={composerTargets}
-        onDone={() => { setSelected({}); loadSchedules(); }}
-      />
-      {dialogBlock}
-    </>
-  );
 
   if (view === "directory") {
     return (
@@ -358,7 +347,7 @@ export default function AdminMembers() {
         </div>
         {selectionBar}
         {directorySection}
-        {dialogs}
+        {renderDialogs()}
       </div>
     );
   }
@@ -461,7 +450,13 @@ export default function AdminMembers() {
         </TabsContent>
       </Tabs>
 
+      {renderDialogs()}
+    </div>
+  );
 
+  function renderDialogs() {
+    return (
+      <>
       <ReminderComposer
         open={composerOpen}
         onOpenChange={setComposerOpen}
@@ -654,6 +649,7 @@ export default function AdminMembers() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+      </>
+    );
+  }
 }
