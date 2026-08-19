@@ -7,14 +7,19 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, UsersRound, Search, Download, RefreshCw, CheckCircle2 } from "lucide-react";
+import { Loader2, UsersRound, Search, Download, RefreshCw, CheckCircle2, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { usePlanPrices } from "@/hooks/use-plan-prices";
 import { PLANS, defaultAmount, monthlyEquivalent, priceFor, type BillingCycle } from "@/lib/membership-plans";
 import { makeMembershipId, prettyDate } from "@/lib/membership";
+import { format } from "date-fns";
+
+const SHEET_URL =
+  "https://docs.google.com/spreadsheets/d/1OeHRRTQw-oosoRJKxWgUOs4Kb4DcQy8cjFT0-oLOz_o/edit";
 
 type SheetRow = { id: string; name: string; phone_digits: string };
 type Issued = { name: string; phone: string; membership_id?: string; password?: string; reason?: string };
+
 
 /** Bulk-creates member profiles from the synced Active Members sheet. */
 export default function SheetOnboarding({ onCreated }: { onCreated?: () => void }) {
@@ -31,21 +36,53 @@ export default function SheetOnboarding({ onCreated }: { onCreated?: () => void 
   const [lastPaidMonth, setLastPaidMonth] = useState("");
   const [amounts, setAmounts] = useState<Record<string, string>>({});
   const [running, setRunning] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const [lastSynced, setLastSynced] = useState<string | null>(null);
   const [results, setResults] = useState<{ created: Issued[]; failed: Issued[] } | null>(null);
 
   const load = async () => {
     setLoading(true);
     const [{ data: sheet }, { data: profiles }] = await Promise.all([
-      supabase.from("active_members").select("id, name, phone_digits").order("name"),
+      supabase.from("active_members").select("id, name, phone_digits, synced_at").order("name"),
       supabase.from("profiles").select("phone_e164, membership_id").not("membership_id", "is", null),
     ]);
     setRows((sheet ?? []) as SheetRow[]);
+    setLastSynced(
+      (sheet ?? []).reduce<string | null>((max: string | null, r: any) => {
+        const v = r?.synced_at ? String(r.synced_at) : null;
+        return v && (!max || v > max) ? v : max;
+      }, null),
+    );
     setExisting(new Set((profiles ?? []).map((p: any) => String(p.phone_e164 ?? "").replace(/\D/g, "").slice(-10))));
     setLoading(false);
   };
 
+  const syncSheet = async () => {
+    setSyncing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("sync-active-members");
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error(String((data as any).error));
+      const payload = data as any;
+      toast({
+        title: "Sheet synced",
+        description: `${payload.synced} member(s) imported${payload.skipped ? `, ${payload.skipped} row(s) skipped (invalid phone)` : ""}.`,
+      });
+      await load();
+    } catch (err) {
+      toast({
+        title: "Sync failed",
+        description: err instanceof Error ? err.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   useEffect(() => { load(); }, []);
   useEffect(() => { setFee(defaultAmount(plan, cycle, prices)); }, [plan, cycle, prices]);
+
 
   const pending = useMemo(
     () => rows.filter((r) => !existing.has(r.phone_digits.slice(-10))),
@@ -119,15 +156,36 @@ export default function SheetOnboarding({ onCreated }: { onCreated?: () => void 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg flex items-center gap-2">
-          <UsersRound className="h-5 w-5 text-primary" /> Create profiles from the Active Members sheet
-        </CardTitle>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <UsersRound className="h-5 w-5 text-primary" /> Create profiles from the Active Members sheet
+            </CardTitle>
+            {lastSynced && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Last synced {format(new Date(lastSynced), "MMM d, yyyy h:mm a")}
+              </p>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="h-10" asChild>
+              <a href={SHEET_URL} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="h-4 w-4 mr-2" /> Open sheet
+              </a>
+            </Button>
+            <Button size="sm" className="h-10" onClick={syncSheet} disabled={syncing}>
+              {syncing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
+              {syncing ? "Syncing..." : "Sync now"}
+            </Button>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-muted-foreground">
           Everyone in the synced sheet who does not have a member profile yet. Pick the plan and the month
           they have paid up to, then create the accounts — Membership IDs and passwords are generated for you.
         </p>
+
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <div>
