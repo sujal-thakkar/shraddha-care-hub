@@ -161,7 +161,7 @@ export default function AdminMemberships() {
         <p className="text-muted-foreground">Manage Hosla Membership Card applications and follow-ups.</p>
       </div>
 
-      <ActiveMembersSync />
+
 
 
       {/* Filters */}
