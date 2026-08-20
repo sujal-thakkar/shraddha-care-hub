@@ -81,7 +81,7 @@ export default function SheetOnboarding({ onCreated }: { onCreated?: () => void 
   };
 
   useEffect(() => { load(); }, []);
-  useEffect(() => { setFee(defaultAmount(plan, cycle, prices)); }, [plan, cycle, prices]);
+  useEffect(() => { setFee(defaultAmount(plan, cycle, prices)); }, [plan, cycle, defaultAmount(plan, cycle, prices)]);
 
 
   const pending = useMemo(
