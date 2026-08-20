@@ -110,10 +110,15 @@ export default function AdminMembers({ view = "full" }: { view?: "full" | "direc
       .finally(() => loadSchedules());
   }, []);
 
-  // Keep the new-member fee in step with the live pricing.
+  // Keep the new-member fee in step with the live pricing — unless the admin typed their own amount.
+  const feeEdited = useRef(false);
+  const planPricingKey = `${nPlan}|${nCycle}|${defaultAmount(nPlan, nCycle, prices)}`;
   useEffect(() => {
+    if (feeEdited.current) return;
     setNFee(defaultAmount(nPlan, nCycle, prices));
-  }, [nPlan, nCycle, prices]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [planPricingKey]);
+
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
