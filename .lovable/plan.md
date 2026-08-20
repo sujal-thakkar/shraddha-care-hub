@@ -15,13 +15,14 @@ No SMS on pending entries, rejections, reminders, or settlements yet — those h
 
 ## Step 1 — What you do on the DLT / Fast2SMS side (before code can send)
 
-1. **Register the content template in Jio TrueConnect** under your approved header `HOSLAS`, category Transactional. Submit exactly this body (variables as `{#var#}`):
+1. **Register the content template in Jio TrueConnect** under your approved header `HOSLAS`, category Transactional. This is the body you submitted:
 
 ```text
-Namaste {#var#}, we have received Rs {#var#} towards your Hosla membership ({#var#}). Your membership is now paid up to {#var#}. Thank you. - HOSLAS
+Namaste {#alphanumeric#} , we have received Rs. {#number#}  towards your Hosla membership. Your membership is now paid up to {#alphanumeric#} . Thank you for being a part of the Hosla Extended Family. – Team Hosla 7811009309
 ```
 
-   Variables in order: member name, amount, membership ID, paid-up-to date.
+   Variables in order: member name, amount, paid-up-to date.
+
 2. Wait for approval, then note the **DLT template ID** (19-digit).
 3. In **Fast2SMS → DLT Manager**, add the same approved template/sender so Fast2SMS issues its own **Message ID** for it. Fast2SMS's DLT route needs that Message ID, not the DLT one.
 4. In Fast2SMS → Dev API, copy the **API key**.
@@ -37,7 +38,7 @@ Nothing else is needed from you; no phone-number whitelisting on the DLT route.
 **Shared SMS helper** (`supabase/functions/_shared/sms.ts`)
 - `sendDltSms({ numbers, messageId, variables })` → POST to Fast2SMS `bulkV2` with `route=dlt`, sender ID, message ID, pipe-joined variable values.
 - Normalises phones to bare 10-digit Indian numbers; skips silently with a logged reason if a number is missing/invalid or secrets are unset (never blocks a payment from being recorded).
-- `sendPaymentReceiptSms(member, { amount, paidUntil })` builds the four variables in template order.
+- `sendPaymentReceiptSms(member, { amount, paidUntil })` builds the three variables in template order.
 
 **Delivery log** (new table `sms_log`)
 - Columns: id, member_user_id, membership_id, phone_digits, purpose (`payment_receipt`), variables jsonb, provider_message_id, status (`sent` / `failed` / `skipped`), error, created_at.
@@ -55,7 +56,7 @@ All three call the helper with the member's `phone_e164` and the new paid-until 
 
 ## Technical notes
 
-- Fast2SMS DLT call shape: `POST https://www.fast2sms.com/dev/bulkV2` with `authorization` header, body `{ route: "dlt", sender_id, message: <messageId>, variables_values: "a|b|c|d|", numbers, flash: 0 }`.
+- Fast2SMS DLT call shape: `POST https://www.fast2sms.com/dev/bulkV2` with `authorization` header, body `{ route: "dlt", sender_id, message: <messageId>, variables_values: "name|amount|date|", numbers, flash: 0 }`.
 - Amount and date are formatted server-side (`en-IN`, e.g. `31 August 2026`) so the SMS matches the ledger exactly.
 - Failures are caught and logged, never thrown — a payment must always save even if SMS is down.
 - Once this route works, adding due-reminder and settlement SMS is just two more approved templates plus two more message-ID secrets.
