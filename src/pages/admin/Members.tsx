@@ -565,25 +565,19 @@ export default function AdminMembers({ view = "full" }: { view?: "full" | "direc
                 </div>
                 <div>
                   <Label>Plan</Label>
-                  <Select value={nPlan} onValueChange={setNPlan}>
+                  <Select value={nPlan} onValueChange={(v) => { feeEdited.current = false; setNPlan(v); }}>
                     <SelectTrigger className="h-12 mt-1"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      {PLANS.map((p) => {
-                        const monthly = priceFor(p.key, "monthly", prices);
-                        const yearly = priceFor(p.key, "yearly", prices);
-                        return (
-                          <SelectItem key={p.key} value={p.key}>
-                            {p.label}{monthly || yearly ? ` — ₹${monthly ?? "—"}/mo · ₹${yearly ?? "—"}/yr` : " — custom"}
-                          </SelectItem>
-                        );
-                      })}
+                      {PLANS.map((p) => (
+                        <SelectItem key={p.key} value={p.key}>{p.label}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label>Billing</Label>
-                    <Select value={nCycle} onValueChange={(v) => setNCycle(v as BillingCycle)}>
+                    <Select value={nCycle} onValueChange={(v) => { feeEdited.current = false; setNCycle(v as BillingCycle); }}>
                       <SelectTrigger className="h-12 mt-1"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="monthly">Monthly</SelectItem>
@@ -593,10 +587,13 @@ export default function AdminMembers({ view = "full" }: { view?: "full" | "direc
                   </div>
                   <div>
                     <Label>Amount (₹ / {nCycle === "monthly" ? "month" : "year"})</Label>
-                    <Input inputMode="numeric" value={nFee} onChange={(e) => setNFee(e.target.value.replace(/\D/g, ""))}
+                    <Input inputMode="numeric" value={nFee}
+                      onChange={(e) => { feeEdited.current = true; setNFee(e.target.value.replace(/\D/g, "")); }}
                       placeholder={nPlan.startsWith("premium") ? "Custom amount" : ""} className="h-12 mt-1" />
+                    <p className="text-xs text-muted-foreground mt-1">Editable — type any amount this member pays.</p>
                   </div>
                 </div>
+
                 <div>
                   <Label>Last paid month</Label>
                   <Input type="month" value={nLastPaid} onChange={(e) => setNLastPaid(e.target.value)} className="h-12 mt-1" />
