@@ -56,7 +56,7 @@ All three call the helper with the member's `phone_e164` and the new paid-until 
 
 ## Technical notes
 
-- Fast2SMS DLT call shape: `POST https://www.fast2sms.com/dev/bulkV2` with `authorization` header, body `{ route: "dlt", sender_id, message: <messageId>, variables_values: "a|b|c|d|", numbers, flash: 0 }`.
+- Fast2SMS DLT call shape: `POST https://www.fast2sms.com/dev/bulkV2` with `authorization` header, body `{ route: "dlt", sender_id, message: <messageId>, variables_values: "name|amount|date|", numbers, flash: 0 }`.
 - Amount and date are formatted server-side (`en-IN`, e.g. `31 August 2026`) so the SMS matches the ledger exactly.
 - Failures are caught and logged, never thrown — a payment must always save even if SMS is down.
 - Once this route works, adding due-reminder and settlement SMS is just two more approved templates plus two more message-ID secrets.
