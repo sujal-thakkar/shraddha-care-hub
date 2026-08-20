@@ -81,7 +81,7 @@ export default function SheetOnboarding({ onCreated }: { onCreated?: () => void 
   };
 
   useEffect(() => { load(); }, []);
-  useEffect(() => { setFee(defaultAmount(plan, cycle, prices)); }, [plan, cycle, prices]);
+  useEffect(() => { setFee(defaultAmount(plan, cycle, prices)); }, [plan, cycle, defaultAmount(plan, cycle, prices)]);
 
 
   const pending = useMemo(
@@ -193,10 +193,10 @@ export default function SheetOnboarding({ onCreated }: { onCreated?: () => void 
             <Select value={plan} onValueChange={setPlan}>
               <SelectTrigger className="h-11 mt-1"><SelectValue /></SelectTrigger>
               <SelectContent>
-                {PLANS.map((p) => {
-                  const monthly = priceFor(p.key, "monthly", prices);
-                  return <SelectItem key={p.key} value={p.key}>{p.label}{monthly ? ` — ₹${monthly}/mo` : ""}</SelectItem>;
-                })}
+                {PLANS.map((p) => (
+                  <SelectItem key={p.key} value={p.key}>{p.label}</SelectItem>
+                ))}
+
               </SelectContent>
             </Select>
           </div>

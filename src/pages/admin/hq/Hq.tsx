@@ -418,10 +418,10 @@ export default function Hq() {
                 <Select value={aPlan} onValueChange={setAPlan}>
                   <SelectTrigger className="h-11 mt-1"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {PLANS.map((p) => {
-                      const monthly = priceFor(p.key, "monthly", prices);
-                      return <SelectItem key={p.key} value={p.key}>{p.label}{monthly ? ` — ₹${monthly}/mo` : ""}</SelectItem>;
-                    })}
+                    {PLANS.map((p) => (
+                      <SelectItem key={p.key} value={p.key}>{p.label}</SelectItem>
+                    ))}
+
                   </SelectContent>
                 </Select>
               </div>
