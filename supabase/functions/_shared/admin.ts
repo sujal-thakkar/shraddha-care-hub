@@ -88,8 +88,10 @@ export function monthsCovered(amount: number, fee: number) {
 /** Extends a paid-up-until date by N whole months, always landing on a month end. */
 export function extendPaidUntil(current: string | null, months: number) {
   const today = new Date();
-  const base = current ? new Date(current) : null;
-  const startFrom = base && base > today ? base : today;
+  // Continue from the recorded paid-through month even if it is overdue.
+  // Falling back to today would skip unpaid months from the member's ledger.
+  const base = current ? new Date(`${current.slice(0, 10)}T12:00:00Z`) : null;
+  const startFrom = base ?? today;
   const d = new Date(startFrom.getFullYear(), startFrom.getMonth() + months + 1, 0);
   return d.toISOString().slice(0, 10);
 }

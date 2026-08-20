@@ -25,9 +25,12 @@ function endOfMonth(d: Date) {
  */
 export function coveredPeriod(paidUpUntil: string | null | undefined, months: number) {
   if (months <= 0) return null;
-  const base = paidUpUntil ? new Date(paidUpUntil) : new Date();
-  const startBase = paidUpUntil && base >= new Date() ? base : new Date();
-  const start = new Date(startBase.getFullYear(), startBase.getMonth() + (paidUpUntil && base >= new Date() ? 1 : 0), 1);
+  // A payment always continues from the member's recorded paid-through month,
+  // even when that month is in the past. Otherwise arrears are silently skipped.
+  const base = paidUpUntil ? new Date(`${paidUpUntil.slice(0, 10)}T12:00:00`) : new Date();
+  const start = paidUpUntil
+    ? new Date(base.getFullYear(), base.getMonth() + 1, 1)
+    : new Date(base.getFullYear(), base.getMonth(), 1);
   const end = endOfMonth(new Date(start.getFullYear(), start.getMonth() + months - 1, 1));
   return {
     start: toISODate(start),
