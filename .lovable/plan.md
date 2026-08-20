@@ -38,7 +38,7 @@ Nothing else is needed from you; no phone-number whitelisting on the DLT route.
 **Shared SMS helper** (`supabase/functions/_shared/sms.ts`)
 - `sendDltSms({ numbers, messageId, variables })` → POST to Fast2SMS `bulkV2` with `route=dlt`, sender ID, message ID, pipe-joined variable values.
 - Normalises phones to bare 10-digit Indian numbers; skips silently with a logged reason if a number is missing/invalid or secrets are unset (never blocks a payment from being recorded).
-- `sendPaymentReceiptSms(member, { amount, paidUntil })` builds the four variables in template order.
+- `sendPaymentReceiptSms(member, { amount, paidUntil })` builds the three variables in template order.
 
 **Delivery log** (new table `sms_log`)
 - Columns: id, member_user_id, membership_id, phone_digits, purpose (`payment_receipt`), variables jsonb, provider_message_id, status (`sent` / `failed` / `skipped`), error, created_at.
