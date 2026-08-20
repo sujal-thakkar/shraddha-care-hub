@@ -15,13 +15,14 @@ No SMS on pending entries, rejections, reminders, or settlements yet — those h
 
 ## Step 1 — What you do on the DLT / Fast2SMS side (before code can send)
 
-1. **Register the content template in Jio TrueConnect** under your approved header `HOSLAS`, category Transactional. Submit exactly this body (variables as `{#var#}`):
+1. **Register the content template in Jio TrueConnect** under your approved header `HOSLAS`, category Transactional. This is the body you submitted:
 
 ```text
-Namaste {#var#}, we have received Rs {#var#} towards your Hosla membership ({#var#}). Your membership is now paid up to {#var#}. Thank you. - HOSLAS
+Namaste {#alphanumeric#} , we have received Rs. {#number#}  towards your Hosla membership. Your membership is now paid up to {#alphanumeric#} . Thank you for being a part of the Hosla Extended Family. – Team Hosla 7811009309
 ```
 
-   Variables in order: member name, amount, membership ID, paid-up-to date.
+   Variables in order: member name, amount, paid-up-to date.
+
 2. Wait for approval, then note the **DLT template ID** (19-digit).
 3. In **Fast2SMS → DLT Manager**, add the same approved template/sender so Fast2SMS issues its own **Message ID** for it. Fast2SMS's DLT route needs that Message ID, not the DLT one.
 4. In Fast2SMS → Dev API, copy the **API key**.
