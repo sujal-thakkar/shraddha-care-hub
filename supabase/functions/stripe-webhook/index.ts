@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
     if (meta.kind === "membership_fee" && meta.member_user_id) {
       const months = Number(meta.months ?? 1);
       const { data: member } = await svc.from("profiles")
-        .select("paid_up_until").eq("user_id", meta.member_user_id).maybeSingle();
+        .select("paid_up_until, full_name, phone_e164, membership_id").eq("user_id", meta.member_user_id).maybeSingle();
       const periodEnd = extendPaidUntil(member?.paid_up_until ?? null, months);
 
       let receiptUrl: string | null = null;
