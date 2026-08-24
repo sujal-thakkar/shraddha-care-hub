@@ -1,66 +1,60 @@
-# Payment receipt SMS via DLT (Jio TrueConnect) + Fast2SMS
+# Payment receipt SMS (Fast2SMS DLT) + copy-to-trackers
 
-## What the Renewals tab is for
+## Approved template
 
-Reference, not part of this build: the Renewals tab lists every member who has a paid-until date, sorted by due date, showing "renews in N days" or "overdue by N days". It has quick selectors ("due within 30 days", "overdue") that feed the reminder composer, and below it the scheduled/recent reminder batches. It is the follow-up and collections view; the directory tab is for lookup and recording payments.
+Sender `HOSLAS`, Fast2SMS Message ID `223721`, Unicode, Service Explicit / Promo:
 
-## Scope now
+```text
+Namaste {#VAR#}, we have received Rs. {#VAR#} towards your Hosla membership. Your membership is now paid up to {#VAR#}. Thank you for being a part of the Hosla Extended Family. – Team Hosla 7811009309
+```
 
-Only **payment receipt SMS**. Sent automatically the moment a payment becomes final:
+Variables in order: member name, amount, paid-up-to date.
+
+## Secrets I will store (never in code)
+
+- `FAST2SMS_API_KEY` — the key you pasted (I will save it to the backend secret store and it stays hidden from the codebase).
+- `FAST2SMS_SENDER_ID` = `HOSLAS`
+- `FAST2SMS_RECEIPT_MESSAGE_ID` = `223721`
+
+Please rotate the key in Fast2SMS later if you want, since it was pasted in chat.
+
+## When the SMS goes out
+
+The moment a payment becomes final:
 - cash recorded by a main admin (self-approved),
 - cash approved by the main admin in HQ,
 - online membership payment confirmed by Stripe.
 
-No SMS on pending entries, rejections, reminders, or settlements yet — those hook into the same helper later.
+Nothing is sent for pending entries, rejections or settlements yet.
 
-## Step 1 — What you do on the DLT / Fast2SMS side (before code can send)
+## Copy recipients (founder / trackers)
 
-1. **Register the content template in Jio TrueConnect** under your approved header `HOSLAS`, category Transactional. This is the body you submitted:
+Each receipt is sent to the member **plus** a configurable list of tracker numbers, in the same Fast2SMS call (comma-joined numbers, one API hit, same template).
 
-```text
-Namaste {#alphanumeric#} , we have received Rs. {#number#}  towards your Hosla membership. Your membership is now paid up to {#alphanumeric#} . Thank you for being a part of the Hosla Extended Family. – Team Hosla 7811009309
-```
+- Stored in the existing `app_settings` table under key `sms_receipt_copy_numbers` (comma-separated 10-digit numbers) so you can change them any time without a code change.
+- Managed from a small "Receipt SMS" card in Members & Fees → Renewals: add/remove numbers, plus an on/off switch for copies.
+- Trackers get the same wording (member name, amount, paid-up-to date), which reads as a notification of that member's payment.
+- Invalid or duplicate numbers are dropped silently; the member's own number is never duplicated.
 
-   Variables in order: member name, amount, paid-up-to date.
+## What I build
 
-2. Wait for approval, then note the **DLT template ID** (19-digit).
-3. In **Fast2SMS → DLT Manager**, add the same approved template/sender so Fast2SMS issues its own **Message ID** for it. Fast2SMS's DLT route needs that Message ID, not the DLT one.
-4. In Fast2SMS → Dev API, copy the **API key**.
-5. Give me these three values and I store them as backend secrets:
-   - `FAST2SMS_API_KEY`
-   - `FAST2SMS_SENDER_ID` = `HOSLAS`
-   - `FAST2SMS_RECEIPT_MESSAGE_ID` = the Fast2SMS Message ID for the receipt template
+**Shared helper** `supabase/functions/_shared/sms.ts`
+- `sendDltSms({ numbers, messageId, variables })` → `GET https://www.fast2sms.com/dev/bulkV2?authorization=…&route=dlt&sender_id=HOSLAS&message=223721&variables_values=a|b|c&numbers=…`
+- Normalises phones to bare 10-digit Indian numbers; skips (with a logged reason) when a number is invalid or secrets are unset — never blocks a payment from saving.
+- `sendPaymentReceiptSms(member, { amount, paidUntil })` formats amount and date (`en-IN`, e.g. `31 August 2026`) and appends the tracker numbers.
 
-Nothing else is needed from you; no phone-number whitelisting on the DLT route.
-
-## Step 2 — What I build
-
-**Shared SMS helper** (`supabase/functions/_shared/sms.ts`)
-- `sendDltSms({ numbers, messageId, variables })` → POST to Fast2SMS `bulkV2` with `route=dlt`, sender ID, message ID, pipe-joined variable values.
-- Normalises phones to bare 10-digit Indian numbers; skips silently with a logged reason if a number is missing/invalid or secrets are unset (never blocks a payment from being recorded).
-- `sendPaymentReceiptSms(member, { amount, paidUntil })` builds the three variables in template order.
-
-**Delivery log** (new table `sms_log`)
-- Columns: id, member_user_id, membership_id, phone_digits, purpose (`payment_receipt`), variables jsonb, provider_message_id, status (`sent` / `failed` / `skipped`), error, created_at.
-- RLS: admins read only; writes via service role. GRANTs for `authenticated` (select) and `service_role`.
-- Gives you a visible audit trail and prevents duplicate receipts for the same transaction.
+**Delivery log** — new table `sms_log`: id, member_user_id, membership_id, phone_digits, recipients (jsonb), purpose (`payment_receipt`), variables jsonb, provider_message_id, status (`sent`/`failed`/`skipped`), error, created_at. RLS: admins read; writes by service role only; GRANTs for `authenticated` (select) and `service_role`. Prevents duplicate receipts per transaction.
 
 **Wire-in points**
 - `record-cash-collection` — after a self-approved cash entry updates `paid_up_until`.
 - `review-transaction` (`approve`) — after the ledger row turns `success`.
 - `stripe-webhook` — after a membership payment is credited.
-All three call the helper with the member's `phone_e164` and the new paid-until date, then insert into `sms_log`.
 
 **Admin visibility**
-- Small "SMS receipts" card in the Members & Fees → Renewals tab listing the last 20 sms_log rows (member, purpose, status, time) so you can confirm delivery, plus a red banner if the Fast2SMS secrets are not configured yet.
+- "Receipt SMS" card in the Renewals tab: tracker-number editor, last 20 `sms_log` rows (member, recipients, status, time), and a warning banner if the Fast2SMS secrets are missing.
 
 ## Technical notes
 
-- Fast2SMS DLT call shape: `POST https://www.fast2sms.com/dev/bulkV2` with `authorization` header, body `{ route: "dlt", sender_id, message: <messageId>, variables_values: "name|amount|date|", numbers, flash: 0 }`.
-- Amount and date are formatted server-side (`en-IN`, e.g. `31 August 2026`) so the SMS matches the ledger exactly.
-- Failures are caught and logged, never thrown — a payment must always save even if SMS is down.
-- Once this route works, adding due-reminder and settlement SMS is just two more approved templates plus two more message-ID secrets.
-
-## Immediate next action for you
-
-Submit the template text above in Jio TrueConnect. As soon as it is approved and mirrored in Fast2SMS, send me the API key and Message ID and I will finish the wiring.
+- Fast2SMS DLT route accepts GET or POST; I use POST with the `authorization` header and identical parameters so the key never appears in a URL/log.
+- All SMS failures are caught and logged, never thrown.
+- Adding due-reminder and settlement SMS later is just another approved template plus one more message-ID secret.
