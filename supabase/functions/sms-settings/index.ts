@@ -42,7 +42,11 @@ Deno.serve(async (req) => {
       return json({ ok: true, numbers, enabled: enabled === "true" }, 200, H);
     }
 
+
+
+
     return json({ error: "Unknown action" }, 400, H);
+
   } catch (e) {
     return json({ error: (e as Error).message }, 500, H);
   }
