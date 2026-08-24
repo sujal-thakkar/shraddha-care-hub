@@ -49,16 +49,19 @@ Deno.serve(async (req) => {
       const { data: existing } = await svc.from("membership_transactions")
         .select("id").eq("stripe_session_id", session.id).maybeSingle();
 
+      const amountInr = Math.round((session.amount_total ?? 0) / 100);
+      let txId: string | null = existing?.id ?? null;
+
       if (existing) {
         await svc.from("membership_transactions").update({
           state: "success", period_end: periodEnd, receipt_url: receiptUrl,
           approved_at: new Date().toISOString(), note: null,
         }).eq("id", existing.id);
       } else {
-        await svc.from("membership_transactions").insert({
+        const { data: inserted } = await svc.from("membership_transactions").insert({
           member_user_id: meta.member_user_id,
           membership_id: meta.membership_id || null,
-          amount_inr: Math.round((session.amount_total ?? 0) / 100),
+          amount_inr: amountInr,
           monthly_fee_amount: meta.monthly_fee_amount ? Number(meta.monthly_fee_amount) : null,
           months_covered: months,
           period_end: periodEnd,
@@ -67,7 +70,8 @@ Deno.serve(async (req) => {
           stripe_session_id: session.id,
           receipt_url: receiptUrl,
           approved_at: new Date().toISOString(),
-        });
+        }).select("id").maybeSingle();
+        txId = inserted?.id ?? null;
       }
 
       await svc.from("profiles").update({ paid_up_until: periodEnd, member_status: "active" })
@@ -78,6 +82,16 @@ Deno.serve(async (req) => {
         type: "fee_receipt",
         blog_title: "Membership payment received",
         comment_body: `Thank you! Your membership is now paid up to ${periodEnd}.`,
+      });
+
+      await sendPaymentReceiptSms(svc, {
+        memberUserId: meta.member_user_id,
+        membershipId: member?.membership_id ?? meta.membership_id ?? null,
+        name: member?.full_name ?? null,
+        phone: member?.phone_e164 ?? null,
+        amount: amountInr,
+        paidUntil: periodEnd,
+        transactionId: txId,
       });
     } else if (session.id) {
       // Event registration payments (existing flow) — mark paid.
