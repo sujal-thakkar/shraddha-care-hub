@@ -1579,6 +1579,51 @@ export type Database = {
         }
         Relationships: []
       }
+      sms_log: {
+        Row: {
+          created_at: string
+          error: string | null
+          id: string
+          member_user_id: string | null
+          membership_id: string | null
+          phone_digits: string | null
+          provider_message_id: string | null
+          purpose: string
+          recipients: Json
+          status: string
+          transaction_id: string | null
+          variables: Json
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          member_user_id?: string | null
+          membership_id?: string | null
+          phone_digits?: string | null
+          provider_message_id?: string | null
+          purpose?: string
+          recipients?: Json
+          status?: string
+          transaction_id?: string | null
+          variables?: Json
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          member_user_id?: string | null
+          membership_id?: string | null
+          phone_digits?: string | null
+          provider_message_id?: string | null
+          purpose?: string
+          recipients?: Json
+          status?: string
+          transaction_id?: string | null
+          variables?: Json
+        }
+        Relationships: []
+      }
       success_stories: {
         Row: {
           author_name: string | null
