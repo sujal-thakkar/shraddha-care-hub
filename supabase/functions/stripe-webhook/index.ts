@@ -2,6 +2,7 @@
 // member closes the browser before the redirect.
 import Stripe from "npm:stripe@17";
 import { serviceClient, extendPaidUntil } from "../_shared/admin.ts";
+import { sendPaymentReceiptSms } from "../_shared/sms.ts";
 
 Deno.serve(async (req) => {
   const key = Deno.env.get("STRIPE_SECRET_KEY");
