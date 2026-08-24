@@ -1,6 +1,7 @@
 // Main-admin actions on the ledger: approve, reject, settle cash, adjust paid-until.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { serviceClient, getCaller, json, audit, clientIp, extendPaidUntil } from "../_shared/admin.ts";
+import { sendPaymentReceiptSms } from "../_shared/sms.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -32,7 +33,8 @@ Deno.serve(async (req) => {
       }
 
       const { data: member } = await svc.from("profiles")
-        .select("paid_up_until, monthly_fee_amount").eq("user_id", tx.member_user_id).maybeSingle();
+        .select("paid_up_until, monthly_fee_amount, full_name, phone_e164, membership_id")
+        .eq("user_id", tx.member_user_id).maybeSingle();
       const fee = tx.monthly_fee_amount ?? member?.monthly_fee_amount ?? 0;
       const months = tx.months_covered ?? (fee > 0 ? Math.floor(tx.amount_inr / fee) : 0);
       const periodEnd = months > 0 ? extendPaidUntil(member?.paid_up_until ?? null, months) : null;
@@ -51,6 +53,16 @@ Deno.serve(async (req) => {
           last_paid_month: `${periodEnd.slice(0, 7)}-01`,
           member_status: "active",
         }).eq("user_id", tx.member_user_id);
+
+        await sendPaymentReceiptSms(svc, {
+          memberUserId: tx.member_user_id,
+          membershipId: member?.membership_id ?? tx.membership_id ?? null,
+          name: member?.full_name ?? null,
+          phone: member?.phone_e164 ?? null,
+          amount: tx.amount_inr,
+          paidUntil: periodEnd,
+          transactionId: txId,
+        });
       }
       await audit(svc, caller, "approve_payment", "membership_transactions", txId,
         { amount: tx.amount_inr, months, period_end: periodEnd }, ip);
