@@ -4,6 +4,7 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import {
   serviceClient, getCaller, json, audit, clientIp, monthsCovered, extendPaidUntil,
 } from "../_shared/admin.ts";
+import { sendPaymentReceiptSms } from "../_shared/sms.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -23,7 +24,7 @@ Deno.serve(async (req) => {
     if (!Number.isFinite(amount) || amount <= 0) return json({ error: "Enter a valid amount" }, 400, H);
 
     const { data: member } = await svc.from("profiles")
-      .select("user_id, full_name, membership_id, plan, monthly_fee_amount, paid_up_until, email")
+      .select("user_id, full_name, membership_id, plan, monthly_fee_amount, paid_up_until, email, phone_e164")
       .eq("user_id", memberUserId).maybeSingle();
     if (!member) return json({ error: "Member not found" }, 404, H);
 
@@ -56,6 +57,16 @@ Deno.serve(async (req) => {
         last_paid_month: `${periodEnd.slice(0, 7)}-01`,
         member_status: "active",
       }).eq("user_id", memberUserId);
+
+      await sendPaymentReceiptSms(svc, {
+        memberUserId,
+        membershipId: member.membership_id,
+        name: member.full_name,
+        phone: member.phone_e164,
+        amount,
+        paidUntil: periodEnd,
+        transactionId: tx.id,
+      });
     }
 
     await audit(svc, caller, "record_cash", "membership_transactions", tx.id,

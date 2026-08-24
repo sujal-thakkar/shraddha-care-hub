@@ -1,6 +1,7 @@
 // Main-admin actions on the ledger: approve, reject, settle cash, adjust paid-until.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { serviceClient, getCaller, json, audit, clientIp, extendPaidUntil } from "../_shared/admin.ts";
+import { sendPaymentReceiptSms } from "../_shared/sms.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
