@@ -5,10 +5,11 @@
 Sender `HOSLAS`, Fast2SMS Message ID `223721`, Unicode, Service Explicit / Promo:
 
 ```text
-Namaste {#VAR#}, we have received Rs. {#VAR#} towards your Hosla membership. Your membership is now paid up to {#VAR#}. Thank you for being a part of the Hosla Extended Family. – Team Hosla 7811009309
+Namaste {#alphanumeric#}, we have received Rs. {#number#} towards your Hosla membership. Your membership is now paid up to {#alphanumeric#}. Thank you for being a part of the Hosla Extended Family. – Team Hosla 7811009309
 ```
 
-Variables in order: member name, amount, paid-up-to date.
+Variables in order: member name (alphanumeric), amount (number — digits only, no ₹ or commas), paid-up-to date (alphanumeric, max 30 chars, e.g. `31 August 2026`). Sent with `POST https://www.fast2sms.com/dev/bulkV2`, `authorization` header, JSON body `{ route: "dlt", sender_id: "HOSLAS", message: "223721", variables_values: "name|amount|date", numbers: "…" }`.
+
 
 ## Secrets I will store (never in code)
 
