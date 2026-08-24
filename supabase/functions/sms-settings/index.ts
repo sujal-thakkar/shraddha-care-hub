@@ -42,25 +42,8 @@ Deno.serve(async (req) => {
       return json({ ok: true, numbers, enabled: enabled === "true" }, 200, H);
     }
 
-    if (action === "delivery_report") {
-      const requestId = String(body.request_id ?? "");
-      const key = Deno.env.get("FAST2SMS_API_KEY") ?? "";
-      if (!requestId) return json({ error: "request_id required" }, 400, H);
-      if (!key) return json({ error: "FAST2SMS_API_KEY not set" }, 400, H);
-      const out: Record<string, unknown> = {};
-      for (const url of [
-        `https://www.fast2sms.com/dev/bulk_status?authorization=${key}&request_id=${requestId}`,
-        `https://www.fast2sms.com/dev/report?authorization=${key}&request_id=${requestId}`,
-      ]) {
-        try {
-          const res = await fetch(url);
-          out[new URL(url).pathname] = { status: res.status, body: (await res.text()).slice(0, 2000) };
-        } catch (e) {
-          out[new URL(url).pathname] = { error: (e as Error).message };
-        }
-      }
-      return json({ request_id: requestId, report: out }, 200, H);
-    }
+
+
 
     return json({ error: "Unknown action" }, 400, H);
 
