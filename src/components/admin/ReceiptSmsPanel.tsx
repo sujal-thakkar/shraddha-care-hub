@@ -42,7 +42,7 @@ export default function ReceiptSmsPanel() {
   const load = async () => {
     const [settings, rows] = await Promise.all([
       supabase.functions.invoke("sms-settings", { body: { action: "get" } }),
-      supabase.from("sms_log").select("*").order("created_at", { ascending: false }).limit(20),
+      supabase.from("sms_log").select("*").order("created_at", { ascending: false }).limit(50),
     ]);
     const data = settings.data as { numbers?: string[]; enabled?: boolean; configured?: boolean } | null;
     if (data) {
@@ -141,15 +141,30 @@ export default function ReceiptSmsPanel() {
           ) : (
             <div className="divide-y">
               {log.map((r) => (
-                <div key={r.id} className="py-2 text-sm flex flex-wrap items-center justify-between gap-2">
-                  <span>
-                    {r.variables?.name ?? r.membership_id ?? "Member"} · ₹{r.variables?.amount ?? "—"} · to{" "}
-                    {(r.recipients ?? []).length} number(s)
-                    <span className="text-muted-foreground"> · {new Date(r.created_at).toLocaleString("en-IN")}</span>
-                  </span>
-                  <Badge className={STATUS_STYLE[r.status] ?? ""} variant="outline" title={r.error ?? undefined}>
-                    {r.status}
-                  </Badge>
+                <div key={r.id} className="py-2.5 text-sm space-y-1">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-medium">
+                      {r.variables?.name ?? r.membership_id ?? "Member"} · ₹{r.variables?.amount ?? "—"}
+                      {r.variables?.paid_until && (
+                        <span className="text-muted-foreground font-normal"> · paid to {r.variables.paid_until}</span>
+                      )}
+                    </span>
+                    <Badge className={STATUS_STYLE[r.status] ?? ""} variant="outline">{r.status}</Badge>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {new Date(r.created_at).toLocaleString("en-IN")} · {r.purpose.replace(/_/g, " ")}
+                    {r.membership_id ? ` · ${r.membership_id}` : ""}
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {(r.recipients ?? []).length === 0 ? (
+                      <span className="text-xs text-muted-foreground">No recipients</span>
+                    ) : (r.recipients ?? []).map((n, i) => (
+                      <Badge key={`${r.id}-${n}`} variant="secondary" className="font-mono text-[11px] px-2 py-0">
+                        +91 {n}{i === 0 ? " (member)" : ""}
+                      </Badge>
+                    ))}
+                  </div>
+                  {r.error && <p className="text-xs text-destructive break-words">{r.error}</p>}
                 </div>
               ))}
             </div>
