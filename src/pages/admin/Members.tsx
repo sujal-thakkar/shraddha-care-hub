@@ -14,6 +14,7 @@ import PlanEditor from "@/components/admin/PlanEditor";
 import ReminderComposer, { type ReminderTarget } from "@/components/admin/ReminderComposer";
 import SheetOnboarding from "@/components/admin/SheetOnboarding";
 import MemberCredentialActions from "@/components/admin/MemberCredentialActions";
+import ReceiptSmsPanel from "@/components/admin/ReceiptSmsPanel";
 import { AuthorAvatar } from "@/components/blog/AuthorAvatar";
 import { usePlanPrices } from "@/hooks/use-plan-prices";
 import { PLANS, defaultAmount, monthlyEquivalent, planLabel, priceFor, type BillingCycle } from "@/lib/membership-plans";
@@ -438,6 +439,8 @@ export default function AdminMembers({ view = "full" }: { view?: "full" | "direc
               ))}
             </CardContent>
           </Card>
+
+          <ReceiptSmsPanel />
         </TabsContent>
 
         <TabsContent value="members" className="mt-4 space-y-6">
