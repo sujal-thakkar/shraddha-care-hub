@@ -118,9 +118,10 @@ export default function AdminCollectFees() {
   };
 
   return (
-    <div className="pb-24 md:pb-6">
+    <div className="pb-24 md:pb-6 w-full max-w-2xl mx-auto overflow-x-hidden">
       {/* Sticky header: title + search always in reach */}
-      <div className="sticky top-0 -mx-4 md:mx-0 px-4 md:px-0 pt-2 pb-3 bg-background/95 backdrop-blur z-20 border-b md:border-0">
+      <div className="sticky top-14 lg:top-0 -mx-4 md:mx-0 px-4 md:px-0 pt-2 pb-3 bg-background/95 backdrop-blur z-20 border-b md:border-0">
+
         <div className="flex items-center justify-between gap-3 mb-3">
           <div className="min-w-0">
             <h1 className="font-serif text-xl md:text-3xl font-bold leading-tight">Collect fees</h1>
