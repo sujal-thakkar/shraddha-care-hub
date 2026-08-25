@@ -116,19 +116,19 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-background">
       {/* Mobile Header */}
-      <div className="lg:hidden sticky top-0 z-50 bg-card border-b border-border px-4 py-3 flex items-center justify-between">
+      <div className="lg:hidden sticky top-0 z-50 h-14 bg-card border-b border-border px-4 flex items-center justify-between gap-2">
         <Link to="/" className="flex items-center">
-          <img src={logoShraddha} alt="Shraddha" className="h-8" />
+          <img src={logoShraddha} alt="Shraddha" className="h-7" />
         </Link>
-        <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+        <Button variant="ghost" size="icon" className="h-10 w-10 shrink-0" aria-label="Toggle menu" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
           {isSidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </Button>
       </div>
 
-      <div className="flex">
+      <div className="flex w-full">
         {/* Sidebar */}
         <aside className={cn(
-          "fixed lg:sticky top-0 left-0 z-40 h-screen w-64 bg-card border-r border-border transition-transform lg:translate-x-0",
+          "fixed lg:sticky top-0 left-0 z-40 h-screen w-[17rem] max-w-[85vw] shrink-0 bg-card border-r border-border transition-transform lg:translate-x-0",
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}>
           <div className="flex flex-col h-full">
@@ -138,7 +138,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 p-4 space-y-2 overflow-y-auto mt-16 lg:mt-0">
+            <nav className="flex-1 p-4 space-y-1 overflow-y-auto pt-16 lg:pt-4">
               {navItems.map((item) => (
                 <Link
                   key={item.path}
@@ -189,7 +189,7 @@ export default function AdminDashboard() {
         )}
 
         {/* Main Content */}
-        <main className="flex-1 p-4 lg:p-8 min-h-screen">
+        <main className="flex-1 min-w-0 w-full overflow-x-hidden p-4 lg:p-8 min-h-screen">
           <Outlet />
         </main>
       </div>

@@ -154,7 +154,7 @@ export default function AdminCollectFees() {
             </button>
           )}
         </div>
-        <div className="flex items-center gap-2 mt-3 overflow-x-auto">
+        <div className="flex flex-wrap items-center gap-2 mt-3">
           <Button
             size="sm"
             variant={onlyDue ? "default" : "outline"}
@@ -213,7 +213,7 @@ export default function AdminCollectFees() {
       <Dialog open={!!cashFor} onOpenChange={(o) => !o && setCashFor(null)}>
         <DialogContent className="max-w-md rounded-2xl">
           <DialogHeader className="text-left">
-            <DialogTitle className="font-serif">Record cash collection</DialogTitle>
+            <DialogTitle className="font-serif pr-8">Record cash collection</DialogTitle>
             <DialogDescription>{cashFor?.full_name} · {cashFor?.membership_id}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 min-w-0">
