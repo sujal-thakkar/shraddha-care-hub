@@ -107,7 +107,7 @@ export default function BlogWriteGuest() {
         </div>
         <h1 className="font-serif text-2xl md:text-3xl font-bold mb-2">{t("Share your blog")}</h1>
         <p className="text-muted-foreground mb-6">
-          {t("Write freely — no account needed. After you're done, we'll ask for your name and phone so we can credit you. If you'd like your blogs saved to a profile, you can set a PIN then. It's optional.")}
+          {t("Write freely — no account needed. After you're done, we'll ask for your name and phone so we can credit you. If you'd like your blogs saved to a profile, you can request a writer account then. It's optional.")}
         </p>
 
         <Card className="mb-4 border-primary/30 bg-primary/5">
@@ -116,11 +116,12 @@ export default function BlogWriteGuest() {
             <ul className="list-disc pl-5 text-foreground/80 space-y-1">
               <li>{t("Your writing is saved locally on this device while you type. Nothing goes to us until you submit.")}</li>
               <li>{t("On submit, you'll fill a short form (name + phone) so the admin team knows who wrote this.")}</li>
-              <li>{t("If your phone is already registered, we'll ask for your PIN to link this blog to your profile.")}</li>
-              <li>{t("Otherwise you can set a PIN (recommended!) or continue as a one-time guest.")}</li>
+              <li>{t("If your phone already has an account, we'll ask for your Membership ID and password to save this blog to your profile.")}</li>
+              <li>{t("Otherwise you can request a writer account (recommended!) or submit as a one-time guest.")}</li>
             </ul>
           </CardContent>
         </Card>
+
 
         <div className="space-y-4">
           <Input
