@@ -211,7 +211,7 @@ export default function AdminCollectFees() {
 
       {/* Cash sheet — full-width on phones, dialog on desktop */}
       <Dialog open={!!cashFor} onOpenChange={(o) => !o && setCashFor(null)}>
-        <DialogContent className="max-w-md w-[calc(100vw-1.5rem)] rounded-2xl max-h-[92vh] overflow-y-auto">
+        <DialogContent className="max-w-md rounded-2xl">
           <DialogHeader className="text-left">
             <DialogTitle className="font-serif">Record cash collection</DialogTitle>
             <DialogDescription>{cashFor?.full_name} · {cashFor?.membership_id}</DialogDescription>
