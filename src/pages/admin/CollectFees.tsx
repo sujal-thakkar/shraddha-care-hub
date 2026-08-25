@@ -118,9 +118,10 @@ export default function AdminCollectFees() {
   };
 
   return (
-    <div className="pb-24 md:pb-6">
+    <div className="pb-24 md:pb-6 w-full max-w-2xl mx-auto overflow-x-hidden">
       {/* Sticky header: title + search always in reach */}
-      <div className="sticky top-0 -mx-4 md:mx-0 px-4 md:px-0 pt-2 pb-3 bg-background/95 backdrop-blur z-20 border-b md:border-0">
+      <div className="sticky top-14 lg:top-0 -mx-4 md:mx-0 px-4 md:px-0 pt-2 pb-3 bg-background/95 backdrop-blur z-20 border-b md:border-0">
+
         <div className="flex items-center justify-between gap-3 mb-3">
           <div className="min-w-0">
             <h1 className="font-serif text-xl md:text-3xl font-bold leading-tight">Collect fees</h1>
@@ -153,7 +154,7 @@ export default function AdminCollectFees() {
             </button>
           )}
         </div>
-        <div className="flex items-center gap-2 mt-3 overflow-x-auto">
+        <div className="flex flex-wrap items-center gap-2 mt-3">
           <Button
             size="sm"
             variant={onlyDue ? "default" : "outline"}
@@ -210,21 +211,22 @@ export default function AdminCollectFees() {
 
       {/* Cash sheet — full-width on phones, dialog on desktop */}
       <Dialog open={!!cashFor} onOpenChange={(o) => !o && setCashFor(null)}>
-        <DialogContent className="max-w-md w-[calc(100vw-1.5rem)] rounded-2xl max-h-[92vh] overflow-y-auto">
+        <DialogContent className="max-w-md rounded-2xl">
           <DialogHeader className="text-left">
-            <DialogTitle className="font-serif">Record cash collection</DialogTitle>
+            <DialogTitle className="font-serif pr-8">Record cash collection</DialogTitle>
             <DialogDescription>{cashFor?.full_name} · {cashFor?.membership_id}</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
+          <div className="space-y-4 min-w-0">
+            <div className="min-w-0">
               <Label>Amount collected (₹)</Label>
               <Input
                 inputMode="numeric"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value.replace(/\D/g, ""))}
-                className="h-14 text-2xl font-semibold mt-1 rounded-xl"
+                className="h-14 text-2xl font-semibold mt-1 rounded-xl w-full"
               />
-              <div className="flex gap-2 mt-2 overflow-x-auto pb-1">
+              <div className="flex flex-wrap gap-2 mt-2">
+
                 {quickAmounts(cashFor).map((qa) => (
                   <Button
                     key={qa.months}
