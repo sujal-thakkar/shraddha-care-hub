@@ -216,16 +216,17 @@ export default function AdminCollectFees() {
             <DialogTitle className="font-serif">Record cash collection</DialogTitle>
             <DialogDescription>{cashFor?.full_name} · {cashFor?.membership_id}</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
+          <div className="space-y-4 min-w-0">
+            <div className="min-w-0">
               <Label>Amount collected (₹)</Label>
               <Input
                 inputMode="numeric"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value.replace(/\D/g, ""))}
-                className="h-14 text-2xl font-semibold mt-1 rounded-xl"
+                className="h-14 text-2xl font-semibold mt-1 rounded-xl w-full"
               />
-              <div className="flex gap-2 mt-2 overflow-x-auto pb-1">
+              <div className="flex flex-wrap gap-2 mt-2">
+
                 {quickAmounts(cashFor).map((qa) => (
                   <Button
                     key={qa.months}
