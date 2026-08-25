@@ -333,10 +333,20 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
                     Use my PIN instead
                   </button>
                 </div>
+                <div className="relative py-1">
+                  <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
+                  <div className="relative flex justify-center">
+                    <span className="bg-background px-2 text-xs text-muted-foreground">or</span>
+                  </div>
+                </div>
+                <Button type="button" variant="outline" className="w-full h-12" onClick={handleStayGuest} disabled={busy}>
+                  {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Send className="h-4 w-4 mr-2" /> Submit anyway as a guest</>}
+                </Button>
                 <p className="text-xs text-muted-foreground text-center">
                   Forgot your password? <Link to="/contact" className="underline text-primary hover:text-primary/80">Contact the office</Link> — they can issue a new one.
                 </p>
               </form>
+
             ) : (
               <form onSubmit={handleExistingPin} className="space-y-4">
                 <div className="space-y-2">
@@ -358,7 +368,11 @@ export function GuestSubmitDialog({ open, onOpenChange, onSubmit }: GuestSubmitD
                     Use my Membership ID instead
                   </button>
                 </div>
+                <Button type="button" variant="outline" className="w-full h-12" onClick={handleStayGuest} disabled={busy}>
+                  {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Send className="h-4 w-4 mr-2" /> Submit anyway as a guest</>}
+                </Button>
               </form>
+
             )}
           </>
         )}
