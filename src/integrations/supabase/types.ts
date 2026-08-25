@@ -1827,6 +1827,14 @@ export type Database = {
         }[]
       }
       get_writer_status_by_phone: { Args: { _phone: string }; Returns: string }
+      guest_account_hint: {
+        Args: { _phone: string }
+        Returns: {
+          exists_account: boolean
+          has_membership_id: boolean
+          status: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
