@@ -3,6 +3,7 @@
 import Stripe from "npm:stripe@17";
 import { serviceClient, extendPaidUntil } from "../_shared/admin.ts";
 import { sendPaymentReceiptSms } from "../_shared/sms.ts";
+import { syncTransactionsToSheet } from "../_shared/fee-sheet.ts";
 
 Deno.serve(async (req) => {
   const key = Deno.env.get("STRIPE_SECRET_KEY");
