@@ -20,15 +20,29 @@ The entry ID makes the sheet self-healing: a re-sync updates the matching row in
 
 Note: the existing Google Sheets connection is read-only today (it powers the Active Members import). Writing rows needs the connection re-authorised with write access — I'll prompt for that during the build; until then the CSV export covers the second copy.
 
-## 3. Advance credit instead of misleading months
+## 3. Advance credit (part payments in both directions)
 
-Today an amount that does not divide evenly by the monthly fee silently drops the remainder. Instead:
+Today an amount that does not divide evenly by the monthly fee silently drops the remainder. Instead, every payment is recorded at its true value and the leftover is carried as **advance credit** on the member.
 
-- The remainder is stored on the payment as **advance credit** and carried on the member's profile as a running balance.
-- The next payment automatically adds the carried credit before calculating months, so nothing is lost — Rs 700 then Rs 100 on a Rs 400 fee correctly buys two months.
-- Wording everywhere is explicit, for example: **"Paid to 30 Sep 2026 · Rs 300 held as advance credit"**. Where there is no remainder, no extra text appears.
-- The record-cash sheet on `/admin/dashboard/collect` previews this before saving, so the volunteer sees exactly what the amount buys.
-- The receipt SMS keeps the approved DLT template; the "paid up to" value becomes `30 September 2026 (Rs 300 kept as advance credit)` so the member sees the same truth. I'll send one test message to confirm the provider accepts the longer variable, and fall back to the plain date if it rejects it.
+How it behaves — member on a Rs 400 monthly fee, paid to 31 Aug:
+
+```text
+Day 1  Rs 700 collected  -> 1 month bought (paid to 30 Sep), Rs 300 credit carried
+Day 2  Rs 100 collected  -> Rs 100 + Rs 300 credit = Rs 400 -> 1 month
+                            (paid to 31 Oct), credit back to Rs 0
+```
+
+The reverse case works the same way: a member who gives only Rs 100 against a Rs 400 fee buys no month — the paid-to date does not move, and Rs 100 sits as credit until it tops up to a full month. Nothing is ever rounded away or double counted.
+
+Rules that make it safe:
+
+- **Any amount can be entered.** No "must be a multiple of the fee" restriction, and the collect sheet shows a live preview: what the amount buys, the new paid-to date, and the credit left over — before saving.
+- **Cash settlement stays on the money, not the months.** Each collection is its own ledger entry settled at the amount actually handed over (Rs 700 one day, Rs 100 the next). Credit only affects how many months the payment unlocks, never the cash figure a collector must hand in — so the cash reconciliation always equals real rupees collected.
+- **Credit is applied at approval, once.** Approval consumes the balance and writes both the credit used and the credit left on that entry, so the ledger shows the full arithmetic and a re-run can never spend the same credit twice. A rejected entry returns the credit untouched.
+- **Wording is explicit everywhere**, for example: "Paid to 30 Sep 2026 · Rs 300 held as advance credit", or "Part payment — Rs 100 held as advance credit, paid-to date unchanged". No leftover means no extra text.
+- **Credit is visible** as a line on the member card, in the directory, in the payment history, and on the member's own profile page — so an elder can be told exactly what is on their account.
+- **Receipt SMS** keeps the approved DLT template; the "paid up to" value becomes `30 September 2026 + Rs 300 credit` (and `unchanged + Rs 100 credit` for a pure part payment). I'll send one test message to confirm the provider accepts the longer variable, and fall back to the plain date if it rejects it.
+
 
 ## 4. Duplicate / anomaly guard
 
@@ -36,8 +50,8 @@ Before saving a cash entry, the system checks for a same-member payment in the l
 
 ## Technical notes
 
-- Migration: add `advance_credit_inr` to `membership_transactions`, `credit_balance_inr` to `profiles`, plus an index on `membership_transactions(created_at)` and `(member_user_id, created_at)` for the history queries. Grants + RLS follow the existing admin-only pattern on those tables.
-- `src/lib/membership.ts`: `monthsCovered`/`coveredPeriod` extended to take an incoming credit balance and return `{ months, remainder, label }`; one shared formatter produces the "paid to X · Rs Y advance credit" string used by admin UI, collect page and receipt.
+- Migration: add `advance_credit_inr` (credit left after this entry) and `credit_used_inr` (credit consumed by it) to `membership_transactions`, `credit_balance_inr` to `profiles`, plus indexes on `membership_transactions(created_at)` and `(member_user_id, created_at)` for the history queries. Grants + RLS follow the existing admin-only pattern on those tables.
+- `src/lib/membership.ts`: `monthsCovered`/`coveredPeriod` extended to take the incoming credit balance and return `{ months, creditUsed, creditLeft, newPaidUntil, label }`; one shared formatter produces the "paid to X · Rs Y advance credit" / "part payment" strings used by admin UI, collect page and receipt.
 - `record-cash-collection` and `review-transaction` edge functions: apply credit on approval, write `advance_credit_inr`, update the profile balance, add the duplicate check, and call the sheet-append helper.
 - New `supabase/functions/_shared/fee-sheet.ts` + a `sync-fee-payments` function for appends and full re-sync through the Sheets connector gateway.
 - New `src/pages/admin/FeePayments.tsx` (or a panel component mounted in the new tab) with mobile-first cards, sticky filter bar, and CSV export built client-side. `ReceiptSmsPanel` is moved into this tab.
