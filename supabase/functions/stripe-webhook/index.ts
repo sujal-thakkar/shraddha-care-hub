@@ -91,8 +91,11 @@ Deno.serve(async (req) => {
         phone: member?.phone_e164 ?? null,
         amount: amountInr,
         paidUntil: periodEnd,
+        monthsBought: months,
         transactionId: txId,
       });
+
+      if (txId) await syncTransactionsToSheet(svc, [txId]);
     } else if (session.id) {
       // Event registration payments (existing flow) — mark paid.
       await svc.from("event_registrations").update({
