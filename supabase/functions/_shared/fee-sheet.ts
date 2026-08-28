@@ -134,3 +134,40 @@ export async function syncTransactionsToSheet(
     return { ok: false, synced: 0, error: (e as Error).message };
   }
 }
+
+/**
+ * Removes the given entry ids from the sheet so a deleted test entry disappears
+ * there too. Matches on the entry ID in column A; never throws.
+ */
+export async function deleteRowsFromSheet(ids: string[]): Promise<{ ok: boolean; removed: number; error?: string }> {
+  try {
+    if (!ids.length) return { ok: true, removed: 0 };
+    const headers = keys();
+    if (!headers) return { ok: false, removed: 0, error: "Google Sheets is not connected yet." };
+
+    const meta = await sheetsFetch("", { method: "GET", headers });
+    const sheet = (meta.sheets ?? []).find((s: any) => s.properties?.title === SHEET);
+    if (!sheet) return { ok: true, removed: 0 };
+    const sheetId = sheet.properties.sheetId;
+
+    const existing = await sheetsFetch(`/values/${SHEET}!A2:A100000`, { method: "GET", headers });
+    const wanted = new Set(ids);
+    const rowIndexes: number[] = [];
+    ((existing.values ?? []) as string[][]).forEach((r, i) => {
+      if (r[0] && wanted.has(r[0])) rowIndexes.push(i + 1); // 0-based grid index, +1 skips the header
+    });
+    if (!rowIndexes.length) return { ok: true, removed: 0 };
+
+    // Delete bottom-up so earlier deletions do not shift later indexes.
+    const requests = rowIndexes.sort((a, b) => b - a).map((idx) => ({
+      deleteDimension: {
+        range: { sheetId, dimension: "ROWS", startIndex: idx, endIndex: idx + 1 },
+      },
+    }));
+    await sheetsFetch(":batchUpdate", { method: "POST", headers, body: JSON.stringify({ requests }) });
+    return { ok: true, removed: rowIndexes.length };
+  } catch (e) {
+    console.error("fee sheet delete failed", (e as Error).message);
+    return { ok: false, removed: 0, error: (e as Error).message };
+  }
+}
