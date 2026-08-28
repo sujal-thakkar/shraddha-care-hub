@@ -1,6 +1,8 @@
 // Main-admin actions on the ledger: approve, reject, settle cash, adjust paid-until.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
-import { serviceClient, getCaller, json, audit, clientIp, extendPaidUntil } from "../_shared/admin.ts";
+import { serviceClient, getCaller, json, audit, clientIp } from "../_shared/admin.ts";
+import { applyPayment } from "../_shared/fees.ts";
+import { syncTransactionsToSheet } from "../_shared/fee-sheet.ts";
 import { sendPaymentReceiptSms } from "../_shared/sms.ts";
 
 Deno.serve(async (req) => {
