@@ -106,6 +106,8 @@ export async function sendPaymentReceiptSms(svc: SupabaseClient, args: {
   phone: string | null;
   amount: number;
   paidUntil: string | null;
+  creditLeft?: number | null;
+  monthsBought?: number | null;
   transactionId?: string | null;
 }) {
   try {
@@ -114,12 +116,13 @@ export async function sendPaymentReceiptSms(svc: SupabaseClient, args: {
     const trackers = await copyNumbers(svc);
     const numbers = memberDigits ? [memberDigits, ...trackers] : trackers;
 
-    // Template order: name (alphanumeric), amount (number), paid-up-to (alphanumeric, <=30 chars)
+    // Template order: name (alphanumeric), amount (number), paid-up-to (alphanumeric, <=40 chars)
     const variables = [
       (args.name ?? "Member").replace(/[^\p{L}\p{N} .]/gu, "").trim().slice(0, 30) || "Member",
       String(Math.round(args.amount)),
-      formatPaidUntil(args.paidUntil).slice(0, 30),
+      paidUntilVariable(args.paidUntil, args.creditLeft ?? 0, args.monthsBought ?? 1).slice(0, 40),
     ];
+
 
     if (args.transactionId) {
       const { data: dupe } = await svc.from("sms_log").select("id")
