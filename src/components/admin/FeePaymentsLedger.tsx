@@ -8,7 +8,12 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Download, RefreshCw, ReceiptText, TableProperties } from "lucide-react";
+import { Loader2, Download, RefreshCw, ReceiptText, TableProperties, Trash2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { formatINR, prettyDate } from "@/lib/membership";
 
 type Row = {
@@ -55,6 +60,9 @@ export function FeePaymentsLedger({ isMainAdmin }: { isMainAdmin: boolean }) {
   const [state, setState] = useState("all");
   const [source, setSource] = useState("all");
   const [syncing, setSyncing] = useState(false);
+  const [picked, setPicked] = useState<Record<string, boolean>>({});
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -72,6 +80,7 @@ export function FeePaymentsLedger({ isMainAdmin }: { isMainAdmin: boolean }) {
         .from("profiles").select("user_id, full_name").in("user_id", ids);
       setNames(Object.fromEntries((profiles ?? []).map((p) => [p.user_id, p.full_name ?? ""])));
     }
+    setPicked({});
     setLoading(false);
   };
 
@@ -143,6 +152,35 @@ export function FeePaymentsLedger({ isMainAdmin }: { isMainAdmin: boolean }) {
     toast({ title: "Sheet updated", description: `${(data as any)?.synced ?? 0} confirmed entries mirrored.` });
   };
 
+  const pickedIds = useMemo(() => Object.keys(picked).filter((id) => picked[id]), [picked]);
+  const pickedRows = useMemo(() => rows.filter((r) => picked[r.id]), [rows, picked]);
+  const pickedConfirmed = pickedRows.filter((r) => r.state === "success").length;
+
+  const deletePicked = async () => {
+    setDeleting(true);
+    const { data, error } = await supabase.functions.invoke("review-transaction", {
+      body: { action: "delete_entries", transaction_ids: pickedIds },
+    });
+    setDeleting(false);
+    if (error || (data as any)?.error) {
+      return toast({
+        title: "Couldn't remove them",
+        description: (data as any)?.error || error?.message,
+        variant: "destructive",
+      });
+    }
+    setConfirmDelete(false);
+    const sheetError = (data as any)?.sheet_error;
+    toast({
+      title: `${(data as any)?.count ?? pickedIds.length} entr${pickedIds.length === 1 ? "y" : "ies"} removed`,
+      description: sheetError
+        ? `Removed here, but the team sheet could not be updated: ${sheetError}`
+        : `Also removed from the team sheet. Member paid-until dates and credit were rolled back.`,
+      variant: sheetError ? "destructive" : undefined,
+    });
+    load();
+  };
+
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -205,6 +243,11 @@ export function FeePaymentsLedger({ isMainAdmin }: { isMainAdmin: boolean }) {
           <Button variant="outline" size="sm" className="h-10" onClick={exportCsv} disabled={!filtered.length}>
             <Download className="h-4 w-4 mr-2" /> Export CSV
           </Button>
+          {isMainAdmin && !!pickedIds.length && (
+            <Button variant="destructive" size="sm" className="h-10" onClick={() => setConfirmDelete(true)}>
+              <Trash2 className="h-4 w-4 mr-2" /> Delete {pickedIds.length} selected
+            </Button>
+          )}
           {isMainAdmin && (
             <Button variant="outline" size="sm" className="h-10" onClick={syncSheet} disabled={syncing}>
               {syncing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <TableProperties className="h-4 w-4 mr-2" />}
@@ -222,6 +265,14 @@ export function FeePaymentsLedger({ isMainAdmin }: { isMainAdmin: boolean }) {
           <div className="divide-y">
             {filtered.map((r) => (
               <div key={r.id} className="py-3 flex flex-col sm:flex-row sm:items-center gap-2">
+                {isMainAdmin && (
+                  <Checkbox
+                    className="mt-1 sm:mt-0 shrink-0"
+                    checked={!!picked[r.id]}
+                    onCheckedChange={(v) => setPicked((p) => ({ ...p, [r.id]: !!v }))}
+                    aria-label="Select entry"
+                  />
+                )}
                 <div className="min-w-0 flex-1">
                   <p className="font-medium truncate">
                     {names[r.member_user_id] || "Member"}
@@ -256,6 +307,32 @@ export function FeePaymentsLedger({ isMainAdmin }: { isMainAdmin: boolean }) {
           </div>
         )}
       </CardContent>
+
+      <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Delete {pickedIds.length} entr{pickedIds.length === 1 ? "y" : "ies"}?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              This removes them from the ledger and from the team sheet. {pickedConfirmed > 0
+                ? `${pickedConfirmed} confirmed entr${pickedConfirmed === 1 ? "y" : "ies"} will also be rolled back on the member's paid-until date and advance credit.`
+                : "No confirmed payments are affected."} This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Keep them</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); deletePicked(); }}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Trash2 className="h-4 w-4 mr-2" />}
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
