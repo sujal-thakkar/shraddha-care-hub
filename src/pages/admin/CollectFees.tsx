@@ -272,17 +272,33 @@ export default function AdminCollectFees() {
             <div className="rounded-xl bg-muted/50 border p-3 text-sm space-y-1">
               <p>Monthly fee: <strong>{formatINR(cashFor?.monthly_fee_amount)}</strong></p>
               <p>Currently paid up to: <strong>{prettyDate(cashFor?.paid_up_until)}</strong></p>
-              {cashPreview && (
+              {!!cashPreview?.carried && (
+                <p>Advance credit in hand: <strong>{formatINR(cashPreview.carried)}</strong></p>
+              )}
+              {cashPreview && cashPreview.months > 0 && (
                 <p className="text-foreground">
                   Covers <strong>{cashPreview.label}</strong> — new paid-until <strong>{cashPreview.end}</strong>
                 </p>
               )}
+              {cashPreview && cashPreview.months === 0 && Number(amount) > 0 && (
+                <p className="text-foreground">Part payment — paid-until stays the same.</p>
+              )}
+              {cashPreview?.note && <p className="text-foreground">{cashPreview.note}.</p>}
             </div>
+            {duplicateWarning && (
+              <div className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+                {duplicateWarning}
+              </div>
+            )}
           </div>
           <div className="flex flex-col gap-2 pt-2">
-            <Button onClick={recordCash} disabled={saving} className="h-14 w-full text-base rounded-xl">
+            <Button
+              onClick={() => recordCash(!!duplicateWarning)}
+              disabled={saving}
+              className="h-14 w-full text-base rounded-xl"
+            >
               {saving ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <HandCoins className="h-5 w-5 mr-2" />}
-              Record collection
+              {duplicateWarning ? "Yes, record it anyway" : "Record collection"}
             </Button>
             <Button variant="ghost" className="h-11 w-full" onClick={() => setCashFor(null)}>Cancel</Button>
           </div>
