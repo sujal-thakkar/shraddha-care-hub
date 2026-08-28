@@ -100,6 +100,7 @@ Deno.serve(async (req) => {
       await svc.from("membership_transactions").update({
         settled: true, settled_at: new Date().toISOString(), settled_by: caller.userId,
       }).in("id", ids);
+      await syncTransactionsToSheet(svc, ids);
       await audit(svc, caller, "settle_cash", "membership_transactions", null, { count: ids.length, ids }, ip);
       return json({ ok: true, count: ids.length }, 200, H);
     }
