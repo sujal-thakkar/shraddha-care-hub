@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
           duplicate_warning: true,
           recent: recent[0],
           message: `A cash entry of Rs ${recent[0].amount_inr} was recorded for this member a few minutes ago. Record this one as well?`,
-        }, 409, H);
+        }, 200, H);
       }
     }
 
