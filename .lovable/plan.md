@@ -50,8 +50,8 @@ Before saving a cash entry, the system checks for a same-member payment in the l
 
 ## Technical notes
 
-- Migration: add `advance_credit_inr` to `membership_transactions`, `credit_balance_inr` to `profiles`, plus an index on `membership_transactions(created_at)` and `(member_user_id, created_at)` for the history queries. Grants + RLS follow the existing admin-only pattern on those tables.
-- `src/lib/membership.ts`: `monthsCovered`/`coveredPeriod` extended to take an incoming credit balance and return `{ months, remainder, label }`; one shared formatter produces the "paid to X · Rs Y advance credit" string used by admin UI, collect page and receipt.
+- Migration: add `advance_credit_inr` (credit left after this entry) and `credit_used_inr` (credit consumed by it) to `membership_transactions`, `credit_balance_inr` to `profiles`, plus indexes on `membership_transactions(created_at)` and `(member_user_id, created_at)` for the history queries. Grants + RLS follow the existing admin-only pattern on those tables.
+- `src/lib/membership.ts`: `monthsCovered`/`coveredPeriod` extended to take the incoming credit balance and return `{ months, creditUsed, creditLeft, newPaidUntil, label }`; one shared formatter produces the "paid to X · Rs Y advance credit" / "part payment" strings used by admin UI, collect page and receipt.
 - `record-cash-collection` and `review-transaction` edge functions: apply credit on approval, write `advance_credit_inr`, update the profile balance, add the duplicate check, and call the sheet-append helper.
 - New `supabase/functions/_shared/fee-sheet.ts` + a `sync-fee-payments` function for appends and full re-sync through the Sheets connector gateway.
 - New `src/pages/admin/FeePayments.tsx` (or a panel component mounted in the new tab) with mobile-first cards, sticky filter bar, and CSV export built client-side. `ReceiptSmsPanel` is moved into this tab.
