@@ -19,6 +19,24 @@ export function formatPaidUntil(date: string | null): string {
   return d.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
 }
 
+function shortDate(date: string | null): string {
+  if (!date) return "-";
+  const d = new Date(`${date.slice(0, 10)}T12:00:00Z`);
+  return d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+}
+
+/**
+ * The "paid up to" variable. When the member has advance credit left over we say so
+ * in the same variable, using a shorter date so the value stays compact.
+ */
+export function paidUntilVariable(date: string | null, creditLeft = 0, monthsBought = 1): string {
+  const credit = Math.max(0, Math.round(creditLeft || 0));
+  if (credit <= 0) return formatPaidUntil(date);
+  const base = monthsBought > 0 ? shortDate(date) : "unchanged";
+  return `${base} + Rs ${credit} credit`;
+}
+
+
 type SendResult = {
   status: "sent" | "failed" | "skipped";
   error: string | null;
