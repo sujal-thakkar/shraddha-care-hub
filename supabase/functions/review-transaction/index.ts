@@ -34,41 +34,64 @@ Deno.serve(async (req) => {
         return json({ ok: true }, 200, H);
       }
 
+      if (tx.state === "success") return json({ error: "This entry is already confirmed." }, 400, H);
+
       const { data: member } = await svc.from("profiles")
-        .select("paid_up_until, monthly_fee_amount, full_name, phone_e164, membership_id")
+        .select("paid_up_until, monthly_fee_amount, credit_balance_inr, full_name, phone_e164, membership_id")
         .eq("user_id", tx.member_user_id).maybeSingle();
       const fee = tx.monthly_fee_amount ?? member?.monthly_fee_amount ?? 0;
-      const months = tx.months_covered ?? (fee > 0 ? Math.floor(tx.amount_inr / fee) : 0);
-      const periodEnd = months > 0 ? extendPaidUntil(member?.paid_up_until ?? null, months) : null;
+
+      // Credit is consumed here, once, using the member's live balance.
+      const outcome = applyPayment({
+        amount: tx.amount_inr,
+        monthlyFee: fee,
+        paidUpUntil: member?.paid_up_until ?? null,
+        creditBalance: member?.credit_balance_inr ?? 0,
+      });
+      const months = outcome.months;
+      const periodEnd = months > 0 ? outcome.paidUntil : null;
 
       await svc.from("membership_transactions").update({
         state: "success",
         months_covered: months || null,
         period_end: periodEnd,
+        credit_used_inr: outcome.creditUsed,
+        advance_credit_inr: outcome.creditLeft,
         approved_by: caller.userId,
         approved_at: new Date().toISOString(),
       }).eq("id", txId);
 
+      const patch: Record<string, unknown> = { credit_balance_inr: outcome.creditLeft };
       if (periodEnd) {
-        await svc.from("profiles").update({
-          paid_up_until: periodEnd,
-          last_paid_month: `${periodEnd.slice(0, 7)}-01`,
-          member_status: "active",
-        }).eq("user_id", tx.member_user_id);
-
-        await sendPaymentReceiptSms(svc, {
-          memberUserId: tx.member_user_id,
-          membershipId: member?.membership_id ?? tx.membership_id ?? null,
-          name: member?.full_name ?? null,
-          phone: member?.phone_e164 ?? null,
-          amount: tx.amount_inr,
-          paidUntil: periodEnd,
-          transactionId: txId,
-        });
+        patch.paid_up_until = periodEnd;
+        patch.last_paid_month = `${periodEnd.slice(0, 7)}-01`;
+        patch.member_status = "active";
       }
+      await svc.from("profiles").update(patch).eq("user_id", tx.member_user_id);
+
+      await sendPaymentReceiptSms(svc, {
+        memberUserId: tx.member_user_id,
+        membershipId: member?.membership_id ?? tx.membership_id ?? null,
+        name: member?.full_name ?? null,
+        phone: member?.phone_e164 ?? null,
+        amount: tx.amount_inr,
+        paidUntil: periodEnd ?? member?.paid_up_until ?? null,
+        creditLeft: outcome.creditLeft,
+        monthsBought: months,
+        transactionId: txId,
+      });
+
+      await syncTransactionsToSheet(svc, [txId]);
+
       await audit(svc, caller, "approve_payment", "membership_transactions", txId,
-        { amount: tx.amount_inr, months, period_end: periodEnd }, ip);
-      return json({ ok: true, period_end: periodEnd }, 200, H);
+        {
+          amount: tx.amount_inr, months, period_end: periodEnd,
+          credit_used: outcome.creditUsed, credit_left: outcome.creditLeft,
+        }, ip);
+      return json({
+        ok: true, period_end: periodEnd,
+        credit_used: outcome.creditUsed, credit_left: outcome.creditLeft,
+      }, 200, H);
     }
 
     if (action === "settle") {
