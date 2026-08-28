@@ -15,6 +15,67 @@ export function monthsCovered(amount: number, monthlyFee: number) {
   return Math.floor(amount / monthlyFee);
 }
 
+export type PaymentOutcome = {
+  /** Whole months this payment unlocks (0 for a part payment). */
+  months: number;
+  /** Advance credit consumed to complete a month. */
+  creditUsed: number;
+  /** Advance credit carried forward after this payment. */
+  creditLeft: number;
+  /** New paid-through date, or the unchanged one when no month was bought. */
+  paidUntil: string | null;
+  /** Month range covered, e.g. "September–October 2026". Null for a part payment. */
+  periodLabel: string | null;
+  periodStart: string | null;
+};
+
+/**
+ * Works out what an amount buys once the member's carried advance credit is added.
+ * Nothing is ever rounded away: whatever does not complete a month stays as credit.
+ */
+export function applyPayment(opts: {
+  amount: number;
+  monthlyFee: number | null | undefined;
+  paidUpUntil: string | null | undefined;
+  creditBalance?: number | null;
+}): PaymentOutcome {
+  const amount = Math.max(0, Math.round(Number(opts.amount) || 0));
+  const fee = Math.max(0, Math.round(Number(opts.monthlyFee) || 0));
+  const carried = Math.max(0, Math.round(Number(opts.creditBalance) || 0));
+  const pool = amount + carried;
+
+  const months = fee > 0 ? Math.floor(pool / fee) : 0;
+  const creditLeft = fee > 0 ? pool - months * fee : pool;
+  const creditUsed = Math.max(0, carried - creditLeft);
+  const period = coveredPeriod(opts.paidUpUntil, months);
+
+  return {
+    months,
+    creditUsed,
+    creditLeft,
+    paidUntil: period ? period.end : (opts.paidUpUntil ?? null),
+    periodLabel: period ? period.label : null,
+    periodStart: period ? period.start : null,
+  };
+}
+
+/** "Rs 300 held as advance credit" — empty when there is no leftover. */
+export function creditNote(creditLeft: number) {
+  if (!creditLeft || creditLeft <= 0) return "";
+  return `${formatINR(creditLeft)} held as advance credit`;
+}
+
+/** One professional sentence describing what a payment did. */
+export function paymentSummary(outcome: PaymentOutcome) {
+  const note = creditNote(outcome.creditLeft);
+  if (outcome.months <= 0) {
+    return `Part payment — paid-to date unchanged${note ? ` · ${note}` : ""}`;
+  }
+  const base = `Covers ${outcome.periodLabel} — paid to ${prettyDate(outcome.paidUntil)}`;
+  return note ? `${base} · ${note}` : base;
+}
+
+
 function endOfMonth(d: Date) {
   return new Date(d.getFullYear(), d.getMonth() + 1, 0);
 }

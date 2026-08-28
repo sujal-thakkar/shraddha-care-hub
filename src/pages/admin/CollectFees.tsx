@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Search, HandCoins, X, CheckCircle2, RefreshCw } from "lucide-react";
 import { planLabel } from "@/lib/membership-plans";
 import {
-  formatINR, prettyDate, memberStatusOf, STATUS_LABEL, monthsCovered, coveredPeriod,
+  formatINR, prettyDate, memberStatusOf, STATUS_LABEL, applyPayment, creditNote,
 } from "@/lib/membership";
 
 const STATUS_STYLE: Record<string, string> = {
@@ -28,6 +28,7 @@ type Member = {
   plan: string | null;
   monthly_fee_amount: number | null;
   paid_up_until: string | null;
+  credit_balance_inr: number | null;
   avatar_url: string | null;
 };
 
@@ -47,13 +48,14 @@ export default function AdminCollectFees() {
   const [receiver, setReceiver] = useState("");
   const [saving, setSaving] = useState(false);
   const [doneFor, setDoneFor] = useState<Record<string, boolean>>({});
+  const [duplicateWarning, setDuplicateWarning] = useState<string | null>(null);
 
   const load = async () => {
     const { data: sess } = await supabase.auth.getSession();
     const uid = sess.session?.user.id;
     const { data } = await supabase
       .from("profiles")
-      .select("user_id, full_name, phone_e164, membership_id, plan, monthly_fee_amount, paid_up_until, avatar_url")
+      .select("user_id, full_name, phone_e164, membership_id, plan, monthly_fee_amount, paid_up_until, credit_balance_inr, avatar_url")
       .not("membership_id", "is", null)
       .order("full_name");
     setMembers((data ?? []) as Member[]);
@@ -82,29 +84,51 @@ export default function AdminCollectFees() {
 
   const openCash = (m: Member) => {
     setCashFor(m);
+    setDuplicateWarning(null);
     setAmount(String(m.monthly_fee_amount || ""));
   };
 
+  // Preview folds in any advance credit the member is already carrying.
   const cashPreview = (() => {
     if (!cashFor) return null;
-    const months = monthsCovered(Number(amount || 0), Number(cashFor.monthly_fee_amount || 0));
-    const period = coveredPeriod(cashFor.paid_up_until, months);
-    if (!period) return null;
-    return { label: period.label, end: prettyDate(period.end), months };
+    const carried = Number(cashFor.credit_balance_inr || 0);
+    const outcome = applyPayment({
+      amount: Number(amount || 0),
+      monthlyFee: cashFor.monthly_fee_amount,
+      paidUpUntil: cashFor.paid_up_until,
+      creditBalance: carried,
+    });
+    return {
+      months: outcome.months,
+      label: outcome.periodLabel,
+      end: outcome.paidUntil ? prettyDate(outcome.paidUntil) : null,
+      carried,
+      creditUsed: outcome.creditUsed,
+      note: creditNote(outcome.creditLeft),
+    };
   })();
 
-  const recordCash = async () => {
+  const recordCash = async (confirmDuplicate = false) => {
     if (!cashFor) return;
     const amt = Number(amount);
     if (!amt || amt <= 0) return toast({ title: "Enter the amount collected", variant: "destructive" });
     setSaving(true);
     const { data, error } = await supabase.functions.invoke("record-cash-collection", {
-      body: { member_user_id: cashFor.user_id, amount_inr: amt, receiver_name: receiver },
+      body: {
+        member_user_id: cashFor.user_id, amount_inr: amt, receiver_name: receiver,
+        confirm_duplicate: confirmDuplicate,
+      },
     });
     setSaving(false);
+    // A very recent entry for the same member needs a second tap to go through.
+    if ((data as any)?.duplicate_warning) {
+      setDuplicateWarning((data as any).message as string);
+      return;
+    }
     if (error || (data as any)?.error) {
       return toast({ title: "Couldn't record it", description: (data as any)?.error || error?.message, variant: "destructive" });
     }
+    setDuplicateWarning(null);
     setDoneFor((d) => ({ ...d, [cashFor.user_id]: true }));
     setCashFor(null);
     toast({ title: "Collection recorded", description: "Receipt SMS sent. It goes to the main admin for settlement." });
@@ -248,17 +272,33 @@ export default function AdminCollectFees() {
             <div className="rounded-xl bg-muted/50 border p-3 text-sm space-y-1">
               <p>Monthly fee: <strong>{formatINR(cashFor?.monthly_fee_amount)}</strong></p>
               <p>Currently paid up to: <strong>{prettyDate(cashFor?.paid_up_until)}</strong></p>
-              {cashPreview && (
+              {!!cashPreview?.carried && (
+                <p>Advance credit in hand: <strong>{formatINR(cashPreview.carried)}</strong></p>
+              )}
+              {cashPreview && cashPreview.months > 0 && (
                 <p className="text-foreground">
                   Covers <strong>{cashPreview.label}</strong> — new paid-until <strong>{cashPreview.end}</strong>
                 </p>
               )}
+              {cashPreview && cashPreview.months === 0 && Number(amount) > 0 && (
+                <p className="text-foreground">Part payment — paid-until stays the same.</p>
+              )}
+              {cashPreview?.note && <p className="text-foreground">{cashPreview.note}.</p>}
             </div>
+            {duplicateWarning && (
+              <div className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+                {duplicateWarning}
+              </div>
+            )}
           </div>
           <div className="flex flex-col gap-2 pt-2">
-            <Button onClick={recordCash} disabled={saving} className="h-14 w-full text-base rounded-xl">
+            <Button
+              onClick={() => recordCash(!!duplicateWarning)}
+              disabled={saving}
+              className="h-14 w-full text-base rounded-xl"
+            >
               {saving ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <HandCoins className="h-5 w-5 mr-2" />}
-              Record collection
+              {duplicateWarning ? "Yes, record it anyway" : "Record collection"}
             </Button>
             <Button variant="ghost" className="h-11 w-full" onClick={() => setCashFor(null)}>Cancel</Button>
           </div>

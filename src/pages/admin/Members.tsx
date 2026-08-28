@@ -15,6 +15,7 @@ import ReminderComposer, { type ReminderTarget } from "@/components/admin/Remind
 import SheetOnboarding from "@/components/admin/SheetOnboarding";
 import MemberCredentialActions from "@/components/admin/MemberCredentialActions";
 import ReceiptSmsPanel from "@/components/admin/ReceiptSmsPanel";
+import { FeePaymentsLedger } from "@/components/admin/FeePaymentsLedger";
 import { AuthorAvatar } from "@/components/blog/AuthorAvatar";
 import { usePlanPrices } from "@/hooks/use-plan-prices";
 import { PLANS, defaultAmount, monthlyEquivalent, planLabel, priceFor, type BillingCycle } from "@/lib/membership-plans";
@@ -382,6 +383,7 @@ export default function AdminMembers({ view = "full" }: { view?: "full" | "direc
         <TabsList className="flex-wrap h-auto">
           <TabsTrigger value="members">Members &amp; fees</TabsTrigger>
           <TabsTrigger value="renewals">Renewals</TabsTrigger>
+          <TabsTrigger value="payments">Fee payments</TabsTrigger>
           <TabsTrigger value="onboarding">Add from sheet</TabsTrigger>
           <TabsTrigger value="plans">Plans &amp; pricing</TabsTrigger>
           <TabsTrigger value="applications">Card applications</TabsTrigger>
@@ -440,7 +442,6 @@ export default function AdminMembers({ view = "full" }: { view?: "full" | "direc
             </CardContent>
           </Card>
 
-          <ReceiptSmsPanel />
         </TabsContent>
 
         <TabsContent value="members" className="mt-4 space-y-6">
@@ -451,6 +452,11 @@ export default function AdminMembers({ view = "full" }: { view?: "full" | "direc
               Approvals, cash settlement and credential overrides live in the main-admin console.
             </p>
           )}
+        </TabsContent>
+
+        <TabsContent value="payments" className="mt-4 space-y-6">
+          <FeePaymentsLedger isMainAdmin={isMainAdmin} />
+          <ReceiptSmsPanel />
         </TabsContent>
 
         <TabsContent value="onboarding" className="mt-4">

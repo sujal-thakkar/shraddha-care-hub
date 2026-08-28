@@ -859,10 +859,12 @@ export type Database = {
       }
       membership_transactions: {
         Row: {
+          advance_credit_inr: number
           amount_inr: number
           approved_at: string | null
           approved_by: string | null
           created_at: string
+          credit_used_inr: number
           id: string
           member_user_id: string
           membership_id: string | null
@@ -887,10 +889,12 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          advance_credit_inr?: number
           amount_inr: number
           approved_at?: string | null
           approved_by?: string | null
           created_at?: string
+          credit_used_inr?: number
           id?: string
           member_user_id: string
           membership_id?: string | null
@@ -915,10 +919,12 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          advance_credit_inr?: number
           amount_inr?: number
           approved_at?: string | null
           approved_by?: string | null
           created_at?: string
+          credit_used_inr?: number
           id?: string
           member_user_id?: string
           membership_id?: string | null
@@ -1236,6 +1242,7 @@ export type Database = {
           chapter: string | null
           country_code: string | null
           created_at: string
+          credit_balance_inr: number
           digest_email: string | null
           digest_last_sent_at: string | null
           email: string | null
@@ -1267,6 +1274,7 @@ export type Database = {
           chapter?: string | null
           country_code?: string | null
           created_at?: string
+          credit_balance_inr?: number
           digest_email?: string | null
           digest_last_sent_at?: string | null
           email?: string | null
@@ -1298,6 +1306,7 @@ export type Database = {
           chapter?: string | null
           country_code?: string | null
           created_at?: string
+          credit_balance_inr?: number
           digest_email?: string | null
           digest_last_sent_at?: string | null
           email?: string | null
