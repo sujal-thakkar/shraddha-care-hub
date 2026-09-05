@@ -35,11 +35,11 @@ export function BlogComments({ blogId }: { blogId: string }) {
 
   const load = async () => {
     const { data } = await supabase
-      .from("blog_comments")
+      .from("blog_comments_public")
       .select("id, name, website, body, created_at")
       .eq("blog_id", blogId)
-      .eq("status", "approved")
       .order("created_at", { ascending: false });
+
     setRows((data as Row[]) ?? []);
     setLoading(false);
   };
