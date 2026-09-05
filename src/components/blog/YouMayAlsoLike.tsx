@@ -31,7 +31,7 @@ export function YouMayAlsoLike({ excludeId }: { excludeId: string }) {
       const ids = blogs.map((b) => b.id);
       const [likesRes, commentsRes] = await Promise.all([
         supabase.from("blog_likes").select("blog_id").in("blog_id", ids),
-        supabase.from("blog_comments").select("blog_id").in("blog_id", ids).eq("status", "approved"),
+        supabase.from("blog_comments_public").select("blog_id").in("blog_id", ids),
       ]);
       const score = new Map<string, number>();
       (likesRes.data ?? []).forEach((r: any) => score.set(r.blog_id, (score.get(r.blog_id) ?? 0) + 2));
