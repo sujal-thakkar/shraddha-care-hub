@@ -12,6 +12,7 @@ import { coverImageOrDefault, DEFAULT_BLOG_COVER_URL } from "@/lib/blog-cover";
 import { useI18n } from "@/i18n";
 import { inferCategory, CATEGORY_META, type BlogCategory } from "@/lib/blog-category";
 import { BlogSubscribe } from "@/components/blog/BlogSubscribe";
+import { BlogImpactMetrics } from "@/components/blog/BlogImpactMetrics";
 
 
 interface BlogRow {
@@ -120,6 +121,39 @@ export default function Blog() {
     blogs.forEach((b) => { m[b.id] = inferCategory(b.title, b.body); });
     return m;
   }, [blogs]);
+
+  // Aggregate metrics to display living impact
+  const impactStats = useMemo(() => {
+    const totalBlogs = blogs.length;
+
+    // Unique authors: registered authors with blogs + guest authors
+    const registeredAuthorIds = new Set(blogs.filter((b) => !b.is_guest && b.author_id).map((b) => b.author_id));
+    const guestAuthorNames = new Set(blogs.filter((b) => b.is_guest && b.guest_name?.trim()).map((b) => b.guest_name!.trim()));
+    const totalAuthors = registeredAuthorIds.size + guestAuthorNames.size;
+
+    // Covered categories count
+    const coveredCategories = new Set(Object.values(blogCategories));
+    const totalCategories = Math.max(coveredCategories.size, CATEGORY_META.length);
+
+    // Accumulated reader loves
+    const totalLikes = Object.values(likeCounts).reduce((acc, count) => acc + count, 0);
+
+    // Total words shared across blogs
+    const totalWords = blogs.reduce((acc, b) => {
+      if (!b.body) return acc;
+      const stripped = stripKindMarker(b.body);
+      const words = stripped.trim().split(/\s+/).filter(Boolean).length;
+      return acc + words;
+    }, 0);
+
+    return {
+      totalBlogs,
+      totalAuthors: Math.max(totalAuthors, registeredAuthorIds.size ? 1 : 0),
+      totalCategories,
+      totalLikes,
+      totalWords,
+    };
+  }, [blogs, blogCategories, likeCounts]);
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -239,7 +273,7 @@ export default function Blog() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 mb-6">
+        <div className="flex flex-col gap-4 mb-8">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -263,14 +297,29 @@ export default function Blog() {
             </Select>
           </div>
 
-          <div className="flex gap-2 flex-wrap">
+          {/* Flashy Metrics Row directly below search bar and sorting dropdown */}
+          <BlogImpactMetrics
+            totalBlogs={impactStats.totalBlogs}
+            totalAuthors={impactStats.totalAuthors}
+            totalCategories={impactStats.totalCategories}
+            totalLikes={impactStats.totalLikes}
+            totalWords={impactStats.totalWords}
+            onGenreClick={() => {
+              const el = document.getElementById("blog-category-filters");
+              if (el) {
+                el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+              }
+            }}
+          />
+
+          <div className="flex gap-2 flex-wrap pt-1">
             <Button variant={lang === "all" ? "default" : "outline"} onClick={() => setLang("all")} size="sm" className="h-10">{t("All")}</Button>
             {languages.map((l) => (
               <Button key={l} variant={lang === l ? "default" : "outline"} onClick={() => setLang(l)} size="sm" className="h-10">{l.toUpperCase()}</Button>
             ))}
           </div>
 
-          <div className="flex gap-2 flex-wrap">
+          <div id="blog-category-filters" className="flex gap-2 flex-wrap scroll-mt-24">
             <Button
               variant={category === "all" ? "default" : "outline"}
               onClick={() => setCategory("all")}

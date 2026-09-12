@@ -38,6 +38,21 @@ const dict: Record<string, Record<Lang, string>> = {
   "Previous": { en: "Previous", bn: "পূর্ববর্তী" },
   "Next": { en: "Next", bn: "পরবর্তী" },
   "Page {n} of {t}": { en: "Page {n} of {t}", bn: "পৃষ্ঠা {n} / {t}" },
+  "Live Community Impact": { en: "Live Community Impact", bn: "জীবন্ত সম্প্রদায় প্রভাব" },
+  "Stories that inspire, connect & heal": {
+    en: "Stories that inspire, connect & heal",
+    bn: "গল্প যা অনুপ্রাণিত করে, সংযোগ ঘটায় ও আরোগ্য দেয়",
+  },
+  "Published Stories": { en: "Published Stories", bn: "প্রকাশিত গল্প" },
+  "By community seniors": { en: "By community seniors", bn: "প্রবীণদের অভিজ্ঞতালব্ধ" },
+  "Contributing Writers": { en: "Contributing Writers", bn: "অবদানকারী লেখক" },
+  "Senior voices & guests": { en: "Senior voices & guests", bn: "প্রবীণ কণ্ঠ ও অতিথি" },
+  "Genres Explored": { en: "Genres Explored", bn: "অন্বেষিত বিষয়ধারা" },
+  "Unique themes": { en: "Unique themes", bn: "অনন্য বিষয়ধারা" },
+  "Reader Loves": { en: "Reader Loves", bn: "পাঠকদের ভালোবাসা" },
+  "Community appreciations": { en: "Community appreciations", bn: "সম্প্রদায়ের প্রশংসা" },
+  "Words of Wisdom": { en: "Words of Wisdom", bn: "জ্ঞানের বাণী" },
+  "Shared reflections": { en: "Shared reflections", bn: "ভাগ করা ভাবনা" },
 
   // Blog read
   "Back to blogs": { en: "Back to blogs", bn: "ব্লগে ফিরে যান" },
