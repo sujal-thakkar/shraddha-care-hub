@@ -137,6 +137,152 @@ export type Database = {
         }
         Relationships: []
       }
+      attendance_audit_logs: {
+        Row: {
+          altered_by: string | null
+          attendance_record_id: string
+          changed_at: string | null
+          id: string
+          new_role: string | null
+          new_status: string | null
+          old_role: string | null
+          old_status: string | null
+        }
+        Insert: {
+          altered_by?: string | null
+          attendance_record_id: string
+          changed_at?: string | null
+          id?: string
+          new_role?: string | null
+          new_status?: string | null
+          old_role?: string | null
+          old_status?: string | null
+        }
+        Update: {
+          altered_by?: string | null
+          attendance_record_id?: string
+          changed_at?: string | null
+          id?: string
+          new_role?: string | null
+          new_status?: string | null
+          old_role?: string | null
+          old_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_audit_logs_altered_by_fkey"
+            columns: ["altered_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "attendance_audit_logs_attendance_record_id_fkey"
+            columns: ["attendance_record_id"]
+            isOneToOne: false
+            referencedRelation: "attendance_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      attendance_records: {
+        Row: {
+          attendance_status: string
+          attendee_name: string
+          attendee_phone: string
+          checkin_source: string
+          checkin_time: string | null
+          created_at: string | null
+          credits_awarded: number
+          event_id: string | null
+          event_mode: string
+          id: string
+          is_member: boolean
+          marked_by_user_id: string | null
+          member_user_id: string | null
+          membership_id: string | null
+          notes: string | null
+          participation_role: string
+          routine_session_id: string | null
+          session_date: string
+          session_title: string
+          updated_at: string | null
+        }
+        Insert: {
+          attendance_status?: string
+          attendee_name: string
+          attendee_phone: string
+          checkin_source?: string
+          checkin_time?: string | null
+          created_at?: string | null
+          credits_awarded?: number
+          event_id?: string | null
+          event_mode?: string
+          id?: string
+          is_member?: boolean
+          marked_by_user_id?: string | null
+          member_user_id?: string | null
+          membership_id?: string | null
+          notes?: string | null
+          participation_role?: string
+          routine_session_id?: string | null
+          session_date?: string
+          session_title: string
+          updated_at?: string | null
+        }
+        Update: {
+          attendance_status?: string
+          attendee_name?: string
+          attendee_phone?: string
+          checkin_source?: string
+          checkin_time?: string | null
+          created_at?: string | null
+          credits_awarded?: number
+          event_id?: string | null
+          event_mode?: string
+          id?: string
+          is_member?: boolean
+          marked_by_user_id?: string | null
+          member_user_id?: string | null
+          membership_id?: string | null
+          notes?: string | null
+          participation_role?: string
+          routine_session_id?: string | null
+          session_date?: string
+          session_title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_records_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "registration_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_records_marked_by_user_id_fkey"
+            columns: ["marked_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "attendance_records_member_user_id_fkey"
+            columns: ["member_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "attendance_records_routine_session_id_fkey"
+            columns: ["routine_session_id"]
+            isOneToOne: false
+            referencedRelation: "routine_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       author_notifications: {
         Row: {
           actor_name: string | null
@@ -682,6 +828,51 @@ export type Database = {
           sent_by?: string | null
         }
         Relationships: []
+      }
+      member_credit_ledger: {
+        Row: {
+          attendance_record_id: string | null
+          created_at: string | null
+          credits: number
+          description: string | null
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          attendance_record_id?: string | null
+          created_at?: string | null
+          credits: number
+          description?: string | null
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          attendance_record_id?: string | null
+          created_at?: string | null
+          credits?: number
+          description?: string | null
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_credit_ledger_attendance_record_id_fkey"
+            columns: ["attendance_record_id"]
+            isOneToOne: false
+            referencedRelation: "attendance_records"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_credit_ledger_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       member_imports: {
         Row: {
@@ -1861,6 +2052,10 @@ export type Database = {
           name: string
         }[]
       }
+      get_member_attendance_summary: {
+        Args: { p_user_id: string }
+        Returns: Json
+      }
       get_registration_payment_status: {
         Args: { _registration_id: string }
         Returns: {
@@ -1895,6 +2090,16 @@ export type Database = {
       }
       is_main_admin: { Args: never; Returns: boolean }
       is_phone_available: { Args: { _phone: string }; Returns: boolean }
+      lookup_member_for_attendance: {
+        Args: { _query: string }
+        Returns: {
+          full_name: string
+          membership_id: string
+          phone_e164: string
+          phone_masked: string
+          user_id: string
+        }[]
+      }
       make_membership_id: {
         Args: { _name: string; _phone: string }
         Returns: string
@@ -1936,6 +2141,19 @@ export type Database = {
           plan: string
           user_id: string
         }[]
+      }
+      submit_self_attendance: {
+        Args: {
+          p_attendee_name?: string
+          p_attendee_phone?: string
+          p_event_id?: string
+          p_event_mode?: string
+          p_participation_role?: string
+          p_routine_session_id?: string
+          p_session_date?: string
+          p_session_title?: string
+        }
+        Returns: Json
       }
     }
     Enums: {

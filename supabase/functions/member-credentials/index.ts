@@ -8,9 +8,13 @@ import {
 } from "../_shared/admin.ts";
 
 function randomPassword() {
-  const words = ["Sun", "Moon", "River", "Lotus", "Tiger", "Mango", "Rain", "Star"];
-  const w = words[Math.floor(Math.random() * words.length)];
-  return `${w}${Math.floor(1000 + Math.random() * 9000)}`;
+  const groups = ["ABCDEFGHJKLMNPQRSTUVWXYZ", "abcdefghjkmnpqrstuvwxyz", "23456789", "!@#$%&*"];
+  const alphabet = groups.join("");
+  const random = crypto.getRandomValues(new Uint32Array(16));
+  return Array.from(random, (value, index) => {
+    const characters = groups[index] ?? alphabet;
+    return characters[value % characters.length];
+  }).join("");
 }
 
 /** Keep the office copy of a member's password so admins can look it up later. */
