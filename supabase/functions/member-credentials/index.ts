@@ -17,6 +17,13 @@ function randomPassword() {
   }).join("");
 }
 
+function suggestedVariant(password: string) {
+  const base = password.replace(/[^A-Za-z0-9]/g, "").slice(0, 12) || "Member";
+  const random = crypto.getRandomValues(new Uint32Array(4));
+  const suffix = `${String.fromCharCode(65 + (random[0] % 26))}${random[1] % 10}${String.fromCharCode(97 + (random[2] % 26))}${"!@#$%&*"[random[3] % 8]}`;
+  return `${base}@${suffix}`;
+}
+
 function passwordPolicyError(password: string) {
   if (password.length < 8) return "Password must be at least 8 characters long.";
   if (!/[A-Z]/.test(password)) return "Password must include at least one uppercase letter.";
@@ -30,8 +37,8 @@ function explainPasswordUpdateError(message: string) {
   if (normalized.includes("same password")) {
     return "Password was not changed because it matches the member's current password. Choose a different password.";
   }
-  if (normalized.includes("password") && (normalized.includes("weak") || normalized.includes("strength") || normalized.includes("short"))) {
-    return `Password was not changed because it was rejected by the password policy. ${message}`;
+  if (normalized.includes("password") && (normalized.includes("weak") || normalized.includes("strength") || normalized.includes("short") || normalized.includes("known") || normalized.includes("guess") || normalized.includes("expos"))) {
+    return "Password was not changed because it is known to be weak or exposed. Use Suggest to generate a unique password, then try again.";
   }
   return `Password was not changed. The account service returned: ${message}`;
 }
@@ -318,7 +325,13 @@ Deno.serve(async (req) => {
       }
       const password = requestedPassword || randomPassword();
       const { error: updErr } = await svc.auth.admin.updateUserById(targetUserId, { password });
-      if (updErr) return json({ error: explainPasswordUpdateError(updErr.message) }, 400, H);
+      if (updErr) {
+        const suggestedPassword = requestedPassword ? suggestedVariant(requestedPassword) : null;
+        return json({
+          error: explainPasswordUpdateError(updErr.message),
+          suggested_password: suggestedPassword,
+        }, 400, H);
+      }
       await savePassword(svc, targetUserId, password, caller.userId);
       await audit(svc, caller, "set_password", "profiles", targetUserId, {}, ip);
       return json({ password }, 200, H);

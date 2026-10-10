@@ -23,6 +23,7 @@ interface Props {
 interface CredentialResponse {
   error?: string;
   password?: string;
+  suggested_password?: string | null;
   requested?: boolean;
   already?: boolean;
 }
@@ -55,11 +56,15 @@ export default function MemberCredentialActions({ member, isMainAdmin, onChanged
     const { data, error } = await supabase.functions.invoke("member-credentials", { body });
     const payload = data as CredentialResponse | null;
     if (error || payload?.error) {
+      if (payload?.suggested_password) return payload;
       let description = payload?.error || error?.message || "The request failed.";
       const response = (error as unknown as { context?: Response } | null)?.context;
       if (!payload?.error && response && typeof response.clone === "function") {
         try {
           const responseBody = await response.clone().json();
+          if (responseBody?.suggested_password) {
+            return responseBody as CredentialResponse;
+          }
           description = responseBody?.error || description;
         } catch {
           // Keep the SDK error when the function did not return JSON.
@@ -109,6 +114,17 @@ export default function MemberCredentialActions({ member, isMainAdmin, onChanged
     const payload = await call({ action: "set_password", user_id: member.user_id, password: newPassword.trim() });
     setBusy(false);
     if (!payload) return;
+    if (payload.error) {
+      if (payload.suggested_password) {
+        setNewPassword(payload.suggested_password);
+        toast({
+          title: "Password was too common",
+          description: "We suggested a stronger variation. Review it and press Set password again.",
+          variant: "destructive",
+        });
+      }
+      return;
+    }
     setResetOpen(false);
     if (payload.requested) {
       return toast({
@@ -223,6 +239,9 @@ export default function MemberCredentialActions({ member, isMainAdmin, onChanged
                   </li>
                 ))}
               </ul>
+              <p className="text-xs text-muted-foreground mt-2">
+                Supabase also blocks passwords found in breach lists. Use Suggest if a password with all checks passes is still rejected.
+              </p>
             </div>
             {!isMainAdmin && (
               <p className="text-sm text-muted-foreground flex items-start gap-2 pt-1">
