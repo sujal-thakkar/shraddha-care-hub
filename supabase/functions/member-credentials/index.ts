@@ -264,6 +264,10 @@ Deno.serve(async (req) => {
     if (action === "set_password") {
       const targetUserId = String(body.user_id ?? "");
       if (!targetUserId) return json({ error: "Missing member" }, 400, H);
+      const requestedPassword = body.password == null ? "" : String(body.password).trim();
+      if (requestedPassword && requestedPassword.length < 6) {
+        return json({ error: "Password must be at least 6 characters." }, 400, H);
+      }
       const { data: target } = await svc.from("profiles")
         .select("membership_id, full_name").eq("user_id", targetUserId).maybeSingle();
       if (!target) return json({ error: "Member not found" }, 404, H);
@@ -284,7 +288,11 @@ Deno.serve(async (req) => {
         return json({ requested: true }, 200, H);
       }
 
-      const password = String(body.password ?? "") || randomPassword();
+      const { data: authUser, error: authLookupError } = await svc.auth.admin.getUserById(targetUserId);
+      if (authLookupError || !authUser.user) {
+        return json({ error: "This member profile has no matching login account. Recreate or relink the member account." }, 400, H);
+      }
+      const password = requestedPassword || randomPassword();
       const { error: updErr } = await svc.auth.admin.updateUserById(targetUserId, { password });
       if (updErr) return json({ error: updErr.message }, 400, H);
       await savePassword(svc, targetUserId, password, caller.userId);

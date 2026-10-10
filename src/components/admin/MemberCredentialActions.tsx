@@ -36,7 +36,17 @@ export default function MemberCredentialActions({ member, isMainAdmin, onChanged
     const { data, error } = await supabase.functions.invoke("member-credentials", { body });
     const payload = data as any;
     if (error || payload?.error) {
-      toast({ title: "Couldn't do that", description: payload?.error || error?.message, variant: "destructive" });
+      let description = payload?.error || error?.message || "The request failed.";
+      const response = (error as any)?.context;
+      if (!payload?.error && response && typeof response.clone === "function") {
+        try {
+          const responseBody = await response.clone().json();
+          description = responseBody?.error || description;
+        } catch {
+          // Keep the SDK error when the function did not return JSON.
+        }
+      }
+      toast({ title: "Couldn't do that", description, variant: "destructive" });
       return null;
     }
     return payload;
