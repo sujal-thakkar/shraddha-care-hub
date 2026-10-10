@@ -8,11 +8,23 @@ import {
 } from "@/components/ui/dialog";
 import { Camera, Eye, KeyRound, Loader2, ShieldCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { getPasswordChecks, isPasswordValid } from "@/lib/password-policy";
 
 interface Props {
-  member: any;
+  member: {
+    user_id: string;
+    full_name: string | null;
+    membership_id: string | null;
+  };
   isMainAdmin: boolean;
   onChanged?: () => void;
+}
+
+interface CredentialResponse {
+  error?: string;
+  password?: string;
+  requested?: boolean;
+  already?: boolean;
 }
 
 function suggestPassword() {
@@ -36,13 +48,15 @@ export default function MemberCredentialActions({ member, isMainAdmin, onChanged
   const [revealed, setRevealed] = useState<string | null>(null);
   const [resetOpen, setResetOpen] = useState(false);
   const [newPassword, setNewPassword] = useState("");
+  const passwordChecks = getPasswordChecks(newPassword);
+  const passwordValid = isPasswordValid(newPassword);
 
   const call = async (body: Record<string, unknown>) => {
     const { data, error } = await supabase.functions.invoke("member-credentials", { body });
-    const payload = data as any;
+    const payload = data as CredentialResponse | null;
     if (error || payload?.error) {
       let description = payload?.error || error?.message || "The request failed.";
-      const response = (error as any)?.context;
+      const response = (error as unknown as { context?: Response } | null)?.context;
       if (!payload?.error && response && typeof response.clone === "function") {
         try {
           const responseBody = await response.clone().json();
@@ -84,8 +98,12 @@ export default function MemberCredentialActions({ member, isMainAdmin, onChanged
   };
 
   const submitReset = async () => {
-    if (newPassword.trim().length < 6) {
-      return toast({ title: "Use at least 6 characters", variant: "destructive" });
+    if (!passwordValid) {
+      return toast({
+        title: "Password requirements not met",
+        description: "Use at least 8 characters with uppercase, lowercase, and a number.",
+        variant: "destructive",
+      });
     }
     setBusy(true);
     const payload = await call({ action: "set_password", user_id: member.user_id, password: newPassword.trim() });
@@ -184,10 +202,27 @@ export default function MemberCredentialActions({ member, isMainAdmin, onChanged
             <Label htmlFor="member-password">New password</Label>
             <div className="flex gap-2">
               <Input id="member-password" className="h-11 font-mono" value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)} />
+                onChange={(e) => setNewPassword(e.target.value)}
+                aria-describedby="member-password-requirements" />
               <Button variant="outline" className="h-11" onClick={() => setNewPassword(suggestPassword())}>
                 Suggest
               </Button>
+            </div>
+            <div id="member-password-requirements" aria-live="polite" className="rounded-lg border bg-muted/30 p-3 text-sm">
+              <p className="font-medium mb-2">Password must contain:</p>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-muted-foreground">
+                {[
+                  [passwordChecks.minLength, "At least 8 characters"],
+                  [passwordChecks.uppercase, "One uppercase letter"],
+                  [passwordChecks.lowercase, "One lowercase letter"],
+                  [passwordChecks.number, "One number"],
+                ].map(([valid, label]) => (
+                  <li key={label as string} className={`flex items-center gap-2 ${valid ? "text-emerald-600" : "text-muted-foreground"}`}>
+                    <span className={`h-2 w-2 rounded-full ${valid ? "bg-emerald-500" : "bg-muted-foreground/40"}`} aria-hidden="true" />
+                    {label as string}
+                  </li>
+                ))}
+              </ul>
             </div>
             {!isMainAdmin && (
               <p className="text-sm text-muted-foreground flex items-start gap-2 pt-1">
@@ -198,7 +233,7 @@ export default function MemberCredentialActions({ member, isMainAdmin, onChanged
           </div>
           <DialogFooter>
             <Button variant="ghost" className="h-11" onClick={() => setResetOpen(false)}>Cancel</Button>
-            <Button className="h-11" onClick={submitReset} disabled={busy}>
+            <Button className="h-11" onClick={submitReset} disabled={busy || !passwordValid}>
               {busy && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
               {isMainAdmin ? "Set password" : "Send for approval"}
             </Button>

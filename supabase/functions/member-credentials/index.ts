@@ -17,6 +17,25 @@ function randomPassword() {
   }).join("");
 }
 
+function passwordPolicyError(password: string) {
+  if (password.length < 8) return "Password must be at least 8 characters long.";
+  if (!/[A-Z]/.test(password)) return "Password must include at least one uppercase letter.";
+  if (!/[a-z]/.test(password)) return "Password must include at least one lowercase letter.";
+  if (!/\d/.test(password)) return "Password must include at least one number.";
+  return null;
+}
+
+function explainPasswordUpdateError(message: string) {
+  const normalized = message.toLowerCase();
+  if (normalized.includes("same password")) {
+    return "Password was not changed because it matches the member's current password. Choose a different password.";
+  }
+  if (normalized.includes("password") && (normalized.includes("weak") || normalized.includes("strength") || normalized.includes("short"))) {
+    return `Password was not changed because it was rejected by the password policy. ${message}`;
+  }
+  return `Password was not changed. The account service returned: ${message}`;
+}
+
 /** Keep the office copy of a member's password so admins can look it up later. */
 async function savePassword(svc: any, userId: string, password: string, byUserId?: string | null) {
   await svc.from("member_passwords").upsert({
@@ -269,8 +288,9 @@ Deno.serve(async (req) => {
       const targetUserId = String(body.user_id ?? "");
       if (!targetUserId) return json({ error: "Missing member" }, 400, H);
       const requestedPassword = body.password == null ? "" : String(body.password).trim();
-      if (requestedPassword && requestedPassword.length < 6) {
-        return json({ error: "Password must be at least 6 characters." }, 400, H);
+      const policyError = requestedPassword ? passwordPolicyError(requestedPassword) : null;
+      if (policyError) {
+        return json({ error: `Password was not changed. ${policyError}` }, 400, H);
       }
       const { data: target } = await svc.from("profiles")
         .select("membership_id, full_name").eq("user_id", targetUserId).maybeSingle();
@@ -298,7 +318,7 @@ Deno.serve(async (req) => {
       }
       const password = requestedPassword || randomPassword();
       const { error: updErr } = await svc.auth.admin.updateUserById(targetUserId, { password });
-      if (updErr) return json({ error: updErr.message }, 400, H);
+      if (updErr) return json({ error: explainPasswordUpdateError(updErr.message) }, 400, H);
       await savePassword(svc, targetUserId, password, caller.userId);
       await audit(svc, caller, "set_password", "profiles", targetUserId, {}, ip);
       return json({ password }, 200, H);
