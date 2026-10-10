@@ -16,8 +16,13 @@ interface Props {
 }
 
 function suggestPassword() {
-  const words = ["Sun", "Moon", "River", "Lotus", "Tiger", "Mango", "Rain", "Star"];
-  return `${words[Math.floor(Math.random() * words.length)]}${Math.floor(1000 + Math.random() * 9000)}`;
+  const groups = ["ABCDEFGHJKLMNPQRSTUVWXYZ", "abcdefghjkmnpqrstuvwxyz", "23456789", "!@#$%&*"];
+  const alphabet = groups.join("");
+  const random = crypto.getRandomValues(new Uint32Array(16));
+  return Array.from(random, (value, index) => {
+    const characters = groups[index] ?? alphabet;
+    return characters[value % characters.length];
+  }).join("");
 }
 
 /**
