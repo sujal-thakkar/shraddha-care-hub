@@ -57,6 +57,8 @@ const AdminMembers = lazy(() => import("./pages/admin/Members"));
 const AdminCollectFees = lazy(() => import("./pages/admin/CollectFees"));
 const AdminHq = lazy(() => import("./pages/admin/hq/Hq"));
 const AdminSetup = lazy(() => import("./pages/admin/Setup"));
+const AttendanceCheckIn = lazy(() => import("./pages/AttendanceCheckIn"));
+const AdminAttendance = lazy(() => import("./pages/admin/AttendanceManagement"));
 
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -97,6 +99,7 @@ const App = () => {
             <Route path="/register/:slug" element={<EventRegistration />} />
             <Route path="/membership-plans" element={<MembershipPlansPage />} />
             <Route path="/daily-routine" element={<DailyRoutine />} />
+            <Route path="/attendance/checkin" element={<AttendanceCheckIn />} />
             <Route path="/mumbai-health-camp" element={<Navigate to="/register/mumbai-senior-citizens-health-camp" replace />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/blog" element={<Blog />} />
@@ -122,6 +125,7 @@ const App = () => {
               <Route path="events" element={<AdminEventManagement />} />
               <Route path="routine" element={<AdminRoutineManagement />} />
               <Route path="registrations" element={<AdminRegistrations />} />
+              <Route path="attendance" element={<AdminAttendance />} />
               <Route path="memberships" element={<Navigate to="/admin/dashboard/members" replace />} />
               <Route path="members" element={<AdminMembers />} />
               <Route path="collect" element={<AdminCollectFees />} />

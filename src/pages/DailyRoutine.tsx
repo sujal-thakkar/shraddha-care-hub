@@ -6,7 +6,8 @@ import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Clock, MapPin, Radio, Loader2, CalendarDays, Sun } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Clock, MapPin, Radio, Loader2, CalendarDays, Sun, UserCheck } from "lucide-react";
 import { JoinButtons } from "@/components/routine/JoinButtons";
 import {
   WEEK_DAYS, DAY_LABEL, getISTNow, formatTime12, getLiveSessionIds, getNextSessionIds,
@@ -229,11 +230,20 @@ export default function DailyRoutine() {
                           {s.note}
                         </p>
                       )}
-                      {hasJoinLink(s) ? (
-                        <JoinButtons session={s} size={bannerSessions.length > 1 ? "md" : "lg"} />
-                      ) : (
-                        <p className="text-sm text-muted-foreground italic">This is an in-person / offline session.</p>
-                      )}
+                      <div className="flex flex-wrap items-center gap-2 pt-2">
+                        {hasJoinLink(s) ? (
+                          <JoinButtons session={s} size={bannerSessions.length > 1 ? "md" : "lg"} />
+                        ) : (
+                          <p className="text-sm text-muted-foreground italic">In-person / offline session.</p>
+                        )}
+                        <Link
+                          to={`/attendance/checkin?session_id=${s.id}&mode=${s.note?.toLowerCase().includes("offline") ? "offline" : "online"}`}
+                          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary/10 hover:bg-primary/20 text-xs font-semibold text-primary transition-colors border border-primary/20"
+                        >
+                          <UserCheck className="w-3.5 h-3.5" />
+                          Mark Attendance (+3/+5 pts)
+                        </Link>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -314,11 +324,16 @@ export default function DailyRoutine() {
                             {s.note}
                           </p>
                         )}
-                        {joinable && (
-                          <div className="mt-3">
-                            <JoinButtons session={s} size="md" />
-                          </div>
-                        )}
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          {joinable && <JoinButtons session={s} size="md" />}
+                          <Link
+                            to={`/attendance/checkin?session_id=${s.id}&mode=${s.note?.toLowerCase().includes("offline") ? "offline" : "online"}`}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 hover:bg-primary/20 text-xs font-semibold text-primary transition-colors border border-primary/20"
+                          >
+                            <UserCheck className="w-3.5 h-3.5" />
+                            Mark Attendance (+3/+5 pts)
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   </div>

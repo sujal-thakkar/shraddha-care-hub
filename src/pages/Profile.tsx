@@ -15,6 +15,7 @@ import { useI18n } from "@/i18n";
 import { Switch } from "@/components/ui/switch";
 import { BellRing, Send } from "lucide-react";
 import { MembershipSection } from "@/components/membership/MembershipSection";
+import { AttendanceProfileSection } from "@/components/profile/AttendanceProfileSection";
 
 
 const STATUS_KEY: Record<string, string> = {
@@ -282,6 +283,15 @@ export default function Profile() {
 
         {/* Membership */}
         <MembershipSection profile={profile} />
+
+        {/* Attendance, Streaks & Credit Gamification */}
+        {profile?.user_id && (
+          <AttendanceProfileSection
+            userId={profile.user_id}
+            membershipId={profile.membership_id}
+            phone={profile.phone_e164}
+          />
+        )}
 
         {/* Basic info */}
 

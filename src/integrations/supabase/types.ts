@@ -14,6 +14,138 @@ export type Database = {
   }
   public: {
     Tables: {
+      attendance_records: {
+        Row: {
+          id: string
+          routine_session_id: string | null
+          event_id: string | null
+          session_date: string
+          session_title: string
+          event_mode: string
+          member_user_id: string | null
+          membership_id: string | null
+          attendee_name: string
+          attendee_phone: string
+          is_member: boolean
+          attendance_status: string
+          participation_role: string
+          credits_awarded: number
+          checkin_source: string
+          checkin_time: string | null
+          marked_by_user_id: string | null
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          routine_session_id?: string | null
+          event_id?: string | null
+          session_date?: string
+          session_title: string
+          event_mode?: string
+          member_user_id?: string | null
+          membership_id?: string | null
+          attendee_name: string
+          attendee_phone: string
+          is_member?: boolean
+          attendance_status?: string
+          participation_role?: string
+          credits_awarded?: number
+          checkin_source?: string
+          checkin_time?: string | null
+          marked_by_user_id?: string | null
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          routine_session_id?: string | null
+          event_id?: string | null
+          session_date?: string
+          session_title?: string
+          event_mode?: string
+          member_user_id?: string | null
+          membership_id?: string | null
+          attendee_name?: string
+          attendee_phone?: string
+          is_member?: boolean
+          attendance_status?: string
+          participation_role?: string
+          credits_awarded?: number
+          checkin_source?: string
+          checkin_time?: string | null
+          marked_by_user_id?: string | null
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      member_credit_ledger: {
+        Row: {
+          id: string
+          user_id: string
+          attendance_record_id: string | null
+          credits: number
+          role: string
+          description: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          attendance_record_id?: string | null
+          credits: number
+          role: string
+          description?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          attendance_record_id?: string | null
+          credits?: number
+          role?: string
+          description?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      attendance_audit_logs: {
+        Row: {
+          id: string
+          attendance_record_id: string
+          altered_by: string | null
+          old_status: string | null
+          new_status: string | null
+          old_role: string | null
+          new_role: string | null
+          changed_at: string
+        }
+        Insert: {
+          id?: string
+          attendance_record_id: string
+          altered_by?: string | null
+          old_status?: string | null
+          new_status?: string | null
+          old_role?: string | null
+          new_role?: string | null
+          changed_at?: string
+        }
+        Update: {
+          id?: string
+          attendance_record_id?: string
+          altered_by?: string | null
+          old_status?: string | null
+          new_status?: string | null
+          old_role?: string | null
+          new_role?: string | null
+          changed_at?: string
+        }
+        Relationships: []
+      }
       abuse_reports: {
         Row: {
           abuse_type: Database["public"]["Enums"]["abuse_type"]
@@ -2142,6 +2274,7 @@ export type Database = {
           user_id: string
         }[]
       }
+<<<<<<< Updated upstream
       submit_self_attendance: {
         Args: {
           p_attendee_name?: string
@@ -2155,6 +2288,35 @@ export type Database = {
         }
         Returns: Json
       }
+=======
+      lookup_member_for_attendance: {
+        Args: { _query: string }
+        Returns: {
+          user_id: string
+          full_name: string
+          membership_id: string
+          phone_e164: string
+          phone_masked: string
+        }[]
+      }
+      submit_self_attendance: {
+        Args: {
+          p_routine_session_id?: string | null
+          p_event_id?: string | null
+          p_session_date?: string
+          p_session_title?: string
+          p_event_mode?: string
+          p_attendee_name?: string
+          p_attendee_phone?: string
+          p_participation_role?: string
+        }
+        Returns: Json
+      }
+      get_member_attendance_summary: {
+        Args: { p_user_id: string }
+        Returns: Json
+      }
+>>>>>>> Stashed changes
     }
     Enums: {
       abuse_type: "physical" | "emotional" | "financial" | "neglect" | "other"
