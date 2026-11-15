@@ -17,15 +17,18 @@ import {
   Globe, Headphones, Star
 } from "lucide-react";
 import {
-  normalizePhone10, maskPhone, ROLE_CREDITS, ROLE_LABELS,
+  normalizePhone10, maskPhone, formatPhoneDisplay, ROLE_CREDITS, ROLE_LABELS,
+  ALREADY_MARKED_PRESENT_MESSAGE, describeSelfCheckinResult, isAlreadyMarkedPresent,
   type ParticipationRole
 } from "@/lib/attendance";
+import { useSessionProfile } from "@/hooks/use-session-profile";
 import { formatTime12, getISTNow, type RoutineSession } from "@/lib/routine";
 import logoShraddha from "@/assets/logo-shraddha.png";
 
 export default function AttendanceCheckIn() {
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const { signedIn, profile: sessionProfile } = useSessionProfile();
 
   const sessionIdParam = searchParams.get("session_id") || "";
   const eventIdParam = searchParams.get("event_id") || "";
@@ -65,6 +68,36 @@ export default function AttendanceCheckIn() {
     current_streak?: number;
   } | null>(null);
 
+  // Already-present guard: set when an administrator has already marked the
+  // attendee present, so the form is replaced by a clear status message.
+  const [alreadyPresentInfo, setAlreadyPresentInfo] = useState<{
+    attendee_name: string;
+    membership_id?: string | null;
+  } | null>(null);
+
+  // Shared read-only lookup against the session's present attendance list.
+  // Returns the matching present record (if any) for a member id and/or phone.
+  const checkAlreadyPresent = async (opts: {
+    memberUserId?: string | null;
+    phone?: string;
+    name?: string;
+  }) => {
+    const { data, error } = await supabase.rpc("check_attendance_already_present", {
+      p_routine_session_id: selectedSessionId || null,
+      p_event_id: eventIdParam || null,
+      p_session_date: dateParam,
+      p_member_user_id: opts.memberUserId || null,
+      p_attendee_phone: opts.phone || "",
+      p_attendee_name: opts.name || "",
+    });
+    if (error || !data || typeof data !== "object") return null;
+    return data as {
+      already_present?: boolean;
+      attendee_name?: string | null;
+      membership_id?: string | null;
+    };
+  };
+
   // Fetch session details if sessionIdParam is present
   const { data: currentSession, isLoading: sessionLoading } = useQuery({
     queryKey: ["attendance-checkin-session", selectedSessionId],
@@ -96,6 +129,21 @@ export default function AttendanceCheckIn() {
         .eq("day_of_week", istNow.day)
         .order("start_time", { ascending: true });
       return (data || []) as RoutineSession[];
+    },
+  });
+
+  // Pre-render validation: a signed-in member who is already marked present for
+  // this session is shown a status message instead of the attendance form.
+  const { data: memberAlreadyPresent } = useQuery({
+    queryKey: ["attendance-checkin-member-present", selectedSessionId, dateParam, sessionProfile?.user_id],
+    enabled: !!selectedSessionId && signedIn && !!sessionProfile?.user_id,
+    queryFn: async () => {
+      const res = await checkAlreadyPresent({ memberUserId: sessionProfile?.user_id });
+      if (!res?.already_present) return null;
+      return {
+        attendee_name: res.attendee_name || sessionProfile?.full_name || "Member",
+        membership_id: res.membership_id ?? sessionProfile?.membership_id ?? null,
+      };
     },
   });
 
@@ -157,6 +205,7 @@ export default function AttendanceCheckIn() {
     setIsGuestMode(false);
     setGuestExperienceFeedback("");
     setSearchResults([]);
+    setAlreadyPresentInfo(null);
   };
 
   const sessionTitle = currentSession?.title || "Hosla & Shraddha Care Hub Session";
@@ -198,8 +247,25 @@ export default function AttendanceCheckIn() {
 
     setIsSubmitting(true);
     const creditsToAward = ROLE_CREDITS[selectedRole] ?? 3;
+    const lookupMemberId = selectedMember?.user_id || sessionProfile?.user_id || null;
 
     try {
+      // 0. Pre-submission validation: cross-reference the entered name/phone
+      //    against the session's present list before writing any record.
+      const preCheck = await checkAlreadyPresent({
+        memberUserId: lookupMemberId,
+        phone: normalizedPhone,
+        name: attendeeName,
+      });
+      if (preCheck?.already_present) {
+        setAlreadyPresentInfo({
+          attendee_name: preCheck.attendee_name || attendeeName,
+          membership_id: preCheck.membership_id ?? selectedMember?.membership_id ?? null,
+        });
+        toast({ title: "Already marked present", description: ALREADY_MARKED_PRESENT_MESSAGE });
+        return;
+      }
+
       // 1. Try server RPC function submit_self_attendance
       const { data: rpcData, error: rpcError } = await supabase.rpc("submit_self_attendance", {
         p_routine_session_id: selectedSessionId || null,
@@ -214,6 +280,17 @@ export default function AttendanceCheckIn() {
 
       if (!rpcError && rpcData && typeof rpcData === "object" && (rpcData as any).success) {
         const res = rpcData as any;
+
+        // An administrator already verified this attendee: show the status
+        // message and never re-open the verification queue.
+        if (describeSelfCheckinResult(res) === "already_present") {
+          setAlreadyPresentInfo({
+            attendee_name: res.attendee_name || attendeeName,
+            membership_id: res.membership_id ?? selectedMember?.membership_id ?? null,
+          });
+          return;
+        }
+
         setSubmittedResult({
           success: true,
           attendee_name: res.attendee_name || attendeeName,
@@ -262,8 +339,25 @@ export default function AttendanceCheckIn() {
         .single();
 
       if (insertError) {
-        // If unique constraint violation, let them know they are already marked
+        // If unique constraint violation, inspect the conflicting record.
         if (insertError.code === "23505" || insertError.message?.includes("duplicate")) {
+          const { data: existingRows } = await supabase
+            .from("attendance_records")
+            .select("attendance_status, member_user_id, attendee_phone, attendee_name, membership_id")
+            .eq("session_date", dateParam)
+            .eq("routine_session_id", selectedSessionId)
+            .eq("attendee_phone", normalizedPhone)
+            .limit(1);
+
+          // An administrator had already marked them present -> status message.
+          if (isAlreadyMarkedPresent(existingRows || [], { memberUserId: lookupMemberId, phone: normalizedPhone })) {
+            setAlreadyPresentInfo({
+              attendee_name: existingRows?.[0]?.attendee_name || attendeeName,
+              membership_id: existingRows?.[0]?.membership_id ?? selectedMember?.membership_id ?? null,
+            });
+            return;
+          }
+
           setSubmittedResult({
             success: true,
             attendee_name: attendeeName,
@@ -329,8 +423,38 @@ export default function AttendanceCheckIn() {
           </p>
         </div>
 
-        {/* Success View */}
-        {submittedResult ? (
+        {/* Already Marked Present View */}
+        {(memberAlreadyPresent || alreadyPresentInfo) ? (
+          <Card className="border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-900 shadow-md">
+            <CardContent className="pt-8 pb-8 text-center space-y-5">
+              <div className="w-16 h-16 bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-400 rounded-full flex items-center justify-center mx-auto shadow-inner">
+                <ShieldCheck className="w-10 h-10" />
+              </div>
+              <div className="space-y-1">
+                <Badge className="bg-amber-600 text-white hover:bg-amber-600 px-3 py-1 text-xs">
+                  Already marked present
+                </Badge>
+                <h2 className="text-xl font-bold text-foreground pt-3">
+                  {ALREADY_MARKED_PRESENT_MESSAGE}
+                </h2>
+                {(alreadyPresentInfo?.membership_id || memberAlreadyPresent?.membership_id) && (
+                  <p className="text-xs font-semibold text-amber-800 dark:text-amber-300">
+                    Hosla ID: {alreadyPresentInfo?.membership_id || memberAlreadyPresent?.membership_id}
+                  </p>
+                )}
+                <p className="text-sm text-muted-foreground pt-1">{sessionTitle}</p>
+              </div>
+              <div className="max-w-sm mx-auto rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                Your attendance was recorded by a coordinator, so there is nothing more to fill in. Credits for this session are already taken care of.
+              </div>
+              <div className="pt-2">
+                <Button asChild className="rounded-xl">
+                  <Link to="/daily-routine">View Daily Routine</Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ) : submittedResult ? (
           <Card className="border-emerald-200 bg-emerald-50/40 dark:bg-emerald-950/20 dark:border-emerald-900 shadow-md">
             <CardContent className="pt-8 pb-8 text-center space-y-5">
               <div className="w-16 h-16 bg-emerald-100 text-emerald-600 dark:bg-emerald-900/50 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto shadow-inner">

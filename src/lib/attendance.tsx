@@ -90,6 +90,61 @@ export function maskPhone(phone: string): string {
   return digits;
 }
 
+/** Single source of truth for the "already present" message shown to attendees. */
+export const ALREADY_MARKED_PRESENT_MESSAGE = "You have already been marked present for this session";
+
+/** Minimal shape needed to detect an existing present attendance record. */
+export interface PresentAttendanceLike {
+  attendance_status?: string | null;
+  member_user_id?: string | null;
+  attendee_phone?: string | null;
+}
+
+export interface AlreadyPresentLookup {
+  memberUserId?: string | null;
+  phone?: string | null;
+}
+
+/**
+ * Shared matching logic used by the public form to cross-reference a submitted
+ * member id / phone against a session's present attendance list.
+ *
+ * A record matches when it is marked `present` and identifies the same
+ * attendee, either by `member_user_id` (registered members) or by the last 10
+ * digits of the phone number. This mirrors the SQL used server-side so member
+ * and non-member flows behave identically and neither produces false positives
+ * (matching a different attendee) nor false negatives (missing the same one).
+ */
+export function isAlreadyMarkedPresent(
+  records: PresentAttendanceLike[],
+  { memberUserId, phone }: AlreadyPresentLookup,
+): boolean {
+  const phone10 = normalizePhone10(phone);
+  const hasPhone = phone10.length === 10;
+
+  return records.some((record) => {
+    if (record.attendance_status !== "present") return false;
+    if (memberUserId && record.member_user_id && record.member_user_id === memberUserId) return true;
+    if (hasPhone && normalizePhone10(record.attendee_phone) === phone10) return true;
+    return false;
+  });
+}
+
+export type SelfCheckinOutcome = "already_present" | "pending_verification" | "confirmed";
+
+/**
+ * Interprets the JSON returned by the `submit_self_attendance` RPC.
+ * `already_present` short-circuits everything else so a duplicate submission can
+ * never overwrite an administrator's verification.
+ */
+export function describeSelfCheckinResult(result: unknown): SelfCheckinOutcome {
+  if (!result || typeof result !== "object") return "pending_verification";
+  const res = result as Record<string, unknown>;
+  if (res.already_present === true) return "already_present";
+  if (res.verification_pending === false) return "confirmed";
+  return "pending_verification";
+}
+
 /**
  * Supportive check-in message template for seniors who missed multiple sessions.
  * Conforms to Doc Tab 08: supportive, friendly, never punitive or guilt-driven.
