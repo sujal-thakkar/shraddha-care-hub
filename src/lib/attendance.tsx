@@ -154,7 +154,7 @@ export function generateSupportiveAbsenceMessage(
   sessionTitle: string = "Hosla & Shraddha Sessions",
   daysAbsent?: number,
 ): string {
-  const greeting = memberName ? `Dear ${memberName} ji,` : "Dear Friend,";
+  const greeting = memberName ? `Dear ${memberName},` : "Dear Friend,";
   return `${greeting}
 
 We noticed you haven't been able to join our ${sessionTitle} recently. 
@@ -163,7 +163,7 @@ We truly miss your warm presence and smiles in our circle! We hope you are keepi
 
 Looking forward to seeing you soon!
 With warm regards and best wishes,
-Hosla & Shraddha Care Hub Team 🌸`;
+Hosla & Shraddha Care Hub Team.`;
 }
 
 /** Local storage key for offline pending attendance records */
