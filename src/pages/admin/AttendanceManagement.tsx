@@ -19,29 +19,92 @@ import {
 } from "@/lib/attendance";
 import { WEEK_DAYS, getISTNow, formatTime12, timeToMinutes, type RoutineSession } from "@/lib/routine";
 import {
-  getAnalyticsRange,
-  isActiveParticipation,
+  buildTrendSeries,
+  filterAttendanceByRange,
+  getGranularityRange,
+  shiftReference,
   summarizeParticipation,
+  summarizeRoleDistribution,
   summarizeSessions,
   type AnalyticsAttendanceRecord,
-  type AnalyticsPeriod,
+  type AnalyticsRange,
+  type PeriodGranularity,
 } from "@/lib/attendance-analytics";
+import { cn } from "@/lib/utils";
 import {
   Users, CheckCircle2, XCircle, HelpCircle, Clock, Calendar, QrCode, Search,
   Download, Plus, Sparkles, MessageCircle, BarChart3, AlertCircle, ArrowUpDown,
-  Filter, CheckCheck, Loader2, UserPlus, Flame, Award, Globe, Smartphone, Smile, MapPin, CalendarDays, RotateCcw, Trash2
+  Filter, CheckCheck, Loader2, UserPlus, Flame, Award, Globe, Smartphone, Smile, MapPin, CalendarDays, RotateCcw, Trash2,
+  ChevronLeft, ChevronRight
 } from "lucide-react";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend
 } from "recharts";
 
-const CHART_COLORS = ["#10b981", "#3b82f6", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4"];
+const CHART_COLORS = ["#10b981", "#3b82f6", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4", "#14b8a6", "#f43f5e"];
+
+const GRANULARITY_OPTIONS: { value: PeriodGranularity; label: string }[] = [
+  { value: "day", label: "Day" },
+  { value: "week", label: "Week" },
+  { value: "month", label: "Month" },
+  { value: "year", label: "Year" },
+];
 
 interface AdminAnalyticsData {
-  trendRecords: AnalyticsAttendanceRecord[];
+  attendanceRecords: AnalyticsAttendanceRecord[];
   topMembers: any[];
-  sessionStats: AnalyticsAttendanceRecord[];
+}
+
+/** Keeps a granularity + reference date and derives the calendar range. */
+function usePeriod(initial: PeriodGranularity) {
+  const [granularity, setGranularity] = useState<PeriodGranularity>(initial);
+  const [reference, setReference] = useState<Date>(() => new Date());
+  const range = useMemo(() => getGranularityRange(granularity, reference), [granularity, reference]);
+  const shift = (steps: number) => setReference((prev) => shiftReference(granularity, prev, steps));
+  return { granularity, setGranularity, range, shift };
+}
+
+/** Day/Week/Month/Year switcher with previous/next navigation. */
+function PeriodPicker({
+  granularity, setGranularity, range, shift, className,
+}: {
+  granularity: PeriodGranularity;
+  setGranularity: (granularity: PeriodGranularity) => void;
+  range: AnalyticsRange;
+  shift: (steps: number) => void;
+  className?: string;
+}) {
+  return (
+    <div className={cn("flex flex-wrap items-center gap-2", className)}>
+      <div className="flex rounded-xl bg-muted p-1">
+        {GRANULARITY_OPTIONS.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            onClick={() => setGranularity(option.value)}
+            className={cn(
+              "px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors",
+              granularity === option.value
+                ? "bg-white dark:bg-card shadow-sm text-primary"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+      <div className="flex items-center gap-1">
+        <Button type="button" variant="outline" size="icon" className="h-8 w-8 rounded-lg" onClick={() => shift(-1)} aria-label="Previous period">
+          <ChevronLeft className="w-4 h-4" />
+        </Button>
+        <span className="min-w-[112px] text-center text-xs font-semibold text-foreground">{range.label}</span>
+        <Button type="button" variant="outline" size="icon" className="h-8 w-8 rounded-lg" onClick={() => shift(1)} aria-label="Next period">
+          <ChevronRight className="w-4 h-4" />
+        </Button>
+      </div>
+    </div>
+  );
 }
 
 // The generated Supabase types will include this table after the migration is synced.
@@ -63,7 +126,6 @@ export default function AdminAttendance() {
   const [selectedSessionId, setSelectedSessionId] = useState<string>("");
   const [eventMode, setEventMode] = useState<"online" | "offline">("online");
   const [activeTab, setActiveTab] = useState<string>("roster");
-  const [analyticsPeriod, setAnalyticsPeriod] = useState<AnalyticsPeriod>("this_week");
   const [resetAnalyticsOpen, setResetAnalyticsOpen] = useState(false);
   const [resetScope, setResetScope] = useState<"selected_session" | "selected_sessions" | "date_all" | "demo_records" | "all_attendance">("selected_session");
   const [resetSessionIds, setResetSessionIds] = useState<string[]>([]);
@@ -749,113 +811,95 @@ export default function AdminAttendance() {
   const { data: analyticsData } = useQuery<AdminAnalyticsData>({
     queryKey: ["admin-attendance-analytics"],
     queryFn: async (): Promise<AdminAnalyticsData> => {
-      const { data: trendRecords } = await supabase
+      const { data: attendanceRecords } = await supabase
         .from("attendance_records")
-        .select("session_date, participation_role, attendance_status")
+        .select("session_date, session_title, participation_role, checkin_time, created_at")
         .eq("attendance_status", "present");
 
-      // 2. Leaderboard: Get member credits sum for top contributors
       const { data: topMembers } = await supabase
         .from("member_credit_ledger")
         .select("user_id, credits, created_at, profiles(full_name, membership_id, avatar_url)");
 
-      // 3. Session popularity and participation distribution
-      const { data: sessionStats } = await supabase
-        .from("attendance_records")
-        .select("session_date, session_title, participation_role, attendance_status")
-        .eq("attendance_status", "present");
-
       return {
-        trendRecords: trendRecords || [],
-        topMembers: topMembers || [],
-        sessionStats: (sessionStats || []).map((record) => ({
-          session_date: String((record as { session_date?: string }).session_date ?? ""),
+        attendanceRecords: (attendanceRecords || []).map((record) => ({
+          session_date: String(record.session_date ?? ""),
           session_title: record.session_title,
           participation_role: record.participation_role,
+          checkin_time: record.checkin_time,
+          created_at: record.created_at,
         })),
+        topMembers: topMembers || [],
       };
-    }
+    },
   });
 
-  const analyticsRange = useMemo(() => getAnalyticsRange(analyticsPeriod), [analyticsPeriod]);
-  const periodAttendance = useMemo<AnalyticsAttendanceRecord[]>(() => {
-    const records = analyticsData?.sessionStats || [];
-    return records.filter((record) => record.session_date >= analyticsRange.startDate && record.session_date <= analyticsRange.endDate);
-  }, [analyticsData?.sessionStats, analyticsRange]);
+  // Independent period controls so each section can be read on its own window.
+  const chartPeriod = usePeriod("week");
+  const leaderboardPeriod = usePeriod("month");
+  const sessionPeriod = usePeriod("month");
 
-  const trendsData = useMemo(() => {
-    const start = new Date(`${analyticsRange.startDate}T00:00:00`);
-    const end = new Date(`${analyticsRange.endDate}T00:00:00`);
-    const d = [];
-    const monthView = analyticsRange.bucket === "month";
-    const bucketCount = monthView
-      ? end.getMonth() - start.getMonth() + 1 + (end.getFullYear() - start.getFullYear()) * 12
-      : Math.round((end.getTime() - start.getTime()) / 86400000) + 1;
+  const analyticsRecords = analyticsData?.attendanceRecords || [];
 
-    for (let i = 0; i < bucketCount; i++) {
-      const dateObj = new Date();
-      if (monthView) {
-        dateObj.setFullYear(start.getFullYear(), start.getMonth() + i, 1);
-      } else {
-        dateObj.setTime(start.getTime() + i * 86400000);
-      }
-      const str = monthView
-        ? dateObj.toLocaleDateString("en-IN", { month: "short", year: "2-digit" })
-        : dateObj.toLocaleDateString("en-IN", { weekday: "short", day: "numeric" });
-      
-      const bucketRecords = (analyticsData?.trendRecords || []).filter((record: any) => {
-        if (monthView) return record.session_date.startsWith(`${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}`);
-        return record.session_date === `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
-      });
-      const performers = bucketRecords.filter((record: any) => isActiveParticipation(record.participation_role)).length;
-      
-      d.push({
-        day: str,
-        listeners: bucketRecords.length - performers,
-        performers,
-        total: bucketRecords.length,
-      });
-    }
-    return d;
-  }, [analyticsData?.trendRecords, analyticsRange]);
+  // Charts (trend + role distribution)
+  const trendData = useMemo(
+    () => buildTrendSeries(analyticsRecords, chartPeriod.range),
+    [analyticsRecords, chartPeriod.range],
+  );
 
-  const roleDistributionData = useMemo(() => {
-    const { listeners, activeRoles } = summarizeParticipation(periodAttendance);
+  const chartSummary = useMemo(() => {
+    const records = filterAttendanceByRange(analyticsRecords, chartPeriod.range);
+    const { listeners, activeRoles } = summarizeParticipation(records);
+    return { total: records.length, listeners, activeRoles };
+  }, [analyticsRecords, chartPeriod.range]);
 
-    return [
-      { name: "Listeners", value: listeners },
-      { name: "Active roles", value: activeRoles },
-    ].filter((item) => item.value > 0);
-  }, [periodAttendance]);
+  const roleDistributionData = useMemo(
+    () =>
+      summarizeRoleDistribution(filterAttendanceByRange(analyticsRecords, chartPeriod.range)).map((entry) => ({
+        name: ROLE_LABELS[entry.role as ParticipationRole]?.label || entry.role,
+        value: entry.value,
+      })),
+    [analyticsRecords, chartPeriod.range],
+  );
 
-  // Leaderboard logic
+  const roleDistributionTotal = useMemo(
+    () => roleDistributionData.reduce((sum, entry) => sum + entry.value, 0),
+    [roleDistributionData],
+  );
+
+  // Leaderboard logic (calendar-window filtered)
   const leaderboard = useMemo(() => {
     if (!analyticsData?.topMembers) return [];
-    const memberMap = new Map();
+    const memberMap = new Map<string, { user_id: string; name: string; id: string; credits: number }>();
     analyticsData.topMembers
-      .filter((entry: any) => !entry.created_at || (entry.created_at.slice(0, 10) >= analyticsRange.startDate && entry.created_at.slice(0, 10) <= analyticsRange.endDate))
+      .filter(
+        (entry: any) =>
+          !entry.created_at ||
+          (entry.created_at.slice(0, 10) >= leaderboardPeriod.range.startDate &&
+            entry.created_at.slice(0, 10) <= leaderboardPeriod.range.endDate),
+      )
       .forEach((entry: any) => {
-      if (!entry.user_id) return;
-      if (!memberMap.has(entry.user_id)) {
-        memberMap.set(entry.user_id, {
-          user_id: entry.user_id,
-          name: entry.profiles?.full_name || "Unknown",
-          id: entry.profiles?.membership_id || "-",
-          credits: 0
-        });
-      }
-      memberMap.get(entry.user_id).credits += entry.credits;
+        if (!entry.user_id) return;
+        if (!memberMap.has(entry.user_id)) {
+          memberMap.set(entry.user_id, {
+            user_id: entry.user_id,
+            name: entry.profiles?.full_name || "Unknown",
+            id: entry.profiles?.membership_id || "-",
+            credits: 0,
+          });
+        }
+        memberMap.get(entry.user_id)!.credits += entry.credits;
       });
-    
+
     return Array.from(memberMap.values())
       .sort((a, b) => b.credits - a.credits)
       .slice(0, 5);
-  }, [analyticsData?.topMembers, analyticsRange]);
+  }, [analyticsData?.topMembers, leaderboardPeriod.range]);
 
   // Session Popularity logic
-  const topSessions = useMemo(() => {
-    return summarizeSessions(periodAttendance);
-  }, [periodAttendance]);
+  const topSessions = useMemo(
+    () => summarizeSessions(filterAttendanceByRange(analyticsRecords, sessionPeriod.range)),
+    [analyticsRecords, sessionPeriod.range],
+  );
 
   return (
     <div className="space-y-6">
@@ -1397,21 +1441,13 @@ export default function AdminAttendance() {
         <TabsContent value="analytics" className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h2 className="text-base font-bold">Engagement period</h2>
-              <p className="text-xs text-muted-foreground">Compare attendance and participation over a consistent time window.</p>
+              <h2 className="text-base font-bold">Engagement Analytics</h2>
+              <p className="text-xs text-muted-foreground">
+                Pick a day, week, month, or calendar year to compare attendance and participation in the charts below.
+              </p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Select value={analyticsPeriod} onValueChange={(value) => setAnalyticsPeriod(value as AnalyticsPeriod)}>
-                <SelectTrigger className="w-full sm:w-44 rounded-xl">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="today">Today</SelectItem>
-                  <SelectItem value="this_week">This week</SelectItem>
-                  <SelectItem value="last_month">Last month</SelectItem>
-                  <SelectItem value="this_year">This year</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+              <PeriodPicker {...chartPeriod} />
               <Button variant="outline" className="rounded-xl text-destructive border-destructive/30" onClick={() => setResetAnalyticsOpen(true)}>
                 <RotateCcw className="w-4 h-4 mr-2" />
                 Reset data
@@ -1428,56 +1464,71 @@ export default function AdminAttendance() {
                   Attendance Volume Trend
                 </CardTitle>
                 <CardDescription className="text-xs">
-                  Listeners and active performers for the selected period
+                  Every present check-in split into listeners and active roles, bucketed by{" "}
+                  {chartPeriod.range.bucket === "hour" ? "hour" : chartPeriod.range.bucket === "month" ? "month" : "day"}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="h-72 pt-4">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={trendsData}>
-                    <defs>
-                      <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                      </linearGradient>
-                      <linearGradient id="colorPerformers" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#f59e0b" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.2} />
-                    <XAxis dataKey="day" fontSize={11} stroke="#888888" />
-                    <YAxis fontSize={11} stroke="#888888" />
-                    <Tooltip />
-                    <Area type="monotone" dataKey="total" name="Total Attendance" stroke="#10b981" fillOpacity={1} fill="url(#colorTotal)" />
-                    <Area type="monotone" dataKey="performers" name="Active Performers" stroke="#f59e0b" fillOpacity={1} fill="url(#colorPerformers)" />
-                  </AreaChart>
-                </ResponsiveContainer>
+              <CardContent className="pt-2">
+                <div className="flex flex-wrap gap-2 pb-3">
+                  <Badge variant="outline" className="rounded-lg border-primary/20 bg-primary/5 text-primary font-semibold">
+                    {chartSummary.total} present
+                  </Badge>
+                  <Badge variant="outline" className="rounded-lg border-blue-200 bg-blue-50 text-blue-700 font-semibold dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-300">
+                    {chartSummary.listeners} listeners
+                  </Badge>
+                  <Badge variant="outline" className="rounded-lg border-amber-200 bg-amber-50 text-amber-700 font-semibold dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300">
+                    {chartSummary.activeRoles} active roles
+                  </Badge>
+                </div>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={trendData} margin={{ top: 4, right: 8, left: -18, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="colorListeners" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.75}/>
+                          <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.05}/>
+                        </linearGradient>
+                        <linearGradient id="colorPerformers" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.85}/>
+                          <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.05}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.2} />
+                      <XAxis dataKey="label" fontSize={11} stroke="#888888" tickMargin={8} minTickGap={12} />
+                      <YAxis fontSize={11} stroke="#888888" allowDecimals={false} width={36} />
+                      <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12 }} />
+                      <Legend wrapperStyle={{ fontSize: 12 }} />
+                      <Area type="monotone" dataKey="listeners" name="Listeners" stackId="1" stroke="#3b82f6" strokeWidth={2} fill="url(#colorListeners)" />
+                      <Area type="monotone" dataKey="performers" name="Active roles" stackId="1" stroke="#f59e0b" strokeWidth={2} fill="url(#colorPerformers)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
               </CardContent>
             </Card>
 
             {/* Donut Chart: Role Distribution */}
             <Card className="shadow-sm rounded-2xl">
               <CardHeader className="pb-2">
-                <CardTitle className="text-base font-bold">Participation Distribution</CardTitle>
-                <CardDescription className="text-xs">Listeners vs Active Role contributors</CardDescription>
+                <CardTitle className="text-base font-bold">Participation by Role</CardTitle>
+                <CardDescription className="text-xs">Every present check-in grouped by the role they played</CardDescription>
               </CardHeader>
-              <CardContent className="h-72 pt-2">
+              <CardContent className="pt-2">
                 {roleDistributionData.length === 0 ? (
-                  <div className="h-full flex items-center justify-center text-center text-sm text-muted-foreground">
+                  <div className="h-64 flex items-center justify-center text-center text-sm text-muted-foreground">
                     Participation data will appear after a present record is saved.
                   </div>
                 ) : (
                   <>
-                    <div className="h-52 w-full min-w-0">
+                    <div className="relative h-48 w-full min-w-0">
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                           <Pie
                             data={roleDistributionData}
                             cx="50%"
                             cy="50%"
-                            innerRadius={50}
-                            outerRadius={75}
-                            paddingAngle={5}
+                            innerRadius={48}
+                            outerRadius={72}
+                            paddingAngle={3}
                             dataKey="value"
                             nameKey="name"
                           >
@@ -1485,15 +1536,20 @@ export default function AdminAttendance() {
                               <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                             ))}
                           </Pie>
-                          <Tooltip />
+                          <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12 }} />
                         </PieChart>
                       </ResponsiveContainer>
+                      <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                        <span className="text-xl font-extrabold text-foreground">{roleDistributionTotal}</span>
+                        <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Check-ins</span>
+                      </div>
                     </div>
-                    <div className="flex justify-center gap-4 text-xs font-semibold pt-2">
+                    <div className="flex flex-wrap justify-center gap-x-4 gap-y-1.5 text-xs font-semibold pt-1">
                       {roleDistributionData.map((entry, index) => (
                         <div key={entry.name} className="flex items-center gap-1.5">
-                          <span className="w-3 h-3 rounded-full" style={{ backgroundColor: CHART_COLORS[index] }} />
-                          <span>{entry.name} ({entry.value})</span>
+                          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }} />
+                          <span className="text-muted-foreground">{entry.name}</span>
+                          <span className="text-foreground">{entry.value}</span>
                         </div>
                       ))}
                     </div>
@@ -1510,38 +1566,56 @@ export default function AdminAttendance() {
             {/* Top Contributors Leaderboard */}
             <Card className="shadow-sm rounded-2xl">
               <CardHeader className="pb-2">
-                <CardTitle className="text-base font-bold flex items-center gap-2">
-                  <Award className="w-4 h-4 text-primary" />
-                  Top Contributors Leaderboard
-                </CardTitle>
-                <CardDescription className="text-xs">Members with the most engagement credits</CardDescription>
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                  <div>
+                    <CardTitle className="text-base font-bold flex items-center gap-2">
+                      <Award className="w-4 h-4 text-primary" />
+                      Top Contributors Leaderboard
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      Most engagement credits · {leaderboardPeriod.range.label}
+                    </CardDescription>
+                  </div>
+                  <PeriodPicker {...leaderboardPeriod} />
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4 mt-2">
                   {leaderboard.length === 0 ? (
-                    <div className="text-sm text-muted-foreground text-center py-4">No credits awarded yet.</div>
+                    <div className="text-sm text-muted-foreground text-center py-4">No credits awarded in this period.</div>
                   ) : (
-                    leaderboard.map((member, idx) => (
-                      <div key={member.user_id} className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
-                            idx === 0 ? "bg-amber-100 text-amber-600" :
-                            idx === 1 ? "bg-slate-100 text-slate-600" :
-                            idx === 2 ? "bg-orange-100 text-orange-600" :
-                            "bg-primary/10 text-primary"
-                          }`}>
-                            {idx + 1}
+                    leaderboard.map((member, idx) => {
+                      const topCredits = leaderboard[0]?.credits || 1;
+                      return (
+                        <div key={member.user_id} className="space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className={`w-7 h-7 shrink-0 rounded-full flex items-center justify-center text-xs font-bold ${
+                                idx === 0 ? "bg-amber-100 text-amber-600" :
+                                idx === 1 ? "bg-slate-100 text-slate-600" :
+                                idx === 2 ? "bg-orange-100 text-orange-600" :
+                                "bg-primary/10 text-primary"
+                              }`}>
+                                {idx + 1}
+                              </div>
+                              <div className="min-w-0">
+                                <div className="text-sm font-semibold truncate">{member.name}</div>
+                                <div className="text-[10px] text-muted-foreground">{member.id}</div>
+                              </div>
+                            </div>
+                            <Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-none font-bold shrink-0">
+                              {member.credits} pts
+                            </Badge>
                           </div>
-                          <div>
-                            <div className="text-sm font-semibold">{member.name}</div>
-                            <div className="text-[10px] text-muted-foreground">{member.id}</div>
+                          <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                            <div
+                              className="h-full rounded-full bg-gradient-to-r from-primary/70 to-primary"
+                              style={{ width: `${Math.round((member.credits / topCredits) * 100)}%` }}
+                            />
                           </div>
                         </div>
-                        <Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-none font-bold">
-                          {member.credits} pts
-                        </Badge>
-                      </div>
-                    ))
+                      );
+                    })
                   )}
                 </div>
               </CardContent>
@@ -1550,26 +1624,44 @@ export default function AdminAttendance() {
             {/* Popular Sessions */}
             <Card className="shadow-sm rounded-2xl">
               <CardHeader className="pb-2">
-                <CardTitle className="text-base font-bold flex items-center gap-2">
-                  <Flame className="w-4 h-4 text-orange-500" />
-                  Session Popularity
-                </CardTitle>
-                <CardDescription className="text-xs">Highest all-time attendance by session</CardDescription>
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                  <div>
+                    <CardTitle className="text-base font-bold flex items-center gap-2">
+                      <Flame className="w-4 h-4 text-orange-500" />
+                      Session Popularity
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      Highest attendance by session · {sessionPeriod.range.label}
+                    </CardDescription>
+                  </div>
+                  <PeriodPicker {...sessionPeriod} />
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4 mt-2">
                   {topSessions.length === 0 ? (
                     <div className="text-sm text-muted-foreground text-center py-4">No session data available.</div>
                   ) : (
-                    topSessions.map((sess, idx) => (
-                      <div key={idx} className="flex items-center justify-between">
-                        <div className="text-sm font-medium">{sess.name}</div>
-                        <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
-                          <Users className="w-3.5 h-3.5" />
-                          {sess.attendees}
+                    topSessions.map((sess, idx) => {
+                      const maxAttendees = topSessions[0]?.attendees || 1;
+                      return (
+                        <div key={idx} className="space-y-1.5">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="font-medium truncate pr-3">{sess.name}</span>
+                            <span className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground shrink-0">
+                              <Users className="w-3.5 h-3.5" />
+                              {sess.attendees}
+                            </span>
+                          </div>
+                          <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                            <div
+                              className="h-full rounded-full bg-gradient-to-r from-orange-400 to-orange-500"
+                              style={{ width: `${Math.round((sess.attendees / maxAttendees) * 100)}%` }}
+                            />
+                          </div>
                         </div>
-                      </div>
-                    ))
+                      );
+                    })
                   )}
                 </div>
               </CardContent>
