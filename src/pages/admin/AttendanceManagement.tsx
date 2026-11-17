@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -392,6 +392,22 @@ export default function AdminAttendance() {
       totalCredits,
     };
   }, [fullRoster]);
+
+  // Notify the admin once per session when QR/link self check-ins await verification.
+  const pendingNotifiedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (counts.pending <= 0) {
+      pendingNotifiedRef.current = null;
+      return;
+    }
+    const key = `${selectedDate}:${selectedSessionId}`;
+    if (pendingNotifiedRef.current === key) return;
+    pendingNotifiedRef.current = key;
+    toast({
+      title: `${counts.pending} attendance verification${counts.pending === 1 ? "" : "s"} pending`,
+      description: "Members marked themselves present via QR or link. Open the Pending filter to verify.",
+    });
+  }, [counts.pending, selectedDate, selectedSessionId, toast]);
 
   // Mark status action
   const markStatusMutation = useMutation({
@@ -1124,13 +1140,18 @@ export default function AdminAttendance() {
                   key={st}
                   type="button"
                   onClick={() => setStatusFilter(st)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-colors ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-colors flex items-center gap-1.5 ${
                     statusFilter === st
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
                   }`}
                 >
                   {st}
+                  {st === "pending" && counts.pending > 0 && (
+                    <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-amber-500 text-white text-[10px] font-bold leading-none">
+                      {counts.pending}
+                    </span>
+                  )}
                 </button>
               ))}
             </div>
