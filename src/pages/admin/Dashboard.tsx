@@ -93,6 +93,7 @@ export default function AdminDashboard() {
     { icon: Heart, label: "Donations", path: "/admin/dashboard/donations" },
     { icon: CalendarDays, label: "Events", path: "/admin/dashboard/events" },
     { icon: CalendarClock, label: "Daily Routine", path: "/admin/dashboard/routine" },
+    { icon: BookOpen, label: "Study Circle", path: "/admin/dashboard/study-circle" },
     { icon: CheckCheck, label: "Attendance & Credits", path: "/admin/dashboard/attendance" },
     { icon: ClipboardList, label: "Event Registrations", path: "/admin/dashboard/registrations" },
     { icon: IdCard, label: "Members & Fees", path: "/admin/dashboard/members" },

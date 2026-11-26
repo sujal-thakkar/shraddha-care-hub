@@ -9,6 +9,7 @@ import {
 import { Link } from "react-router-dom";
 import { Clock, MapPin, Radio, Loader2, CalendarDays, Sun, UserCheck } from "lucide-react";
 import { JoinButtons } from "@/components/routine/JoinButtons";
+import { StudyCircleCTA } from "@/components/studycircle/StudyCircleCTA";
 import {
   WEEK_DAYS, DAY_LABEL, getISTNow, formatTime12, getLiveSessionIds, getNextSessionIds,
   hasJoinLink, timeToMinutes, type RoutineSession,
@@ -112,6 +113,13 @@ export default function DailyRoutine() {
               instantly — no scrolling or guesswork needed.
             </p>
           </ScrollReveal>
+        </div>
+      </section>
+
+      {/* Study Circle CTA — performer schedule for each program */}
+      <section className="pt-8 lg:pt-12">
+        <div className="container max-w-5xl">
+          <StudyCircleCTA />
         </div>
       </section>
 
