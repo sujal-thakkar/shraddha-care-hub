@@ -109,10 +109,10 @@ function SessionCard({
       onClick={onSelect}
       aria-pressed={active}
       className={cn(
-        "sc-card group relative flex w-full items-center gap-3 overflow-hidden rounded-2xl border bg-card/95 p-3 text-left sm:p-4",
+        "sc-card sc-poster-card group relative flex w-full items-center gap-3 overflow-hidden rounded-2xl border bg-card p-3 text-left sm:p-4",
         "border-amber-200/60 dark:border-amber-900/40",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2",
-        active && "sc-card-active",
+        active && "sc-card-active sc-poster-card-active",
         cancelled && "opacity-60 grayscale",
       )}
     >
@@ -125,9 +125,9 @@ function SessionCard({
         aria-hidden="true"
         loading="lazy"
         decoding="async"
-        className="pointer-events-none absolute right-0 top-0 z-[1] h-full w-40 object-cover object-center opacity-20"
+        className="sc-poster-image pointer-events-none absolute inset-0 z-[1] h-full w-full object-cover object-center"
       />
-      <span className="pointer-events-none absolute inset-y-0 right-0 z-[2] w-2/3 bg-gradient-to-l from-card/10 via-card/40 to-card/95" aria-hidden="true" />
+      <span className="sc-poster-wash pointer-events-none absolute inset-0 z-[2]" aria-hidden="true" />
 
       {/* Subtle mandala watermark */}
       <MandalaOverlay className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 text-amber-600/10 dark:text-amber-400/10" />
@@ -357,16 +357,16 @@ export default function StudyCircle() {
                   <Accordion type="single" collapsible className="rounded-2xl border border-amber-200/60 bg-card/80 px-4 backdrop-blur dark:border-amber-900/40">
                     {past.map((s: StudyCircleSession) => (
                       <AccordionItem key={s.id} value={s.id}>
-                        <AccordionTrigger className="relative overflow-hidden text-left [&>svg]:relative [&>svg]:z-10">
+                        <AccordionTrigger className="sc-poster-card relative isolate overflow-hidden rounded-lg px-3 text-left [&>svg]:relative [&>svg]:z-10">
                           <img
                             src={STUDY_CIRCLE_POSTERS[s.program_type]}
                             alt=""
                             aria-hidden="true"
                             loading="lazy"
                             decoding="async"
-                            className="pointer-events-none absolute right-0 top-0 z-0 h-full w-40 object-cover object-center opacity-15"
+                            className="sc-poster-image pointer-events-none absolute inset-0 z-0 h-full w-full object-cover object-center"
                           />
-                          <span className="pointer-events-none absolute inset-y-0 right-0 z-[1] w-2/3 bg-gradient-to-l from-background/10 via-background/40 to-background/95" aria-hidden="true" />
+                          <span className="sc-poster-wash pointer-events-none absolute inset-0 z-[1]" aria-hidden="true" />
                           <span className="relative z-10 flex flex-col items-start gap-0.5">
                             <span className="flex items-center gap-2">
                               <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-bold", PROGRAMS[s.program_type].accent.chipBg, PROGRAMS[s.program_type].accent.chipText)}>

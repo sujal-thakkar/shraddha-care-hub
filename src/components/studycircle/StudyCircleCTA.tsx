@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { ArrowRight, CalendarDays, Clock, Loader2, BookOpen } from "lucide-react";
 import { useI18n } from "@/i18n";
 import { cn } from "@/lib/utils";
-import heroImg from "@/assets/study-circle-hero.png";
 import { STUDY_CIRCLE_POSTERS } from "@/components/studycircle/posters";
 import {
   listPublishedSessions,
@@ -48,17 +47,28 @@ export function StudyCircleCTA() {
 
   return (
     <div className="sc-divine-vignette relative isolate overflow-hidden rounded-3xl border border-amber-200/70 bg-card/95 p-4 shadow-lg backdrop-blur dark:border-amber-900/50 sm:p-6">
-      <img
-        src={heroImg}
-        alt=""
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-10 -top-8 h-40 w-56 object-cover opacity-[0.07] mix-blend-multiply dark:mix-blend-screen"
-      />
       <div className="relative z-10 mb-4 flex items-center gap-2">
         <BookOpen className="h-5 w-5 text-amber-700 dark:text-amber-300" />
         <h2 className="font-serif text-lg font-bold text-foreground sm:text-xl">
           {lang === "bn" ? "আসন্ন পাঠচক্র সেশন" : "Upcoming Study Circle Sessions"}
         </h2>
+      </div>
+
+      <div className="sc-poster-showcase relative z-10 mb-4 grid grid-cols-2 gap-3">
+        {(["kathamrita", "pathochokro"] as const).map((program) => (
+          <div
+            key={program}
+            className="sc-poster-tile relative overflow-hidden rounded-xl border border-amber-200/70 bg-amber-50/70 p-1.5 dark:border-amber-800/50 dark:bg-amber-950/20"
+          >
+            <img
+              src={STUDY_CIRCLE_POSTERS[program]}
+              alt={lang === "bn" ? `${PROGRAMS[program].labelBn} পাঠচক্রের পোস্টার` : `${PROGRAMS[program].label} study circle poster`}
+              loading="lazy"
+              decoding="async"
+              className="h-auto max-h-28 w-full rounded-lg object-contain sm:max-h-36"
+            />
+          </div>
+        ))}
       </div>
 
       {isLoading ? (
@@ -79,7 +89,7 @@ export function StudyCircleCTA() {
                 key={s.id}
                 to={`/daily-routine/study-circle?session=${encodeURIComponent(s.id)}`}
                 className={cn(
-                  "sc-card group relative isolate flex items-center gap-3 overflow-hidden rounded-2xl border border-amber-200/60 bg-background/95 p-3 hover:border-amber-400/70 dark:border-amber-900/50 dark:bg-background/90 sm:p-4",
+                  "sc-card sc-poster-card group relative isolate flex items-center gap-3 overflow-hidden rounded-2xl border border-amber-200/60 bg-background p-3 hover:border-amber-400/70 dark:border-amber-900/50 sm:p-4",
                   cancelled && "opacity-60",
                 )}
               >
@@ -90,9 +100,9 @@ export function StudyCircleCTA() {
                   aria-hidden="true"
                   loading="lazy"
                   decoding="async"
-                  className="pointer-events-none absolute right-0 top-0 z-[1] h-full w-36 object-cover object-center opacity-20"
+                  className="sc-poster-image pointer-events-none absolute inset-0 z-[1] h-full w-full object-cover object-center"
                 />
-                <span className="pointer-events-none absolute inset-y-0 right-0 z-[2] w-2/3 bg-gradient-to-l from-background/10 via-background/40 to-background/95" aria-hidden="true" />
+                <span className="sc-poster-wash pointer-events-none absolute inset-0 z-[2]" aria-hidden="true" />
                 <div className={cn("relative z-10 flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-lg", cfg.accent.chipBg, cfg.accent.chipText)}>
                   <span className="text-[10px] font-bold uppercase leading-none">
                     {formatSessionDayOfMonth(s.scheduled_date, lang)}

@@ -40,7 +40,7 @@ export function SessionViewer({ bundle, lang = "en" }: SessionViewerProps) {
       {/* Session card */}
       <div
         className={cn(
-          "sc-divine-vignette relative isolate overflow-hidden rounded-2xl border p-5 shadow-sm transition-opacity lg:p-6",
+          "sc-card sc-poster-card sc-divine-vignette relative isolate overflow-hidden rounded-2xl border p-5 shadow-sm transition-opacity lg:p-6",
           session.status === "cancelled" ? "opacity-70 grayscale" : "",
           accent?.border,
           accent?.bg,
@@ -52,9 +52,9 @@ export function SessionViewer({ bundle, lang = "en" }: SessionViewerProps) {
           aria-hidden="true"
           loading="lazy"
           decoding="async"
-          className="pointer-events-none absolute right-0 top-0 h-full w-2/3 object-cover object-center opacity-15"
+          className="sc-poster-image pointer-events-none absolute inset-0 z-0 h-full w-full object-cover object-center"
         />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-background/30 dark:to-background/50" aria-hidden="true" />
+        <div className="sc-poster-wash pointer-events-none absolute inset-0 z-[1]" aria-hidden="true" />
         <div className="relative z-10 mb-2 flex flex-wrap items-center gap-2">
           <span className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold", accent?.chipBg, accent?.chipText)}>
             {programLabel(session.program_type, lang)}
